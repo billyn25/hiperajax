@@ -6497,3 +6497,137 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   document.addEventListener('DOMContentLoaded',()=>{setVersion409();setTimeout(setVersion409,150);});
   window.HX_APP_VERSION=HX_APP_VERSION_409;
 })();
+
+/* =====================================================
+   Hiper Ajax 4.0.10 - Revisión global del motor de búsqueda
+   - Las referencias exactas tienen prioridad absoluta.
+   - Una búsqueda de familia/referencia no mezcla familias por fragmentos
+     internos (KEYPADCOMBI ya no arrastra COMBIPROTECT).
+   - Expande automáticamente W/B de la misma referencia base.
+   - Se aplica al buscador principal y al Catálogo.
+   ===================================================== */
+(function(){
+  const HX_APP_VERSION_410='4.0.10';
+
+  function hxNorm410(v){
+    return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().trim();
+  }
+  function hxCompact410(v){ return hxNorm410(v).replace(/[^a-z0-9]+/g,''); }
+  function hxRef410(p){ return String((p&&p.name)||'').trim(); }
+  function hxFamilyKey410(p){
+    return hxRef410(p).toUpperCase()
+      .replace(/-(?:W|B)(?=-|$)/g,'')
+      .replace(/--+/g,'-').replace(/-$/,'').trim();
+  }
+  function hxColor410(p,q=''){
+    const r=hxRef410(p).toUpperCase(), n=hxNorm410(q);
+    const black=/(^|\s)(negro|black)(\s|$)|-b(?:-|$)/i.test(n);
+    if(black) return /-B(?:-|$)/.test(r)?0:/-W(?:-|$)/.test(r)?1:2;
+    return /-W(?:-|$)/.test(r)?0:/-B(?:-|$)/.test(r)?1:2;
+  }
+  function hxDirectReferenceMatches410(term){
+    const q=hxCompact410(term);
+    if(!q || q.length<4 || !Array.isArray(productos)) return [];
+    const matches=productos.map((p,i)=>{
+      const ref=hxRef410(p), c=hxCompact410(ref);
+      let score=0;
+      if(c===q) score=1000000;
+      else if(c.startsWith(q)) score=800000;
+      else if(c.includes(q)) score=650000;
+      else if(q.startsWith(c) && c.length>=6) score=500000;
+      if(score && /(?:dummy|lens|bracket|holder|cover|case)/i.test(ref) && !/(?:dummy|lens|bracket|holder|cover|case)/i.test(String(term||''))) score-=100000;
+      return {p,i,score};
+    }).filter(x=>x.score>0);
+    // Con una referencia exacta, no añadimos accesorios cuyo nombre solo
+    // empieza igual; las variantes W/B se recuperan después por familia.
+    const exact=matches.filter(x=>x.score===1000000);
+    return (exact.length?exact:matches)
+      .sort((a,b)=>b.score-a.score || hxRef410(a.p).localeCompare(hxRef410(b.p),'es',{numeric:true,sensitivity:'base'}));
+  }
+  function hxLooksReferenceLike410(term,direct){
+    const raw=String(term||'').trim();
+    const q=hxCompact410(raw);
+    if(!direct.length) return false;
+    if(/^aj[-_ ]/i.test(raw)) return true;
+    if(/[0-9]/.test(raw) || /[-_]/.test(raw)) return true;
+    // Nombres comerciales suficientemente específicos: keypadcombi,
+    // motioncamoutdoor, hub2plus, etc.
+    return q.length>=7;
+  }
+  function hxExpandAndOrder410(items,term=''){
+    if(!Array.isArray(items)||!items.length) return [];
+    const byFamily=new Map();
+    productos.forEach((p,i)=>{
+      const k=hxFamilyKey410(p);
+      if(!byFamily.has(k)) byFamily.set(k,[]);
+      byFamily.get(k).push({p,i});
+    });
+    const result=[], seen=new Set(), families=[];
+    items.forEach((x,pos)=>{
+      const p=x&&x.p?x.p:x, i=Number.isInteger(x&&x.i)?x.i:productos.indexOf(p);
+      const k=hxFamilyKey410(p);
+      if(!families.includes(k)) families.push(k);
+      const id=i>=0?'i'+i:'n'+hxRef410(p);
+      if(!seen.has(id)){ result.push({p,i,score:Number(x&&x.score)||0,__pos:pos}); seen.add(id); }
+    });
+    families.forEach(k=>{
+      const base=Math.max(0,...result.filter(x=>hxFamilyKey410(x.p)===k).map(x=>x.score));
+      (byFamily.get(k)||[]).forEach((v,n)=>{
+        const id='i'+v.i;
+        if(!seen.has(id)){ result.push({p:v.p,i:v.i,score:Math.max(1,base-(n+1)/1000),__pos:9999}); seen.add(id); }
+      });
+    });
+    const familyRank=new Map();
+    result.forEach((x,pos)=>{
+      const k=hxFamilyKey410(x.p), s=Number(x.score)||0;
+      const old=familyRank.get(k);
+      if(!old || s>old.score) familyRank.set(k,{score:s,pos});
+    });
+    return result.sort((a,b)=>{
+      const ka=hxFamilyKey410(a.p), kb=hxFamilyKey410(b.p);
+      if(ka!==kb){
+        const ra=familyRank.get(ka), rb=familyRank.get(kb);
+        return rb.score-ra.score || ra.pos-rb.pos || ka.localeCompare(kb,'es',{numeric:true,sensitivity:'base'});
+      }
+      return hxColor410(a.p,term)-hxColor410(b.p,term) ||
+        (Number(b.score)||0)-(Number(a.score)||0) ||
+        hxRef410(a.p).localeCompare(hxRef410(b.p),'es',{numeric:true,sensitivity:'base'});
+    }).map(({__pos,...x})=>x);
+  }
+  function hxFinalizeSearch410(baseFn,ctx,args,term){
+    const direct=hxDirectReferenceMatches410(term);
+    if(hxLooksReferenceLike410(term,direct)) return hxExpandAndOrder410(direct,term);
+    const base=baseFn.apply(ctx,args);
+    // Incluso en búsquedas generales, las coincidencias directas quedan delante.
+    const merged=[];
+    const seen=new Set();
+    [...direct,...(Array.isArray(base)?base:[])].forEach(x=>{
+      const p=x&&x.p?x.p:x, i=Number.isInteger(x&&x.i)?x.i:productos.indexOf(p);
+      const id=i>=0?'i'+i:'n'+hxRef410(p);
+      if(!seen.has(id)){ merged.push(x); seen.add(id); }
+    });
+    return hxExpandAndOrder410(merged,term);
+  }
+
+  if(typeof buscar==='function'){
+    const prev=buscar;
+    buscar=function(term){ return hxFinalizeSearch410(prev,this,arguments,term); };
+  }
+  if(typeof buscarCatalogo==='function'){
+    const prev=buscarCatalogo;
+    buscarCatalogo=function(term=''){
+      if(!String(term||'').trim()) return prev.apply(this,arguments);
+      return hxFinalizeSearch410(prev,this,arguments,term);
+    };
+  }
+
+  function setVersion410(){
+    document.querySelectorAll('.creator').forEach(el=>{
+      const t=`· Creado por David Corregidor · ${HX_APP_VERSION_410}`;
+      if(el.textContent!==t) el.textContent=t;
+    });
+  }
+  document.addEventListener('DOMContentLoaded',()=>{ setVersion410(); setTimeout(setVersion410,200); });
+  window.HX_APP_VERSION=HX_APP_VERSION_410;
+})();
