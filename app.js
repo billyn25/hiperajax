@@ -4880,7 +4880,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       return r;
     };
   }
-  document.addEventListener('DOMContentLoaded',()=>{ fixCatalogButtons207(); setTimeout(orderCatalogFilters207,50); document.querySelectorAll('.creator').forEach(el=>{ el.textContent='· Creado por David Corregidor · 4.0.7'; }); });
+  document.addEventListener('DOMContentLoaded',()=>{ fixCatalogButtons207(); setTimeout(orderCatalogFilters207,50); document.querySelectorAll('.creator').forEach(el=>{ el.textContent='· Creado por David Corregidor · 4.0.8'; }); });
 })();
 
 /* =====================================================
@@ -5134,7 +5134,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Soportes/JunctionBox en Accesorios.
    ===================================================== */
 (function(){
-  const VERSION_EXPLORE_211 = '4.0.7';
+  const VERSION_EXPLORE_211 = '4.0.8';
   function n211(s){ return normaliza(String(s||'')).replace(/[^a-z0-9]+/g,''); }
   function raw211(p){ return n211(p && p.name); }
   function has211(name, parts){ return parts.some(k=>name.includes(k)); }
@@ -5849,7 +5849,7 @@ function descripcionPdfCorta(linea){
    3.0.0 - versión única
    ===================================================== */
 (function(){
-  const APP_VERSION = '4.0.7';
+  const APP_VERSION = '4.0.8';
   function setAppVersion(){
     document.querySelectorAll('.creator').forEach(el=>{
       el.textContent = `· Creado por David Corregidor · ${APP_VERSION}`;
@@ -6348,13 +6348,13 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
 
 /* =====================================================
-   4.0.7 - Orden automático compartido de familias
+   4.0.8 - Orden automático compartido de familias (carga corregida)
    - Buscador inicial y catálogo: variantes W/B contiguas.
    - Mantiene la relevancia de cada familia y ordena sus variantes.
    - Si se busca negro/blanco, prioriza el color solicitado.
    ===================================================== */
 (function(){
-  const HX_APP_VERSION='4.0.7';
+  const HX_APP_VERSION='4.0.8';
   function hxFamilyKey407(product){
     return String((product&&product.name)||'').toUpperCase()
       .replace(/-(?:W|B)(?=-|$)/g,'')
@@ -6398,7 +6398,8 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
   function setVersion407(){
     document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent=`· Creado por David Corregidor · ${HX_APP_VERSION}`;
+      const versionText=`· Creado por David Corregidor · ${HX_APP_VERSION}`;
+      if(el.textContent !== versionText) el.textContent=versionText;
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{ setVersion407(); setTimeout(setVersion407,120); });
