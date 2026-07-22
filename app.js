@@ -803,16 +803,27 @@ function addLinea(){
   const term = ($('#buscador').value || '').trim();
   let idx = null;
 
-  if(term){
-    const act = $('.result-item.active');
-    if(act) idx = Number(act.dataset.index);
+  /* Una selección explícita siempre manda sobre una nueva búsqueda.
+     Antes se volvía a interpretar el texto visible y nombres como
+     "KeyPad Combi" podían terminar añadiendo "CombiProtect". */
+  const seleccionadoValido = Number.isInteger(seleccionado) && !!productos[seleccionado];
+  const coincideSeleccion = seleccionadoValido && normaliza(productos[seleccionado].name) === normaliza(term);
+
+  if(coincideSeleccion){
+    idx = seleccionado;
+  }else if($('#producto').value !== '' && productos[Number($('#producto').value)]){
+    idx = Number($('#producto').value);
+  }else if(term){
+    /* El resultado activo solo se usa mientras el panel está abierto;
+       evita reutilizar una fila activa antigua que ya está oculta. */
+    const panel = $('#resultados');
+    const act = panel && !panel.classList.contains('hidden') ? panel.querySelector('.result-item.active') : null;
+    if(act && productos[Number(act.dataset.index)]) idx = Number(act.dataset.index);
     else {
       const r = buscar(term);
       if(r.length) idx = r[0].i;
     }
-  }else if($('#producto').value !== ''){
-    idx = Number($('#producto').value);
-  }else{
+  }else if(seleccionadoValido){
     idx = seleccionado;
   }
 
@@ -6321,3 +6332,10 @@ escribirListaPresupuestos = function(){
 };
 
 document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
+
+
+/* =====================================================
+   PATCH v4.0.7 - Alta por selección exacta
+   - La referencia elegida no se vuelve a resolver por texto.
+   - Evita colisiones KeyPad Combi / CombiProtect y equivalentes.
+   ===================================================== */
