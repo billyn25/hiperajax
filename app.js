@@ -6064,14 +6064,23 @@ function hxSaveCatalogMeta(meta){
 function hxEnsureCatalogDiagnosticUI(){
   let status = document.getElementById('catalogHealth');
   if(!status){
-    status = document.createElement('button');
-    status.type = 'button';
+    // Se usa un span y no un botón para evitar estilos verdes globales.
+    // Solo se vuelve interactivo cuando existe una incidencia real.
+    status = document.createElement('span');
     status.id = 'catalogHealth';
     status.className = 'catalog-health is-checking';
-    status.textContent = 'Comprobando catálogo…';
-    status.addEventListener('click', ()=>{
+    status.hidden = true;
+    status.setAttribute('aria-live', 'polite');
+    const abrirDetalle = ()=>{
       const informe = window.HX_CATALOGO_DIAGNOSTICO;
       if(informe && informe.totalAvisos > 0) hxOpenCatalogDiagnostic();
+    };
+    status.addEventListener('click', abrirDetalle);
+    status.addEventListener('keydown', e=>{
+      if((e.key === 'Enter' || e.key === ' ') && status.getAttribute('role') === 'button'){
+        e.preventDefault();
+        abrirDetalle();
+      }
     });
     const preview = document.getElementById('previewProducto');
     if(preview && preview.parentNode) preview.insertAdjacentElement('afterend', status);
@@ -6209,20 +6218,28 @@ function hxDiagnosticarCatalogo(opciones={}){
   status.classList.remove('is-checking','is-ok','is-warn','is-error');
   status.removeAttribute('aria-disabled');
   status.removeAttribute('title');
-  status.tabIndex=0;
+  status.removeAttribute('role');
+  status.removeAttribute('tabindex');
+  status.hidden = false;
   if(!productos.length){
     status.classList.add('is-error');
-    status.textContent='Catálogo no cargado';
+    status.textContent='Error de catálogo';
     status.title='Ver el problema';
+    status.setAttribute('role','button');
+    status.tabIndex=0;
   }else if(totalAvisos){
     status.classList.add('is-warn');
-    status.textContent=`⚠ ${totalAvisos} aviso${totalAvisos===1?'':'s'} de precio`;
+    status.textContent=`⚠ Revisar precios (${totalAvisos})`;
     status.title='Ver diferencias detectadas';
+    status.setAttribute('role','button');
+    status.tabIndex=0;
   }else{
+    // Si todo está correcto no se añade ruido visual: queda únicamente
+    // el contador normal de productos cargados que ya muestra la app.
     status.classList.add('is-ok');
-    status.textContent='Catálogo correcto';
+    status.textContent='';
+    status.hidden = true;
     status.setAttribute('aria-disabled','true');
-    status.tabIndex=-1;
   }
 
   if(subtitle) subtitle.textContent=`${informe.productos} productos · cargado ${hxCatalogDate(cargadoEn)} · control ${fingerprint}`;
@@ -6277,7 +6294,9 @@ function hxDiagnosticarCatalogo(opciones={}){
 const cargarCatalogo_BASE_DIAGNOSTICO = cargarCatalogo;
 cargarCatalogo = async function(){
   const resultado = await cargarCatalogo_BASE_DIAGNOSTICO.apply(this, arguments);
-  hxDiagnosticarCatalogo({abrirSiHayAvisos:true,avisarToast:true});
+  // Al arrancar no se abre ningún modal ni toast. Si existen diferencias,
+  // queda visible el enlace ámbar para revisarlas cuando convenga.
+  hxDiagnosticarCatalogo({abrirSiHayAvisos:false,avisarToast:false});
   return resultado;
 };
 
