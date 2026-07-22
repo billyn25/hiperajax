@@ -6035,7 +6035,11 @@ function hxEnsureCatalogDiagnosticUI(){
     status.id = 'catalogHealth';
     status.className = 'catalog-health is-checking';
     status.textContent = 'Comprobando catálogo…';
-    status.addEventListener('click', hxOpenCatalogDiagnostic);
+    status.addEventListener('click', ()=>{
+      const informe = window.HX_CATALOGO_DIAGNOSTICO;
+      const tieneDetalle = !informe || informe.incidencias > 0 || informe.duplicados?.length > 0 || informe.productos === 0;
+      if(tieneDetalle) hxOpenCatalogDiagnostic();
+    });
     const preview = document.getElementById('previewProducto');
     if(preview && preview.parentNode) preview.insertAdjacentElement('afterend', status);
   }
@@ -6141,18 +6145,26 @@ function hxDiagnosticarCatalogo(){
   if(!status || !body) return informe;
 
   status.classList.remove('is-checking','is-ok','is-warn','is-error');
+  status.removeAttribute('aria-disabled');
+  status.tabIndex = 0;
+  status.removeAttribute('title');
   if(!productos.length){
     status.classList.add('is-error');
-    status.textContent = '⛔ Catálogo no cargado';
+    status.textContent = 'Catálogo no cargado';
+    status.title = 'Ver la incidencia del catálogo';
   }else if(incidencias){
     status.classList.add('is-warn');
-    status.textContent = `⚠️ ${incidencias} incidencia${incidencias === 1 ? '' : 's'} de precio`;
+    status.textContent = `⚠ ${incidencias} incidencia${incidencias === 1 ? '' : 's'} de precio`;
+    status.title = 'Ver las incidencias detectadas';
   }else if(duplicados.length){
     status.classList.add('is-warn');
-    status.textContent = `⚠️ ${duplicados.length} referencia${duplicados.length === 1 ? '' : 's'} duplicada${duplicados.length === 1 ? '' : 's'}`;
+    status.textContent = `⚠ ${duplicados.length} referencia${duplicados.length === 1 ? '' : 's'} duplicada${duplicados.length === 1 ? '' : 's'}`;
+    status.title = 'Ver las referencias duplicadas';
   }else{
     status.classList.add('is-ok');
-    status.textContent = '✅ Catálogo correcto';
+    status.textContent = 'Catálogo correcto';
+    status.setAttribute('aria-disabled', 'true');
+    status.tabIndex = -1;
   }
 
   if(subtitle){

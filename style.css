@@ -8212,18 +8212,23 @@ body.light-mode #pmModal .pmx-products li{background:#fff!important;border-color
 
 /* =====================================================
    CATÁLOGO: estado y diagnóstico visible
+   - Estado correcto: texto discreto, sin aspecto de botón.
+   - Incidencias: enlace ámbar/rojo que abre el detalle.
    ===================================================== */
 .catalog-health{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-height:30px;margin-left:9px;padding:5px 10px;border-radius:999px;
-  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);
-  color:#d9e9e0;font-size:11px;font-weight:850;line-height:1.1;cursor:pointer;
-  box-shadow:none!important;vertical-align:middle;
+  display:inline-flex;align-items:center;
+  min-height:auto;margin-left:9px;padding:2px 1px;
+  border:0!important;border-radius:0!important;background:transparent!important;
+  color:#aebdb5;font-size:11px;font-weight:600;line-height:1.25;
+  box-shadow:none!important;vertical-align:middle;cursor:default;
+  text-decoration:none;text-underline-offset:3px;
 }
-.catalog-health.is-ok{border-color:rgba(57,192,117,.42);background:rgba(35,139,84,.13);color:#c9f4da}
-.catalog-health.is-warn{border-color:rgba(255,184,77,.56);background:rgba(154,98,11,.18);color:#ffe2a8}
-.catalog-health.is-error{border-color:rgba(255,93,108,.55);background:rgba(155,35,48,.18);color:#ffd1d7}
-.catalog-health:hover{transform:translateY(-1px)}
+.catalog-health.is-checking{color:#9eaca5}
+.catalog-health.is-ok{color:#aebdb5;cursor:default}
+.catalog-health.is-warn{color:#e7bd69;cursor:pointer;text-decoration:underline}
+.catalog-health.is-error{color:#f09aa4;cursor:pointer;text-decoration:underline}
+.catalog-health.is-warn:hover,.catalog-health.is-error:hover{filter:brightness(1.12)}
+.catalog-health:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:3px!important}
 .catalog-diagnostic-modal .modal-card{width:min(760px,96vw)}
 .catalog-diagnostic-body{display:grid;gap:12px;overflow:auto;max-height:58vh;padding-right:3px}
 .catalog-diag-summary,.catalog-diag-section{border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:13px;background:rgba(255,255,255,.035)}
@@ -8238,10 +8243,10 @@ body.light-mode #pmModal .pmx-products li{background:#fff!important;border-color
 .catalog-diag-item span{font-size:11px;color:#c6d8cf}
 .catalog-diag-item.is-warning{border-left:3px solid #dca33b}
 .catalog-diag-help{margin-top:9px!important}
-body.light-mode .catalog-health{background:#fff;color:#294b3b;border-color:#cbded4}
-body.light-mode .catalog-health.is-ok{background:#edf9f1;color:#17623a;border-color:#a9d9bd}
-body.light-mode .catalog-health.is-warn{background:#fff7e5;color:#704900;border-color:#e5c474}
-body.light-mode .catalog-health.is-error{background:#fff0f2;color:#8b2632;border-color:#e2a5ad}
+body.light-mode .catalog-health{color:#66756d}
+body.light-mode .catalog-health.is-ok{color:#66756d}
+body.light-mode .catalog-health.is-warn{color:#8a5b00}
+body.light-mode .catalog-health.is-error{color:#9b3340}
 body.light-mode .catalog-diag-summary,body.light-mode .catalog-diag-section{background:#f7fbf9;border-color:#d7e5de}
 body.light-mode .catalog-diag-summary strong,body.light-mode .catalog-diag-section h3{color:#183c2b}
 body.light-mode .catalog-diag-summary span,body.light-mode .catalog-diag-section p,body.light-mode .catalog-diag-item span{color:#536c60}
