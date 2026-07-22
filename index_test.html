@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Presupuestador de AJAX · Hiper Antena</title>
+  <link rel="stylesheet" href="style.css?v=3.4.0-modal-qty">
+  
+  
+  <link rel="stylesheet" href="botones.css?v=3.0.2">
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <img src="logo_ajax.jpg" class="logo" alt="AJAX">
+      <div>
+        <h1>AJAXCALC</h1>
+        <p class="subtitle">by Hiper Antena</p>
+      </div>
+    </div>
+    <button type="button" id="themeToggle" class="theme-toggle" aria-label="Cambiar tema">☀️</button>
+  </header>
+
+  <main class="wrap">
+    <section class="card top-card">
+      <div class="section-head budget-actions-head">
+        <div class="actions actions-budget">
+          <div class="action-group action-group-left">
+            <button class="secondary" id="btnSave"><span class="btn-ico">💾</span>Guardar</button>
+            <button class="secondary" id="btnBudgets"><span class="btn-ico">📂</span>Presupuestos</button>
+            <div class="pm-legacy-controls" aria-hidden="true">
+              <button id="btnDuplicate" type="button">Duplicar</button>
+              <input id="buscarPresupuestoGuardado" autocomplete="off">
+              <select id="presupuestosGuardados"><option value="">Presupuestos guardados</option></select>
+              <button id="btnLoadSaved" type="button">Recuperar</button>
+              <button id="btnDeleteSaved" type="button">Borrar guardado</button>
+            </div>
+          </div>
+          <div class="action-group action-group-right">
+            <button id="btnPDF"><span class="btn-ico">📄</span>PDF</button>
+            <button class="danger" id="btnClear"><span class="btn-ico">🗑️</span>Vaciar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title-under-actions">
+        <h2>Datos del presupuesto</h2>
+      </div>
+
+      <div class="quote-row">
+        <label>Tienda<select id="tienda"><option value="" selected>Sin tienda asignada</option><option>Hiper antena 1</option><option>Hiper antena 2</option><option>Hiper antena 5</option><option>Hiper antena granada</option><option>Hiper antena valencia</option></select></label>
+        <label>Cliente<input id="cliente" placeholder="Cliente"></label>
+        <label>Teléfono<input id="telefono" placeholder="Teléfono"></label>
+        <label>Email<input id="email" placeholder="Email"></label>
+        <label>Nº presupuesto<input id="numero" placeholder="HA-2026-0001"></label>
+        <label>Fecha<input id="fecha" type="date"></label>
+        <label>Estado<select id="estado"><option>Borrador</option><option>Enviado</option><option>Aceptado</option><option>Rechazado</option></select></label>
+        <label>Validez días<input id="validez" type="number" min="0" step="1" value="30"></label>
+        <label>Desc. Global %<input id="dtoGeneral" type="number" min="0" step="0.01" value="0"></label>
+        <label>IVA %<input id="iva" type="number" min="0" step="0.01" value="21"></label>
+      </div>
+      <div class="notes-row"><label>Observaciones<textarea id="observaciones" placeholder="Ej.: instalación no incluida, validez de la oferta, condiciones comerciales..."></textarea></label></div>
+    </section>
+
+    <section class="card add-card">
+      <div class="section-head compact">
+        <div>
+          <h2>Añadir producto</h2>
+        </div>
+      </div>
+
+      <div id="recentes" class="recentes"></div>
+
+      <div class="product-tools product-tools-pro">
+        <div class="smart-search quick-main">
+          <label>Búsqueda rápida</label>
+          <div class="search-wrap">
+            <input id="buscador" autocomplete="off" placeholder="Escribe referencia, nombre o parte del producto...">
+            <div id="resultados" class="results-panel hidden"></div>
+          </div>
+        </div>
+        <label class="qty-field quick-qty">Cant.<input id="cantidad" type="number" min="1" value="1"></label>
+        <button id="add" class="add-btn quick-add">+ Añadir</button>
+        <button id="btnManual" class="secondary manual-btn quick-manual">+ Línea vacia</button>
+        <button id="btnSeparador" class="secondary separator-btn quick-separator">+ Separador</button>
+        <div class="normal-select custom-select-box quick-catalog">
+          <label>Catálogo completo</label>
+          <div class="catalog-actions">
+            <button type="button" id="btnCatalogo" class="catalog-btn"><span class="btn-ico">📖</span>Catálogo</button>
+            <button type="button" id="btnFamilias" class="family-btn"><span class="btn-ico">🧭</span>Explorar</button>
+          </div>
+          <select id="producto" class="native-hidden"><option value="">Cargando catálogo...</option></select>
+        </div>
+      </div>
+
+      <div class="preview-line">
+        <span id="previewProducto">Selecciona un producto para ver su precio.</span>
+
+      </div>
+    </section>
+
+    <section class="card budget-card">
+      <div class="section-head compact"><h2>Presupuesto</h2></div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Descripción</th>
+              <th class="num">PVP</th>
+              <th class="num qty-th">Cant.</th>
+              <th class="num">Desc. %</th>
+              <th class="num">Total</th>
+              <th class="num">Orden</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="totals totals-v3">
+        <div><span>Subtotal</span><strong id="subtotalBruto">0,00 €</strong></div>
+        <div><span>Base imponible</span><strong id="baseDto">0,00 €</strong></div>
+        <div><span id="ivaTxt">IVA 21%</span><strong id="ivaVal">0,00 €</strong></div>
+        <div class="total-box"><span>Total</span><strong id="total">0,00 €</strong></div>
+      </div>
+    </section>
+
+    <footer class="footer"><b>Hiper Antena</b> - Tienda para los profesionales <span class="creator">· Creado por David Corregidor · 3.0.0</span></footer>
+  </main>
+
+
+  <div id="catalogModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="catalogBackdrop"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="catalogTitle">
+      <div class="modal-head">
+        <div>
+          <h2 id="catalogTitle">Catálogo completo</h2>
+          <p>Busca por nombre, referencia o palabra clave y añade el producto al presupuesto.</p>
+        </div>
+        <button type="button" id="catalogClose" class="modal-close">×</button>
+      </div>
+      <div class="modal-search-row">
+        <input id="catalogFilter" class="catalog-filter" autocomplete="off" placeholder="Buscar producto en el catálogo...">
+        <span id="catalogCount" class="catalog-count">0 productos</span>
+      </div>
+      <div id="catalogItems" class="catalog-items"></div>
+      <div class="modal-foot">
+        <button type="button" id="catalogCancel" class="secondary">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="familiasModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="familiasBackdrop"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="familiasTitle">
+      <div class="modal-head">
+        <div>
+          <h2 id="familiasTitle">Explorar catálogo</h2>
+          <p>Navega por categoría y subfamilia para encontrar productos sin escribir referencias.</p>
+        </div>
+        <button type="button" id="familiasClose" class="modal-close">×</button>
+      </div>
+      <div id="familiasGrid" class="family-grid"></div>
+      <div class="modal-foot">
+        <button type="button" id="familiasCancel" class="secondary">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="pmModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="pmBackdrop"></div>
+    <div class="modal-card pmx-modal-card" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+      <div class="modal-head pmx-head">
+        <div>
+          <h2 id="pmTitle">Mis presupuestos</h2>
+          <p>Selecciona un presupuesto para consultar su vista previa.</p>
+        </div>
+        <div class="pmx-head-actions">
+          <span id="pmCount" class="pmx-count">0 guardados</span>
+          <button type="button" id="pmClose" class="modal-close" aria-label="Cerrar">×</button>
+        </div>
+      </div>
+
+      <div class="pmx-toolbar">
+        <label class="pmx-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="pmSearch" autocomplete="off" placeholder="Buscar identificador, cliente, número o producto...">
+        </label>
+        <select id="pmSort" aria-label="Ordenar presupuestos">
+          <option value="recent">Más recientes</option>
+          <option value="identifier">Por identificador</option>
+          <option value="client">Por cliente</option>
+          <option value="total">Por importe</option>
+        </select>
+      </div>
+
+      <div class="pmx-workspace">
+        <section class="pmx-browser" aria-label="Lista de presupuestos">
+          <div class="pmx-browser-head">
+            <span>Presupuestos</span>
+            <small id="pmVisibleCount">0 visibles</small>
+          </div>
+          <div id="pmList" class="pmx-list" role="listbox" aria-label="Presupuestos guardados"></div>
+        </section>
+
+        <aside class="pmx-preview" aria-labelledby="pmPreviewTitle">
+          <div class="pmx-preview-head">
+            <button type="button" id="pmBackMobile" class="pmx-mobile-back" aria-label="Volver a presupuestos">← Atrás</button>
+            <span class="pmx-preview-icon" aria-hidden="true">▤</span>
+            <div>
+              <small>Vista previa</small>
+              <h3 id="pmPreviewTitle">Selecciona un presupuesto</h3>
+            </div>
+          </div>
+          <div id="pmPreview" class="pmx-preview-body pmx-preview-empty">
+            <div class="pmx-empty-icon" aria-hidden="true">▤</div>
+            <strong>Selecciona un presupuesto</strong>
+            <p>Aquí verás el cliente, el total y los primeros productos antes de recuperarlo.</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="modal-foot pmx-actions">
+        <button type="button" id="pmOpen" class="secondary" disabled>Recuperar</button>
+        <button type="button" id="pmDuplicate" class="secondary" disabled>Duplicar</button>
+        <button type="button" id="pmRename" class="secondary" disabled>Editar identificador</button>
+        <button type="button" id="pmDelete" class="danger" disabled>Eliminar</button>
+        <button type="button" id="pmCancel" class="secondary pmx-close-action">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>window.__ERRS=[];window.onerror=function(m,u,l,c,e){window.__ERRS.push(m+" @"+l+":"+c);document.body.setAttribute("data-js-error",window.__ERRS.join(" | "));};window.addEventListener("unhandledrejection",e=>document.body.setAttribute("data-js-rejection",String(e.reason)));</script><script src="pdf_desc_config.js?v=3.0.2"></script>
+  <script src="explorar_config.js?v=8"></script>
+  <script src="explorer_knowledge.js?v=3.0.4-input"></script>
+  <script src="buscar_reglas.js?v=3.4.1"></script>
+  <script src="search_engine.js?v=3.4.1"></script>
+  <script src="app.js?v=3.4.1-modal-session"></script>
+  <script src="search_knowledge_bridge.js?v=3.4.1"></script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+/* =============================================================
+   HIPER AJAX - SEARCH ENGINE
+   Motor compartido por buscador inicial y Explorer.
+   - No contiene catálogo: siempre busca sobre productos del CSV.
+   - Usa explorer_knowledge.js como conocimiento opcional.
+   - Mantiene la API HXA_KNOWLEDGE_ENGINE para no tocar app.js.
+   ============================================================= */
+(function(global){
+  'use strict';
+
+  const previous = global.HXA_KNOWLEDGE_ENGINE || null;
+  const KNOWLEDGE = global.HXA_KNOWLEDGE || {};
+  const RECORD_CACHE = new WeakMap();
+  const QUERY_CACHE = new Map();
+
+  function normalize(value=''){
+    return String(value)
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  }
+  function compact(value=''){ return normalize(value).replace(/\s+/g,''); }
+  function tokenList(value=''){ return normalize(value).split(/\s+/).filter(Boolean); }
+  function unique(list){ return [...new Set(list.filter(Boolean))]; }
+
+  const CONCEPTS = [
+    {id:'motioncam', query:['motioncam','motcam','mocam','mcam','foto sensor','fotosensor','fotose','detector con foto','detector camara','verificacion fotografica'], terms:['motioncam','motion cam','foto','fotodetector','verificacion fotografica'], prefer:['motioncam'], weight:46},
+    {id:'motionprotect', query:['motionprotect','motprotect','detector movimiento','sensor movimiento','volumetrico'], terms:['motionprotect','detector movimiento','pir','volumetrico'], prefer:['motionprotect'], weight:38},
+    {id:'combi', query:['cristal y movimiento','movimiento cristal','detector combinado','combi'], terms:['combiprotect','movimiento cristal','rotura cristal movimiento'], prefer:['combiprotect'], weight:55},
+    {id:'glass', query:['solo cristal','rotura cristal','sensor cristal','detector cristal','glass'], terms:['glassprotect','rotura cristal','microfono cristal'], prefer:['glassprotect'], weight:48},
+    {id:'door', query:['door','puerta','ventana','apertura','contacto magnetico'], terms:['doorprotect','apertura','puerta ventana','contacto magnetico'], prefer:['doorprotect'], weight:42},
+    {id:'curtain', query:['cortina','pasillo','ventanal','proteccion cortina'], terms:['curtain','dualcurtain','doublecurtain','cortina'], prefer:['curtain'], weight:44},
+    {id:'dome', query:['domo','camara domo','camara techo','camara redonda'], terms:['domecam','turretcam','domo','turret'], prefer:['domecam','turretcam'], weight:48},
+    {id:'turret', query:['turret','torreta'], terms:['turretcam','domecam'], prefer:['turretcam','domecam'], weight:52},
+    {id:'bullet', query:['bullet','bala','camara bala'], terms:['bulletcam','bullet'], prefer:['bulletcam'], weight:52},
+    {id:'camera', query:['camara','cctv','videovigilancia'], terms:['domecam','turretcam','bulletcam','indoorcam','camara','cctv'], prefer:['turretcam 5','bulletcam 5','domecam mini 5'], weight:30},
+    {id:'hub_photo', query:['hub con foto','hub con fotos','central con fotos','hub motioncam','hub fotodetector'], terms:['hub2','hub2 4g','hub2plus','hub hybrid','fotoverificacion'], prefer:['aj hub2 w','aj hub2 4g w','aj hub2plus w'], avoid:['aj hub w'], weight:62},
+    {id:'hub_wifi', query:['hub wifi','central wifi','alarma wifi'], terms:['hub2plus','wifi ethernet lte'], prefer:['aj hub2plus w'], weight:68},
+    {id:'hub_4g', query:['hub 4g','central 4g','alarma 4g','hub lte'], terms:['hub2 4g','4g lte'], prefer:['aj hub2 4g w'], weight:68},
+    {id:'hub_basic', query:['hub basico','hub normal','central basica'], terms:['aj hub w','hub 2g'], prefer:['aj hub w'], weight:58},
+    {id:'hub', query:['hub','central','central alarma'], terms:['hub2','hub2 4g','hub2plus','aj hub'], prefer:['aj hub2 w','aj hub2 4g w','aj hub2plus w','aj hub w'], weight:38},
+    {id:'rex_photo', query:['repetidor motioncam','repetidor con fotos','rex motioncam','amplificador motioncam'], terms:['rex2','wings'], prefer:['rex2'], avoid:['aj rex w'], weight:64},
+    {id:'rex', query:['rex','repetidor','amplificador señal','ampliar señal'], terms:['rex2','rex','repetidor señal'], prefer:['rex2','rex'], weight:40},
+    {id:'siren_out', query:['sirena exterior','sirena calle','sirena fuera'], terms:['streetsiren','sirena exterior'], prefer:['streetsiren'], weight:55},
+    {id:'siren_in', query:['sirena interior','sirena casa'], terms:['homesiren','sirena interior'], prefer:['homesiren'], weight:55},
+    {id:'siren', query:['sirena'], terms:['homesiren','streetsiren'], prefer:['homesiren','streetsiren'], weight:34},
+    {id:'keypad', query:['teclado','armar alarma','desarmar alarma'], terms:['keypad','teclado armado'], prefer:['keypad w','keypadplus w','keypadtouchscreen w'], weight:38},
+    {id:'remote', query:['mando','llavero','armar con mando'], terms:['spacecontrol','mando llavero'], prefer:['spacecontrol'], weight:48},
+    {id:'panic', query:['panico','boton panico','atraco'], terms:['button','doublebutton','panico'], prefer:['button','doublebutton'], weight:44},
+    {id:'water', query:['agua','inundacion','fuga','detector agua'], terms:['leaksprotect','inundacion fuga agua'], prefer:['leaksprotect'], weight:54},
+    {id:'fire', query:['fuego','humo','incendio','detector humo'], terms:['fireprotect','fuego humo incendio'], prefer:['fireprotect'], weight:50},
+    {id:'relay', query:['rele','relay','contacto seco','automatizar'], terms:['relay','wallswitch','rele inteligente'], prefer:['relay','wallswitch'], weight:42},
+    {id:'socket', query:['enchufe','socket','enchufe inteligente'], terms:['socket','outletcore','enchufe inteligente'], prefer:['socket w','outletcore'], weight:46},
+    {id:'switch', query:['interruptor','interruptor luz','domotica luz'], terms:['lightcore','lightswitch','interruptor luz'], prefer:['lightcore'], weight:46},
+    {id:'integration', query:['integrar sensor','sensor tercero','sensor cableado','transmisor'], terms:['transmitter','multitransmitter','entrada rele sensor terceros'], prefer:['transmitter','doorprotect'], weight:44},
+    {id:'nvr8', query:['nvr 8','grabador 8','8 camaras','grabador ocho'], terms:['nvr208 hac','nvr108 hac','8 canales hdmi'], prefer:['nvr208 hac','nvr108 hac'], weight:55},
+    {id:'nvr16', query:['nvr 16','grabador 16','16 camaras','grabador dieciseis'], terms:['nvr216 hac','nvr116 hac','16 canales hdmi'], prefer:['nvr216 hac','nvr116 hac'], weight:55},
+    {id:'nvr', query:['nvr','grabador','videograbador'], terms:['nvr','grabador hdmi'], prefer:['nvr208 hac','nvr216 hac'], weight:38},
+    {id:'hdd', query:['hdd','disco','disco duro','almacenamiento nvr'], terms:['hdd','hd1tb','hd2tb','hd4tb','disco duro'], prefer:['hdd','hd'], weight:48},
+    {id:'sd', query:['sd','microsd','micro sd','tarjeta camara','camara sin nvr','camara autonoma'], terms:['hs tf','microsd','micro sd','tarjeta memoria'], prefer:['hs tf'], weight:52},
+    {id:'junction', query:['junction','junctionbox','caja camara','ocultar conexiones','soporte camara'], terms:['junctionbox','caja conexiones soporte camara'], prefer:['junctionbox w'], weight:52},
+    {id:'poe', query:['poe','switch poe','alimentar camaras'], terms:['poe','switch poe','alimentacion camaras'], prefer:['poe'], weight:45}
+  ];
+
+  const SALES = [
+    [/^AJ-HUB2-W$/i,34], [/^AJ-HUB2-4G-W$/i,31], [/^AJ-HUB2PLUS-W$/i,28], [/^AJ-HUB-W$/i,18],
+    [/^AJ-DOORPROTECT-W$/i,30], [/^AJ-MOTIONPROTECT-W$/i,30], [/^AJ-MOTIONCAM-HDR-W$/i,31],
+    [/^AJ-MOTIONCAM-HDR-PHOD-W$/i,27], [/^AJ-HOMESIREN-W$/i,24], [/^AJ-STREETSIREN-W$/i,23],
+    [/^AJ-KEYPAD-W$/i,23], [/^AJ-KEYPADPLUS-W$/i,21], [/^AJ-REX2-W$/i,24], [/^AJ-REX-W$/i,16],
+    [/^AJ-(TURRETCAM|BULLETCAM)-5(?:-|$).*W$/i,28], [/^AJ-NVR(208|216)-HAC(?:-|$).*W$/i,27],
+    [/^AJ-JUNCTIONBOX-W$/i,18]
+  ];
+
+  const OLD_APP_HINTS = [
+    [/MOTIONPROTECTPLUS/i,'interior mascotas microondas calefactor chimenea aire acondicionado'],
+    [/MOTIONPROTECT(?!PLUS)/i,'interior mascotas detector movimiento basico'],
+    [/COMBIPROTECT/i,'interior mascotas movimiento rotura cristal combinado'],
+    [/MOTIONCAM.*PHOD/i,'fotodetector foto bajo demanda peticion imagen interior'],
+    [/MOTIONCAMOUTDOOR/i,'fotodetector exterior mascotas antienmascaramiento'],
+    [/MOTIONCAM/i,'fotodetector interior camara verificacion alarma'],
+    [/DOORPROTECTPLUS/i,'puerta ventana apertura impacto inclinacion entrada rele'],
+    [/DOORPROTECT/i,'puerta ventana apertura contacto magnetico entrada rele'],
+    [/GLASSPROTECT/i,'rotura cristal microfono'],
+    [/HUB2PLUS/i,'central wifi ethernet 4g lte fotoverificacion domotica'],
+    [/HUB2-4G/i,'central ethernet 4g lte fotoverificacion domotica'],
+    [/HUB2/i,'central ethernet 2g fotoverificacion motioncam domotica'],
+    [/AJ-HUB-[WB]$/i,'central basica ethernet 2g sin motioncam sin fotos sin lightcore sin outletcore'],
+    [/REX2/i,'repetidor wings motioncam fotoverificacion'],
+    [/AJ-REX-[WB]$/i,'repetidor jeweller sin motioncam'],
+    [/NVR.*HAC/i,'grabador hdmi cctv requiere hdd disco duro'],
+    [/(TURRETCAM|DOMECAM|BULLETCAM)/i,'camara cctv sensor visual micro sd autonoma nvr poe 12v'],
+    [/JUNCTIONBOX/i,'soporte caja ocultar conexiones camara'],
+    [/LEAKSPROTECT/i,'detector agua inundacion fuga'],
+    [/FIREPROTECT/i,'detector humo fuego incendio temperatura co']
+  ];
+
+  function getName(p){ return String(p && (p.name || p.ref || p.title) || ''); }
+  function getDescription(p){ return String(p && (p.description || p.desc || p._search175 || p._search183 || p._search186) || ''); }
+
+  function splitIdentifier(value){
+    const raw=String(value||'');
+    const pieces=raw
+      .replace(/([a-z])([A-Z])/g,'$1 $2')
+      .replace(/([a-zA-Z])([0-9])/g,'$1 $2')
+      .replace(/([0-9])([a-zA-Z])/g,'$1 $2')
+      .replace(/[-_./]+/g,' ');
+    const out=tokenList(pieces);
+    const joined=compact(raw);
+    if(joined) out.push(joined);
+    return unique(out);
+  }
+
+  function productHints(name){
+    const hints=[];
+    OLD_APP_HINTS.forEach(([re,text])=>{ if(re.test(name)) hints.push(text); });
+    return hints.join(' ');
+  }
+
+  function buildRecord(product){
+    if(product && typeof product==='object' && RECORD_CACHE.has(product)) return RECORD_CACHE.get(product);
+    const name=getName(product);
+    const description=getDescription(product);
+    const oldHints=productHints(name);
+    const text=normalize([name,description,product&&product.brand,oldHints].filter(Boolean).join(' '));
+    const baseTokens=unique([...tokenList(text),...splitIdentifier(name)]);
+    const rec={
+      product,name,description,text,compact:compact(text),tokens:baseTokens,
+      tokenSet:new Set(baseTokens),
+      isBlack:/(?:-|\s)B(?:$|-|\s)|NEGRO|BLACK/i.test(name),
+      isWhite:/(?:-|\s)W(?:$|-|\s)|BLANCO|WHITE/i.test(name),
+      isAccessory:/DUMMY|REPAIR|BRACKET|BATTERYKIT|BRANDPLATE|COVER|HOLDER|LENS/i.test(name),
+      variantBase:normalize(name).replace(/\b(?:w|b|white|black|blanco|negro)\b/g,'').replace(/\s+/g,' ').trim()
+    };
+    if(product && typeof product==='object') RECORD_CACHE.set(product,rec);
+    return rec;
+  }
+
+  function editDistance(a,b,max=2){
+    if(a===b) return 0;
+    if(Math.abs(a.length-b.length)>max) return max+1;
+    let prev=Array.from({length:b.length+1},(_,i)=>i);
+    for(let i=1;i<=a.length;i++){
+      const cur=[i]; let rowMin=i;
+      for(let j=1;j<=b.length;j++){
+        const v=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
+        cur[j]=v; if(v<rowMin) rowMin=v;
+      }
+      if(rowMin>max) return max+1;
+      prev=cur;
+    }
+    return prev[b.length];
+  }
+
+  function isSubsequence(short,long){
+    if(short.length<3) return false;
+    let i=0;
+    for(const c of long){ if(c===short[i]) i++; if(i===short.length) return true; }
+    return false;
+  }
+
+  function matchesPhrase(q,phrase){
+    const nq=normalize(q), np=normalize(phrase);
+    if(!nq||!np) return false;
+    return nq===np || nq.includes(np) || compact(nq)===compact(np) || (nq.length>=4 && np.startsWith(nq));
+  }
+
+  function parseQuery(query){
+    const key=normalize(query);
+    if(QUERY_CACHE.has(key)) return QUERY_CACHE.get(key);
+    const rawTokens=tokenList(key);
+    const qCompact=compact(key);
+    const concepts=CONCEPTS.filter(c=>c.query.some(a=>matchesPhrase(key,a)));
+    const expanded=[...rawTokens];
+    concepts.forEach(c=>c.terms.forEach(t=>expanded.push(...tokenList(t))));
+    const info={raw:key,compact:qCompact,tokens:rawTokens,expanded:unique(expanded),concepts,
+      asksBlack:/\b(negro|black)\b/.test(key), asksWhite:/\b(blanco|white)\b/.test(key),
+      asksAccessory:/\b(soporte|bracket|caja|junction|dummy|repuesto|tapa|bateria|lente|lens)\b/.test(key),
+      asksPhod:/\b(phod|bajo demanda|peticion imagen)\b/.test(key), asksOutdoor:/\b(outdoor|exterior|calle|fuera)\b/.test(key),
+      asks8mp:/\b8\s*(mp|megapixel)|\b8mp\b/.test(key), asks5mp:/\b5\s*(mp|megapixel)|\b5mp\b/.test(key)
+    };
+    if(QUERY_CACHE.size>250) QUERY_CACHE.clear();
+    QUERY_CACHE.set(key,info); return info;
+  }
+
+  function tokenScore(qToken,rec){
+    if(!qToken) return 0;
+    if(rec.tokenSet.has(qToken)) return 34;
+    if(rec.text.includes(qToken)) return 22;
+    if(rec.compact.includes(qToken)) return 21;
+    let best=0;
+    for(const token of rec.tokens){
+      if(token.startsWith(qToken) && qToken.length>=2) best=Math.max(best,18);
+      else if(qToken.startsWith(token) && token.length>=3) best=Math.max(best,11);
+      else if(isSubsequence(qToken,token) && qToken.length>=4) best=Math.max(best,13);
+      else if(qToken.length>=4 && editDistance(qToken,token,qToken.length>7?2:1)<= (qToken.length>7?2:1)) best=Math.max(best,12);
+    }
+    return best;
+  }
+
+  function patternHit(rec,pattern){
+    const p=normalize(pattern);
+    return rec.text.includes(p) || rec.compact.includes(compact(p));
+  }
+
+  function salesBoost(name){
+    let boost=0;
+    SALES.forEach(([re,value])=>{ if(re.test(name)) boost=Math.max(boost,value); });
+    return boost;
+  }
+
+  function scoreRecord(rec,queryInfo){
+    const q=queryInfo.raw;
+    if(!q) return {score:0,reasons:[]};
+    let score=0; const reasons=[];
+    const nName=normalize(rec.name), cName=compact(rec.name);
+
+    if(nName===q || cName===queryInfo.compact){ score+=190; reasons.push('referencia/nombre exacto'); }
+    else if(nName.startsWith(q) || cName.startsWith(queryInfo.compact)){ score+=110; reasons.push('comienza por la búsqueda'); }
+    else if(nName.includes(q) || cName.includes(queryInfo.compact)){ score+=78; reasons.push('coincidencia directa'); }
+
+    let rawHits=0;
+    queryInfo.tokens.forEach(t=>{ const s=tokenScore(t,rec); score+=s; if(s>=18) rawHits++; });
+    if(queryInfo.tokens.length && rawHits===queryInfo.tokens.length){ score+=42; reasons.push('coinciden todos los términos'); }
+
+    queryInfo.expanded.filter(t=>!queryInfo.tokens.includes(t)).forEach(t=>{ const s=tokenScore(t,rec); score+=Math.min(13,s*.55); });
+
+    queryInfo.concepts.forEach(c=>{
+      let preferred=0, avoided=0;
+      (c.prefer||[]).forEach(p=>{ if(patternHit(rec,p)) preferred++; });
+      (c.avoid||[]).forEach(p=>{ if(patternHit(rec,p)) avoided++; });
+      const termHit=(c.terms||[]).some(t=>patternHit(rec,t));
+      if(termHit) score+=c.weight*.55;
+      if(preferred){ score+=c.weight + Math.max(0,18-(preferred-1)*3); reasons.push(`intención: ${c.id}`); }
+      if(avoided){ score-=c.weight*1.15; reasons.push('menos adecuado para la intención'); }
+    });
+
+    const sb=salesBoost(rec.name);
+    if(sb){ score+=sb; if(sb>=28) reasons.push('producto habitual'); }
+    // Orden comercial indicado para una búsqueda genérica de Hub:
+    // Hub 2, Hub 2 4G, Hub 2 Plus y Hub básico.
+    if(/^(hub|central|central alarma)$/.test(q)){
+      if(/^AJ-HUB2-W$/i.test(rec.name)) score+=68;
+      else if(/^AJ-HUB2-4G-W$/i.test(rec.name)) score+=50;
+      else if(/^AJ-HUB2PLUS-W$/i.test(rec.name)) score+=42;
+      else if(/^AJ-HUB-W$/i.test(rec.name)) score+=30;
+    }
+
+    if(rec.isBlack && !queryInfo.asksBlack){ score-=8; }
+    if(rec.isWhite && !queryInfo.asksBlack){ score+=4; }
+    if(rec.isBlack && queryInfo.asksBlack){ score+=34; reasons.push('color negro solicitado'); }
+    if(rec.isWhite && queryInfo.asksWhite){ score+=34; reasons.push('color blanco solicitado'); }
+
+    if(rec.isAccessory && !queryInfo.asksAccessory) score-=180;
+    if(queryInfo.asksPhod){ score += /PHOD/i.test(rec.name)?30:-10; }
+    else if(/MOTIONCAM.*PHOD/i.test(rec.name)) score-=18;
+    if(queryInfo.asksOutdoor){ score += /OUTDOOR|EXTERIOR/i.test(rec.name+' '+rec.description)?25:-5; }
+    if(queryInfo.asks8mp) score += /(?:-|\s)8(?:-|\s)|8\s*MP/i.test(rec.name+' '+rec.description)?28:-8;
+    if(queryInfo.asks5mp) score += /(?:-|\s)5(?:-|\s)|5\s*MP/i.test(rec.name+' '+rec.description)?28:-8;
+    if(/camara(?:s)? (?:sin nvr|autonoma)|sin grabador/.test(q)){
+      if(/HS[-_ ]?TF|MICROSD|SDCARD|TARJETA/i.test(rec.name+' '+rec.description)) score+=150;
+      if(/NVR|HDD|HD\d+TB/i.test(rec.name)) score-=95;
+    }
+
+    // Prioriza modelo base antes de variantes especiales cuando no se solicitan.
+    if(/MOTIONCAM/i.test(rec.name)){
+      if(!queryInfo.asksOutdoor && /OUTDOOR/i.test(rec.name)) score-=18;
+      if(!queryInfo.asksPhod && /PHOD/i.test(rec.name)) score-=7;
+      if(/HIGHMOUNT/i.test(rec.name) && !/alto|highmount|montaje alto/.test(q)) score-=10;
+    }
+
+    return {score,reasons:unique(reasons)};
+  }
+
+  function rank(products,query,limit=60){
+    const qi=parseQuery(query);
+    if(!qi.raw) return [];
+    let ranked=(products||[]).map((p,index)=>{
+      const rec=buildRecord(p); const result=scoreRecord(rec,qi);
+      return {...p,_hxaIndex:(p&&Number.isInteger(p._hxaIndex)?p._hxaIndex:index),_score:result.score,_reasons:result.reasons,_variantBase:rec.variantBase,_color:rec.isBlack?'black':rec.isWhite?'white':''};
+    }).filter(x=>x._score>8)
+      .sort((a,b)=>b._score-a._score || String(a.name||'').localeCompare(String(b.name||''),'es'));
+
+    // Cuando la intención identifica una familia concreta, elimina ruido de
+    // productos relacionados que solo comparten palabras técnicas.
+    const ids=new Set(qi.concepts.map(c=>c.id));
+    let focus=null;
+    if(ids.has('rex_photo')||ids.has('rex')) focus=p=>/REX2|AJ-REX(?:-|$)/i.test(p.name||'') && !/BRACKET|BATTERY|PSU/i.test(p.name||'');
+    else if(ids.has('motioncam')) focus=p=>/MOTIONCAM/i.test(p.name||'') && !/DUMMY|LENS|HOOD|BRACKET/i.test(p.name||'');
+    else if(ids.has('combi')) focus=p=>/COMBIPROTECT/i.test(p.name||'') && !/DUMMY/i.test(p.name||'');
+    else if(ids.has('glass')) focus=p=>/GLASSPROTECT/i.test(p.name||'') && !/DUMMY/i.test(p.name||'');
+    else if(ids.has('dome')) focus=p=>/(DOMECAM|TURRETCAM)/i.test(p.name||'');
+    else if(ids.has('turret')) focus=p=>/(TURRETCAM|DOMECAM)/i.test(p.name||'');
+    else if(ids.has('bullet')) focus=p=>/BULLETCAM/i.test(p.name||'');
+    else if(ids.has('water')) focus=p=>/LEAKSPROTECT/i.test(p.name||'');
+    else if(ids.has('fire')) focus=p=>/FIREPROTECT/i.test(p.name||'') && !/DUMMY|BRACKET/i.test(p.name||'');
+    else if(ids.has('siren_out')) focus=p=>/STREETSIREN/i.test(p.name||'') && !/DUMMY/i.test(p.name||'');
+    else if(ids.has('siren_in')) focus=p=>/HOMESIREN/i.test(p.name||'') && !/DUMMY/i.test(p.name||'');
+    if(focus){ const focused=ranked.filter(focus); if(focused.length) ranked=focused; }
+
+    // Ajuste de orden de cámaras tipo domo: Dome y Turret aparecen juntas,
+    // pero la palabra exacta solicitada conserva prioridad.
+    if(ids.has('dome')) ranked.sort((a,b)=>{
+      const ad=/DOMECAM/i.test(a.name||'')?1:0, bd=/DOMECAM/i.test(b.name||'')?1:0;
+      return bd-ad || b._score-a._score;
+    });
+    if(ids.has('turret')) ranked.sort((a,b)=>{
+      const at=/TURRETCAM/i.test(a.name||'')?1:0, bt=/TURRETCAM/i.test(b.name||'')?1:0;
+      return bt-at || b._score-a._score;
+    });
+
+    // Conserva las variantes del mismo producto próximas entre sí.
+    const groups=new Map();
+    ranked.forEach(p=>{ const k=p._variantBase||normalize(p.name); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(p); });
+    const out=[],used=new Set();
+    for(const p of ranked){
+      const key=p._variantBase||normalize(p.name);
+      if(used.has(key)) continue;
+      const group=groups.get(key).sort((a,b)=>b._score-a._score || (a._color==='white'?-1:1));
+      group.forEach(x=>out.push(x)); used.add(key);
+      if(out.length>=limit) break;
+    }
+    return out.slice(0,limit);
+  }
+
+  function scoreProduct(product,query){
+    const result=scoreRecord(buildRecord(product),parseQuery(query));
+    return result;
+  }
+
+  const engine={normalize,compact,rank,scoreProduct,buildRecord,parseQuery,version:'3.1.0'};
+  global.HXA_KNOWLEDGE_ENGINE_PREVIOUS=previous;
+  global.HXA_KNOWLEDGE_ENGINE=engine;
+})(typeof window!=='undefined'?window:globalThis);
