@@ -6410,3 +6410,90 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   window.HX_APP_VERSION=HX_APP_VERSION;
   window.HX_ORDER_FAMILIES=hxOrderFamilies407;
 })();
+
+/* =====================================================
+   4.0.9 - Recuperación automática de variantes de familia
+   - Si una referencia coincide, incorpora sus variantes W/B del catálogo.
+   - Funciona en buscador principal y Catálogo.
+   - No usa listas manuales por producto.
+   ===================================================== */
+(function(){
+  const HX_APP_VERSION_409='4.0.9';
+
+  function hxFamilyKey409(product){
+    return String((product&&product.name)||'').toUpperCase()
+      .replace(/-(?:W|B)(?=-|$)/g,'')
+      .replace(/--+/g,'-').replace(/-$/,'').trim();
+  }
+  function hxColorOrder409(product,query=''){
+    const ref=String((product&&product.name)||'').toUpperCase();
+    const q=String(query||'').toLowerCase();
+    if(/\b(?:negro|black)\b/.test(q)) return /-B(?:-|$)/.test(ref)?0:/-W(?:-|$)/.test(ref)?1:2;
+    return /-W(?:-|$)/.test(ref)?0:/-B(?:-|$)/.test(ref)?1:2;
+  }
+  function hxExpandFamilyVariants409(items,query=''){
+    if(!Array.isArray(items)||!items.length||!Array.isArray(productos)) return items;
+
+    const familyIndex=new Map();
+    productos.forEach((p,i)=>{
+      const key=hxFamilyKey409(p);
+      if(!key) return;
+      if(!familyIndex.has(key)) familyIndex.set(key,[]);
+      familyIndex.get(key).push({p,i});
+    });
+
+    const present=new Set();
+    items.forEach(item=>{
+      const p=item&&item.p?item.p:item;
+      const idx=item&&Number.isInteger(item.i)?item.i:productos.indexOf(p);
+      present.add(idx>=0?`i:${idx}`:`n:${String(p&&p.name||'')}`);
+    });
+
+    const expanded=[];
+    const processedFamilies=new Set();
+    items.forEach((item,pos)=>{
+      const p=item&&item.p?item.p:item;
+      const key=hxFamilyKey409(p);
+      if(processedFamilies.has(key)) return;
+      processedFamilies.add(key);
+
+      const originalFamily=items.filter(x=>hxFamilyKey409(x&&x.p?x.p:x)===key);
+      originalFamily.forEach(x=>expanded.push(x));
+
+      const baseScore=Math.max(...originalFamily.map(x=>Number(x&&x.score)||0),0);
+      const variants=(familyIndex.get(key)||[])
+        .filter(v=>!present.has(`i:${v.i}`))
+        .sort((a,b)=>hxColorOrder409(a.p,query)-hxColorOrder409(b.p,query)||String(a.p.name||'').localeCompare(String(b.p.name||''),'es',{numeric:true,sensitivity:'base'}));
+
+      variants.forEach((v,n)=>{
+        expanded.push({p:v.p,i:v.i,score:Math.max(1,baseScore-(n+1)*0.001),familyVariant:true});
+        present.add(`i:${v.i}`);
+      });
+    });
+    return expanded;
+  }
+
+  function hxFinalize409(items,term){
+    const expanded=hxExpandFamilyVariants409(items,term);
+    if(typeof window.HX_ORDER_FAMILIES==='function') return window.HX_ORDER_FAMILIES(expanded,term);
+    return expanded;
+  }
+
+  if(typeof buscar==='function'){
+    const buscarBase409=buscar;
+    buscar=function(term){ return hxFinalize409(buscarBase409.apply(this,arguments),term); };
+  }
+  if(typeof buscarCatalogo==='function'){
+    const buscarCatalogoBase409=buscarCatalogo;
+    buscarCatalogo=function(term=''){ return hxFinalize409(buscarCatalogoBase409.apply(this,arguments),term); };
+  }
+
+  function setVersion409(){
+    document.querySelectorAll('.creator').forEach(el=>{
+      const txt=`· Creado por David Corregidor · ${HX_APP_VERSION_409}`;
+      if(el.textContent!==txt) el.textContent=txt;
+    });
+  }
+  document.addEventListener('DOMContentLoaded',()=>{setVersion409();setTimeout(setVersion409,150);});
+  window.HX_APP_VERSION=HX_APP_VERSION_409;
+})();
