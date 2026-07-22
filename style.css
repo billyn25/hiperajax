@@ -8256,3 +8256,12 @@ body.light-mode .catalog-diag-item b{color:#173b2a}
   .catalog-health{display:flex;width:max-content;max-width:100%;margin:7px 0 0;font-size:10px}
   .catalog-diagnostic-body{max-height:60vh}
 }
+
+/* v4.0.5 · Detalle de control de precios guardados */
+.catalog-diag-summary small{display:block;margin-top:5px;color:var(--muted);font-size:.78rem}
+.catalog-diag-info{border-left:3px solid rgba(70,120,170,.55)}
+.catalog-diag-budget{margin:8px 0;border:1px solid var(--border);border-radius:10px;background:rgba(127,127,127,.035);overflow:hidden}
+.catalog-diag-budget summary{cursor:pointer;padding:10px 12px;font-weight:700;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.catalog-diag-budget summary span{font-size:.78rem;font-weight:600;color:var(--muted)}
+.catalog-diag-budget[open] summary{border-bottom:1px solid var(--border)}
+.catalog-diag-budget .catalog-diag-item{margin:8px 10px}

@@ -55,7 +55,7 @@ window.EXPLORAR_CATEGORIAS = [
       { titulo: 'NVR', icono: '🎥', incluye: ['nvr'], excluye: ['nvrkit', 'psu', 'storage'] },
       { titulo: 'Kits NVR', icono: '📦', incluye: ['nvrkit'] },
       { titulo: 'Discos HDD / SD', icono: '💽', incluye: ['hd1tb', 'hd2tb', 'hd4tb', 'hd6tb', 'hd8tb', 'hs-tf'], regex: ['^HD\\d+TB', '^HS[-_ ]?TF'] },
-      { titulo: 'Soporte Cámaras', icono: '🧰', incluye: ['junctionbox','mountcam','DS-1280ZJ-XS'] },
+      { titulo: 'Soporte Cámaras', icono: '🧰', incluye: ['junctionbox','mountcam'] },
     ]
   },
 
