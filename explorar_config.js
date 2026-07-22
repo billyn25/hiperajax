@@ -25,7 +25,7 @@ window.EXPLORAR_CATEGORIAS = [
     subcategorias: [
       { titulo: 'Hubs', icono: '🏠', regex: ['^AJ-(?:HUB-(?:W|B)|HUB2-(?:W|B)|HUB2-4G-(?:W|B)|HUB2PLUS-(?:W|B)|HUB2(?:-4G)?-DC6V-W|HUBBP-V2-(?:W|B|NOCASE))(?:\\s|$)'] },
       { titulo: 'Kits', icono: '📦', incluye: ['hubkit', 'hub2kit', 'starterkit'], excluye: ['repairkit'] },
-      { titulo: 'MotionProtect', icono: '🚶', regex: ['^AJ-(?:MOTIONPROTECT(?:PLUS)?|OUTDOORPROTECT|COMBIPROTECT)-(?:W|B)(?:\\s|$)'] },
+      { titulo: 'MotionProtect', icono: '🚶',incluye: ['aj-hood'], regex: ['^AJ-(?:MOTIONPROTECT(?:PLUS)?|OUTDOORPROTECT|COMBIPROTECT)-(?:W|B)(?:\\s|$)'] },
       { titulo: 'MotionCam', icono: '📷', incluye: ['motioncam'], excluye: ['dummy', 'lens', 'hood', 'bracket'] },
       { titulo: 'DoorProtect', icono: '🚪', regex: ['^AJ-DOORPROTECT(?:PLUS)?-(?:W|B)(?:\\s|$)'] },
       { titulo: 'GlassProtect', icono: '🪟', incluye: ['combiprotect'], regex: ['^AJ-GLASSPROTECT-(?:W|B)(?:\\s|$)'],excluye: ['dummy'] },
@@ -33,7 +33,7 @@ window.EXPLORAR_CATEGORIAS = [
       { titulo: 'Repetidores', icono: '📡', regex: ['^AJ-REX2?-(?:W|B)(?:-NF)?(?:\\s|$)'] },
       { titulo: 'Teclados', icono: '⌨️', incluye: ['keypad'], excluye: ['dummy', 'bracket'] },
       { titulo: 'Sirenas', icono: '📢', incluye: ['homesiren', 'streetsiren'], excluye: ['dummy', 'bracket', 'speakerss'] },
-      { titulo: 'Audio / Voz', icono: '🔊', incluye: ['speakerphone'] },
+      { titulo: 'Speakers', icono: '🔊', incluye: ['speakerphone'] },
       { titulo: 'Mandos / Botones', icono: '🎛️', incluye: ['spacecontrol', 'button', 'doublebutton','aj-holder'], excluye: ['centerbutton', 'sidebutton', 'solobutton', 'dummy']},
       { titulo: 'Enchufes inteligentes', icono: '⚡', incluye: ['socket'], excluye: ['sim', 'cover', 'button'] },
       { titulo: 'Transmisores', icono: '🧠', incluye: ['transmitter', 'uartbridge', 'ocbridge', 'vhfbridge'], excluye: ['dummy', 'bracket', 'case'] },
@@ -55,7 +55,7 @@ window.EXPLORAR_CATEGORIAS = [
       { titulo: 'NVR', icono: '🎥', incluye: ['nvr'], excluye: ['nvrkit', 'psu', 'storage'] },
       { titulo: 'Kits NVR', icono: '📦', incluye: ['nvrkit'] },
       { titulo: 'Discos HDD / SD', icono: '💽', incluye: ['hd1tb', 'hd2tb', 'hd4tb', 'hd6tb', 'hd8tb', 'hs-tf'], regex: ['^HD\\d+TB', '^HS[-_ ]?TF'] },
-      { titulo: 'Soporte Cámaras', icono: '🧰', incluye: ['junctionbox'] },
+      { titulo: 'Soporte Cámaras', icono: '🧰', incluye: ['junctionbox','mountcam'] },
     ]
   },
 
@@ -106,16 +106,7 @@ window.EXPLORAR_CATEGORIAS = [
   titulo: 'Accesorios',
   icono: '🧰',
      subcategorias: [
-        {
-  titulo: 'Soportes',
-  icono: '🧰',
-  incluye: [
-    'junctionbox',
-    'mountcam',
-    'hood',
-  ], excluye: ['lens','protect','bracket'] },
       { titulo: 'Carcasas / Dummy', icono: '📦', incluye: ['dummy']},
-      { titulo: 'Tapas / Covers / Frame', icono: '🧩', incluye: ['cover', 'coverplate', 'frame', 'surfacebox','coverholder'], excluye: ['cap'] },
      { titulo: 'Fuentes / Baterías', icono: '🔋', incluye: ['psu','battery','hubbatt','ac220','dc12','dc6','dc1224','internalbattery','batt-cr123a','cr123a','cr2032','er14505'], excluye: ['bracket','hub2'] },
       { titulo: 'SAI / UPS', icono: '🔌', incluye: ['sai', 'ups'], regex: ['^SAI', '^UPS'] },
       { titulo: 'SIM / Antenas', icono: '📶', regex: ['^AJ-(?:SIM|SIMSLOT|EXTERNALANTENNA-B)(?:\\s|$)', '^LXM2M-CARD-ES(?:\\s|$)'] },
