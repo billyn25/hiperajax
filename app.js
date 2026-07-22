@@ -147,7 +147,7 @@ function parseCSV(txt){
   }).filter(p=>p.name && p.pvp>=0).sort((a,b)=>a.name.localeCompare(b.name,'es'));
 }
 
-async function cargarCatalogo(){
+async function cargarCatalogoLegacyInterno(){
   let origen = 'csv';
   try{
     const r = await fetch(`${CSV_URL}?v=${Date.now()}`, {cache:'no-store'});
@@ -6003,3 +6003,213 @@ function descripcionPdfCorta(linea){
     window.addEventListener('hiperajax:presupuestos-importados',()=>{pmSelectedId='';pmRender();});
   });
 })();
+
+
+/* =====================================================
+   CATÁLOGO: DIAGNÓSTICO VISIBLE
+   - Evita depender de la consola.
+   - Detecta referencias duplicadas y precios incompatibles.
+   - Avisa si una línea del presupuesto conserva un precio antiguo.
+   - Confirma que la fuente activa es catalogo_ajax.csv.
+   ===================================================== */
+const HX_CATALOG_DIAG_VERSION = '1.0';
+
+function hxCatalogRef(value){
+  return String(value || '').trim().toUpperCase();
+}
+
+function hxCatalogMoney(value){
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function hxCatalogSamePrice(a, b){
+  return Math.abs(hxCatalogMoney(a) - hxCatalogMoney(b)) < 0.005;
+}
+
+function hxEnsureCatalogDiagnosticUI(){
+  let status = document.getElementById('catalogHealth');
+  if(!status){
+    status = document.createElement('button');
+    status.type = 'button';
+    status.id = 'catalogHealth';
+    status.className = 'catalog-health is-checking';
+    status.textContent = 'Comprobando catálogo…';
+    status.addEventListener('click', hxOpenCatalogDiagnostic);
+    const preview = document.getElementById('previewProducto');
+    if(preview && preview.parentNode) preview.insertAdjacentElement('afterend', status);
+  }
+
+  if(!document.getElementById('catalogDiagnosticModal')){
+    const modal = document.createElement('div');
+    modal.id = 'catalogDiagnosticModal';
+    modal.className = 'modal hidden catalog-diagnostic-modal';
+    modal.setAttribute('aria-hidden', 'true');
+    modal.innerHTML = `
+      <div class="modal-backdrop" data-catalog-diagnostic-close></div>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="catalogDiagnosticTitle">
+        <div class="modal-head">
+          <div>
+            <h2 id="catalogDiagnosticTitle">Estado del catálogo</h2>
+            <p id="catalogDiagnosticSubtitle">Comprobación de referencias y precios.</p>
+          </div>
+          <button type="button" class="modal-close" data-catalog-diagnostic-close aria-label="Cerrar">×</button>
+        </div>
+        <div id="catalogDiagnosticBody" class="catalog-diagnostic-body"></div>
+        <div class="modal-foot">
+          <button type="button" class="secondary" data-catalog-diagnostic-close>Entendido</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.querySelectorAll('[data-catalog-diagnostic-close]').forEach(el=>{
+      el.addEventListener('click', hxCloseCatalogDiagnostic);
+    });
+  }
+  return status;
+}
+
+function hxOpenCatalogDiagnostic(){
+  const modal = document.getElementById('catalogDiagnosticModal');
+  if(!modal) return;
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+}
+
+function hxCloseCatalogDiagnostic(){
+  const modal = document.getElementById('catalogDiagnosticModal');
+  if(!modal) return;
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden', 'true');
+  if(!document.querySelector('.modal:not(.hidden)')) document.body.classList.remove('modal-open');
+}
+
+function hxDiagnosticarCatalogo(){
+  hxEnsureCatalogDiagnosticUI();
+
+  const porRef = new Map();
+  const duplicados = [];
+  const conflictosPrecio = [];
+
+  (Array.isArray(productos) ? productos : []).forEach((p, index)=>{
+    const ref = hxCatalogRef(p && p.name);
+    if(!ref) return;
+    const actual = {ref, pvp:hxCatalogMoney(p.pvp), index, producto:p};
+    if(!porRef.has(ref)){
+      porRef.set(ref, actual);
+      return;
+    }
+    const anterior = porRef.get(ref);
+    duplicados.push({ref, anterior, actual});
+    if(!hxCatalogSamePrice(anterior.pvp, actual.pvp)){
+      conflictosPrecio.push({ref, anterior:anterior.pvp, nuevo:actual.pvp});
+    }
+  });
+
+  const preciosAntiguos = [];
+  (Array.isArray(lineas) ? lineas : []).forEach((linea, index)=>{
+    if(!linea || linea.manual || linea.separador) return;
+    const ref = hxCatalogRef(linea.name);
+    const vigente = porRef.get(ref);
+    if(!vigente) return;
+    if(!hxCatalogSamePrice(linea.pvp, vigente.pvp)){
+      preciosAntiguos.push({
+        ref,
+        linea:index + 1,
+        presupuesto:hxCatalogMoney(linea.pvp),
+        catalogo:hxCatalogMoney(vigente.pvp)
+      });
+    }
+  });
+
+  const incidencias = conflictosPrecio.length + preciosAntiguos.length;
+  const informe = {
+    version: HX_CATALOG_DIAG_VERSION,
+    fuente: 'catalogo_ajax.csv',
+    productos: Array.isArray(productos) ? productos.length : 0,
+    referencias: porRef.size,
+    duplicados,
+    conflictosPrecio,
+    preciosAntiguos,
+    incidencias
+  };
+  window.HX_CATALOGO_DIAGNOSTICO = informe;
+
+  const status = document.getElementById('catalogHealth');
+  const body = document.getElementById('catalogDiagnosticBody');
+  const subtitle = document.getElementById('catalogDiagnosticSubtitle');
+  if(!status || !body) return informe;
+
+  status.classList.remove('is-checking','is-ok','is-warn','is-error');
+  if(!productos.length){
+    status.classList.add('is-error');
+    status.textContent = '⛔ Catálogo no cargado';
+  }else if(incidencias){
+    status.classList.add('is-warn');
+    status.textContent = `⚠️ ${incidencias} incidencia${incidencias === 1 ? '' : 's'} de precio`;
+  }else if(duplicados.length){
+    status.classList.add('is-warn');
+    status.textContent = `⚠️ ${duplicados.length} referencia${duplicados.length === 1 ? '' : 's'} duplicada${duplicados.length === 1 ? '' : 's'}`;
+  }else{
+    status.classList.add('is-ok');
+    status.textContent = '✅ Catálogo correcto';
+  }
+
+  if(subtitle){
+    subtitle.textContent = `${informe.productos} productos cargados desde ${informe.fuente}.`;
+  }
+
+  const bloques = [];
+  bloques.push(`
+    <section class="catalog-diag-summary ${incidencias ? 'has-warning' : 'is-clean'}">
+      <strong>${incidencias ? 'Se han detectado diferencias de precio' : 'Catálogo comprobado correctamente'}</strong>
+      <span>${informe.productos} productos · ${informe.referencias} referencias únicas · Fuente: ${escapeHtml(informe.fuente)}</span>
+    </section>`);
+
+  if(conflictosPrecio.length){
+    bloques.push(`<section class="catalog-diag-section"><h3>Referencias con dos precios</h3>${conflictosPrecio.map(x=>`
+      <div class="catalog-diag-item is-warning">
+        <b>${escapeHtml(x.ref)}</b>
+        <span>${fmt.format(x.anterior)} frente a ${fmt.format(x.nuevo)}</span>
+      </div>`).join('')}</section>`);
+  }
+
+  if(preciosAntiguos.length){
+    bloques.push(`<section class="catalog-diag-section"><h3>Precios antiguos en el presupuesto</h3>${preciosAntiguos.map(x=>`
+      <div class="catalog-diag-item is-warning">
+        <b>${escapeHtml(x.ref)}</b>
+        <span>Línea ${x.linea}: ${fmt.format(x.presupuesto)} · Catálogo actual: ${fmt.format(x.catalogo)}</span>
+      </div>`).join('')}
+      <p class="catalog-diag-help">La app no cambia automáticamente un presupuesto ya creado. El aviso permite revisar el precio antes de entregarlo.</p>
+    </section>`);
+  }
+
+  if(duplicados.length && !conflictosPrecio.length){
+    bloques.push(`<section class="catalog-diag-section"><h3>Referencias duplicadas</h3>
+      <p>${duplicados.length} referencia${duplicados.length === 1 ? '' : 's'} repetida${duplicados.length === 1 ? '' : 's'}, pero con el mismo precio.</p>
+    </section>`);
+  }
+
+  if(!incidencias && !duplicados.length){
+    bloques.push(`<section class="catalog-diag-section"><p>No hay referencias duplicadas ni diferencias entre los precios del catálogo y las líneas actuales.</p></section>`);
+  }
+
+  body.innerHTML = bloques.join('');
+
+  if(incidencias){
+    try{ hxToastGlobal(`Catálogo con ${incidencias} incidencia${incidencias === 1 ? '' : 's'} de precio`, 'error'); }catch(e){}
+    hxOpenCatalogDiagnostic();
+  }
+  return informe;
+}
+
+// Este es el único envoltorio final de carga: conserva los índices existentes
+// y ejecuta el diagnóstico cuando el CSV ya se ha cargado por completo.
+const cargarCatalogo_BASE_DIAGNOSTICO = cargarCatalogo;
+cargarCatalogo = async function(){
+  const resultado = await cargarCatalogo_BASE_DIAGNOSTICO.apply(this, arguments);
+  hxDiagnosticarCatalogo();
+  return resultado;
+};
+
+document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);

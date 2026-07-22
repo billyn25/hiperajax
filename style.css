@@ -8209,3 +8209,45 @@ body.light-mode #pmModal .pmx-products li{background:#fff!important;border-color
     flex-wrap:nowrap!important;
   }
 }
+
+/* =====================================================
+   CATÁLOGO: estado y diagnóstico visible
+   ===================================================== */
+.catalog-health{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:30px;margin-left:9px;padding:5px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+  color:#d9e9e0;font-size:11px;font-weight:850;line-height:1.1;cursor:pointer;
+  box-shadow:none!important;vertical-align:middle;
+}
+.catalog-health.is-ok{border-color:rgba(57,192,117,.42);background:rgba(35,139,84,.13);color:#c9f4da}
+.catalog-health.is-warn{border-color:rgba(255,184,77,.56);background:rgba(154,98,11,.18);color:#ffe2a8}
+.catalog-health.is-error{border-color:rgba(255,93,108,.55);background:rgba(155,35,48,.18);color:#ffd1d7}
+.catalog-health:hover{transform:translateY(-1px)}
+.catalog-diagnostic-modal .modal-card{width:min(760px,96vw)}
+.catalog-diagnostic-body{display:grid;gap:12px;overflow:auto;max-height:58vh;padding-right:3px}
+.catalog-diag-summary,.catalog-diag-section{border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:13px;background:rgba(255,255,255,.035)}
+.catalog-diag-summary{display:grid;gap:4px}
+.catalog-diag-summary strong{font-size:14px;color:#d6ffe5}
+.catalog-diag-summary span,.catalog-diag-section p{font-size:12px;color:#b7c9c0;margin:0}
+.catalog-diag-summary.has-warning{border-color:rgba(255,184,77,.40);background:rgba(154,98,11,.12)}
+.catalog-diag-summary.has-warning strong{color:#ffe0a0}
+.catalog-diag-section h3{font-size:13px;margin:0 0 8px;color:#eef8f2}
+.catalog-diag-item{display:grid;gap:3px;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.04);margin-top:6px}
+.catalog-diag-item b{font-size:12px;color:#fff}
+.catalog-diag-item span{font-size:11px;color:#c6d8cf}
+.catalog-diag-item.is-warning{border-left:3px solid #dca33b}
+.catalog-diag-help{margin-top:9px!important}
+body.light-mode .catalog-health{background:#fff;color:#294b3b;border-color:#cbded4}
+body.light-mode .catalog-health.is-ok{background:#edf9f1;color:#17623a;border-color:#a9d9bd}
+body.light-mode .catalog-health.is-warn{background:#fff7e5;color:#704900;border-color:#e5c474}
+body.light-mode .catalog-health.is-error{background:#fff0f2;color:#8b2632;border-color:#e2a5ad}
+body.light-mode .catalog-diag-summary,body.light-mode .catalog-diag-section{background:#f7fbf9;border-color:#d7e5de}
+body.light-mode .catalog-diag-summary strong,body.light-mode .catalog-diag-section h3{color:#183c2b}
+body.light-mode .catalog-diag-summary span,body.light-mode .catalog-diag-section p,body.light-mode .catalog-diag-item span{color:#536c60}
+body.light-mode .catalog-diag-item{background:#fff}
+body.light-mode .catalog-diag-item b{color:#173b2a}
+@media(max-width:760px){
+  .catalog-health{display:flex;width:max-content;max-width:100%;margin:7px 0 0;font-size:10px}
+  .catalog-diagnostic-body{max-height:60vh}
+}
