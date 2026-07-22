@@ -3857,7 +3857,7 @@ function familyDesc192(p){
     else if(n.includes('curtainoutdoor')){ official='Curtain Outdoor'; desc='Detector exterior Ajax tipo cortina para protección perimetral'; sub='Cortina exterior'; }
     return {icon:n.includes('cam')?'📷':'🛡️', official, family:`Intrusión Ajax · Detectores tipo cortina · ${sub}`, desc:withColor192(desc,n), tags:['curtain','cortina','tipo cortina','detector cortina','perimetral','perímetro','pir','movimiento','exterior','interior',official.toLowerCase()]};
   }
-  if(n.includes('doorprotect') && !n.includes('doorbell')){
+  if(n.includes('doorprotect') && !n.includes('outdoorprotect') && !n.includes('doorbell')){
     const plus=n.includes('plus');
     return {icon:'🚪', official:plus?'DoorProtect Plus':'DoorProtect', family:'Intrusión Ajax · Contactos magnéticos', desc:withColor192(plus?'Detector magnético Ajax de apertura con impacto e inclinación para puertas y ventanas':'Detector magnético Ajax de apertura para puertas y ventanas',n), tags:['doorprotect','puerta','ventana','apertura','contacto magnético','magnetico','magnético','iman','imán']};
   }
@@ -5415,21 +5415,52 @@ document.addEventListener('DOMContentLoaded',()=>{
     }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.p.name.localeCompare(b.p.name,'es')).slice(0,300);
   }
 
+  // Agrupación automática de variantes del Explorer.
+  // No necesita reglas por familia: elimina únicamente el token de color W/B
+  // de la referencia y mantiene juntas todas las variantes del mismo producto.
+  function exploreFamilyKey300(product){
+    return String((product && product.name) || '')
+      .toUpperCase()
+      .replace(/-(?:W|B)(?=-|$)/g, '')
+      .replace(/--+/g, '-')
+      .replace(/-$/,'')
+      .trim();
+  }
+  function exploreColorOrder300(product){
+    const ref=String((product && product.name) || '').toUpperCase();
+    if(/-W(?:-|$)/.test(ref)) return 0;
+    if(/-B(?:-|$)/.test(ref)) return 1;
+    return 2;
+  }
   function filteredProducts(){
     const q=String(expQuery||'').trim();
     if(q) return smartExplore300(q);
     const sub=currentSub();
     if(!sub) return [];
-    return productos.map((p,i)=>({p,i})).filter(x=>sub.pred(x.p)).sort((a,b)=>{
-      const engine = window.HXA_KNOWLEDGE_ENGINE;
-      const pa = typeof engine?.commercialPriority==='function' ? engine.commercialPriority(a.p) : 0;
-      const pb = typeof engine?.commercialPriority==='function' ? engine.commercialPriority(b.p) : 0;
-      if(pb!==pa) return pb-pa;
-      const priceDiff=(Number(a.p.pvp)||0)-(Number(b.p.pvp)||0);
-      if(priceDiff) return priceDiff;
-      const aw=/-W(?:-|$)/i.test(a.p.name||''), bw=/-W(?:-|$)/i.test(b.p.name||'');
-      if(aw!==bw) return aw?-1:1;
-      return a.p.name.localeCompare(b.p.name,'es');
+
+    const lista=productos.map((p,i)=>({p,i})).filter(x=>sub.pred(x.p));
+    // El precio mínimo de cada familia se usa para ordenar familias completas,
+    // nunca productos sueltos. Así W y B permanecen contiguos automáticamente.
+    const familyMinPrice=new Map();
+    lista.forEach(x=>{
+      const key=exploreFamilyKey300(x.p);
+      const price=Number(x.p.pvp)||0;
+      if(!familyMinPrice.has(key) || price<familyMinPrice.get(key)) familyMinPrice.set(key,price);
+    });
+
+    return lista.sort((a,b)=>{
+      const familyA=exploreFamilyKey300(a.p);
+      const familyB=exploreFamilyKey300(b.p);
+      if(familyA!==familyB){
+        const byFamilyPrice=(familyMinPrice.get(familyA)||0)-(familyMinPrice.get(familyB)||0);
+        if(byFamilyPrice) return byFamilyPrice;
+        return familyA.localeCompare(familyB,'es',{numeric:true,sensitivity:'base'});
+      }
+      const byColor=exploreColorOrder300(a.p)-exploreColorOrder300(b.p);
+      if(byColor) return byColor;
+      const byPrice=(Number(a.p.pvp)||0)-(Number(b.p.pvp)||0);
+      if(byPrice) return byPrice;
+      return String(a.p.name||'').localeCompare(String(b.p.name||''),'es',{numeric:true,sensitivity:'base'});
     });
   }
 
