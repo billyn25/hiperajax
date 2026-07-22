@@ -803,27 +803,16 @@ function addLinea(){
   const term = ($('#buscador').value || '').trim();
   let idx = null;
 
-  /* Una selección explícita siempre manda sobre una nueva búsqueda.
-     Antes se volvía a interpretar el texto visible y nombres como
-     "KeyPad Combi" podían terminar añadiendo "CombiProtect". */
-  const seleccionadoValido = Number.isInteger(seleccionado) && !!productos[seleccionado];
-  const coincideSeleccion = seleccionadoValido && normaliza(productos[seleccionado].name) === normaliza(term);
-
-  if(coincideSeleccion){
-    idx = seleccionado;
-  }else if($('#producto').value !== '' && productos[Number($('#producto').value)]){
-    idx = Number($('#producto').value);
-  }else if(term){
-    /* El resultado activo solo se usa mientras el panel está abierto;
-       evita reutilizar una fila activa antigua que ya está oculta. */
-    const panel = $('#resultados');
-    const act = panel && !panel.classList.contains('hidden') ? panel.querySelector('.result-item.active') : null;
-    if(act && productos[Number(act.dataset.index)]) idx = Number(act.dataset.index);
+  if(term){
+    const act = $('.result-item.active');
+    if(act) idx = Number(act.dataset.index);
     else {
       const r = buscar(term);
       if(r.length) idx = r[0].i;
     }
-  }else if(seleccionadoValido){
+  }else if($('#producto').value !== ''){
+    idx = Number($('#producto').value);
+  }else{
     idx = seleccionado;
   }
 
@@ -4891,7 +4880,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       return r;
     };
   }
-  document.addEventListener('DOMContentLoaded',()=>{ fixCatalogButtons207(); setTimeout(orderCatalogFilters207,50); document.querySelectorAll('.creator').forEach(el=>{ el.textContent='· Creado por David Corregidor · 3.0.0'; }); });
+  document.addEventListener('DOMContentLoaded',()=>{ fixCatalogButtons207(); setTimeout(orderCatalogFilters207,50); document.querySelectorAll('.creator').forEach(el=>{ el.textContent='· Creado por David Corregidor · 4.0.7'; }); });
 })();
 
 /* =====================================================
@@ -5145,7 +5134,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Soportes/JunctionBox en Accesorios.
    ===================================================== */
 (function(){
-  const VERSION_EXPLORE_211 = '3.0.0';
+  const VERSION_EXPLORE_211 = '4.0.7';
   function n211(s){ return normaliza(String(s||'')).replace(/[^a-z0-9]+/g,''); }
   function raw211(p){ return n211(p && p.name); }
   function has211(name, parts){ return parts.some(k=>name.includes(k)); }
@@ -5388,14 +5377,15 @@ document.addEventListener('DOMContentLoaded',()=>{
           .map(x=>({p:productos[x._hxaIndex],i:x._hxaIndex,score:x._score,reasons:x._reasons||[]}))
           .filter(x=>x.p);
         if(EXPLORE_SEARCH_CACHE_300.size>120) EXPLORE_SEARCH_CACHE_300.clear();
-        EXPLORE_SEARCH_CACHE_300.set(cacheKey,ranked);
-        return ranked;
+        const ordenados=sortFamilyResults300(ranked,q);
+        EXPLORE_SEARCH_CACHE_300.set(cacheKey,ordenados);
+        return ordenados;
       }
     }catch(e){ console.warn('Knowledge Engine Explorer fallback',e); }
 
     const rawTokens=q.split(/\s+/).filter(Boolean);
     const expanded=expand300(q);
-    return productos.map((p,i)=>{
+    const resultados=productos.map((p,i)=>{
       const name=n211((p&&p.name)||'');
       const text=searchText300(p);
       const words=[...new Set(text.split(/[^a-z0-9]+/).filter(Boolean))];
@@ -5424,6 +5414,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(accessory && !accessoryAsked) score-=7000;
       return {p,i,score};
     }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.p.name.localeCompare(b.p.name,'es')).slice(0,300);
+    return sortFamilyResults300(resultados,q);
   }
 
   // Agrupación automática de variantes del Explorer.
@@ -5442,6 +5433,28 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(/-W(?:-|$)/.test(ref)) return 0;
     if(/-B(?:-|$)/.test(ref)) return 1;
     return 2;
+  }
+  function sortFamilyResults300(items,query=''){
+    const lista=Array.isArray(items)?items.slice():[];
+    const grupos=new Map();
+    lista.forEach((item,pos)=>{
+      const key=exploreFamilyKey300(item.p);
+      if(!grupos.has(key)) grupos.set(key,{key,items:[],bestScore:-Infinity,first:pos});
+      const g=grupos.get(key);
+      g.items.push({...item,__hxPos:pos});
+      g.bestScore=Math.max(g.bestScore,Number(item.score)||0);
+      g.first=Math.min(g.first,pos);
+    });
+    const buscaNegro=/\b(?:negro|black|\-b)\b/i.test(String(query||''));
+    const buscaBlanco=/\b(?:blanco|white|\-w)\b/i.test(String(query||''));
+    return [...grupos.values()]
+      .sort((a,b)=>(b.bestScore-a.bestScore)||(a.first-b.first)||a.key.localeCompare(b.key,'es',{numeric:true,sensitivity:'base'}))
+      .flatMap(g=>g.items.sort((a,b)=>{
+        let ca=exploreColorOrder300(a.p), cb=exploreColorOrder300(b.p);
+        if(buscaNegro){ ca=ca===1?0:ca===0?1:ca; cb=cb===1?0:cb===0?1:cb; }
+        else if(buscaBlanco){ ca=ca===0?0:ca===1?1:ca; cb=cb===0?0:cb===1?1:cb; }
+        return ca-cb || (Number(b.score)||0)-(Number(a.score)||0) || String(a.p.name||'').localeCompare(String(b.p.name||''),'es',{numeric:true,sensitivity:'base'});
+      }).map(({__hxPos,...item})=>item));
   }
   function filteredProducts(){
     const q=String(expQuery||'').trim();
@@ -5836,7 +5849,7 @@ function descripcionPdfCorta(linea){
    3.0.0 - versión única
    ===================================================== */
 (function(){
-  const APP_VERSION = '3.0.0';
+  const APP_VERSION = '4.0.7';
   function setAppVersion(){
     document.querySelectorAll('.creator').forEach(el=>{
       el.textContent = `· Creado por David Corregidor · ${APP_VERSION}`;
@@ -6335,7 +6348,64 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
 
 /* =====================================================
-   PATCH v4.0.7 - Alta por selección exacta
-   - La referencia elegida no se vuelve a resolver por texto.
-   - Evita colisiones KeyPad Combi / CombiProtect y equivalentes.
+   4.0.7 - Orden automático compartido de familias
+   - Buscador inicial y catálogo: variantes W/B contiguas.
+   - Mantiene la relevancia de cada familia y ordena sus variantes.
+   - Si se busca negro/blanco, prioriza el color solicitado.
    ===================================================== */
+(function(){
+  const HX_APP_VERSION='4.0.7';
+  function hxFamilyKey407(product){
+    return String((product&&product.name)||'').toUpperCase()
+      .replace(/-(?:W|B)(?=-|$)/g,'')
+      .replace(/--+/g,'-').replace(/-$/,'').trim();
+  }
+  function hxColor407(product,query){
+    const ref=String((product&&product.name)||'').toUpperCase();
+    let order=/-W(?:-|$)/.test(ref)?0:/-B(?:-|$)/.test(ref)?1:2;
+    const q=String(query||'').toLowerCase();
+    if(/\b(?:negro|black)\b/.test(q)) order=/-B(?:-|$)/.test(ref)?0:/-W(?:-|$)/.test(ref)?1:2;
+    return order;
+  }
+  function hxOrderFamilies407(items,query=''){
+    if(!Array.isArray(items)||items.length<2) return items;
+    const groups=new Map();
+    items.forEach((item,pos)=>{
+      const p=item&&item.p?item.p:item;
+      const key=hxFamilyKey407(p);
+      if(!groups.has(key)) groups.set(key,{key,items:[],best:-Infinity,first:pos});
+      const g=groups.get(key);
+      g.items.push({item,p,pos});
+      g.best=Math.max(g.best,Number(item&&item.score)||0);
+    });
+    return [...groups.values()]
+      .sort((a,b)=>(b.best-a.best)||(a.first-b.first)||a.key.localeCompare(b.key,'es',{numeric:true,sensitivity:'base'}))
+      .flatMap(g=>g.items.sort((a,b)=>
+        hxColor407(a.p,query)-hxColor407(b.p,query) ||
+        (Number(b.item&&b.item.score)||0)-(Number(a.item&&a.item.score)||0) ||
+        String(a.p&&a.p.name||'').localeCompare(String(b.p&&b.p.name||''),'es',{numeric:true,sensitivity:'base'})
+      ).map(x=>x.item));
+  }
+
+  if(typeof buscar==='function'){
+    const buscarBase407=buscar;
+    buscar=function(term){ return hxOrderFamilies407(buscarBase407.apply(this,arguments),term); };
+  }
+  if(typeof buscarCatalogo==='function'){
+    const buscarCatalogoBase407=buscarCatalogo;
+    buscarCatalogo=function(term=''){ return hxOrderFamilies407(buscarCatalogoBase407.apply(this,arguments),term); };
+  }
+
+  function setVersion407(){
+    document.querySelectorAll('.creator').forEach(el=>{
+      el.textContent=`· Creado por David Corregidor · ${HX_APP_VERSION}`;
+    });
+  }
+  document.addEventListener('DOMContentLoaded',()=>{ setVersion407(); setTimeout(setVersion407,120); });
+  const observer407=new MutationObserver(setVersion407);
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('.creator').forEach(el=>observer407.observe(el,{childList:true,characterData:true,subtree:true}));
+  });
+  window.HX_APP_VERSION=HX_APP_VERSION;
+  window.HX_ORDER_FAMILIES=hxOrderFamilies407;
+})();
