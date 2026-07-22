@@ -65,7 +65,7 @@ window.EXPLORAR_CATEGORIAS = [
     icono: '💡',
     subcategorias: [
       { titulo: 'Enchufes inteligentes', icono: '⚡', incluye: ['socket'], excluye: ['sim', 'cover', 'button'] },
-      { titulo: 'Interruptores de luz', icono: '💡', incluye: ['lightcore', 'lightswitch'], excluye: ['centerbutton', 'sidebutton', 'solobutton', 'frame', 'cover'] },
+      { titulo: 'Interruptores de luz', icono: '💡', incluye: ['lightcore', 'lightswitch'], excluye: ['centerbutton', 'sidebutton', 'solobutton', 'frame', 'cover','surface'] },
       { titulo: 'Botones LightSwitch', icono: '🎛️', incluye: ['centerbutton', 'sidebutton', 'solobutton'] },
       { titulo: 'Bases de enchufe', icono: '🔌', incluye: ['outletcore', 'outletbasic', 'outletlan', 'outlet'], excluye: ['cover', 'socket'] },
       { titulo: 'Tapas enchufe', icono: '🧩', incluye: ['centercover', 'sidecover', 'solocover', 'coverplate', 'bypass-dimmer', 'bypassdimmer'] },
