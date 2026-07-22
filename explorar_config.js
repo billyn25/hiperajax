@@ -26,7 +26,7 @@ window.EXPLORAR_CATEGORIAS = [
       { titulo: 'Hubs', icono: '🏠', regex: ['^AJ-(?:HUB-(?:W|B)|HUB2-(?:W|B)|HUB2-4G-(?:W|B)|HUB2PLUS-(?:W|B)|HUB2(?:-4G)?-DC6V-W|HUBBP-V2-(?:W|B|NOCASE))(?:\\s|$)'] },
       { titulo: 'Kits', icono: '📦', incluye: ['hubkit', 'hub2kit', 'starterkit'], excluye: ['repairkit'] },
       { titulo: 'MotionProtect', icono: '🚶',incluye: ['aj-hood'], regex: ['^AJ-(?:MOTIONPROTECT(?:PLUS)?|OUTDOORPROTECT|COMBIPROTECT)-(?:W|B)(?:\\s|$)'],excluye: ['hood-motioncam'] },
-      { titulo: 'MotionCam', icono: '📷', incluye: ['motioncam','AJ-HOOD-MOTIONCAMOUTDOOR'], excluye: ['dummy', 'lens', 'hood', 'bracket'] },
+      { titulo: 'MotionCam', icono: '📷', incluye: ['motioncam','AJ-HOOD-MOTIONCAMOUTDOOR'], excluye: ['dummy', 'lens', 'bracket'] },
       { titulo: 'DoorProtect', icono: '🚪', regex: ['^AJ-DOORPROTECT(?:PLUS)?-(?:W|B)(?:\\s|$)'] },
       { titulo: 'GlassProtect', icono: '🪟', incluye: ['combiprotect'], regex: ['^AJ-GLASSPROTECT-(?:W|B)(?:\\s|$)'],excluye: ['dummy'] },
       { titulo: 'Curtain', icono: '🟢', incluye: ['curtainprotect', 'curtainoutdoor', 'dualcurtain', 'curtaincam'], excluye: ['dummy', 'bracket'] },
