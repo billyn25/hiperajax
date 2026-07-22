@@ -23,7 +23,7 @@ window.EXPLORAR_CATEGORIAS = [
     titulo: 'Intrusión',
     icono: '🏠',
     subcategorias: [
-      { titulo: 'Hubs', icono: '🏠', regex: ['^AJ-(?:HUB-(?:W|B)|HUB2-(?:W|B)|HUB2-4G-(?:W|B)|HUB2PLUS-(?:W|B)|HUB2(?:-4G)?-DC6V-W|HUBBP-V2-(?:W|B|NOCASE))(?:\\s|$)'] },
+      { titulo: 'Hubs', icono: '🏠', regex: ['^AJ-(?:HUB-(?:W|B)|HUB2-(?:W|B)|HUB2-4G-(?:W|B)|HUB2PLUS-(?:W|B)|HUB2(?:-4G)?-DC6V-W|HUBBP-V2-(?:W|B|NOCASE)|MINIHUB-W)(?:\\s|$)'] },
       { titulo: 'Kits', icono: '📦', incluye: ['hubkit', 'hub2kit', 'starterkit'], excluye: ['repairkit'] },
       { titulo: 'MotionProtect', icono: '🚶', regex: ['^AJ-(?:MOTIONPROTECT(?:PLUS)?|OUTDOORPROTECT|COMBIPROTECT)-(?:W|B)(?:\\s|$)'] },
       { titulo: 'MotionCam', icono: '📷', incluye: ['motioncam'], excluye: ['dummy', 'lens', 'hood', 'bracket'] },
@@ -33,6 +33,8 @@ window.EXPLORAR_CATEGORIAS = [
       { titulo: 'Repetidores', icono: '📡', regex: ['^AJ-REX2?-(?:W|B)(?:-NF)?(?:\\s|$)'] },
       { titulo: 'Teclados', icono: '⌨️', incluye: ['keypad'], excluye: ['dummy', 'bracket'] },
       { titulo: 'Sirenas', icono: '📢', incluye: ['homesiren', 'streetsiren'], excluye: ['dummy', 'bracket', 'speakerss'] },
+      { titulo: 'Audio / Voz', icono: '🔊', incluye: ['speakerphone', 'speakerss'] },
+      { titulo: 'Barreras infrarrojas', icono: '🚧', incluye: ['detector de barrera', 'barrera por infrarrojos'], exactos: ['ABE-150'] },
       { titulo: 'Mandos / Botones', icono: '🎛️', incluye: ['spacecontrol', 'button', 'doublebutton','aj-holder'], excluye: ['centerbutton', 'sidebutton', 'solobutton', 'dummy']},
       { titulo: 'Enchufes inteligentes', icono: '⚡', incluye: ['socket'], excluye: ['sim', 'cover', 'button'] },
       { titulo: 'Transmisores', icono: '🧠', incluye: ['transmitter', 'uartbridge', 'ocbridge', 'vhfbridge'], excluye: ['dummy', 'bracket', 'case'] },
@@ -96,7 +98,7 @@ window.EXPLORAR_CATEGORIAS = [
       { titulo: 'Puntos de acceso', icono: '📶', incluye: ['access point', 'punto de acceso', 'wifi ap', 'ap wifi'] },
       { titulo: 'Inyectores PoE', icono: '⚡', incluye: ['injector poe', 'inyector poe', 'inj-poe'] },
       { titulo: 'Conversores', icono: '🔄', incluye: ['media converter', 'converter', 'conversor'] },
-      { titulo: 'Rack / Patch panel', icono: '🗄️', incluye: ['rack', 'patch panel', 'patchpanel'], excluye: ['bracket']},
+      { titulo: 'Rack / Patch panel', icono: '🗄️', incluye: ['rack', 'patch panel', 'patchpanel', 'panel de parcheo'], excluye: ['bracket']},
     ]
   },
 
@@ -117,12 +119,14 @@ window.EXPLORAR_CATEGORIAS = [
     'magnet',
   ], excluye: ['lens','protect'] },
       { titulo: 'Carcasas / Dummy', icono: '📦', incluye: ['dummy']},
-      { titulo: 'Tapas / Covers / Frame', icono: '🧩', incluye: ['cover', 'coverplate', 'frame', 'surfacebox'], excluye: ['coverholder'] },
+      { titulo: 'Tapas / Covers / Frame', icono: '🧩', incluye: ['cover', 'coverplate', 'frame', 'surfacebox'], exactos: ['AJ-CAP-B'], excluye: ['coverholder'] },
      { titulo: 'Fuentes / Baterías', icono: '🔋', incluye: ['psu','battery','hubbatt','ac220','dc12','dc6','dc1224','internalbattery','batt-cr123a','cr123a','cr2032','er14505'], excluye: ['bracket','hub2'] },
       { titulo: 'SAI / UPS', icono: '🔌', incluye: ['sai', 'ups'], regex: ['^SAI', '^UPS'] },
       { titulo: 'SIM / Antenas', icono: '📶', regex: ['^AJ-(?:SIM|SIMSLOT|EXTERNALANTENNA-B)(?:\\s|$)', '^LXM2M-CARD-ES(?:\\s|$)'] },
-      { titulo: 'Recambios', icono: '🧲', incluye: ['magnet', 'reedswitch', 'lens', 'repairkit'], excluye: ['bracket', 'storage','protect'] },
+      { titulo: 'Recambios', icono: '🧲', incluye: ['magnet', 'reedswitch', 'lens', 'repairkit'], excluye: ['bracket', 'storage'] },
       { titulo: 'Storage / Memorias', icono: '💾', incluye: ['storage', 'hstd', 'hdd', 'microsd', 'micro-sd'], regex: ['^HS[-_ ]?TF', '^HD\\d+TB'], excluye: ['bracket', 'mountcam', 'junctionbox', 'hood', 'cover', 'frame'] },
+      { titulo: 'Cajas / Canalización', icono: '📦', incluye: ['caja estanca', 'fmcs57', 'fmcs60'] },
+      { titulo: 'Iluminación / LED', icono: '💡', incluye: ['ledstrips'] },
       { titulo: 'Marketing / Demos', icono: '👕', incluye: ['polo', 'tshirt', 'baseball', 'brandplate', 'cup','totem', 'democase','case','suitcase'] }
     ]
   }
