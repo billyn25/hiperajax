@@ -30,12 +30,38 @@
     };
   }
 
+  function compactRef(v){
+    return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().replace(/[^a-z0-9]+/g,'');
+  }
+  function isSpecificReferenceSearch(raw){
+    const q=compactRef(raw);
+    if(!q || q.length<6 || !Array.isArray(productos)) return false;
+    const direct=productos.some(p=>{
+      const ref=compactRef(p&&p.name);
+      return ref===q || ref.startsWith(q) || q.startsWith(ref);
+    });
+    return direct && (/^aj[-_ ]/i.test(raw) || /[-_0-9]/.test(raw) || q.length>=9);
+  }
+
   buscar = function(term){
     const raw=String(term||'').trim();
     if(!raw) return [];
     try{
       const key=raw.toLowerCase()+'|'+(productos?.length||0);
       if(CACHE.has(key)) return CACHE.get(key);
+
+      /* Las referencias y nombres de modelo específicos deben respetar el
+         buscador estable de app.js. El Knowledge Engine es útil para términos
+         semánticos (wifi, fotosensor, exterior...), pero no debe reinterpretar
+         KEYPADCOMBI como la intención genérica COMBI/COMBIPROTECT. */
+      if(isSpecificReferenceSearch(raw)){
+        const exactOut=buscarBase(raw);
+        if(CACHE.size>140) CACHE.clear();
+        CACHE.set(key,exactOut);
+        return exactOut;
+      }
+
       const ranked=global.HXA_KNOWLEDGE_ENGINE.rank(getIndex(),raw,260)
         .map(x=>({p:productos[x._hxaIndex],i:x._hxaIndex,score:x._score,reasons:x._reasons||[]}))
         .filter(x=>x.p);

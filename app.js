@@ -6507,7 +6507,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - Se aplica al buscador principal y al Catálogo.
    ===================================================== */
 (function(){
-  const HX_APP_VERSION_410='4.0.10';
+  const HX_APP_VERSION_410='4.0.11';
 
   function hxNorm410(v){
     return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
