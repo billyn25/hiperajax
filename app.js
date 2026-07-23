@@ -17,6 +17,8 @@ const CSV_INTERNO = "name;brand;pvp\n10XAJ-BRANDPLATES-B;AJAX;102\n10XAJ-BRANDPL
 let productos = [];
 let lineas = [];
 let seleccionado = null;
+let seleccionadoRef = '';
+let seleccionadoPvp = null;
 let activeIndex = -1;
 let recientesSesion = [];
 let catalogTerm = "";
@@ -71,6 +73,41 @@ function addProductoObj(p, qty=1, dto=null){
   registrarReciente(p.name);
   hxBajarUltimaLineaPresupuesto();
   return true;
+}
+
+/* =====================================================
+   NÚCLEO CRÍTICO · INTEGRIDAD DE PRODUCTO
+   La interfaz puede ordenar o filtrar por índices, pero el alta final
+   siempre se resuelve por la referencia exacta mostrada y valida su PVP.
+   ===================================================== */
+function hxRefProducto(value){
+  return String(value||'').trim().toUpperCase();
+}
+function hxPrecioIgual(a,b){
+  const x=Number(a), y=Number(b);
+  return Number.isFinite(x) && Number.isFinite(y) && Math.abs(x-y) < 0.000001;
+}
+function hxResolverProductoExacto(ref, expectedPvp=null){
+  const key=hxRefProducto(ref);
+  if(!key) return {ok:false,error:'Referencia de producto vacía.'};
+  const matches=productos.filter(p=>p && hxRefProducto(p.name)===key);
+  if(matches.length!==1){
+    return {ok:false,error:matches.length ? `La referencia ${key} está duplicada en el catálogo.` : `La referencia ${key} no existe en el catálogo.`};
+  }
+  const product=matches[0];
+  if(expectedPvp!==null && expectedPvp!==undefined && expectedPvp!=='' && !hxPrecioIgual(product.pvp, expectedPvp)){
+    return {ok:false,error:`El precio de ${key} ha cambiado. Operación cancelada para evitar añadir un importe incorrecto.`};
+  }
+  return {ok:true,product};
+}
+function hxAddProductoSeguro(ref, qty=1, dto=null, expectedPvp=null){
+  const resolved=hxResolverProductoExacto(ref, expectedPvp);
+  if(!resolved.ok){
+    hxToastGlobal(resolved.error,'error');
+    console.error('[Hiper Ajax] Alta cancelada por integridad:', {ref,expectedPvp,error:resolved.error});
+    return false;
+  }
+  return addProductoObj(resolved.product, qty, dto);
 }
 
 function normaliza(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
@@ -599,13 +636,13 @@ function pintarResultados(term){
 
   panel.innerHTML = results.map((x,k)=>{
     const d = descripcionProducto(x.p);
-    return `<div class="result-item" data-index="${x.i}" data-k="${k}"><div><div class="result-name">${escapeHtml(d.icon)} ${escapeHtml(x.p.name)}</div><div class="result-meta">${escapeHtml(d.desc)}</div></div><div class="result-price">${fmt.format(x.p.pvp)}</div></div>`;
+    return `<div class="result-item" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}" data-k="${k}"><div><div class="result-name">${escapeHtml(d.icon)} ${escapeHtml(x.p.name)}</div><div class="result-meta">${escapeHtml(d.desc)}</div></div><div class="result-price">${fmt.format(x.p.pvp)}</div></div>`;
   }).join('');
 
   panel.querySelectorAll('.result-item').forEach(el=>{
     el.addEventListener('mouseenter',()=>{ activeIndex = Number(el.dataset.k); marcarActivo(); });
-    el.addEventListener('click',()=> seleccionarProducto(Number(el.dataset.index), true));
-    el.addEventListener('dblclick',()=>{ seleccionarProducto(Number(el.dataset.index), true); addLinea(); });
+    el.addEventListener('click',()=> seleccionarProductoSeguro(el.dataset.ref, el.dataset.pvp, true));
+    el.addEventListener('dblclick',()=>{ seleccionarProductoSeguro(el.dataset.ref, el.dataset.pvp, true); addLinea(); });
   });
 
   panel.classList.remove('hidden');
@@ -619,9 +656,21 @@ function seleccionarProducto(i, cerrar=false){
   { const d = descripcionProducto(productos[i]); $('#previewProducto').innerHTML = `<b>${escapeHtml(d.icon)} ${escapeHtml(productos[i].name)}</b> · ${escapeHtml(d.desc)} · ${fmt.format(productos[i].pvp)}`; }
   if(cerrar) $('#resultados').classList.add('hidden');
 }
+function seleccionarProductoSeguro(ref, expectedPvp=null, cerrar=false){
+  const resolved=hxResolverProductoExacto(ref, expectedPvp);
+  if(!resolved.ok){ hxToastGlobal(resolved.error,'error'); return false; }
+  const i=productos.indexOf(resolved.product);
+  if(i<0){ hxToastGlobal('No se pudo seleccionar el producto.','error'); return false; }
+  seleccionarProducto(i, cerrar);
+  seleccionadoRef=resolved.product.name;
+  seleccionadoPvp=Number(resolved.product.pvp);
+  return true;
+}
 function resolverDesdeInput(){
   const term = $('#buscador').value;
   seleccionado = null;
+  seleccionadoRef = '';
+  seleccionadoPvp = null;
   $('#producto').value = '';
   pintarResultados(term);
 
@@ -671,13 +720,15 @@ function hxModalQtySet(scope, idx, value){
 }
 function hxResetModalQty(scope){ HX_MODAL_QTY[scope]?.clear(); }
 function hxResetModalSession(scope){ HX_MODAL_LINE[scope]?.clear(); }
-function hxAddProductoModal(scope, idx, qty){
-  const p = productos[Number(idx)];
+function hxAddProductoModal(scope, idx, qty, ref=null, expectedPvp=null){
+  const indexed = productos[Number(idx)];
+  const resolved = hxResolverProductoExacto(ref || indexed?.name, expectedPvp ?? indexed?.pvp);
   const cantidad = Math.max(1, Number(qty)||1);
-  if(!p){ hxToastGlobal('No se pudo añadir el producto.','error'); return false; }
+  if(!resolved.ok){ hxToastGlobal(resolved.error,'error'); return false; }
+  const p = resolved.product;
 
   const map = HX_MODAL_LINE[scope];
-  const key = Number(idx);
+  const key = hxRefProducto(p.name);
   const lineId = map?.get(key);
   const existing = lineId ? lineas.find(l=>l && l._hxModalLineId===lineId) : null;
 
@@ -689,7 +740,7 @@ function hxAddProductoModal(scope, idx, qty){
     return true;
   }
 
-  if(!addProductoObj(p, cantidad, null)) return false;
+  if(!hxAddProductoSeguro(p.name, cantidad, null, p.pvp)) return false;
   const created = lineas[lineas.length-1];
   if(created){
     created._hxModalLineId = `hxm-${scope}-${++HX_MODAL_LINE_SEQ}`;
@@ -733,19 +784,20 @@ function pintarCatalogPanel(term=catalogTerm){
   countWrap.textContent = `${totalList.length} producto${totalList.length===1?'':'s'}`;
   itemsWrap.innerHTML = lista.map(x=>{
     const d = descripcionProducto(x.p);
-    return `<div class="catalog-row" data-index="${x.i}">
+    return `<div class="catalog-row" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}">
       <div class="catalog-main">
         <strong>${escapeHtml(d.icon)} ${escapeHtml(x.p.name)}</strong>
         <span>${escapeHtml(d.desc)}</span>
       </div>
       <b>${fmt.format(x.p.pvp)}</b>
       ${hxQtyControlHtml('catalog', x.i)}
-      <button type="button" class="catalog-add" data-index="${x.i}">Añadir</button>
+      <button type="button" class="catalog-add" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}">Añadir</button>
     </div>`;
   }).join('') || '<div class="catalog-empty">No hay productos con esa búsqueda.</div>';
   function addCatalogProductPersistent(idx, trigger){
     const qty = hxModalQtyGet('catalog', idx);
-    hxAddProductoModal('catalog', Number(idx), qty);
+    const row = trigger?.closest('.catalog-row') || itemsWrap.querySelector(`.catalog-row[data-index="${Number(idx)}"]`);
+    hxAddProductoModal('catalog', Number(idx), qty, row?.dataset.ref, row?.dataset.pvp);
     if(trigger){
       const original = trigger.textContent;
       trigger.textContent = '✓ Añadido';
@@ -762,7 +814,7 @@ function pintarCatalogPanel(term=catalogTerm){
   hxBindQtyControls(itemsWrap, 'catalog');
   itemsWrap.querySelectorAll('.catalog-row').forEach(el=>el.addEventListener('dblclick',()=>{ addCatalogProductPersistent(Number(el.dataset.index), null); }));
   itemsWrap.querySelectorAll('.catalog-add').forEach(btn=>btn.addEventListener('click',e=>{ e.stopPropagation(); addCatalogProductPersistent(Number(btn.dataset.index), btn); }));
-  itemsWrap.querySelectorAll('.catalog-row').forEach(el=>el.addEventListener('click',()=>{ seleccionarProducto(Number(el.dataset.index), true); }));
+  itemsWrap.querySelectorAll('.catalog-row').forEach(el=>el.addEventListener('click',()=>{ seleccionarProductoSeguro(el.dataset.ref, el.dataset.pvp, true); }));
 }
 function abrirCatalogo(){
   const modal = $('#catalogModal');
@@ -822,14 +874,18 @@ function addLinea(){
   }
 
   const p = productos[idx];
+  const refAlta = seleccionadoRef || p.name;
+  const pvpAlta = seleccionadoRef ? seleccionadoPvp : p.pvp;
   const qty = Math.max(1, Number($('#cantidad').value)||1);
-  addProductoObj(p, qty, null);
-  hxToastGlobal(`${p.name} añadido`,'ok');
+  if(!hxAddProductoSeguro(refAlta, qty, null, pvpAlta)) return;
+  hxToastGlobal(`${refAlta} añadido`,'ok');
 
   $('#buscador').value='';
   $('#producto').value='';
   $('#cantidad').value=1;
   seleccionado=null;
+  seleccionadoRef='';
+  seleccionadoPvp=null;
   activeIndex=-1;
   $('#previewProducto').textContent='Selecciona un producto para ver su precio.';
   const btnCat=$('#btnCatalogo'); if(btnCat) btnCat.innerHTML='<span class="btn-ico">📖</span>Catálogo';
@@ -1376,6 +1432,8 @@ function nuevoPresupuesto(){
   $('#cantidad').value = '1';
   $('#resultados').classList.add('hidden');
   seleccionado = null;
+  seleccionadoRef = '';
+  seleccionadoPvp = null;
   lineas = [];
   render();
   refrescarPresupuestosGuardados();
@@ -2732,7 +2790,7 @@ renderRecientes = function(){
   wrap.querySelectorAll('.recent-chip').forEach(btn=>btn.addEventListener('click',()=>{
     const p=findProductoByQuery(btn.dataset.name);
     const qty=Number(document.querySelector('#cantidad')?.value)||1;
-    if(p && addProductoObj(p,qty)){
+    if(p && hxAddProductoSeguro(p.name,qty,null,p.pvp)){
       render();
       hxToastGlobal(`${p.name} añadido`,'ok');
       btn.classList.add('added-ok');
@@ -4124,6 +4182,8 @@ resolverDesdeInput = function(){
   const input = $('#buscador');
   const term = input ? input.value : '';
   seleccionado = null;
+  seleccionadoRef = '';
+  seleccionadoPvp = null;
   const sel = $('#producto'); if(sel) sel.value = '';
   searchTimer194 = setTimeout(()=>{
     pintarResultados(term);
@@ -4554,14 +4614,14 @@ pintarResultados = function(term){
     const d = descripcionProducto(x.p);
     const extra = resumenProducto199(x.p);
     const meta = extra ? `${extra} · ${d.desc}` : d.desc;
-    return `<div class="result-item result-item-pro" data-index="${x.i}" data-k="${k}"><div><div class="result-name">${escapeHtml(d.icon)} ${escapeHtml(x.p.name)}</div><div class="result-meta">${escapeHtml(meta)}</div></div><div class="result-price">${fmt.format(x.p.pvp)}</div></div>`;
+    return `<div class="result-item result-item-pro" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}" data-k="${k}"><div><div class="result-name">${escapeHtml(d.icon)} ${escapeHtml(x.p.name)}</div><div class="result-meta">${escapeHtml(meta)}</div></div><div class="result-price">${fmt.format(x.p.pvp)}</div></div>`;
   }).join('');
   // Cada consulta nueva empieza arriba; no mueve el scroll de la página.
   panel.scrollTop = 0;
   panel.querySelectorAll('.result-item').forEach(el=>{
     el.addEventListener('mouseenter',()=>{ activeIndex = Number(el.dataset.k); marcarActivo(); });
-    el.addEventListener('click',()=> seleccionarProducto(Number(el.dataset.index), true));
-    el.addEventListener('dblclick',()=>{ seleccionarProducto(Number(el.dataset.index), true); addLinea(); });
+    el.addEventListener('click',()=> seleccionarProductoSeguro(el.dataset.ref, el.dataset.pvp, true));
+    el.addEventListener('dblclick',()=>{ seleccionarProductoSeguro(el.dataset.ref, el.dataset.pvp, true); addLinea(); });
   });
   panel.classList.remove('hidden');
 };
@@ -5490,11 +5550,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   function productRow(x){
     const d = descripcionProducto(x.p);
-    return `<div class="explore-product" data-index="${x.i}">
+    return `<div class="explore-product" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}">
       <div class="explore-product-main"><strong>${escapeHtml(d.icon)} ${escapeHtml(x.p.name)}</strong><span>${escapeHtml(d.desc)}</span></div>
       <b>${fmt.format(x.p.pvp)}</b>
       ${hxQtyControlHtml('explorer', x.i)}
-      <button type="button" class="catalog-add explore-add" data-index="${x.i}">Añadir</button>
+      <button type="button" class="catalog-add explore-add" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}">Añadir</button>
     </div>`;
   }
 
@@ -5519,7 +5579,8 @@ document.addEventListener('DOMContentLoaded',()=>{
         const scrollHost = root.querySelector('.explore-products, .explore-mobile-panel');
         const scrollTop = scrollHost ? scrollHost.scrollTop : 0;
         const qty = hxModalQtyGet('explorer', idx);
-        hxAddProductoModal('explorer', Number(idx), qty);
+        const productEl = trigger?.closest('.explore-product') || root.querySelector(`.explore-product[data-index="${Number(idx)}"]`);
+        hxAddProductoModal('explorer', Number(idx), qty, productEl?.dataset.ref, productEl?.dataset.pvp);
         if(trigger){
           const original = trigger.textContent;
           trigger.textContent = '✓ Añadido';
@@ -5536,7 +5597,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       const touchUi = !!(window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches);
       if(!touchUi){
         root.querySelectorAll('.explore-product').forEach(el=>el.addEventListener('dblclick',()=>{ addExplorePersistent(Number(el.dataset.index), null); }));
-        root.querySelectorAll('.explore-product').forEach(el=>el.addEventListener('click',()=>{ seleccionarProducto(Number(el.dataset.index), true); }));
+        root.querySelectorAll('.explore-product').forEach(el=>el.addEventListener('click',()=>{ seleccionarProductoSeguro(el.dataset.ref, el.dataset.pvp, true); }));
       }
       root.querySelectorAll('.explore-add').forEach(btn=>btn.addEventListener('click',e=>{ e.stopPropagation(); addExplorePersistent(Number(btn.dataset.index), btn); }));
       if(touchUi){
