@@ -8269,3 +8269,49 @@ body.light-mode .catalog-diag-item b{color:#173b2a}
 .catalog-diag-budget summary span{font-size:.78rem;font-weight:600;color:var(--muted)}
 .catalog-diag-budget[open] summary{border-bottom:1px solid var(--border)}
 .catalog-diag-budget .catalog-diag-item{margin:8px 10px}
+
+/* =====================================================
+   v4.0.14c - Cabecera de presupuesto compacta en una línea
+   11 campos: Tienda, Comercial, Cliente, Teléfono, Email,
+   Número, Fecha, Estado, Validez, Descuento e IVA.
+   ===================================================== */
+@media (min-width:1181px){
+  .quote-row{
+    display:grid!important;
+    grid-template-columns:
+      minmax(135px,1.12fr)
+      minmax(92px,.68fr)
+      minmax(130px,1fr)
+      minmax(102px,.72fr)
+      minmax(145px,1.12fr)
+      minmax(132px,.92fr)
+      minmax(124px,.86fr)
+      minmax(102px,.72fr)
+      minmax(68px,.48fr)
+      minmax(78px,.55fr)
+      minmax(60px,.42fr)!important;
+    gap:7px!important;
+    align-items:end!important;
+  }
+  .quote-row label{
+    min-width:0!important;
+    overflow:visible!important;
+    font-size:10px!important;
+  }
+  .quote-row input,
+  .quote-row select{
+    min-width:0!important;
+    width:100%!important;
+    height:38px!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+    font-size:12px!important;
+  }
+  .quote-row label:nth-child(9) input,
+  .quote-row label:nth-child(10) input,
+  .quote-row label:nth-child(11) input{
+    text-align:center!important;
+    padding-left:5px!important;
+    padding-right:5px!important;
+  }
+}

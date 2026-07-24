@@ -6877,7 +6877,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - localStorage se conserva únicamente como respaldo temporal.
    ===================================================== */
 (()=>{
-  const HX_APP_VERSION_CLOUD_413 = '4.0.14';
+  const HX_APP_VERSION_CLOUD_413 = '4.0.14c';
   const HX_LISTAR_ENDPOINT_413 = '/.netlify/functions/listar-presupuestos';
   const HX_LEER_ENDPOINT_413 = '/.netlify/functions/leer-presupuesto';
   let hxCloudLista413 = [];
@@ -7029,7 +7029,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
       if(value===null)return;
       const identificador=value.trim();
       if(!identificador){hxToast414('Escribe un identificador.',true);return;}
-      const presupuesto={...readOut.presupuesto,identificador,mongoId:id,versionApp:'4.0.14'};
+      const presupuesto={...readOut.presupuesto,identificador,mongoId:id,versionApp:'4.0.14c'};
       const saveRes=await fetch(HX_GUARDAR_414,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mongoId:id,presupuesto})});
       const saveOut=await saveRes.json().catch(()=>null);
       if(!saveRes.ok||!saveOut?.ok) throw new Error(saveOut?.mensaje||saveOut?.error||`Error ${saveRes.status}`);
@@ -7050,7 +7050,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   },true);
 
   document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.creator').forEach(el=>el.textContent='· Creado por David Corregidor · 4.0.14');
+    document.querySelectorAll('.creator').forEach(el=>el.textContent='· Creado por David Corregidor · 4.0.14c');
   });
-  window.HX_APP_VERSION='4.0.14';
+  window.HX_APP_VERSION='4.0.14c';
 })();
