@@ -1199,13 +1199,14 @@ function render(){
   $('#total').textContent=fmt.format(c.total);
   activarArrastreLineas();
 }
+let hxIdentificadorActual = '';
 function datosPresupuesto(){
   return {
     id: Date.now().toString(),
     guardado: new Date().toISOString(),
     tienda: $('#tienda') ? $('#tienda').value : '',
     comercial: $('#comercial') ? $('#comercial').value : '',
-    identificador: (typeof leerListaPresupuestos==='function' ? (leerListaPresupuestos().find(p=>String(p.id)===String($('#presupuestosGuardados')?.value||''))?.identificador||'') : ''),
+    identificador: String(hxIdentificadorActual || ''),
     cliente: $('#cliente').value,
     telefono: $('#telefono').value,
     email: $('#email').value,
@@ -1220,7 +1221,9 @@ function datosPresupuesto(){
   };
 }
 function aplicarPresupuesto(d){
+  hxIdentificadorActual = String(d?.identificador || '').trim();
   ['tienda','comercial','cliente','telefono','email','numero','fecha','estado','validez','observaciones','dtoGeneral','iva'].forEach(k=>{ if(d[k]!==undefined && $('#'+k)) $('#'+k).value=d[k]; });
+  setTimeout(()=>window.dispatchEvent(new CustomEvent('hiperajax:identificador-cambiado')),0);
   lineas = Array.isArray(d.lineas) ? d.lineas.map(l=>{
     const x = (l && typeof l==='object') ? {...l} : {};
     const tipo = String(x.tipo || '').toLowerCase();
@@ -1436,6 +1439,10 @@ function borrarPresupuestoGuardado(){
   refrescarPresupuestosGuardados();
 }
 function nuevoPresupuesto(){
+  hxIdentificadorActual = '';
+  const selectorGuardados = $('#presupuestosGuardados');
+  if(selectorGuardados) selectorGuardados.value = '';
+  window.dispatchEvent(new CustomEvent('hiperajax:identificador-cambiado'));
   if($('#tienda')) $('#tienda').value = '';
   if($('#comercial')) $('#comercial').value = '';
   ['cliente','telefono','email'].forEach(id=>{ const el=$('#'+id); if(el) el.value=''; });
@@ -6730,7 +6737,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    ===================================================== */
 (()=>{
   const HX_MONGO_ENDPOINT = '/.netlify/functions/guardar-presupuesto';
-  const HX_APP_VERSION_MONGO = '4.0.16c';
+  const HX_APP_VERSION_MONGO = '4.0.16d';
   let hxDuplicadoDePendiente = null;
   let hxGuardandoMongo = false;
 
@@ -6798,8 +6805,13 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
     // El identificador es el nombre interno del presupuesto. En uno nuevo se
     // solicita antes de enviar nada a MongoDB; al editar se conserva el actual.
-    let identificador = duplicadoDe ? '' : String(recuperado?.identificador || '').trim();
-    if(!identificador){
+    const esEdicion = Boolean(selectedId && recuperado && !duplicadoDe);
+    let identificador = esEdicion
+      ? String(hxIdentificadorActual || recuperado?.identificador || '').trim()
+      : '';
+
+    // Todo presupuesto nuevo pide aquí su identificador, justo antes de guardar.
+    if(!esEdicion){
       const sugerido = String($('#cliente')?.value || '').trim();
       const respuesta = prompt(
         'Identificador del presupuesto\nEj.: Casa del pueblo, Oficina Madrid, Chalet García...',
@@ -6817,6 +6829,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
       }
     }
 
+    hxIdentificadorActual = identificador;
     const data = datosPresupuesto();
     data.identificador = identificador;
     const mongoId = recuperado && recuperado.mongoId ? String(recuperado.mongoId) : '';
@@ -6911,7 +6924,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - localStorage se conserva únicamente como respaldo temporal.
    ===================================================== */
 (()=>{
-  const HX_APP_VERSION_CLOUD_413 = '4.0.16c';
+  const HX_APP_VERSION_CLOUD_413 = '4.0.16d';
   const HX_LISTAR_ENDPOINT_413 = '/.netlify/functions/listar-presupuestos';
   const HX_LEER_ENDPOINT_413 = '/.netlify/functions/leer-presupuesto';
   let hxCloudLista413 = [];
@@ -7063,7 +7076,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
       if(value===null)return;
       const identificador=value.trim();
       if(!identificador){hxToast414('Escribe un identificador.',true);return;}
-      const presupuesto={...readOut.presupuesto,identificador,mongoId:id,versionApp:'4.0.14c'};
+      const presupuesto={...readOut.presupuesto,identificador,mongoId:id,versionApp:'4.0.16d'};
       const saveRes=await fetch(HX_GUARDAR_414,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mongoId:id,presupuesto})});
       const saveOut=await saveRes.json().catch(()=>null);
       if(!saveRes.ok||!saveOut?.ok) throw new Error(saveOut?.mensaje||saveOut?.error||`Error ${saveRes.status}`);
@@ -7205,7 +7218,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - Muestra identificador en cabecera y mejora las tarjetas.
    ===================================================== */
 (()=>{
-  const HX_VERSION_416='4.0.16b';
+  const HX_VERSION_416='4.0.16d';
   const HX_DELETE_416='/.netlify/functions/borrar-presupuesto';
   let hxDeleting416=false;
 
@@ -7244,7 +7257,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     const box=$416('hxBudgetIdentifier416');
     if(!box) return;
     const p=hxSelected416();
-    const value=hxIdentifier416(p);
+    const value=String(hxIdentificadorActual || hxIdentifier416(p) || '').trim();
     box.classList.toggle('is-empty',!value);
     const strong=box.querySelector('strong');
     if(strong) strong.textContent=value||'Sin identificador';
@@ -7278,8 +7291,10 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     const sel=$416('presupuestosGuardados');
     if(sel) sel.value='';
     try{
-      if(typeof limpiar==='function') limpiar();
+      // Reinicio directo: no llamar a limpiar(), porque abriría una segunda confirmación.
+      if(typeof nuevoPresupuesto==='function') nuevoPresupuesto();
       else {
+        hxIdentificadorActual='';
         ['cliente','telefono','email','observaciones'].forEach(id=>{const el=$416(id);if(el)el.value='';});
         if(Array.isArray(lineas)){ lineas=[]; if(typeof render==='function') render(); }
       }
@@ -7340,6 +7355,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   window.addEventListener('hiperajax:presupuestos-importados',()=>{
     setTimeout(()=>{hxRefreshIdentifier416();hxEnhanceCards416();},50);
   });
+  window.addEventListener('hiperajax:identificador-cambiado',()=>setTimeout(hxRefreshIdentifier416,0));
 
   document.addEventListener('DOMContentLoaded',()=>{
     hxEnsureIdentifier416();
@@ -7353,6 +7369,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     });
   });
 
-  window.HX_GET_IDENTIFICADOR_ACTUAL=()=>hxIdentifier416(hxSelected416());
+  window.HX_GET_IDENTIFICADOR_ACTUAL=()=>String(hxIdentificadorActual || hxIdentifier416(hxSelected416()) || '').trim();
   window.HX_APP_VERSION=HX_VERSION_416;
 })();
