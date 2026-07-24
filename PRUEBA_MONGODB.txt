@@ -1,0 +1,15 @@
+VERSIÓN 4.0.13 — PRUEBA MONGODB
+
+Esta carpeta está preparada para copiarse directamente en la RAÍZ del repositorio de GitHub.
+No contiene una carpeta exterior "hiperajax-main".
+
+Archivos nuevos:
+- functions/
+- package.json
+- netlify.toml
+- PRUEBA_MONGODB.txt
+
+No se ha modificado app.js ni el funcionamiento actual de Hiper Ajax.
+
+Tras desplegar en Netlify, probar:
+/.netlify/functions/probar-mongodb
