@@ -7054,3 +7054,111 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   });
   window.HX_APP_VERSION='4.0.14c';
 })();
+
+
+/* =====================================================
+   PATCH v4.0.15 · Duplicar presupuesto en MongoDB
+   - Nuevo _id y nuevo número automático.
+   - Fecha actual local y estado Borrador.
+   - Conserva contenido, tienda, comercial, cliente, teléfono y email.
+   - El identificador queda vacío.
+   - Intercepta tanto el botón principal como el del gestor.
+   ===================================================== */
+(()=>{
+  const HX_APP_VERSION_DUP_415='4.0.15';
+  const HX_DUP_ENDPOINT_415='/.netlify/functions/duplicar-presupuesto';
+  const HX_READ_ENDPOINT_415='/.netlify/functions/leer-presupuesto';
+  let hxDuplicando415=false;
+
+  function hxFechaLocal415(){
+    const d=new Date();
+    const y=d.getFullYear();
+    const m=String(d.getMonth()+1).padStart(2,'0');
+    const day=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function hxToast415(text,error=false){
+    document.querySelector('.hx-dup-toast-415')?.remove();
+    const el=document.createElement('div');
+    el.className='pmx-global-toast hx-dup-toast-415';
+    el.textContent=text;
+    if(error) el.style.background='#8f2525';
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add('show'));
+    setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),220);},1900);
+  }
+
+  async function hxLeerDuplicado415(id){
+    const res=await fetch(`${HX_READ_ENDPOINT_415}?id=${encodeURIComponent(id)}`,{cache:'no-store'});
+    const out=await res.json().catch(()=>null);
+    if(!res.ok || !out?.ok || !out.presupuesto){
+      throw new Error(out?.mensaje || out?.error || `Error ${res.status}`);
+    }
+    return {...out.presupuesto,id,mongoId:id};
+  }
+
+  async function hxDuplicar415(){
+    if(hxDuplicando415) return;
+    const sel=document.getElementById('presupuestosGuardados');
+    const mongoId=String(sel?.value||'').trim();
+    if(!mongoId){
+      hxToast415('Selecciona o abre primero el presupuesto que quieres duplicar.',true);
+      return;
+    }
+
+    hxDuplicando415=true;
+    const botones=[document.getElementById('btnDuplicate'),document.getElementById('pmDuplicate')].filter(Boolean);
+    botones.forEach(b=>b.disabled=true);
+    try{
+      const res=await fetch(HX_DUP_ENDPOINT_415,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({mongoId,fecha:hxFechaLocal415()})
+      });
+      const out=await res.json().catch(()=>null);
+      if(!res.ok || !out?.ok){
+        throw new Error(out?.mensaje || out?.error || `Error ${res.status}`);
+      }
+
+      if(typeof window.HX_RECARGAR_PRESUPUESTOS==='function'){
+        await window.HX_RECARGAR_PRESUPUESTOS({silencioso:true});
+      }
+
+      const nuevoId=String(out.mongoId||'');
+      if(sel) sel.value=nuevoId;
+      const duplicado=await hxLeerDuplicado415(nuevoId);
+      aplicarPresupuesto(duplicado);
+      if(sel) sel.value=nuevoId;
+
+      const modal=document.getElementById('pmModal');
+      if(modal){
+        modal.classList.remove('pm-mobile-preview');
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden','true');
+      }
+      hxToast415(`Duplicado creado: ${out.numero}`);
+    }catch(error){
+      console.error('[Hiper Ajax] Error al duplicar:',error);
+      hxToast415(`No se pudo duplicar: ${error.message}`,true);
+    }finally{
+      hxDuplicando415=false;
+      botones.forEach(b=>b.disabled=false);
+    }
+  }
+
+  document.addEventListener('click',event=>{
+    const btn=event.target.closest?.('#btnDuplicate,#pmDuplicate');
+    if(!btn) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    hxDuplicar415();
+  },true);
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('.creator').forEach(el=>{
+      el.textContent=`· Creado por David Corregidor · ${HX_APP_VERSION_DUP_415}`;
+    });
+  });
+  window.HX_APP_VERSION=HX_APP_VERSION_DUP_415;
+})();
