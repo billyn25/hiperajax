@@ -6846,3 +6846,126 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   });
   window.HX_APP_VERSION = HX_APP_VERSION_MONGO;
 })();
+
+
+/* =====================================================
+   PATCH v4.0.13 · Presupuestos Cloud: listar + abrir
+   - MongoDB pasa a ser el origen del gestor de presupuestos.
+   - La lista se precarga al iniciar para reducir la espera.
+   - Abrir siempre recupera el documento completo por mongoId.
+   - localStorage se conserva únicamente como respaldo temporal.
+   ===================================================== */
+(()=>{
+  const HX_APP_VERSION_CLOUD_413 = '4.0.13';
+  const HX_LISTAR_ENDPOINT_413 = '/.netlify/functions/listar-presupuestos';
+  const HX_LEER_ENDPOINT_413 = '/.netlify/functions/leer-presupuesto';
+  let hxCloudLista413 = [];
+  let hxCloudCargando413 = null;
+
+  function hxNormalizarResumen413(p){
+    const mongoId = String(p?.mongoId || p?._id || '').trim();
+    return {
+      ...(p || {}),
+      id: mongoId,
+      mongoId,
+      tienda: String(p?.tienda || ''),
+      lineas: Array.isArray(p?.lineas) ? p.lineas : [],
+      guardado: p?.updatedAt || p?.guardado || p?.createdAt || p?.fecha || ''
+    };
+  }
+
+  function hxMensajeCloud413(text, error=false){
+    document.querySelector('.hx-cloud-toast-413')?.remove();
+    const el=document.createElement('div');
+    el.className='pmx-global-toast hx-cloud-toast-413';
+    el.textContent=text;
+    if(error) el.style.background='#8f2525';
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add('show'));
+    setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),220);},1800);
+  }
+
+  async function hxCargarListaCloud413({silencioso=false}={}){
+    if(hxCloudCargando413) return hxCloudCargando413;
+    hxCloudCargando413=(async()=>{
+      try{
+        const res=await fetch(HX_LISTAR_ENDPOINT_413,{cache:'no-store'});
+        const out=await res.json().catch(()=>null);
+        if(!res.ok || !out?.ok) throw new Error(out?.mensaje || out?.error || `Error ${res.status}`);
+        hxCloudLista413=(Array.isArray(out.presupuestos)?out.presupuestos:[]).map(hxNormalizarResumen413);
+        refrescarPresupuestosGuardados();
+        window.dispatchEvent(new CustomEvent('hiperajax:presupuestos-importados'));
+        return hxCloudLista413;
+      }catch(error){
+        console.error('[Hiper Ajax] No se pudo listar desde MongoDB:',error);
+        if(!silencioso) hxMensajeCloud413(`No se pudieron cargar los presupuestos: ${error.message}`,true);
+        throw error;
+      }finally{
+        hxCloudCargando413=null;
+      }
+    })();
+    return hxCloudCargando413;
+  }
+
+  async function hxAbrirCloud413(mongoId){
+    const id=String(mongoId||'').trim();
+    if(!id){ hxMensajeCloud413('Selecciona un presupuesto.',true); return; }
+    try{
+      const res=await fetch(`${HX_LEER_ENDPOINT_413}?id=${encodeURIComponent(id)}`,{cache:'no-store'});
+      const out=await res.json().catch(()=>null);
+      if(!res.ok || !out?.ok || !out.presupuesto) throw new Error(out?.mensaje || out?.error || `Error ${res.status}`);
+      const presupuesto={...out.presupuesto,id,mongoId:id};
+      aplicarPresupuesto(presupuesto);
+      const sel=document.getElementById('presupuestosGuardados');
+      if(sel) sel.value=id;
+      const pos=hxCloudLista413.findIndex(p=>p.mongoId===id);
+      if(pos>=0) hxCloudLista413[pos]=hxNormalizarResumen413({...hxCloudLista413[pos],...presupuesto});
+      const modal=document.getElementById('pmModal');
+      if(modal){modal.classList.remove('pm-mobile-preview');modal.classList.add('hidden');modal.setAttribute('aria-hidden','true');}
+      hxMensajeCloud413(`Presupuesto ${presupuesto.numero||''} abierto.`);
+    }catch(error){
+      console.error('[Hiper Ajax] No se pudo abrir desde MongoDB:',error);
+      hxMensajeCloud413(`No se pudo abrir el presupuesto: ${error.message}`,true);
+    }
+  }
+
+  // El gestor existente sigue intacto, pero su fuente pasa a ser esta caché cloud.
+  leerListaPresupuestos=function(){ return hxCloudLista413.slice(); };
+
+  // Actualiza la lista cloud después de guardar o duplicar en MongoDB.
+  const hxGuardarBase413=guardar;
+  guardar=async function(){
+    const resultado=await hxGuardarBase413.apply(this,arguments);
+    try{ await hxCargarListaCloud413({silencioso:true}); }catch(e){}
+    return resultado;
+  };
+
+  document.addEventListener('click',event=>{
+    const openBtn=event.target.closest?.('#pmOpen,#btnLoadSaved');
+    if(!openBtn) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    hxAbrirCloud413(document.getElementById('presupuestosGuardados')?.value||'');
+  },true);
+
+  document.addEventListener('dblclick',event=>{
+    const row=event.target.closest?.('.pmx-row');
+    if(!row) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const id=row.dataset.pmId||'';
+    const sel=document.getElementById('presupuestosGuardados');
+    if(sel) sel.value=id;
+    hxAbrirCloud413(id);
+  },true);
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('.creator').forEach(el=>{
+      el.textContent=`· Creado por David Corregidor · ${HX_APP_VERSION_CLOUD_413}`;
+    });
+    hxCargarListaCloud413({silencioso:true}).catch(()=>{});
+  });
+
+  window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
+  window.HX_APP_VERSION=HX_APP_VERSION_CLOUD_413;
+})();
