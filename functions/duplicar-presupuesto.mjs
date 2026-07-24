@@ -35,8 +35,12 @@ export async function handler(event) {
     delete copia._id;
     delete copia.mongoId;
     copia.numero = numero;
+    copia.identificador = "";
     copia.estado = "Borrador";
-    copia.fecha = now.toISOString().slice(0, 10);
+    const fechaSolicitada = String(parsed.value.fecha || "").trim();
+    copia.fecha = /^\d{4}-\d{2}-\d{2}$/.test(fechaSolicitada)
+      ? fechaSolicitada
+      : now.toISOString().slice(0, 10);
     copia.duplicadoDe = String(original._id);
     copia.createdAt = now;
     copia.updatedAt = now;
