@@ -7178,7 +7178,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - Muestra identificador en cabecera y mejora las tarjetas.
    ===================================================== */
 (()=>{
-  const HX_VERSION_416='4.0.16';
+  const HX_VERSION_416='4.0.16b';
   const HX_DELETE_416='/.netlify/functions/borrar-presupuesto';
   let hxDeleting416=false;
 
@@ -7238,11 +7238,12 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
       const tienda=String(p.tienda||'Sin tienda');
       const comercial=String(p.comercial||'Sin asignar');
       const fecha=String(p.fecha||'').split('T')[0];
-      main.innerHTML=`
+      const html=`
         ${identifier?`<strong class="pmx-card-identifier-416">${escapeHtml(identifier)}</strong>`:''}
         <b class="pmx-card-number-416">${escapeHtml(numero)}</b>
         <small class="pmx-card-client-416">${escapeHtml(cliente)}</small>
         <small class="pmx-card-meta-416">${escapeHtml(tienda)} · ${escapeHtml(comercial)}${fecha?` · ${escapeHtml(fecha)}`:''}</small>`;
+      if(main.innerHTML.trim()!==html.trim()) main.innerHTML=html;
     });
   }
 
