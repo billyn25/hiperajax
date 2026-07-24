@@ -895,7 +895,7 @@ function addLinea(){
   render();
 }
 function addLineaManual(){
-  lineas.push({name:'', brand:'', desc:'', pvp:0, qty:1, dto:descuentoActual(), manual:true});
+  lineas.push({name:'', brand:'', desc:'', pvp:0, qty:1, dto:descuentoActual(), manual:true, separador:false, tipo:'linea-vacia', texto:''});
   render();
   hxBajarUltimaLineaPresupuesto();
 }
@@ -904,7 +904,7 @@ function addSeparador(){
   if(texto === null) return;
   const name = String(texto || '').trim();
   if(!name) return;
-  lineas.push({name:name.toUpperCase(), brand:'', desc:'', pvp:0, qty:1, dto:0, manual:true, separador:true});
+  lineas.push({name:name.toUpperCase(), brand:'', desc:'', pvp:0, qty:1, dto:0, manual:true, separador:true, tipo:'separador', texto:name.toUpperCase()});
   render();
   hxBajarUltimaLineaPresupuesto();
 }
@@ -1219,7 +1219,23 @@ function datosPresupuesto(){
 }
 function aplicarPresupuesto(d){
   ['tienda','cliente','telefono','email','numero','fecha','estado','validez','observaciones','dtoGeneral','iva'].forEach(k=>{ if(d[k]!==undefined && $('#'+k)) $('#'+k).value=d[k]; });
-  lineas = Array.isArray(d.lineas) ? d.lineas : [];
+  lineas = Array.isArray(d.lineas) ? d.lineas.map(l=>{
+    const x = (l && typeof l==='object') ? {...l} : {};
+    const tipo = String(x.tipo || '').toLowerCase();
+    const esSeparador = x.separador===true || tipo==='separador';
+    const esManual = x.manual===true || esSeparador || tipo==='linea-vacia' || tipo==='linea_vacia' || tipo==='manual';
+    x.separador = esSeparador;
+    x.manual = esManual;
+    if(esSeparador){
+      x.tipo='separador';
+      x.name=String(x.name || x.texto || 'SECCIÓN').toUpperCase();
+      x.texto=String(x.texto || x.name || '');
+      x.pvp=0; x.qty=1; x.dto=0;
+    }else if(tipo==='linea-vacia' || tipo==='linea_vacia'){
+      x.tipo='linea-vacia';
+    }
+    return x;
+  }) : [];
   render();
 }
 function storageHashPresupuestos(lista){
@@ -6856,7 +6872,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - localStorage se conserva únicamente como respaldo temporal.
    ===================================================== */
 (()=>{
-  const HX_APP_VERSION_CLOUD_413 = '4.0.13';
+  const HX_APP_VERSION_CLOUD_413 = '4.0.13b';
   const HX_LISTAR_ENDPOINT_413 = '/.netlify/functions/listar-presupuestos';
   const HX_LEER_ENDPOINT_413 = '/.netlify/functions/leer-presupuesto';
   let hxCloudLista413 = [];
