@@ -45,15 +45,26 @@ function normalizarLineas(lineas) {
 
   return lineas
     .filter((linea) => linea && typeof linea === 'object')
-    .map((linea) => ({
-      name: limpiarTexto(linea.name, 250),
-      brand: limpiarTexto(linea.brand, 100),
-      pvp: Number(linea.pvp) || 0,
-      qty: Math.max(1, Number(linea.qty) || 1),
-      dto: Math.min(100, Math.max(0, Number(linea.dto) || 0)),
-      tipo: limpiarTexto(linea.tipo, 50),
-      texto: limpiarTexto(linea.texto, 1000)
-    }));
+    .map((linea) => {
+      const tipoEntrada = limpiarTexto(linea.tipo, 50).toLowerCase();
+      const separador = linea.separador === true || tipoEntrada === 'separador';
+      const manual = linea.manual === true || separador || tipoEntrada === 'linea-vacia' || tipoEntrada === 'linea_vacia' || tipoEntrada === 'manual';
+      const tipo = separador ? 'separador' : ((tipoEntrada === 'linea_vacia') ? 'linea-vacia' : tipoEntrada);
+      const name = limpiarTexto(linea.name || (separador ? linea.texto : ''), 250);
+
+      return {
+        name,
+        brand: limpiarTexto(linea.brand, 100),
+        desc: limpiarTexto(linea.desc, 1000),
+        pvp: separador ? 0 : (Number(linea.pvp) || 0),
+        qty: separador ? 1 : Math.max(1, Number(linea.qty) || 1),
+        dto: separador ? 0 : Math.min(100, Math.max(0, Number(linea.dto) || 0)),
+        manual,
+        separador,
+        tipo,
+        texto: limpiarTexto(linea.texto || (separador ? name : ''), 1000)
+      };
+    });
 }
 
 function prepararPresupuesto(datos) {
