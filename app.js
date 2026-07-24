@@ -1204,6 +1204,8 @@ function datosPresupuesto(){
     id: Date.now().toString(),
     guardado: new Date().toISOString(),
     tienda: $('#tienda') ? $('#tienda').value : '',
+    comercial: $('#comercial') ? $('#comercial').value : '',
+    identificador: (typeof leerListaPresupuestos==='function' ? (leerListaPresupuestos().find(p=>String(p.id)===String($('#presupuestosGuardados')?.value||''))?.identificador||'') : ''),
     cliente: $('#cliente').value,
     telefono: $('#telefono').value,
     email: $('#email').value,
@@ -1218,7 +1220,7 @@ function datosPresupuesto(){
   };
 }
 function aplicarPresupuesto(d){
-  ['tienda','cliente','telefono','email','numero','fecha','estado','validez','observaciones','dtoGeneral','iva'].forEach(k=>{ if(d[k]!==undefined && $('#'+k)) $('#'+k).value=d[k]; });
+  ['tienda','comercial','cliente','telefono','email','numero','fecha','estado','validez','observaciones','dtoGeneral','iva'].forEach(k=>{ if(d[k]!==undefined && $('#'+k)) $('#'+k).value=d[k]; });
   lineas = Array.isArray(d.lineas) ? d.lineas.map(l=>{
     const x = (l && typeof l==='object') ? {...l} : {};
     const tipo = String(x.tipo || '').toLowerCase();
@@ -1435,6 +1437,7 @@ function borrarPresupuestoGuardado(){
 }
 function nuevoPresupuesto(){
   if($('#tienda')) $('#tienda').value = '';
+  if($('#comercial')) $('#comercial').value = '';
   ['cliente','telefono','email'].forEach(id=>{ const el=$('#'+id); if(el) el.value=''; });
   $('#numero').value = siguienteNumero(true);
   $('#fecha').value = new Date().toISOString().slice(0,10);
@@ -5978,7 +5981,7 @@ function descripcionPdfCorta(linea){
   }
 
   function pmSearchText(p){
-    return [pmIdentifier(p),p?.numero,p?.cliente,p?.fecha,p?.guardado,p?.estado,p?.tienda,...pmRows(p).map(pmProductName)].filter(Boolean).join(' ').toLowerCase();
+    return [pmIdentifier(p),p?.numero,p?.cliente,p?.fecha,p?.guardado,p?.estado,p?.tienda,p?.comercial,p?.telefono,p?.email,...pmRows(p).map(pmProductName)].filter(Boolean).join(' ').toLowerCase();
   }
 
   function pmSorted(){
@@ -6021,6 +6024,8 @@ function descripcionPdfCorta(linea){
       </div>
       <dl class="pmx-meta">
         <div><dt>Cliente</dt><dd>${escapeHtml(p.cliente||'Sin cliente')}</dd></div>
+        <div><dt>Tienda</dt><dd>${escapeHtml(p.tienda||'Sin tienda')}</dd></div>
+        <div><dt>Comercial</dt><dd>${escapeHtml(p.comercial||'Sin asignar')}</dd></div>
         <div><dt>Guardado</dt><dd>${escapeHtml(pmDate(p.guardado||p.fecha))}</dd></div>
         <div><dt>Estado</dt><dd>${escapeHtml(p.estado||'Borrador')}</dd></div>
         <div><dt>Productos</dt><dd>${c.count}</dd></div>
@@ -6872,7 +6877,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - localStorage se conserva únicamente como respaldo temporal.
    ===================================================== */
 (()=>{
-  const HX_APP_VERSION_CLOUD_413 = '4.0.13b';
+  const HX_APP_VERSION_CLOUD_413 = '4.0.14';
   const HX_LISTAR_ENDPOINT_413 = '/.netlify/functions/listar-presupuestos';
   const HX_LEER_ENDPOINT_413 = '/.netlify/functions/leer-presupuesto';
   let hxCloudLista413 = [];
@@ -6885,6 +6890,8 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
       id: mongoId,
       mongoId,
       tienda: String(p?.tienda || ''),
+      comercial: String(p?.comercial || ''),
+      identificador: String(p?.identificador || ''),
       lineas: Array.isArray(p?.lineas) ? p.lineas : [],
       guardado: p?.updatedAt || p?.guardado || p?.createdAt || p?.fecha || ''
     };
@@ -6984,4 +6991,66 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
   window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
   window.HX_APP_VERSION=HX_APP_VERSION_CLOUD_413;
+})();
+
+
+/* =====================================================
+   PATCH v4.0.14 · Identificador + Comercial
+   - Renombrar guarda `identificador` en MongoDB.
+   - Número HA-YYYY-XXXX permanece inmutable.
+   - Tienda y Comercial quedan separados.
+   - Comercial: Sin asignar / Luis / Toño.
+   ===================================================== */
+(()=>{
+  const HX_GUARDAR_414='/.netlify/functions/guardar-presupuesto';
+  const HX_LEER_414='/.netlify/functions/leer-presupuesto';
+
+  function hxToast414(text,error=false){
+    document.querySelector('.hx-toast-414')?.remove();
+    const el=document.createElement('div');
+    el.className='pmx-global-toast hx-toast-414';
+    el.textContent=text;
+    if(error) el.style.background='#8f2525';
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add('show'));
+    setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),220);},1800);
+  }
+
+  async function hxRenombrarCloud414(){
+    const id=String(document.getElementById('presupuestosGuardados')?.value||'').trim();
+    if(!id){hxToast414('Selecciona un presupuesto.',true);return;}
+    try{
+      const readRes=await fetch(`${HX_LEER_414}?id=${encodeURIComponent(id)}`,{cache:'no-store'});
+      const readOut=await readRes.json().catch(()=>null);
+      if(!readRes.ok||!readOut?.ok||!readOut.presupuesto) throw new Error(readOut?.mensaje||readOut?.error||`Error ${readRes.status}`);
+      const actual=String(readOut.presupuesto.identificador||'').trim();
+      const sugerido=actual||String(readOut.presupuesto.cliente||'').trim()||String(readOut.presupuesto.numero||'').trim();
+      const value=prompt('Nombre o identificador del presupuesto:',sugerido);
+      if(value===null)return;
+      const identificador=value.trim();
+      if(!identificador){hxToast414('Escribe un identificador.',true);return;}
+      const presupuesto={...readOut.presupuesto,identificador,mongoId:id,versionApp:'4.0.14'};
+      const saveRes=await fetch(HX_GUARDAR_414,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mongoId:id,presupuesto})});
+      const saveOut=await saveRes.json().catch(()=>null);
+      if(!saveRes.ok||!saveOut?.ok) throw new Error(saveOut?.mensaje||saveOut?.error||`Error ${saveRes.status}`);
+      await window.HX_RECARGAR_PRESUPUESTOS?.({silencioso:true});
+      hxToast414(`Renombrado como “${identificador}”.`);
+    }catch(error){
+      console.error('[Hiper Ajax] No se pudo renombrar:',error);
+      hxToast414(`No se pudo renombrar: ${error.message}`,true);
+    }
+  }
+
+  document.addEventListener('click',event=>{
+    const btn=event.target.closest?.('#pmRename');
+    if(!btn)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    hxRenombrarCloud414();
+  },true);
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('.creator').forEach(el=>el.textContent='· Creado por David Corregidor · 4.0.14');
+  });
+  window.HX_APP_VERSION='4.0.14';
 })();
