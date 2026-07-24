@@ -1,28 +1,38 @@
-const { MongoClient } = require("mongodb");
+const { MongoClient, ServerApiVersion } = require("mongodb");
 
-let client;
+let clientPromise = null;
 
-exports.handler = async function () {
-  try {
+function getClient() {
+  if (!clientPromise) {
     const uri = process.env.MONGODB_URI;
 
     if (!uri) {
-      return {
-        statusCode: 500,
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          ok: false,
-          mensaje: "Falta la variable MONGODB_URI en Netlify"
-        })
-      };
+      throw new Error("Falta la variable MONGODB_URI en Netlify");
     }
 
-    if (!client) {
-      client = new MongoClient(uri);
-      await client.connect();
-    }
+    const client = new MongoClient(uri, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true
+      },
+      family: 4,
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000
+    });
+
+    clientPromise = client.connect().catch((error) => {
+      clientPromise = null;
+      throw error;
+    });
+  }
+
+  return clientPromise;
+}
+
+exports.handler = async function () {
+  try {
+    const client = await getClient();
 
     await client.db("hiperajax").command({ ping: 1 });
 
@@ -38,6 +48,8 @@ exports.handler = async function () {
       })
     };
   } catch (error) {
+    clientPromise = null;
+
     return {
       statusCode: 500,
       headers: {
