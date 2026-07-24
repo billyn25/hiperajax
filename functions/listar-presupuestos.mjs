@@ -26,7 +26,7 @@ export async function handler(event) {
       .find(filter, {
         projection: {
           numero: 1, cliente: 1, telefono: 1, email: 1, tienda: 1,
-          fecha: 1, estado: 1, total: 1, lineas: 1,
+          fecha: 1, estado: 1, total: 1, lineas: 1, dtoGeneral: 1, iva: 1, identificador: 1,
           guardado: 1, createdAt: 1, updatedAt: 1, duplicadoDe: 1
         }
       })
@@ -40,11 +40,15 @@ export async function handler(event) {
       cliente: doc.cliente || "",
       telefono: doc.telefono || "",
       email: doc.email || "",
-      tienda: doc.tienda || "David",
+      tienda: doc.tienda || "",
       fecha: doc.fecha || "",
       estado: doc.estado || "Borrador",
       total: Number(doc.total) || 0,
       numeroLineas: Array.isArray(doc.lineas) ? doc.lineas.length : 0,
+      lineas: Array.isArray(doc.lineas) ? doc.lineas : [],
+      dtoGeneral: Number(doc.dtoGeneral) || 0,
+      iva: Number(doc.iva) || 0,
+      identificador: doc.identificador || "",
       guardado: doc.guardado || null,
       createdAt: doc.createdAt || null,
       updatedAt: doc.updatedAt || null,
