@@ -70,6 +70,8 @@ function normalizarLineas(lineas) {
 function prepararPresupuesto(datos) {
   return {
     tienda: limpiarTexto(datos.tienda, 150),
+    comercial: limpiarTexto(datos.comercial, 150),
+    identificador: limpiarTexto(datos.identificador, 250),
     cliente: limpiarTexto(datos.cliente, 250),
     telefono: limpiarTexto(datos.telefono, 100),
     email: limpiarTexto(datos.email, 250),

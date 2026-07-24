@@ -7,17 +7,19 @@ export async function handler(event) {
   try {
     const params = event.queryStringParameters || {};
     const tienda = String(params.tienda || "").trim();
+    const comercial = String(params.comercial || "").trim();
     const q = String(params.q || "").trim();
     const limit = Math.min(Math.max(parseInt(params.limit || "500", 10) || 500, 1), 1000);
 
     const filter = {};
     if (tienda) filter.tienda = tienda;
+    if (comercial) filter.comercial = comercial;
     if (q) {
       const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const regex = new RegExp(safe, "i");
       filter.$or = [
         { numero: regex }, { cliente: regex }, { telefono: regex },
-        { email: regex }, { tienda: regex }, { estado: regex }
+        { email: regex }, { tienda: regex }, { comercial: regex }, { identificador: regex }, { estado: regex }
       ];
     }
 
@@ -25,7 +27,7 @@ export async function handler(event) {
     const docs = await db.collection("presupuestos")
       .find(filter, {
         projection: {
-          numero: 1, cliente: 1, telefono: 1, email: 1, tienda: 1,
+          numero: 1, cliente: 1, telefono: 1, email: 1, tienda: 1, comercial: 1,
           fecha: 1, estado: 1, total: 1, lineas: 1, dtoGeneral: 1, iva: 1, identificador: 1,
           guardado: 1, createdAt: 1, updatedAt: 1, duplicadoDe: 1
         }
@@ -41,6 +43,7 @@ export async function handler(event) {
       telefono: doc.telefono || "",
       email: doc.email || "",
       tienda: doc.tienda || "",
+      comercial: doc.comercial || "",
       fecha: doc.fecha || "",
       estado: doc.estado || "Borrador",
       total: Number(doc.total) || 0,
