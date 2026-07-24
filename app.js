@@ -6730,7 +6730,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    ===================================================== */
 (()=>{
   const HX_MONGO_ENDPOINT = '/.netlify/functions/guardar-presupuesto';
-  const HX_APP_VERSION_MONGO = '4.0.12';
+  const HX_APP_VERSION_MONGO = '4.0.16c';
   let hxDuplicadoDePendiente = null;
   let hxGuardandoMongo = false;
 
@@ -6794,9 +6794,32 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     const sel = $('#presupuestosGuardados');
     const selectedId = sel ? String(sel.value || '') : '';
     const recuperado = hxPresupuestoSeleccionado();
-    const data = datosPresupuesto();
-    const mongoId = recuperado && recuperado.mongoId ? String(recuperado.mongoId) : '';
     const duplicadoDe = hxDuplicadoDePendiente || '';
+
+    // El identificador es el nombre interno del presupuesto. En uno nuevo se
+    // solicita antes de enviar nada a MongoDB; al editar se conserva el actual.
+    let identificador = duplicadoDe ? '' : String(recuperado?.identificador || '').trim();
+    if(!identificador){
+      const sugerido = String($('#cliente')?.value || '').trim();
+      const respuesta = prompt(
+        'Identificador del presupuesto\nEj.: Casa del pueblo, Oficina Madrid, Chalet García...',
+        sugerido
+      );
+      if(respuesta === null){
+        hxGuardandoMongo = false;
+        return;
+      }
+      identificador = String(respuesta || '').trim();
+      if(!identificador){
+        alert('Escribe un identificador para guardar el presupuesto.');
+        hxGuardandoMongo = false;
+        return;
+      }
+    }
+
+    const data = datosPresupuesto();
+    data.identificador = identificador;
+    const mongoId = recuperado && recuperado.mongoId ? String(recuperado.mongoId) : '';
 
     try{
       const resultado = await hxEnviarPresupuestoMongo(data, {
@@ -6819,6 +6842,10 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
       alert(resultado.operacion === 'actualizado'
         ? `Presupuesto ${data.numero} actualizado.`
         : `Presupuesto guardado con número ${data.numero}.`);
+
+      // Después de guardar, dejar el presupuestador preparado para uno nuevo.
+      nuevoPresupuesto();
+      setTimeout(()=>$('#cliente')?.focus(),30);
     }catch(error){
       console.error('[Hiper Ajax] Error MongoDB:', error);
       hxDuplicadoDePendiente = null;
@@ -6884,7 +6911,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - localStorage se conserva únicamente como respaldo temporal.
    ===================================================== */
 (()=>{
-  const HX_APP_VERSION_CLOUD_413 = '4.0.14c';
+  const HX_APP_VERSION_CLOUD_413 = '4.0.16c';
   const HX_LISTAR_ENDPOINT_413 = '/.netlify/functions/listar-presupuestos';
   const HX_LEER_ENDPOINT_413 = '/.netlify/functions/leer-presupuesto';
   let hxCloudLista413 = [];
