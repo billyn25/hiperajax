@@ -6692,3 +6692,157 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   document.addEventListener('DOMContentLoaded',()=>{ setVersion410(); setTimeout(setVersion410,200); });
   window.HX_APP_VERSION=HX_APP_VERSION_410;
 })();
+
+/* =====================================================
+   PATCH v4.0.12 · MongoDB + respaldo local
+   - Nuevo: MongoDB genera _id y número.
+   - Editar: conserva mongoId y número.
+   - Duplicar: genera mongoId y número nuevos.
+   - localStorage se mantiene temporalmente como respaldo.
+   ===================================================== */
+(()=>{
+  const HX_MONGO_ENDPOINT = '/.netlify/functions/guardar-presupuesto';
+  const HX_APP_VERSION_MONGO = '4.0.12';
+  let hxDuplicadoDePendiente = null;
+  let hxGuardandoMongo = false;
+
+  function hxPresupuestoSeleccionado(){
+    const sel = $('#presupuestosGuardados');
+    const id = sel ? String(sel.value || '') : '';
+    if(!id) return null;
+    return leerListaPresupuestos().find(p => String(p.id) === id) || null;
+  }
+
+  async function hxEnviarPresupuestoMongo(data, opciones={}){
+    const payload = {
+      presupuesto: {
+        ...data,
+        mongoId: opciones.mongoId || data.mongoId || null,
+        versionApp: HX_APP_VERSION_MONGO
+      }
+    };
+    if(opciones.mongoId) payload.mongoId = opciones.mongoId;
+    if(opciones.duplicadoDe) payload.duplicadoDe = opciones.duplicadoDe;
+
+    const res = await fetch(HX_MONGO_ENDPOINT, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    let out = null;
+    try{ out = await res.json(); }
+    catch(e){ throw new Error(`Respuesta no válida del servidor (${res.status})`); }
+    if(!res.ok || !out || !out.ok){
+      throw new Error(out?.mensaje || `No se pudo guardar en MongoDB (${res.status})`);
+    }
+    return out;
+  }
+
+  function hxGuardarCopiaLocal(data, selectedId=''){
+    let lista = leerListaPresupuestos();
+    const idx = selectedId ? lista.findIndex(p => String(p.id) === String(selectedId)) : -1;
+    if(idx >= 0){
+      data.id = lista[idx].id;
+      lista[idx] = data;
+    }else{
+      data.id = data.id || Date.now().toString();
+      lista.unshift(data);
+    }
+    escribirListaPresupuestos(lista.slice(0,100));
+    refrescarPresupuestosGuardados();
+    const sel = $('#presupuestosGuardados');
+    if(sel) sel.value = data.id;
+  }
+
+  guardar = async function(){
+    if(hxGuardandoMongo) return;
+    if(!Array.isArray(lineas) || lineas.length === 0){
+      alert('Añade al menos un producto antes de guardar el presupuesto.');
+      return;
+    }
+
+    hxGuardandoMongo = true;
+    const sel = $('#presupuestosGuardados');
+    const selectedId = sel ? String(sel.value || '') : '';
+    const recuperado = hxPresupuestoSeleccionado();
+    const data = datosPresupuesto();
+    const mongoId = recuperado && recuperado.mongoId ? String(recuperado.mongoId) : '';
+    const duplicadoDe = hxDuplicadoDePendiente || '';
+
+    try{
+      const resultado = await hxEnviarPresupuestoMongo(data, {
+        mongoId: duplicadoDe ? '' : mongoId,
+        duplicadoDe
+      });
+
+      data.mongoId = resultado.mongoId;
+      data.numero = resultado.numero;
+      data.guardado = new Date().toISOString();
+      data.createdAt = resultado.createdAt || recuperado?.createdAt || data.guardado;
+      data.updatedAt = resultado.updatedAt || data.guardado;
+      if(duplicadoDe) data.duplicadoDe = duplicadoDe;
+
+      const numeroInput = $('#numero');
+      if(numeroInput) numeroInput.value = data.numero;
+
+      hxGuardarCopiaLocal(data, duplicadoDe ? '' : selectedId);
+      hxDuplicadoDePendiente = null;
+      alert(resultado.operacion === 'actualizado'
+        ? `Presupuesto ${data.numero} actualizado.`
+        : `Presupuesto guardado con número ${data.numero}.`);
+    }catch(error){
+      console.error('[Hiper Ajax] Error MongoDB:', error);
+      hxDuplicadoDePendiente = null;
+      alert(`No se pudo guardar en la base de datos. No se ha creado ningún número definitivo.\n\n${error.message}`);
+    }finally{
+      hxGuardandoMongo = false;
+    }
+  };
+
+  duplicarPresupuesto = async function(){
+    if(!Array.isArray(lineas) || lineas.length === 0){
+      alert('Añade al menos un producto antes de duplicar el presupuesto.');
+      return;
+    }
+    const origen = hxPresupuestoSeleccionado();
+    hxDuplicadoDePendiente = origen?.mongoId || null;
+    const sel = $('#presupuestosGuardados');
+    if(sel) sel.value = '';
+    const numeroInput = $('#numero');
+    if(numeroInput) numeroInput.value = '';
+    $('#estado').value = 'Borrador';
+    $('#fecha').value = new Date().toISOString().slice(0,10);
+    await guardar();
+  };
+
+  const hxNuevoPresupuestoBase = nuevoPresupuesto;
+  nuevoPresupuesto = function(){
+    hxNuevoPresupuestoBase.apply(this, arguments);
+    hxDuplicadoDePendiente = null;
+    const numeroInput = $('#numero');
+    if(numeroInput){
+      numeroInput.value = '';
+      numeroInput.placeholder = 'Se genera al guardar';
+    }
+    const sel = $('#presupuestosGuardados');
+    if(sel) sel.value = '';
+  };
+
+  function hxVersionMongo(){
+    document.querySelectorAll('.creator').forEach(el=>{
+      el.textContent = `· Creado por David Corregidor · ${HX_APP_VERSION_MONGO}`;
+    });
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    hxVersionMongo();
+    setTimeout(hxVersionMongo,250);
+    const numeroInput = $('#numero');
+    const sel = $('#presupuestosGuardados');
+    if(numeroInput && (!sel || !sel.value)){
+      numeroInput.value = '';
+      numeroInput.placeholder = 'Se genera al guardar';
+    }
+  });
+  window.HX_APP_VERSION = HX_APP_VERSION_MONGO;
+})();
