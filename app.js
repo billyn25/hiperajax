@@ -1591,6 +1591,7 @@ async function pdf(){
   const clientePdf = $('#cliente').value || '-';
   const telefonoPdf = $('#telefono').value || '-';
   const emailPdf = $('#email').value || '-';
+  const identificadorPdf = String(window.HX_GET_IDENTIFICADOR_ACTUAL?.() || '').trim();
 
   const fitPdf = (txt, max) => {
     txt = String(txt || '-');
@@ -1602,7 +1603,7 @@ async function pdf(){
   // Datos compactos en dos líneas, mismo ancho visual que la tabla
   doc.setFillColor(255,255,255);
   doc.setDrawColor(224,232,228);
-  doc.roundedRect(14,y,pageW-28,16.2,2.2,2.2,'S');
+  doc.roundedRect(14,y,pageW-28,identificadorPdf?21.6:16.2,2.2,2.2,'S');
 
   doc.setFont('helvetica','bold'); doc.setFontSize(7.2); doc.setTextColor(13,77,49);
   doc.text('Tienda:',18,y+5.5); doc.text('Cliente:',63,y+5.5); doc.text('Tel.:',122,y+5.5); doc.text('Email:',150,y+5.5);
@@ -1617,8 +1618,14 @@ async function pdf(){
   doc.text(fitPdf(fechaPdf,28),75,y+12.8);
   doc.text(fitPdf(estadoPdf,32),117,y+12.8);
   doc.text(fitPdf(validezPdf,28),164,y+12.8);
+  if(identificadorPdf){
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.2); doc.setTextColor(13,77,49);
+    doc.text('Identificador:',18,y+18.1);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.8); doc.setTextColor(25,31,36);
+    doc.text(fitPdf(identificadorPdf,pageW-62),43,y+18.1);
+  }
 
-  y += 19.5;
+  y += identificadorPdf ? 24.9 : 19.5;
 
   const rows = lineas.map(l=>{
     if(l.separador){
@@ -7161,4 +7168,163 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     });
   });
   window.HX_APP_VERSION=HX_APP_VERSION_DUP_415;
+})();
+
+/* =====================================================
+   PATCH v4.0.16 · Borrar MongoDB + identificador visible
+   - Borrado real en MongoDB con confirmación clara.
+   - Refresca el gestor inmediatamente.
+   - Limpia el presupuesto si se elimina el documento abierto.
+   - Muestra identificador en cabecera y mejora las tarjetas.
+   ===================================================== */
+(()=>{
+  const HX_VERSION_416='4.0.16';
+  const HX_DELETE_416='/.netlify/functions/borrar-presupuesto';
+  let hxDeleting416=false;
+
+  const $416=id=>document.getElementById(id);
+  const hxList416=()=>{
+    try{ return typeof leerListaPresupuestos==='function' ? (leerListaPresupuestos()||[]) : []; }
+    catch(e){ return []; }
+  };
+  const hxSelectedId416=()=>String($416('presupuestosGuardados')?.value||'').trim();
+  const hxSelected416=()=>hxList416().find(p=>String(p.id||p.mongoId||p._id)===hxSelectedId416())||null;
+  const hxIdentifier416=p=>String(p?.identificador||'').trim();
+
+  function hxToast416(text,error=false){
+    document.querySelector('.hx-toast-416')?.remove();
+    const el=document.createElement('div');
+    el.className='pmx-global-toast hx-toast-416';
+    el.textContent=text;
+    if(error) el.style.background='#8f2525';
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add('show'));
+    setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),220);},2100);
+  }
+
+  function hxEnsureIdentifier416(){
+    const title=document.querySelector('.section-title-under-actions');
+    if(!title || $416('hxBudgetIdentifier416')) return;
+    const box=document.createElement('div');
+    box.id='hxBudgetIdentifier416';
+    box.className='hx-budget-identifier-416 is-empty';
+    box.innerHTML='<span>Identificador</span><strong>Sin identificador</strong>';
+    title.appendChild(box);
+  }
+
+  function hxRefreshIdentifier416(){
+    hxEnsureIdentifier416();
+    const box=$416('hxBudgetIdentifier416');
+    if(!box) return;
+    const p=hxSelected416();
+    const value=hxIdentifier416(p);
+    box.classList.toggle('is-empty',!value);
+    const strong=box.querySelector('strong');
+    if(strong) strong.textContent=value||'Sin identificador';
+    box.title=value ? 'Identificador interno del presupuesto' : 'Asigna un identificador desde Presupuestos → Renombrar';
+  }
+
+  function hxEnhanceCards416(){
+    const list=hxList416();
+    document.querySelectorAll('#pmList .pmx-row[data-pm-id]').forEach(row=>{
+      const id=String(row.dataset.pmId||'');
+      const p=list.find(x=>String(x.id||x.mongoId||x._id)===id);
+      if(!p) return;
+      const main=row.querySelector('.pmx-row-main');
+      if(!main) return;
+      const identifier=hxIdentifier416(p);
+      const cliente=String(p.cliente||'Sin cliente');
+      const numero=String(p.numero||'Sin número');
+      const tienda=String(p.tienda||'Sin tienda');
+      const comercial=String(p.comercial||'Sin asignar');
+      const fecha=String(p.fecha||'').split('T')[0];
+      main.innerHTML=`
+        ${identifier?`<strong class="pmx-card-identifier-416">${escapeHtml(identifier)}</strong>`:''}
+        <b class="pmx-card-number-416">${escapeHtml(numero)}</b>
+        <small class="pmx-card-client-416">${escapeHtml(cliente)}</small>
+        <small class="pmx-card-meta-416">${escapeHtml(tienda)} · ${escapeHtml(comercial)}${fecha?` · ${escapeHtml(fecha)}`:''}</small>`;
+    });
+  }
+
+  function hxClearOpen416(){
+    const sel=$416('presupuestosGuardados');
+    if(sel) sel.value='';
+    try{
+      if(typeof limpiar==='function') limpiar();
+      else {
+        ['cliente','telefono','email','observaciones'].forEach(id=>{const el=$416(id);if(el)el.value='';});
+        if(Array.isArray(lineas)){ lineas=[]; if(typeof render==='function') render(); }
+      }
+    }catch(e){ console.warn('[Hiper Ajax] No se pudo limpiar tras borrar',e); }
+    hxRefreshIdentifier416();
+  }
+
+  async function hxDelete416(){
+    if(hxDeleting416) return;
+    const id=hxSelectedId416();
+    const p=hxSelected416();
+    if(!id){ hxToast416('Selecciona un presupuesto.',true); return; }
+    const numero=String(p?.numero||'este presupuesto');
+    const identificador=hxIdentifier416(p);
+    const texto=identificador ? `¿Eliminar definitivamente “${identificador}” (${numero})?` : `¿Eliminar definitivamente ${numero}?`;
+    if(!confirm(`${texto}\n\nEsta acción lo borrará de MongoDB y no se puede deshacer.`)) return;
+
+    hxDeleting416=true;
+    const btn=$416('pmDelete');
+    if(btn) btn.disabled=true;
+    try{
+      const res=await fetch(HX_DELETE_416,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({mongoId:id})
+      });
+      const out=await res.json().catch(()=>null);
+      if(!res.ok || !out?.ok) throw new Error(out?.mensaje||out?.error||`Error ${res.status}`);
+
+      hxClearOpen416();
+      if(typeof window.HX_RECARGAR_PRESUPUESTOS==='function'){
+        await window.HX_RECARGAR_PRESUPUESTOS({silencioso:true});
+      }
+      window.dispatchEvent(new CustomEvent('hiperajax:presupuestos-importados'));
+      hxEnhanceCards416();
+      hxToast416(`Presupuesto ${numero} eliminado.`);
+    }catch(error){
+      console.error('[Hiper Ajax] Error al borrar:',error);
+      hxToast416(`No se pudo borrar: ${error.message}`,true);
+    }finally{
+      hxDeleting416=false;
+      if(btn) btn.disabled=false;
+    }
+  }
+
+  document.addEventListener('click',event=>{
+    const btn=event.target.closest?.('#pmDelete,#btnDeleteSaved');
+    if(!btn) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    hxDelete416();
+  },true);
+
+  document.addEventListener('change',event=>{
+    if(event.target?.id==='presupuestosGuardados') setTimeout(hxRefreshIdentifier416,0);
+  });
+
+  window.addEventListener('hiperajax:presupuestos-importados',()=>{
+    setTimeout(()=>{hxRefreshIdentifier416();hxEnhanceCards416();},50);
+  });
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    hxEnsureIdentifier416();
+    hxRefreshIdentifier416();
+    const root=$416('pmList');
+    if(root){
+      new MutationObserver(()=>hxEnhanceCards416()).observe(root,{childList:true,subtree:true});
+    }
+    document.querySelectorAll('.creator').forEach(el=>{
+      el.textContent=`· Creado por David Corregidor · ${HX_VERSION_416}`;
+    });
+  });
+
+  window.HX_GET_IDENTIFICADOR_ACTUAL=()=>hxIdentifier416(hxSelected416());
+  window.HX_APP_VERSION=HX_VERSION_416;
 })();

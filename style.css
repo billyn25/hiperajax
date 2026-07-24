@@ -8315,3 +8315,45 @@ body.light-mode .catalog-diag-item b{color:#173b2a}
     padding-right:5px!important;
   }
 }
+
+/* v4.0.16 · Identificador visible y tarjetas enriquecidas */
+.section-title-under-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.hx-budget-identifier-416{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:210px;
+  max-width:100%;
+  padding:7px 11px;
+  border:1px solid rgba(31,143,95,.38);
+  border-radius:10px;
+  background:rgba(31,143,95,.10);
+}
+.hx-budget-identifier-416 span{
+  font-size:.72rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  opacity:.72;
+}
+.hx-budget-identifier-416 strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.hx-budget-identifier-416.is-empty{opacity:.68;background:rgba(127,127,127,.08);border-style:dashed}
+.pmx-row-main{display:flex!important;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.pmx-card-identifier-416{font-size:.98rem;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pmx-card-number-416{font-size:.78rem;letter-spacing:.025em;opacity:.88}
+.pmx-card-client-416{font-size:.78rem!important;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pmx-card-meta-416{font-size:.7rem!important;opacity:.68;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:820px){
+  .section-title-under-actions{align-items:stretch}
+  .hx-budget-identifier-416{width:100%;min-width:0}
+}
