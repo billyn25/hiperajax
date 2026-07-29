@@ -1,0 +1,132 @@
+/* =====================================================
+   BOTONES.CSS — sistema visual único de botones
+   Este archivo concentra los colores y estados de botones.
+   No modifica la lógica JavaScript.
+   ===================================================== */
+:root{
+  --btn-green:#2f765c;
+  --btn-green-hover:#28684f;
+  --btn-green-border:#255f49;
+  --btn-neutral-bg:#18231f;
+  --btn-neutral-hover:#202e29;
+  --btn-neutral-border:#34463f;
+  --btn-neutral-text:#eef7f2;
+  --btn-danger-bg:#a93644;
+  --btn-danger-hover:#8f2d39;
+  --btn-danger-border:#862a36;
+  --btn-radius:10px;
+}
+
+/* Acción principal: verde más sobrio, sin efecto fosforito */
+button:not(.secondary):not(.danger):not(.theme-toggle):not(.modal-close):not(.trash):not(.move):not(.line-qty-btn):not(.az-chip):not(.quick-cat-chip){
+  background:var(--btn-green)!important;
+  border:1px solid var(--btn-green-border)!important;
+  color:#fff!important;
+  box-shadow:0 5px 12px rgba(20,65,48,.16)!important;
+  border-radius:var(--btn-radius)!important;
+}
+button:not(.secondary):not(.danger):not(.theme-toggle):not(.modal-close):not(.trash):not(.move):not(.line-qty-btn):not(.az-chip):not(.quick-cat-chip):hover{
+  background:var(--btn-green-hover)!important;
+}
+
+/* Secundarios y controles de interfaz */
+button.secondary,
+.theme-toggle,
+.move,
+.line-qty-btn{
+  background:var(--btn-neutral-bg)!important;
+  color:var(--btn-neutral-text)!important;
+  border:1px solid var(--btn-neutral-border)!important;
+  box-shadow:none!important;
+  border-radius:var(--btn-radius)!important;
+}
+button.secondary:hover,
+.theme-toggle:hover,
+.move:hover:not(:disabled),
+.line-qty-btn:hover{
+  background:var(--btn-neutral-hover)!important;
+  border-color:#475c53!important;
+}
+
+/* Tema: siempre neutro, estable y dentro del encabezado */
+.theme-toggle{
+  min-width:44px!important;
+  width:auto!important;
+  max-width:160px!important;
+  height:38px!important;
+  padding:0 12px!important;
+  margin:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+}
+
+/* Edición de cantidad y movimiento: familia compacta común */
+.move,
+.line-qty-btn{
+  width:30px!important;
+  min-width:30px!important;
+  height:32px!important;
+  padding:0!important;
+  margin:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  color:#c7d2cc!important;
+}
+.move:focus-visible,
+.line-qty-btn:focus-visible{
+  outline:2px solid rgba(98,118,108,.55)!important;
+  outline-offset:2px!important;
+}
+.move:disabled{opacity:.32!important;}
+
+/* Un poco más de aire entre + y Descuento, sin alterar columnas */
+.budget-card .line-qty-stepper{
+  margin-right:5px!important;
+}
+.budget-card td:nth-child(5){
+  padding-left:9px!important;
+}
+
+/* Peligro: Vaciar y borrar comparten exactamente el mismo rojo */
+button.danger,
+button.trash,
+.trash{
+  background:var(--btn-danger-bg)!important;
+  color:#fff!important;
+  border:1px solid var(--btn-danger-border)!important;
+  box-shadow:none!important;
+}
+button.danger:hover,
+button.trash:hover,
+.trash:hover{
+  background:var(--btn-danger-hover)!important;
+}
+
+/* Modo claro: misma jerarquía, tonos suaves y legibles */
+body.light-mode{
+  --btn-green:#357b61;
+  --btn-green-hover:#2e6d55;
+  --btn-green-border:#2b674f;
+  --btn-neutral-bg:#eef2f0;
+  --btn-neutral-hover:#e2e9e5;
+  --btn-neutral-border:#bdc9c3;
+  --btn-neutral-text:#34443d;
+  --btn-danger-bg:#b63e4b;
+  --btn-danger-hover:#9e3441;
+  --btn-danger-border:#96323e;
+}
+body.light-mode .move,
+body.light-mode .line-qty-btn{
+  color:#4f6058!important;
+}
+
+@media(max-width:760px){
+  .theme-toggle{
+    max-width:100%!important;
+    align-self:flex-end!important;
+  }
+}
