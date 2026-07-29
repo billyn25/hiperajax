@@ -1,5 +1,5 @@
 /* =============================================================
-   HIPER AJAX 4.3.0 · MOTOR ÚNICO DE BÚSQUEDA
+   HIPER AJAX 4.3.1 · MOTOR ÚNICO DE BÚSQUEDA
 
    Usado por:
    - buscador inicial
@@ -43,6 +43,21 @@
     humo: ['fireprotect', 'incendio'],
     enchufe: ['socket', 'outlet'],
     rele: ['relay', 'wallswitch']
+  });
+
+  // Reglas de los botones rápidos del Catálogo. Se mantienen aquí,
+  // junto al motor de búsqueda, para evitar filtros repartidos por app.js.
+  const CATALOG_FILTERS = Object.freeze({
+    cam:n=>/bulletcam|domecam|turretcam|indoorcam|doorbell/.test(n),
+    hub:n=>/^aj-hub/.test(n) && !/bracket|batt|battery|dummy|repair|kit/.test(n),
+    det:n=>/motionprotect|motioncam|doorprotect|glassprotect|combiprotect|curtain|outdoorprotect|fireprotect|leaksprotect|lifequality|seismoprotect/.test(n) && !/dummy|lens|bracket/.test(n),
+    sir:n=>/homesiren|streetsiren|speakerss/.test(n) && !/dummy|bracket/.test(n),
+    key:n=>/keypad/.test(n) && !/dummy|bracket/.test(n),
+    dom:n=>/lightcore|lightswitch|centerbutton|sidebutton|solobutton|centercove?r|sidecove?r|solocove?r|coverplate|outletcore|outletbasic|outletlan|socket|wallswitch|relay|multirelay|bypass|frame|surfacebox/.test(n),
+    nvr:n=>/nvr/.test(n),
+    sup:n=>/junctionbox/.test(n),
+    out:n=>/outdoor|street|doorbell|waterstop|curtainoutdoor/.test(n),
+    fire:n=>/fireprotect|manualcallpoint|en54/.test(n)
   });
 
   const CACHE = new Map();
@@ -223,7 +238,8 @@
     compact,
     rank,
     scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),
-    version:'4.3.0c'
+    version:'4.3.1',
+    catalogFilters:CATALOG_FILTERS
   };
   global.HXA_KNOWLEDGE_ENGINE = engine;
   global.HXA_SEARCH_ENGINE = engine;
@@ -259,23 +275,14 @@
       return [];
     }
 
-    try{
-      if(typeof quickDef204 === 'function'){
-        const def=quickDef204(quick);
-        if(def && typeof def.test === 'function'){
-          // Los filtros rápidos pertenecen al Catálogo y fueron definidos con
-          // normaliza(), que conserva guiones (AJ-HUB...). El motor usa una
-          // normalización distinta para puntuar. Cada capa mantiene aquí su
-          // contrato y evitamos adaptar botones o categorías individualmente.
-          return rows.filter(x=>{
-            const name=(x.p&&x.p.name)||'';
-            const catalogName=(typeof normaliza === 'function') ? normaliza(name) : String(name).toLowerCase();
-            return def.test(catalogName);
-          });
-        }
-      }
-    }catch(e){}
-    return rows;
+    const test=CATALOG_FILTERS[quick];
+    if(typeof test !== 'function') return rows;
+    return rows.filter(x=>{
+      const name=(x.p&&x.p.name)||'';
+      // Los filtros trabajan con la referencia compacta y estable.
+      const catalogName=String(name).toLowerCase();
+      return test(catalogName);
+    });
   }
 
   function applyCatalogLetter(rows){
@@ -305,5 +312,5 @@
     return rows;
   };
 
-  global.HX_APP_VERSION='4.3.0c';
+  global.HX_APP_VERSION='4.3.1';
 })(typeof window!=='undefined' ? window : globalThis);

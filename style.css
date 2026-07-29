@@ -10136,3 +10136,15 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
     white-space:nowrap;
   }
 }
+
+/* =====================================================
+   4.3.1 · CATÁLOGO MÓVIL — FILAS DE ALTURA NATURAL
+   El listado conserva toda la altura útil y el scroll, pero sus
+   productos nunca se estiran para rellenar el espacio disponible.
+   ===================================================== */
+@media (max-width:760px){
+  #catalogModal .catalog-items{
+    align-content:start!important;
+    grid-auto-rows:max-content!important;
+  }
+}
