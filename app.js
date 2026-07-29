@@ -1896,7 +1896,7 @@ function buscarCatalogo(term=''){
   return buscar(q);
 }
 // fuerza version visible
-try{ document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = el.textContent.replace(/v\d+\.\d+(?:\.\d+)?(?:\.\d+)?\s*PRO/,'v1.6.3.1 PRO'); }); }); }catch(e){}
+try{ document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }); }catch(e){}
 
 /* =====================================================
    MOTOR PRO v1.6.4 - Automatización, mecanismos, red/PoE y almacenamiento
@@ -2063,7 +2063,7 @@ scoreProducto = function(p, term){
   for(const part of parts){ if(texto.includes(part)) score += meta ? 550 : 120; }
   return score;
 };
-try{ document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = el.textContent.replace(/v\d+\.\d+(?:\.\d+)?(?:\.\d+)?\s*PRO/g, APP_VERSION_164); }); }); }catch(e){}
+try{ document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }); }catch(e){}
 
 
 /* =====================================================
@@ -2169,7 +2169,7 @@ try{
 try{
   document.addEventListener('DOMContentLoaded',()=>{
     document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = el.textContent.replace(/v\d+\.\d+(?:\.\d+)?(?:\.\d+)?\s*PRO/g, APP_VERSION_165);
+      el.textContent = '· Creado por David Corregidor';
     });
   });
 }catch(e){}
@@ -2252,7 +2252,7 @@ try{
 try{
   document.addEventListener('DOMContentLoaded',()=>{
     document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = el.textContent.replace(/v\d+\.\d+(?:\.\d+)?(?:\.\d+)?\s*PRO/g, APP_VERSION_166);
+      el.textContent = '· Creado por David Corregidor';
     });
   });
 }catch(e){}
@@ -2557,7 +2557,7 @@ buscarCatalogo = function(term=''){
 try{
   const setVersion = ()=>{
     document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = el.textContent.replace(/v\d+\.\d+(?:\.\d+)?(?:\.\d+)?\s*PRO/g, APP_VERSION_175);
+      el.textContent = '· Creado por David Corregidor';
     });
   };
   document.addEventListener('DOMContentLoaded', setVersion);
@@ -2769,7 +2769,7 @@ buscarCatalogo = function(term=''){
 try{
   document.addEventListener('DOMContentLoaded', ()=>{
     document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = el.textContent.replace(/v\d+\.\d+(?:\.\d+)?(?:\.\d+)?\s*PRO/g, APP_VERSION_181);
+      el.textContent = '· Creado por David Corregidor';
     });
   });
 }catch(e){}
@@ -2884,7 +2884,7 @@ const pintarResultados_PRE182 = pintarResultados;
 pintarResultados = function(term){ const r=pintarResultados_PRE182(term); const panel=document.querySelector('#resultados'); if(panel) panel.scrollTop=0; return r; };
 const pintarCatalogPanel_PRE182 = (typeof pintarCatalogPanel==='function') ? pintarCatalogPanel : null;
 if(pintarCatalogPanel_PRE182){ pintarCatalogPanel=function(term){ const r=pintarCatalogPanel_PRE182(term); const items=document.querySelector('#catalogItems'); if(items) items.scrollTop=0; const card=document.querySelector('#catalogModal .modal-card'); if(card) card.scrollTop=0; return r; }; }
-document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent=`· Creado por David Corregidor · ${APP_VERSION_182}`; }); ['#btnCatalogo','#btnFamilias'].forEach(sel=>document.querySelector(sel)?.addEventListener('click',()=>setTimeout(()=>{ document.querySelectorAll('.modal-card,#catalogItems,#resultados').forEach(x=>{try{x.scrollTop=0;}catch(e){}}); },30))); });
+document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); ['#btnCatalogo','#btnFamilias'].forEach(sel=>document.querySelector(sel)?.addEventListener('click',()=>setTimeout(()=>{ document.querySelectorAll('.modal-card,#catalogItems,#resultados').forEach(x=>{try{x.scrollTop=0;}catch(e){}}); },30))); });
 
 /* =====================================================
    PATCH v1.8.3 PRO - Familias rápidas + índice sin tocar descripciones
@@ -3102,7 +3102,7 @@ try{
 }catch(e){}
 
 document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_183}`; });
+  document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
 });
 
 /* =====================================================
@@ -3287,7 +3287,7 @@ try{
 }catch(e){}
 
 document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_186}`; }); }catch(e){}
+  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
 });
 
 
@@ -3354,7 +3354,7 @@ buscarCatalogo = function(term=''){
 };
 
 document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_187}`; }); }catch(e){}
+  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
 });
 
 /* =====================================================
@@ -3480,7 +3480,7 @@ buscarCatalogo = function(term=''){
 };
 
 document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_188}`; }); }catch(e){}
+  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
 });
 
 /* =====================================================
@@ -3571,7 +3571,7 @@ scoreProducto = function(p, term){
 };
 
 document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_189}`; }); }catch(e){}
+  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
 });
 
 /* =====================================================
@@ -3728,7 +3728,7 @@ buscarCatalogo = function(term=''){
 };
 
 document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_190}`; }); }catch(e){}
+  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
 });
 
 /* =====================================================
@@ -3908,7 +3908,7 @@ scoreProducto = function(p,term){
   return score;
 };
 document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_191}`; }); }catch(e){}
+  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
 });
 
 /* =====================================================
@@ -4056,7 +4056,7 @@ scoreProducto = function(p,term){
 };
 
 document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_192}`; }); }catch(e){}
+  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
 });
 
 /* =====================================================
@@ -4210,7 +4210,7 @@ if(abrirCatalogo_PRE193){
 document.addEventListener('DOMContentLoaded',()=>{
   try{
     ensureAlphabet193();
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_193}`; });
+    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 });
 
@@ -4283,7 +4283,7 @@ cargarCatalogo = async function(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   try{
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_194}`; });
+    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 });
 
@@ -4408,7 +4408,7 @@ duplicarPresupuesto = function(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   try{
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_196}`; });
+    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
     const num = $('#numero');
     if(num && !String(num.value || '').trim()) num.value = siguienteNumero(true);
   }catch(e){}
@@ -4436,7 +4436,7 @@ busquedaForzada = function(term){
 
 document.addEventListener('DOMContentLoaded',()=>{
   try{
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_197}`; });
+    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 });
 
@@ -4541,7 +4541,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   try{
     ensureBudgetSearch198();
     refrescarPresupuestosGuardados();
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_198}`; });
+    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 });
 
@@ -4704,7 +4704,7 @@ pintarResultados = function(term){
 
 document.addEventListener('DOMContentLoaded',()=>{
   try{
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_199}`; });
+    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 });
 
@@ -4798,7 +4798,7 @@ scoreProducto = function(p, term){
 };
 
 document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_203}`; }); }catch(e){}
+  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
 });
 
 
@@ -4883,7 +4883,7 @@ if(abrirCatalogo_BASE204){
 document.addEventListener('DOMContentLoaded',()=>{
   try{
     ensureQuickCatalog204();
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_205}`; });
+    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 });
 
@@ -4956,13 +4956,13 @@ pintarCatalogPanel = function(term=catalogTerm){
         itemsWrap.innerHTML = '<div class="catalog-empty">Todavía no hay estadísticas. Añade productos y este filtro aprenderá tus más usados.</div>';
       }
     }
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_206}`; });
+    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 };
 
 document.addEventListener('DOMContentLoaded',()=>{
   try{
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_206}`; });
+    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 });
 
@@ -5016,7 +5016,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       return r;
     };
   }
-  document.addEventListener('DOMContentLoaded',()=>{ fixCatalogButtons207(); setTimeout(orderCatalogFilters207,50); document.querySelectorAll('.creator').forEach(el=>{ el.textContent='· Creado por David Corregidor · 4.0.8'; }); });
+  document.addEventListener('DOMContentLoaded',()=>{ fixCatalogButtons207(); setTimeout(orderCatalogFilters207,50); document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); });
 })();
 
 /* =====================================================
@@ -5074,7 +5074,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   function setVersion208(){
     try{
-      document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${APP_VERSION_208}`; });
+      document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
     }catch(e){}
   }
 
@@ -5154,7 +5154,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   function setVersion2016(){
     try{
       document.querySelectorAll('.creator').forEach(el=>{
-        el.textContent = `· Creado por David Corregidor · ${APP_VERSION_2016}`;
+        el.textContent = '· Creado por David Corregidor';
       });
     }catch(e){}
   }
@@ -5722,7 +5722,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       }
       grid.innerHTML = `
         <div class="explore-wrap explore-mobile-wrap">
-          <div class="explore-search"><input id="exploreFilter210" autocomplete="off" placeholder="Buscar en todo el catálogo AJAX..." value="${escapeHtml(expQuery)}"><span>${list.length} productos</span></div>
+          <div class="explore-search"><input id="exploreFilter210" autocomplete="off" placeholder="Buscar por referencia o descripción…" value="${escapeHtml(expQuery)}"><span>${list.length} productos</span></div>
           <div class="explore-mobile-head">
             ${expMobileStep==='cats' ? '' : '<button type="button" class="explore-back">← Atrás</button>'}
             <div class="explore-breadcrumb">🧭 Explorar ${expMobileStep!=='cats' && c ? '<b>›</b> '+escapeHtml(c.icon)+' '+escapeHtml(c.title) : ''} ${expMobileStep==='products' && sub ? '<b>›</b> '+escapeHtml(sub.icon)+' '+escapeHtml(sub.title) : ''}</div>
@@ -5785,7 +5785,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const initialHelp = !expQuery.trim() && !c;
     grid.innerHTML = `
       <div class="explore-wrap">
-        <div class="explore-search"><input id="exploreFilter210" autocomplete="off" placeholder="Buscar en todo el catálogo AJAX..." value="${escapeHtml(expQuery)}"><span>${list.length} productos</span></div>
+        <div class="explore-search"><input id="exploreFilter210" autocomplete="off" placeholder="Buscar por referencia o descripción…" value="${escapeHtml(expQuery)}"><span>${list.length} productos</span></div>
         <div class="explore-breadcrumb">🧭 ${c ? 'Explorar <b>›</b> '+escapeHtml(c.icon)+' '+escapeHtml(c.title)+(sub ? ' <b>›</b> '+escapeHtml(sub.icon)+' '+escapeHtml(sub.title) : '') : 'Selecciona una categoría o escribe en el buscador'}</div>
         <div class="explore-layout">
           <div class="explore-col explore-cats">${catsHtml}</div>
@@ -5869,7 +5869,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       btn.dataset.explorarPro='1'; btn.innerHTML = '<span class="btn-ico">🧭</span>Explorar';
       btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); abrirExplorar211(); }, true);
     }
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = `· Creado por David Corregidor · ${VERSION_EXPLORE_211}`; });
+    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   });
 })();
 
@@ -6017,7 +6017,7 @@ function descripcionPdfCorta(linea){
   const APP_VERSION = '4.0.8';
   function setAppVersion(){
     document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = `· Creado por David Corregidor · ${APP_VERSION}`;
+      el.textContent = '· Creado por David Corregidor';
     });
   }
   window.actualizarVersionApp = setAppVersion;
@@ -6026,7 +6026,7 @@ function descripcionPdfCorta(linea){
     const target = document.querySelector('.creator');
     if(target){
       const observer = new MutationObserver(()=>{
-        if(target.textContent !== `· Creado por David Corregidor · ${APP_VERSION}`) setAppVersion();
+        if(target.textContent !== '· Creado por David Corregidor') setAppVersion();
       });
       observer.observe(target,{childList:true,characterData:true,subtree:true});
     }
@@ -6616,7 +6616,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
   function setVersion407(){
     document.querySelectorAll('.creator').forEach(el=>{
-      const versionText=`· Creado por David Corregidor · ${HX_APP_VERSION}`;
+      const versionText='· Creado por David Corregidor';
       if(el.textContent !== versionText) el.textContent=versionText;
     });
   }
@@ -6625,7 +6625,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   document.addEventListener('DOMContentLoaded',()=>{
     document.querySelectorAll('.creator').forEach(el=>observer407.observe(el,{childList:true,characterData:true,subtree:true}));
   });
-  window.HX_APP_VERSION=HX_APP_VERSION;
+  window.HX_APP_VERSION='';
   window.HX_ORDER_FAMILIES=hxOrderFamilies407;
 })();
 
@@ -6708,12 +6708,12 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
   function setVersion409(){
     document.querySelectorAll('.creator').forEach(el=>{
-      const txt=`· Creado por David Corregidor · ${HX_APP_VERSION_409}`;
+      const txt='· Creado por David Corregidor';
       if(el.textContent!==txt) el.textContent=txt;
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{setVersion409();setTimeout(setVersion409,150);});
-  window.HX_APP_VERSION=HX_APP_VERSION_409;
+  window.HX_APP_VERSION='';
 })();
 
 /* =====================================================
@@ -6842,12 +6842,12 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
   function setVersion410(){
     document.querySelectorAll('.creator').forEach(el=>{
-      const t=`· Creado por David Corregidor · ${HX_APP_VERSION_410}`;
+      const t='· Creado por David Corregidor';
       if(el.textContent!==t) el.textContent=t;
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{ setVersion410(); setTimeout(setVersion410,200); });
-  window.HX_APP_VERSION=HX_APP_VERSION_410;
+  window.HX_APP_VERSION='';
 })();
 
 /* =====================================================
@@ -7060,7 +7060,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
   function hxVersionMongo(){
     document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = `· Creado por David Corregidor · ${HX_APP_VERSION_MONGO}`;
+      el.textContent = '· Creado por David Corregidor';
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{
@@ -7073,7 +7073,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
       numeroInput.placeholder = 'Se genera al guardar';
     }
   });
-  window.HX_APP_VERSION = HX_APP_VERSION_MONGO;
+  window.HX_APP_VERSION='';
 })();
 
 
@@ -7206,7 +7206,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
   document.addEventListener('DOMContentLoaded',()=>{
     document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent=`· Creado por David Corregidor · ${HX_APP_VERSION_CLOUD_413}`;
+      el.textContent = '· Creado por David Corregidor';
     });
   });
 
@@ -7228,7 +7228,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     refrescarPresupuestosGuardados();
     window.dispatchEvent(new CustomEvent('hiperajax:presupuestos-importados'));
   };
-  window.HX_APP_VERSION=HX_APP_VERSION_CLOUD_413;
+  window.HX_APP_VERSION='';
 })();
 
 
@@ -7291,9 +7291,9 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   },true);
 
   document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.creator').forEach(el=>el.textContent='· Creado por David Corregidor · 4.0.14c');
+    document.querySelectorAll('.creator').forEach(el=>el.textContent = '· Creado por David Corregidor');
   });
-  window.HX_APP_VERSION='4.0.14c';
+  window.HX_APP_VERSION='';
 })();
 
 
@@ -7444,10 +7444,10 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
   document.addEventListener('DOMContentLoaded',()=>{
     document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent=`· Creado por David Corregidor · ${HX_APP_VERSION_DUP_415}`;
+      el.textContent = '· Creado por David Corregidor';
     });
   });
-  window.HX_APP_VERSION=HX_APP_VERSION_DUP_415;
+  window.HX_APP_VERSION='';
 })();
 
 /* =====================================================
@@ -7618,12 +7618,12 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
       new MutationObserver(()=>hxEnhanceCards416()).observe(root,{childList:true,subtree:true});
     }
     document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent=`· Creado por David Corregidor · ${HX_VERSION_416}`;
+      el.textContent = '· Creado por David Corregidor';
     });
   });
 
   window.HX_GET_IDENTIFICADOR_ACTUAL=()=>String(hxIdentificadorActual || hxIdentifier416(hxSelected416()) || '').trim();
-  window.HX_APP_VERSION=HX_VERSION_416;
+  window.HX_APP_VERSION='';
 })();
 
 
@@ -7712,7 +7712,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     window.HX_ABRIR_PRESUPUESTO?.(id);
   },false);
 
-  window.HX_APP_VERSION='4.2.20d';
+  window.HX_APP_VERSION='';
 })();
 
 
@@ -7786,5 +7786,5 @@ descripcionProducto = function(p){
     panel.classList.remove('hidden');
   };
 
-  window.HX_APP_VERSION='4.2.20c';
+  window.HX_APP_VERSION='';
 })();

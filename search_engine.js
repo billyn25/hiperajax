@@ -1,5 +1,5 @@
 /* =============================================================
-   HIPER AJAX 4.3.1 · MOTOR ÚNICO DE BÚSQUEDA
+   HIPER AJAX · MOTOR ÚNICO DE BÚSQUEDA
 
    Usado por:
    - buscador inicial
@@ -238,7 +238,7 @@
     compact,
     rank,
     scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),
-    version:'4.3.1',
+    version:'',
     catalogFilters:CATALOG_FILTERS
   };
   global.HXA_KNOWLEDGE_ENGINE = engine;
@@ -312,5 +312,23 @@
     return rows;
   };
 
-  global.HX_APP_VERSION='4.3.1';
+  global.HX_APP_VERSION='';
+
+  const SEARCH_PLACEHOLDER='Buscar por referencia o descripción…';
+  function applySharedUiPolicy(){
+    ['buscador','catalogFilter','exploreFilter210'].forEach(id=>{
+      const input=document.getElementById(id);
+      if(input) input.placeholder=SEARCH_PLACEHOLDER;
+    });
+    document.querySelectorAll('.creator').forEach(el=>{
+      el.textContent='· Creado por David Corregidor';
+    });
+  }
+  if(typeof document!=='undefined'){
+    document.addEventListener('DOMContentLoaded',applySharedUiPolicy);
+    document.addEventListener('input',e=>{
+      if(e.target && e.target.id==='exploreFilter210') e.target.placeholder=SEARCH_PLACEHOLDER;
+    },true);
+    setTimeout(applySharedUiPolicy,0);
+  }
 })(typeof window!=='undefined' ? window : globalThis);
