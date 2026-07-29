@@ -223,7 +223,7 @@
     compact,
     rank,
     scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),
-    version:'4.3.0b'
+    version:'4.3.0c'
   };
   global.HXA_KNOWLEDGE_ENGINE = engine;
   global.HXA_SEARCH_ENGINE = engine;
@@ -263,7 +263,15 @@
       if(typeof quickDef204 === 'function'){
         const def=quickDef204(quick);
         if(def && typeof def.test === 'function'){
-          return rows.filter(x=>def.test(normalize((x.p&&x.p.name)||'')));
+          // Los filtros rápidos pertenecen al Catálogo y fueron definidos con
+          // normaliza(), que conserva guiones (AJ-HUB...). El motor usa una
+          // normalización distinta para puntuar. Cada capa mantiene aquí su
+          // contrato y evitamos adaptar botones o categorías individualmente.
+          return rows.filter(x=>{
+            const name=(x.p&&x.p.name)||'';
+            const catalogName=(typeof normaliza === 'function') ? normaliza(name) : String(name).toLowerCase();
+            return def.test(catalogName);
+          });
         }
       }
     }catch(e){}
@@ -297,5 +305,5 @@
     return rows;
   };
 
-  global.HX_APP_VERSION='4.3.0b';
+  global.HX_APP_VERSION='4.3.0c';
 })(typeof window!=='undefined' ? window : globalThis);
