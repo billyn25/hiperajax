@@ -1,6 +1,6 @@
 {
   "name": "hiperajax",
-  "version": "4.3.0a",
+  "version": "4.3.0-b",
   "private": true,
   "description": "Hiper Ajax con Netlify Functions y MongoDB Atlas",
   "engines": {

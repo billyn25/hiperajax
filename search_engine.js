@@ -218,32 +218,84 @@
       .filter(x=>x.p);
   }
 
-  const engine = {normalize,compact,rank,scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),version:'4.3.0a'};
+  const engine = {
+    normalize,
+    compact,
+    rank,
+    scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),
+    version:'4.3.0b'
+  };
   global.HXA_KNOWLEDGE_ENGINE = engine;
   global.HXA_SEARCH_ENGINE = engine;
 
-  // Un mismo resultado para buscador inicial y Catálogo.
-  // `productos` está declarado con `let` en app.js. Ese tipo de variable no
-  // aparece como window.productos, aunque sí es accesible entre scripts clásicos.
-  // Usar el identificador real evita dejar vacíos Inicio y Catálogo.
   function getProducts(){
     try{ return (typeof productos !== 'undefined' && Array.isArray(productos)) ? productos : []; }
     catch(e){ return []; }
   }
 
-  buscar = function(term){
-    const source = getProducts();
-    return adapt(source,term,300);
-  };
-  buscarCatalogo = function(term=''){
-    const source = getProducts();
-    if(!String(term||'').trim()){
-      return source.map((p,i)=>({p,i,score:1})).sort((a,b)=>
-        String(a.p.name||'').localeCompare(String(b.p.name||''),'es',{numeric:true,sensitivity:'base'})
-      );
+  function alphabeticalRows(source){
+    return source.map((p,i)=>({p,i,score:1})).sort((a,b)=>
+      String(a.p.name||'').localeCompare(String(b.p.name||''),'es',{numeric:true,sensitivity:'base'})
+    );
+  }
+
+  function searchRows(source, term, limit=300){
+    const q=String(term||'').trim();
+    return q ? adapt(source,q,limit) : alphabeticalRows(source);
+  }
+
+  function applyCatalogQuick(rows, term){
+    let quick='';
+    try{ quick = typeof catalogQuick204 !== 'undefined' ? String(catalogQuick204||'') : ''; }
+    catch(e){}
+    if(!quick) return rows;
+
+    // “Más usados” conserva su aprendizaje real, pero usa el motor común
+    // cuando además hay texto escrito.
+    if(quick==='used'){
+      try{
+        if(typeof listaMasUsados206 === 'function') return listaMasUsados206(term);
+      }catch(e){}
+      return [];
     }
-    return adapt(source,term,300);
+
+    try{
+      if(typeof quickDef204 === 'function'){
+        const def=quickDef204(quick);
+        if(def && typeof def.test === 'function'){
+          return rows.filter(x=>def.test(normalize((x.p&&x.p.name)||'')));
+        }
+      }
+    }catch(e){}
+    return rows;
+  }
+
+  function applyCatalogLetter(rows){
+    let letter='';
+    try{ letter = typeof catalogLetter193 !== 'undefined' ? String(catalogLetter193||'') : ''; }
+    catch(e){}
+    if(!letter) return rows;
+    try{
+      if(typeof catalogLetterOf193 === 'function'){
+        return rows.filter(x=>catalogLetterOf193(x.p)===letter);
+      }
+    }catch(e){}
+    return rows;
+  }
+
+  // Punto único de entrada para Inicio y Catálogo.
+  // El Catálogo añade únicamente sus filtros de navegación sobre el mismo ranking.
+  buscar = function(term){
+    return searchRows(getProducts(),term,300);
   };
 
-  global.HX_APP_VERSION='4.3.0a';
+  buscarCatalogo = function(term=''){
+    const source=getProducts();
+    let rows=searchRows(source,term,300);
+    rows=applyCatalogQuick(rows,term);
+    rows=applyCatalogLetter(rows);
+    return rows;
+  };
+
+  global.HX_APP_VERSION='4.3.0b';
 })(typeof window!=='undefined' ? window : globalThis);
