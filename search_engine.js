@@ -218,17 +218,25 @@
       .filter(x=>x.p);
   }
 
-  const engine = {normalize,compact,rank,scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),version:'4.3.0'};
+  const engine = {normalize,compact,rank,scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),version:'4.3.0a'};
   global.HXA_KNOWLEDGE_ENGINE = engine;
   global.HXA_SEARCH_ENGINE = engine;
 
   // Un mismo resultado para buscador inicial y Catálogo.
-  global.buscar = function(term){
-    const source = Array.isArray(global.productos) ? global.productos : [];
+  // `productos` está declarado con `let` en app.js. Ese tipo de variable no
+  // aparece como window.productos, aunque sí es accesible entre scripts clásicos.
+  // Usar el identificador real evita dejar vacíos Inicio y Catálogo.
+  function getProducts(){
+    try{ return (typeof productos !== 'undefined' && Array.isArray(productos)) ? productos : []; }
+    catch(e){ return []; }
+  }
+
+  buscar = function(term){
+    const source = getProducts();
     return adapt(source,term,300);
   };
-  global.buscarCatalogo = function(term=''){
-    const source = Array.isArray(global.productos) ? global.productos : [];
+  buscarCatalogo = function(term=''){
+    const source = getProducts();
     if(!String(term||'').trim()){
       return source.map((p,i)=>({p,i,score:1})).sort((a,b)=>
         String(a.p.name||'').localeCompare(String(b.p.name||''),'es',{numeric:true,sensitivity:'base'})
@@ -237,5 +245,5 @@
     return adapt(source,term,300);
   };
 
-  global.HX_APP_VERSION='4.3.0';
+  global.HX_APP_VERSION='4.3.0a';
 })(typeof window!=='undefined' ? window : globalThis);
