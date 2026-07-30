@@ -77,7 +77,7 @@ window.EXPLORAR_CATEGORIAS = [
   {
     id: 'inundacion',
     titulo: 'Inundacion',
-    icono: '🔥',
+    icono: '💧',
     subcategorias: [
       { titulo: 'Detectores', icono: '💧', incluye: ['leaksprotect', 'inundacion'] },
       { titulo: 'Electroválvula', icono: '🚰', incluye: ['waterstop'] },
@@ -120,7 +120,7 @@ window.EXPLORAR_CATEGORIAS = [
       { titulo: 'Storage / Memorias', icono: '💾', incluye: ['storage', 'hstd', 'hdd', 'microsd', 'micro-sd'], regex: ['^HS[-_ ]?TF', '^HD\\d+TB'], excluye: ['bracket', 'mountcam', 'junctionbox', 'hood', 'cover', 'frame'] },
       { titulo: 'Cajas estancas', icono: '📦', incluye: ['caja estanca', 'fmcs57', 'fmcs60'] },
       { titulo: 'Barreras infrarrojas', icono: '🚧', incluye: ['detector de barrera', 'barrera por infrarrojos'], exactos: ['ABE-150'] },
-      { titulo: 'Marketing / Demos', icono: '👕', incluye: ['polo', 'tshirt', 'baseball', 'brandplate', 'cup', 'aj-cap', 'totem', 'democase', 'suitcase'], excluye: ['motion'] },
+      { titulo: 'Marketing', icono: '👕', incluye: ['polo', 'tshirt', 'baseball', 'brandplate', 'cup', 'aj-cap', 'totem', 'democase', 'suitcase'], excluye: ['motion'] },
     ]
   }
 ];
