@@ -44,7 +44,7 @@ window.EXPLORAR_CATEGORIAS = [
 
   {
     id: 'video',
-    titulo: 'Videovigilancia',
+    titulo: 'CCTV',
     icono: '📷',
     subcategorias: [
       { titulo: 'Bullet', icono: '📷', incluye: ['bulletcam'], excluye: ['bracket', 'mountcam', 'junctionbox', 'hood', 'cover', 'frame', 'storage', 'psu', 'pcb'] },
