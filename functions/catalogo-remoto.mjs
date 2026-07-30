@@ -1,3 +1,5 @@
+import { Readable } from "node:stream";
+import { parse } from "csv-parse";
 import { methodNotAllowed } from "./http.mjs";
 
 const CSV_URL = process.env.VISIOTECH_CSV_URL ||
@@ -9,168 +11,95 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-function normalizar(value) {
-  return String(value ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
+function decodeHtmlEntities(value) {
+  const named = {
+    amp: "&", quot: '"', apos: "'", lt: "<", gt: ">", nbsp: " ",
+    euro: "€", aacute: "á", eacute: "é", iacute: "í", oacute: "ó", uacute: "ú",
+    Aacute: "Á", Eacute: "É", Iacute: "Í", Oacute: "Ó", Uacute: "Ú",
+    ntilde: "ñ", Ntilde: "Ñ", uuml: "ü", Uuml: "Ü"
+  };
+  return String(value || "").replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (match, entity) => {
+    if (entity[0] === "#") {
+      const hex = entity[1]?.toLowerCase() === "x";
+      const number = Number.parseInt(entity.slice(hex ? 2 : 1), hex ? 16 : 10);
+      return Number.isFinite(number) ? String.fromCodePoint(number) : match;
+    }
+    return Object.prototype.hasOwnProperty.call(named, entity) ? named[entity] : match;
+  });
 }
 
-function detectarSeparador(cabecera) {
-  const candidatos = [";", "\t", ","];
-  return candidatos
-    .map((sep) => ({ sep, n: String(cabecera || "").split(sep).length }))
-    .sort((a, b) => b.n - a.n)[0].sep;
-}
+function limpiarDescripcion(html) {
+  let text = String(html || "")
+    .replace(/<\s*br\s*\/?>/gi, " · ")
+    .replace(/<\s*\/\s*(li|p|div|tr|h[1-6])\s*>/gi, " · ")
+    .replace(/<\s*li\b[^>]*>/gi, "")
+    .replace(/<[^>]*>/g, " ");
 
-function buscarColumna(cabecera, alias, fallback = -1) {
-  const normalizada = cabecera.map(normalizar);
-  for (const nombre of alias) {
-    const idx = normalizada.indexOf(normalizar(nombre));
-    if (idx >= 0) return idx;
-  }
-  return fallback;
+  text = decodeHtmlEntities(text)
+    .replace(/\s*·\s*/g, " · ")
+    .replace(/(?:\s*·\s*){2,}/g, " · ")
+    .replace(/\s+/g, " ")
+    .replace(/^\s*(?:Ajax\s*·\s*)+/i, "")
+    .replace(/^\s*·\s*|\s*·\s*$/g, "")
+    .trim();
+
+  return text;
 }
 
 function escaparCSV(value) {
-  const s = String(value ?? "").replace(/\r?\n/g, " ").trim();
-  return /[;"\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  const text = String(value ?? "").replace(/[\r\n]+/g, " ").trim();
+  return /[;"\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-async function reducirCatalogoAjaxStream(response) {
+async function crearCatalogoAjax(response) {
   if (!response.body) throw new Error("El proveedor no devolvió contenido");
 
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder("utf-8");
-  let textoInicial = "";
-  let separador = null;
-  let campo = "";
-  let fila = [];
-  let entreComillas = false;
-  let cabecera = null;
-  let columnas = null;
-  let totalLeido = 0;
-  const vistas = new Set();
-  const salida = ["name;brand;pvp;description;image"];
+  const products = new Map();
+  let totalRows = 0;
 
-  function prepararColumnas(header) {
-    return {
-      idxRef: buscarColumna(header, [
-        "name", "nombre", "referencia", "ref", "codigo", "codigoarticulo", "sku", "productcode"
-      ], 0),
-      idxMarca: buscarColumna(header, ["brand", "marca", "fabricante", "manufacturer"]),
-      idxPvp: buscarColumna(header, ["pvp", "precio", "price", "importe", "tarifa", "precioiva", "rrp"]),
-      idxDesc: buscarColumna(header, [
-        "description", "descripcion", "detalle", "texto", "productdescription", "nombreproducto"
-      ]),
-      idxImage: buscarColumna(header, [
-        "image", "imagen", "foto", "photourl", "imageurl", "urlimagen", "mainimage"
-      ]),
-    };
+  const parser = Readable.fromWeb(response.body).pipe(parse({
+    delimiter: ";",
+    columns: true,
+    bom: true,
+    relax_quotes: true,
+    relax_column_count: true,
+    skip_empty_lines: true,
+    trim: false,
+  }));
+
+  for await (const row of parser) {
+    totalRows += 1;
+    const name = String(row.name || "").trim();
+    const brand = String(row.brand || "").trim();
+    if (!name || brand.toUpperCase() !== "AJAX") continue;
+
+    const key = name.toUpperCase();
+    if (products.has(key)) continue;
+
+    products.set(key, {
+      name,
+      brand: "Ajax",
+      pvp: String(row.PVP ?? "").trim(),
+      description: limpiarDescripcion(row.description),
+      image: String(row.image_path || "").trim(),
+    });
   }
 
-  function procesarFila(actual) {
-    if (!cabecera) {
-      cabecera = actual;
-      columnas = prepararColumnas(cabecera);
-      if (columnas.idxRef < 0) throw new Error("No se encontró la columna de referencia");
-      return;
-    }
+  if (!products.size) throw new Error("No se encontraron productos AJAX en el CSV remoto");
 
-    const ref = String(actual[columnas.idxRef] ?? "").trim();
-    if (!ref) return;
-
-    const marca = columnas.idxMarca >= 0 ? String(actual[columnas.idxMarca] ?? "").trim() : "";
-    const refMayus = ref.toUpperCase();
-    const esAjax = normalizar(marca) === "ajax" || refMayus.startsWith("AJ-") || refMayus.startsWith("10XAJ-");
-    if (!esAjax || vistas.has(refMayus)) return;
-    vistas.add(refMayus);
-
-    salida.push([
-      ref,
-      marca || "Ajax",
-      columnas.idxPvp >= 0 ? actual[columnas.idxPvp] ?? "" : "",
-      columnas.idxDesc >= 0 ? actual[columnas.idxDesc] ?? "" : "",
-      columnas.idxImage >= 0 ? actual[columnas.idxImage] ?? "" : "",
+  const lines = ["name;brand;pvp;description;image"];
+  const sorted = [...products.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
+  for (const product of sorted) {
+    lines.push([
+      product.name,
+      product.brand,
+      product.pvp,
+      product.description,
+      product.image,
     ].map(escaparCSV).join(";"));
   }
 
-  function consumir(texto) {
-    for (let i = 0; i < texto.length; i++) {
-      const c = texto[i];
-
-      if (entreComillas) {
-        if (c === '"') {
-          if (texto[i + 1] === '"') {
-            campo += '"';
-            i++;
-          } else {
-            entreComillas = false;
-          }
-        } else {
-          campo += c;
-        }
-        continue;
-      }
-
-      if (c === '"') {
-        entreComillas = true;
-      } else if (c === separador) {
-        fila.push(campo);
-        campo = "";
-      } else if (c === "\n") {
-        fila.push(campo.replace(/\r$/, ""));
-        campo = "";
-        if (fila.some((v) => String(v).trim() !== "")) procesarFila(fila);
-        fila = [];
-      } else {
-        campo += c;
-      }
-    }
-  }
-
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    totalLeido += value.byteLength;
-    const trozo = decoder.decode(value, { stream: true });
-
-    if (!separador) {
-      textoInicial += trozo;
-      const salto = textoInicial.indexOf("\n");
-      if (salto < 0) {
-        if (textoInicial.length > 65536) throw new Error("Cabecera CSV no reconocible");
-        continue;
-      }
-      separador = detectarSeparador(textoInicial.slice(0, salto).replace(/^\uFEFF/, ""));
-      consumir(textoInicial.replace(/^\uFEFF/, ""));
-      textoInicial = "";
-    } else {
-      consumir(trozo);
-    }
-  }
-
-  const resto = decoder.decode();
-  if (resto) consumir(resto);
-  if (!separador && textoInicial) {
-    separador = detectarSeparador(textoInicial.replace(/^\uFEFF/, ""));
-    consumir(textoInicial.replace(/^\uFEFF/, ""));
-  }
-
-  if (campo.length || fila.length) {
-    fila.push(campo.replace(/\r$/, ""));
-    if (fila.some((v) => String(v).trim() !== "")) procesarFila(fila);
-  }
-
-  if (!cabecera) throw new Error("CSV remoto sin cabecera");
-  if (salida.length === 1) throw new Error("No se encontraron productos Ajax en el CSV remoto");
-
-  return {
-    csv: salida.join("\n"),
-    productos: salida.length - 1,
-    bytesLeidos: totalLeido,
-  };
+  return { csv: lines.join("\n"), products: sorted.length, totalRows };
 }
 
 export async function handler(event) {
@@ -183,30 +112,34 @@ export async function handler(event) {
     return { ...response, headers: { ...response.headers, ...CORS_HEADERS } };
   }
 
+  const startedAt = Date.now();
   try {
     const response = await fetch(CSV_URL, {
       headers: {
-        "User-Agent": "HiperAjax-CatalogUpdater/1.2",
+        "User-Agent": "HiperAjax-CatalogUpdater/2.0",
         Accept: "text/csv,text/plain,*/*",
       },
       cache: "no-store",
-      signal: AbortSignal.timeout(45000),
+      signal: AbortSignal.timeout(60000),
     });
 
     if (!response.ok) throw new Error(`Proveedor HTTP ${response.status}`);
-    const reducido = await reducirCatalogoAjaxStream(response);
+    const result = await crearCatalogoAjax(response);
+    const elapsedMs = Date.now() - startedAt;
+
+    console.log(`[catalogo-remoto] ${result.products} AJAX de ${result.totalRows} filas en ${elapsedMs} ms`);
 
     return {
       statusCode: 200,
       headers: {
         ...CORS_HEADERS,
         "Content-Type": "text/csv; charset=utf-8",
-        "Cache-Control": "public, max-age=900, s-maxage=900",
-        "X-HiperAjax-Products": String(reducido.productos),
-        "X-HiperAjax-Source": "visiotech-stream-filtered",
-        "X-HiperAjax-Downloaded-Bytes": String(reducido.bytesLeidos),
+        "Cache-Control": "public, max-age=300, s-maxage=1800, stale-while-revalidate=3600",
+        "X-HiperAjax-Products": String(result.products),
+        "X-HiperAjax-Source": "visiotech-csv-parse-stream",
+        "X-HiperAjax-Time-Ms": String(elapsedMs),
       },
-      body: reducido.csv,
+      body: result.csv,
     };
   } catch (error) {
     console.error("[catalogo-remoto]", error);
