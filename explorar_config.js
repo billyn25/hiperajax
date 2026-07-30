@@ -71,19 +71,25 @@ window.EXPLORAR_CATEGORIAS = [
       { titulo: 'Tapas enchufe', icono: '🧩', incluye: ['centercover', 'sidecover', 'solocover', 'coverplate', 'bypass-dimmer', 'bypassdimmer'] },
       { titulo: 'Marcos', icono: '🖼️', incluye: ['frame'], excluye: ['case'] },
       { titulo: 'Caja de superficie', icono: '📦', incluye: ['surfacebox'] },
-      { titulo: 'Relés', icono: '⚙️', incluye: ['relay', 'wallswitch', 'multirelay'], excluye: ['dinholder'] }
+      { titulo: 'Relés', icono: '⚙️', incluye: ['relay', 'wallswitch', 'multirelay','dinholder'], excluye: [''] }
     ]
   },
-
   {
-    id: 'incendio_seguridad',
+    id: 'inundacion',
     titulo: 'Incendio / Seguridad',
+    icono: '🔥',
+    subcategorias: [
+      { titulo: 'Detectores', icono: '💧', incluye: ['leaksprotect', 'inundacion'] },
+      { titulo: 'Electroválvula', icono: '🚰', incluye: ['waterstop'] },
+    ]
+  },
+   {
+    id: 'incendio_seguridad',
+    titulo: 'Incendio',
     icono: '🔥',
     subcategorias: [
       { titulo: 'Detectores', icono: '🔥', incluye: ['fireprotect'], excluye: ['dummy', 'bracket'] },
       { titulo: 'Botón incendio', icono: '🚨', incluye: ['manualcallpoint', 'keymcp'] },
-      { titulo: 'Inundación', icono: '💧', incluye: ['leaksprotect', 'inundacion'] },
-      { titulo: 'Electroválvula', icono: '🚰', incluye: ['waterstop'] },
       { titulo: 'LifeQuality', icono: '🌡️', incluye: ['lifequality'] }
     ]
   },
