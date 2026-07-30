@@ -2421,22 +2421,67 @@ function prepararIndiceBusqueda175(){
   });
 }
 
+function hxEsProductoAjax(p){
+  const ref = String(p?.name || '').trim().toUpperCase();
+  const marca = normaliza(p?.brand || '');
+  return marca === 'ajax' || ref.startsWith('AJ-') || ref.startsWith('10XAJ-');
+}
+
+function hxUnirCatalogos(base, manual){
+  const mapa = new Map();
+  (Array.isArray(base) ? base : []).filter(hxEsProductoAjax).forEach(p=>{
+    const ref = String(p?.name || '').trim().toUpperCase();
+    if(ref) mapa.set(ref, p);
+  });
+  // El CSV manual manda cuando una referencia existe también en el proveedor.
+  (Array.isArray(manual) ? manual : []).forEach(p=>{
+    const ref = String(p?.name || '').trim().toUpperCase();
+    if(!ref) return;
+    const anterior = mapa.get(ref) || {};
+    mapa.set(ref, {
+      ...anterior,
+      ...p,
+      name: p.name || anterior.name,
+      brand: p.brand || anterior.brand,
+      description: p.description || anterior.description || '',
+      image: p.image || anterior.image || ''
+    });
+  });
+  return [...mapa.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
+}
+
+async function hxLeerCSV(url){
+  const r = await fetch(`${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`, {cache:'no-store'});
+  if(!r.ok) throw new Error(`HTTP ${r.status} en ${url}`);
+  return r.text();
+}
+
 async function cargarCatalogo(){
-  let origen = 'externo';
+  let origen = 'remoto + manual';
   try{
-    const r = await fetch(`${CSV_URL}?v=${Date.now()}`, {cache:'no-store'});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const txt = await r.text();
-    productos = parseCSVRobusto175(txt);
-    if(!productos.length) throw new Error('CSV vacío o columnas no reconocidas');
+    let baseTxt = '';
+    try{
+      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto');
+    }catch(errorRemoto){
+      console.warn('Catálogo remoto no disponible; se usa la copia local.', errorRemoto);
+      baseTxt = await hxLeerCSV(CSV_URL);
+      origen = 'copia local + manual';
+    }
+
+    let manualTxt = '';
+    try{ manualTxt = await hxLeerCSV('./catalogo_manual.csv'); }
+    catch(errorManual){ console.warn('No se pudo cargar catalogo_manual.csv.', errorManual); }
+
+    const base = parseCSVRobusto175(baseTxt);
+    const manual = manualTxt ? parseCSVRobusto175(manualTxt) : [];
+    productos = hxUnirCatalogos(base, manual);
+    if(!productos.length) throw new Error('Catálogo vacío o columnas no reconocidas');
   }catch(e){
-    // CSV externo obligatorio. El interno ya no debe tapar errores ni ocultar cambios nuevos.
     productos = [];
-    origen = 'error';
-    const msg = 'No se pudo cargar catalogo_ajax.csv. Ejecuta con INICIAR_WINDOWS/INICIAR_MAC_LINUX o súbelo junto al index.html.';
+    const msg = 'No se pudo cargar el catálogo remoto ni la copia local.';
     const prev = $('#previewProducto');
     if(prev) prev.textContent = msg;
-    console.error('Error cargando catálogo externo:', e);
+    console.error('Error cargando catálogo:', e);
     cargarSelect();
     renderRecientes();
     pintarResultados('');
@@ -2444,11 +2489,9 @@ async function cargarCatalogo(){
   }
 
   prepararIndiceBusqueda175();
-
   const prev = $('#previewProducto');
-  if(prev){
-    prev.textContent = `${productos.length} productos cargados desde catalogo_ajax.csv.`;
-  }
+  if(prev) prev.textContent = `${productos.length} productos cargados (${origen}).`;
+  window.HX_CATALOGO_ORIGEN = origen;
 
   cargarSelect();
   renderRecientes();
@@ -6428,7 +6471,7 @@ function hxDiagnosticarCatalogo(opciones={}){
   const catalogoCambio = Boolean(anteriorMeta.fingerprint && anteriorMeta.fingerprint !== fingerprint);
   const meta={
     version:HX_CATALOG_DIAG_VERSION,
-    fuente:'catalogo_ajax.csv',
+    fuente:String(window.HX_CATALOGO_ORIGEN || 'catálogo local'),
     fingerprint,
     cargadoEn,
     productos:Array.isArray(productos)?productos.length:0,
