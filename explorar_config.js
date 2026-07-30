@@ -76,7 +76,7 @@ window.EXPLORAR_CATEGORIAS = [
   },
   {
     id: 'inundacion',
-    titulo: 'Inundacion',
+    titulo: 'Inundación',
     icono: '💧',
     subcategorias: [
       { titulo: 'Detectores', icono: '💧', incluye: ['leaksprotect', 'inundacion'] },
