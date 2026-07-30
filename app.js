@@ -2458,6 +2458,17 @@ async function hxLeerCSV(url){
 
 async function cargarCatalogo(){
   let origen = 'remoto + manual';
+  const inicio = performance.now();
+  const prev = $('#previewProducto');
+  let avisoLento = null;
+
+  if(prev){
+    prev.textContent = '⏳ Comprobando catálogo…';
+    avisoLento = setTimeout(()=>{
+      if(prev.textContent.includes('Comprobando')) prev.textContent = '📥 Descargando catálogo Ajax…';
+    }, 2500);
+  }
+
   try{
     let baseTxt = '';
     try{
@@ -2476,21 +2487,28 @@ async function cargarCatalogo(){
     const manual = manualTxt ? parseCSVRobusto175(manualTxt) : [];
     productos = hxUnirCatalogos(base, manual);
     if(!productos.length) throw new Error('Catálogo vacío o columnas no reconocidas');
+
+    const segundos = ((performance.now() - inicio) / 1000).toFixed(1);
+    console.info(`[Catálogo] base=${base.length}, manual=${manual.length}, total=${productos.length}, origen=${origen}, tiempo=${segundos}s`);
   }catch(e){
     productos = [];
     const msg = 'No se pudo cargar el catálogo remoto ni la copia local.';
-    const prev = $('#previewProducto');
     if(prev) prev.textContent = msg;
     console.error('Error cargando catálogo:', e);
     cargarSelect();
     renderRecientes();
     pintarResultados('');
     return;
+  }finally{
+    if(avisoLento) clearTimeout(avisoLento);
   }
 
   prepararIndiceBusqueda175();
-  const prev = $('#previewProducto');
-  if(prev) prev.textContent = `${productos.length} productos cargados (${origen}).`;
+  if(prev){
+    prev.textContent = origen === 'remoto + manual'
+      ? `✅ ${productos.length} productos cargados (remoto + manual).`
+      : `⚠️ ${productos.length} productos cargados (copia local + manual).`;
+  }
   window.HX_CATALOGO_ORIGEN = origen;
 
   cargarSelect();
