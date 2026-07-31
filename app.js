@@ -69,9 +69,29 @@ function hxBajarUltimaLineaPresupuesto(){
   }, 30);
 }
 
+function hxDescripcionCortaProducto(p, fallback=''){
+  const corta = String((p && p.short_description) || '').trim();
+  if(corta) return corta;
+  const alternativa = String(fallback || '').trim();
+  if(alternativa) return alternativa;
+  return String((p && p.description) || '').trim();
+}
+
+function hxEstadoStock(stockRaw){
+  const raw = String(stockRaw ?? '').trim();
+  const key = normaliza(raw).replace(/[^a-z0-9]+/g,'');
+  if(!raw) return {visible:false, clase:'', texto:''};
+  if(['high','alto','mucho','disponible','available','instock','enstock'].includes(key)) return {visible:true, clase:'is-ok', texto:raw};
+  if(['medium','medio','low','bajo','poco','limited','limitado'].includes(key)) return {visible:true, clase:'is-low', texto:raw};
+  if(['none','sinstock','agotado','outofstock','unavailable','nodisponible','zero'].includes(key)) return {visible:true, clase:'is-none', texto:raw};
+  const n = numero(raw);
+  if(Number.isFinite(n)) return {visible:true, clase:n >= 10 ? 'is-ok' : n > 0 ? 'is-low' : 'is-none', texto:raw};
+  return {visible:true, clase:'is-low', texto:raw};
+}
+
 function addProductoObj(p, qty=1, dto=null){
   if(!p) return false;
-  const descReal = String((p && p.description) || '').trim();
+  const descReal = hxDescripcionCortaProducto(p);
   let descFinal = descReal;
   if(!descFinal){
     try{ descFinal = String((descripcionProducto(p) || {}).desc || '').trim(); }catch(e){}
@@ -783,7 +803,7 @@ function hxBindQtyControls(root, scope){
 
 function hxProductVisualHtml(p, d, context){
   const image = String((p && p.image) || '').trim();
-  const description = String((p && p.description) || (d && d.desc) || '').trim();
+  const description = hxDescripcionCortaProducto(p, (d && d.desc) || '');
   const img = image
     ? `<button type="button" class="hx-product-thumb" data-image="${escapeHtml(image)}" aria-label="Ampliar imagen de ${escapeHtml(p.name)}"><img src="${escapeHtml(image)}" alt="" loading="lazy" onerror="this.closest('.hx-product-thumb').classList.add('hx-image-error')"></button>`
     : '';
@@ -1219,17 +1239,15 @@ function render(){
     const productoCatalogo = productos.find(p=>hxRefProducto(p && p.name)===hxRefProducto(l.name));
     let descAuto = '';
     try{
-      descAuto = String((productoCatalogo && productoCatalogo.description) || (descripcionProducto(productoCatalogo || {name:l.name, brand:l.brand||'AJAX'}) || {}).desc || '').trim();
+      descAuto = hxDescripcionCortaProducto(productoCatalogo, (descripcionProducto(productoCatalogo || {name:l.name, brand:l.brand||'AJAX'}) || {}).desc || '');
     }catch(e){}
     const descripcion = l.manual
       ? `<input class="manual-input desc-input" value="${escapeHtml(l.desc||'')}" placeholder="Descripción" onchange="setLinea(${i},'desc',this.value)">`
-      : `<span class="desc-cell">${escapeHtml(l.desc || descAuto)}</span>`;
+      : `<span class="desc-cell">${escapeHtml((productoCatalogo && productoCatalogo.short_description) || l.short_description || descAuto || l.desc || '')}</span>`;
     const pvp = `<input class="price-input editable-pvp" type="number" min="0" step="0.01" value="${Number(l.pvp)||0}" title="Editar PVP solo para este presupuesto. No modifica el CSV." onchange="setLinea(${i},'pvp',this.value)">`;
-    const stockRaw = String(l.stock ?? productoCatalogo?.stock ?? '').trim();
-    const stockNum = numero(stockRaw);
-    const tieneStock = stockRaw !== '';
-    const stockClase = stockNum >= 10 ? 'is-ok' : stockNum > 0 ? 'is-low' : 'is-none';
-    const stockHtml = tieneStock ? `<span class="hx-stock-dot ${stockClase}" title="Stock: ${escapeHtml(stockRaw)}" aria-label="Stock: ${escapeHtml(stockRaw)}"></span>` : '';
+    const stockRaw = String((productoCatalogo && productoCatalogo.stock) ?? l.stock ?? '').trim();
+    const estadoStock = hxEstadoStock(stockRaw);
+    const stockHtml = estadoStock.visible ? `<span class="hx-stock-dot ${estadoStock.clase}" title="Stock: ${escapeHtml(estadoStock.texto)}" aria-label="Stock: ${escapeHtml(estadoStock.texto)}"></span>` : '';
     const coste = Number(l.cost || productoCatalogo?.cost || 0);
     const bajoCoste = coste > 0 && Number(l.pvp) < coste;
     return `<tr class="${bajoCoste?'hx-bajo-coste':''}" data-linea-index="${i}"${bajoCoste?` title="Aviso: PVP por debajo del coste (${fmt.format(coste)})"`:''}><td class="product-cell"><span class="hx-product-ref">${producto}</span>${stockHtml}</td><td>${descripcion}</td><td class="num">${pvp}</td><td class="num qty-cell"><div class="line-qty-stepper"><button type="button" class="line-qty-btn" onclick="cambiarQtyLinea(${i},-1)" title="Bajar cantidad">−</button><input class="qty-input line-qty-input" type="number" min="1" value="${l.qty}" onchange="setLinea(${i},'qty',this.value)"><button type="button" class="line-qty-btn" onclick="cambiarQtyLinea(${i},1)" title="Subir cantidad">+</button></div></td><td class="num"><input class="dto-input" type="number" min="0" max="100" step="0.01" value="${l.dto||0}" onchange="setLinea(${i},'dto',this.value)"></td><td class="num"><b>${fmt.format(total)}</b></td><td class="num row-actions"><button type="button" class="drag-btn" draggable="true" title="Mantén y arrastra para mover" aria-label="Mover línea"><span></span><span></span><span></span></button><button class="trash" onclick="delLinea(${i})">×</button></td></tr>`;
@@ -2474,6 +2492,18 @@ async function hxLeerCSV(url){
   const finalUrl = esFuncionCatalogo ? url : `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`;
   const r = await fetch(finalUrl, {cache: esFuncionCatalogo ? 'default' : 'no-store'});
   if(!r.ok) throw new Error(`HTTP ${r.status} en ${url}`);
+  if(esFuncionCatalogo){
+    const age = Number(r.headers.get('age') || 0);
+    const cacheStatus = String(r.headers.get('cache-status') || r.headers.get('x-nf-cache') || '').trim();
+    const generatedAt = String(r.headers.get('x-hiperajax-generated-at') || '').trim();
+    window.HX_CATALOGO_CACHE = {
+      age: Number.isFinite(age) ? age : 0,
+      cacheStatus,
+      generatedAt,
+      cached: age > 0 || /hit/i.test(cacheStatus)
+    };
+    console.info('[Catálogo Netlify]', window.HX_CATALOGO_CACHE);
+  }
   return r.text();
 }
 
@@ -2526,9 +2556,15 @@ async function cargarCatalogo(){
 
   prepararIndiceBusqueda175();
   if(prev){
-    prev.textContent = origen === 'remoto + manual'
-      ? `✅ ${productos.length} productos cargados (remoto + manual).`
-      : `⚠️ ${productos.length} productos cargados (copia local + manual).`;
+    if(origen === 'remoto + manual'){
+      const c = window.HX_CATALOGO_CACHE || {};
+      const minutos = Math.max(0, Math.floor((Number(c.age)||0) / 60));
+      const cacheTxt = c.cached ? `caché Netlify · ${minutos} min` : 'actualizado ahora · caché iniciada';
+      prev.textContent = `✅ ${productos.length} productos · ${cacheTxt}.`;
+      prev.title = c.generatedAt ? `CSV generado: ${c.generatedAt}` : 'La caché de Netlify se conserva hasta 8 horas.';
+    }else{
+      prev.textContent = `⚠️ ${productos.length} productos cargados (copia local + manual).`;
+    }
   }
   window.HX_CATALOGO_ORIGEN = origen;
 
@@ -7807,8 +7843,9 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 const hxDescripcionProductoBase = descripcionProducto;
 descripcionProducto = function(p){
   const base = hxDescripcionProductoBase.apply(this, arguments) || {icon:'📦',desc:'',family:'',official:''};
+  const corta = String((p && p.short_description) || '').trim();
   const real = String((p && p.description) || '').trim();
-  return real ? {...base, desc:real} : base;
+  return corta ? {...base, desc:corta} : (real ? {...base, desc:real} : base);
 };
 
 /* =====================================================
