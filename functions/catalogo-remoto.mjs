@@ -81,13 +81,16 @@ async function crearCatalogoAjax(response) {
       brand: "Ajax",
       pvp: String(row.PVP ?? "").trim(),
       description: limpiarDescripcion(row.description),
+      short_description: limpiarDescripcion(row.short_description || row.shortDescription || row.short_desc || row.description_short),
       image: String(row.image_path || "").trim(),
+      stock: String(row.stock_label ?? row.stock ?? row.quantity ?? row.available_stock ?? row.stock_available ?? "").trim(),
+      cost: String(row.cost ?? row.coste ?? row.price_cost ?? row.cost_price ?? row.purchase_price ?? row.buy_price ?? "").trim(),
     });
   }
 
   if (!products.size) throw new Error("No se encontraron productos AJAX en el CSV remoto");
 
-  const lines = ["name;brand;pvp;description;image"];
+  const lines = ["name;brand;pvp;description;short_description;image;stock;cost"];
   const sorted = [...products.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
   for (const product of sorted) {
     lines.push([
@@ -95,7 +98,10 @@ async function crearCatalogoAjax(response) {
       product.brand,
       product.pvp,
       product.description,
+      product.short_description,
       product.image,
+      product.stock,
+      product.cost,
     ].map(escaparCSV).join(";"));
   }
 
@@ -134,7 +140,8 @@ export async function handler(event) {
       headers: {
         ...CORS_HEADERS,
         "Content-Type": "text/csv; charset=utf-8",
-        "Cache-Control": "public, max-age=300, s-maxage=1800, stale-while-revalidate=3600",
+        "Cache-Control": "public, max-age=300",
+        "Netlify-CDN-Cache-Control": "public, durable, s-maxage=28800, stale-while-revalidate=900",
         "X-HiperAjax-Products": String(result.products),
         "X-HiperAjax-Source": "visiotech-csv-parse-stream",
         "X-HiperAjax-Time-Ms": String(elapsedMs),
