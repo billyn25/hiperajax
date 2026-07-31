@@ -96,7 +96,7 @@ function addProductoObj(p, qty=1, dto=null){
   if(!descFinal){
     try{ descFinal = String((descripcionProducto(p) || {}).desc || '').trim(); }catch(e){}
   }
-  lineas.push({name:p.name, brand:p.brand||'', pvp:p.pvp, desc:descFinal, short_description:String(p.short_description||'').trim(), stock:p.stock??'', cost:Number(p.cost)||0, qty:Math.max(1,Number(qty)||1), dto:dto===null ? descuentoActual() : (Number(dto)||0)});
+  lineas.push({name:p.name, brand:p.brand||'', pvp:p.pvp, desc:descFinal, short_description:String(p.short_description||'').trim(), stock:p.stock??'', cost:numero(p.cost)||0, qty:Math.max(1,Number(qty)||1), dto:dto===null ? descuentoActual() : (Number(dto)||0)});
   registrarReciente(p.name);
   hxBajarUltimaLineaPresupuesto();
   return true;
@@ -2486,7 +2486,7 @@ function hxUnirCatalogos(base, manual){
       short_description: p.short_description || anterior.short_description || '',
       image: p.image || anterior.image || '',
       stock: p.stock !== '' && p.stock != null ? p.stock : (anterior.stock || ''),
-      cost: Number(p.cost) || Number(anterior.cost) || 0
+      cost: numero(p.cost) || numero(anterior.cost) || 0
     });
   });
   return [...mapa.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
