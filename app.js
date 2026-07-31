@@ -6059,9 +6059,11 @@ function descripcionPdfCorta(linea){
     }
 
     const color = colorRef(ref);
-    let base = ref.replace(/^AJ-/, '');
+    const refProducto = ref.replace(/^AJ-/, '');
+    let base = refProducto;
 
     // Si el CSV no trae short_description, se conserva el respaldo automático.
+    // Las reglas comerciales trabajan sobre la referencia sin el prefijo AJ-.
 
     const exactos = [
       [/^HUB2PLUS/, 'Hub 2 Plus'], [/^HUB2-4G/, 'Hub 2 4G'], [/^HUB2/, 'Hub 2'], [/^HUBBP/, 'Hub BP'], [/^HUB($|-)/, 'Hub'],
@@ -6085,7 +6087,7 @@ function descripcionPdfCorta(linea){
 
     let nombre = '';
     for(const [rx, val] of exactos){
-      const m = ref.match(rx);
+      const m = refProducto.match(rx);
       if(m){ nombre = val.replace('$1', m[1] || ''); break; }
     }
 
