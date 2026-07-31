@@ -72,6 +72,29 @@ function primerValor(row, aliases) {
   return "";
 }
 
+
+function numeroMonedaProveedor(value) {
+  let text = decodeHtmlEntities(String(value ?? ""))
+    .replace(/<[^>]*>/g, " ")
+    .replace(/ /g, " ")
+    .replace(/[^0-9,.-]/g, "")
+    .trim();
+  if (!text) return 0;
+
+  const lastComma = text.lastIndexOf(",");
+  const lastDot = text.lastIndexOf(".");
+  if (lastComma > lastDot) {
+    text = text.replace(/\./g, "").replace(",", ".");
+  } else if (lastDot > lastComma && lastComma >= 0) {
+    text = text.replace(/,/g, "");
+  } else if (lastComma >= 0) {
+    text = text.replace(",", ".");
+  }
+
+  const number = Number.parseFloat(text);
+  return Number.isFinite(number) ? number : 0;
+}
+
 function escaparCSV(value) {
   const text = String(value ?? "").replace(/[\r\n]+/g, " ").trim();
   return /[;"\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
@@ -107,11 +130,9 @@ async function crearCatalogoAjax(response) {
 
     // Único campo válido para el coste real de compra.
     const costField = "precionetocompra";
-    const cost = row[costField] !== undefined && row[costField] !== null
-      ? String(row[costField]).trim()
-      : "";
-    if (cost && !detectedCostField) detectedCostField = "precio_neto_compra";
-    if (cost) productsWithCost += 1;
+    const cost = numeroMonedaProveedor(row[costField]);
+    if (cost > 0 && !detectedCostField) detectedCostField = "precio_neto_compra";
+    if (cost > 0) productsWithCost += 1;
 
     products.set(key, {
       name,
