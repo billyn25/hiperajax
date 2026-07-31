@@ -121,13 +121,13 @@ async function crearCatalogoAjax(response) {
       short_description: limpiarDescripcion(primerValor(row, ["short_description", "shortDescription", "short_desc", "description_short", "descripcion_corta"])),
       image: String(primerValor(row, ["image_path", "image", "imagen", "photo_url"])).trim(),
       stock: String(primerValor(row, ["stock_label", "stock", "quantity", "available_stock", "stock_available", "existencias"])).trim(),
-      cost,
+      precio_neto_compra: cost,
     });
   }
 
   if (!products.size) throw new Error("No se encontraron productos AJAX en el CSV remoto");
 
-  const lines = ["name;brand;pvp;description;short_description;image;stock;cost"];
+  const lines = ["name;brand;pvp;description;short_description;image;stock;precio_neto_compra"];
   const sorted = [...products.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
   for (const product of sorted) {
     lines.push([
@@ -138,7 +138,7 @@ async function crearCatalogoAjax(response) {
       product.short_description,
       product.image,
       product.stock,
-      product.cost,
+      product.precio_neto_compra,
     ].map(escaparCSV).join(";"));
   }
 
