@@ -105,21 +105,12 @@ async function crearCatalogoAjax(response) {
     const key = name.toUpperCase();
     if (products.has(key)) continue;
 
-    const costAliases = [
-      "cost", "coste", "costo", "price_cost", "cost_price", "purchase_price",
-      "buy_price", "price", "net_price", "dealer_price", "purchase_cost",
-      "precio_compra", "precio_neto", "netprice", "your_price", "client_price"
-    ];
-    let cost = "";
-    for (const alias of costAliases) {
-      const normalized = normalizarClave(alias);
-      const value = row[normalized];
-      if (value !== undefined && value !== null && String(value).trim() !== "") {
-        cost = String(value).trim();
-        if (!detectedCostField) detectedCostField = normalized;
-        break;
-      }
-    }
+    // Único campo válido para el coste real de compra.
+    const costField = "precionetocompra";
+    const cost = row[costField] !== undefined && row[costField] !== null
+      ? String(row[costField]).trim()
+      : "";
+    if (cost && !detectedCostField) detectedCostField = "precio_neto_compra";
     if (cost) productsWithCost += 1;
 
     products.set(key, {
