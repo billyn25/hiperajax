@@ -1932,7 +1932,6 @@ function buscarCatalogo(term=''){
   return buscar(q);
 }
 // fuerza version visible
-try{ document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }); }catch(e){}
 
 /* =====================================================
    MOTOR PRO v1.6.4 - Automatización, mecanismos, red/PoE y almacenamiento
@@ -2099,7 +2098,6 @@ scoreProducto = function(p, term){
   for(const part of parts){ if(texto.includes(part)) score += meta ? 550 : 120; }
   return score;
 };
-try{ document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }); }catch(e){}
 
 
 /* =====================================================
@@ -6008,23 +6006,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 })();
 
 
-/* =====================================================
-   v2.1.3 PRO - Ajuste fino Explorador
-   - Integración pasa a Intrusión.
-   - SIM / antenas a Accesorios.
-   - Storage/memoria ya no captura Bracket por el texto TF.
-   - Botón y pie fijados como v2.1.3 PRO.
-   ===================================================== */
-(function(){
-  function fixVersion213(){
-    try{
-      const b=document.getElementById('btnFamilias');
-      if(b) b.innerHTML='<span class="btn-ico">🧭</span>Explorar';
-    }catch(e){}
-  }
-  document.addEventListener('DOMContentLoaded',()=>{ fixVersion213(); setTimeout(fixVersion213,150); setTimeout(fixVersion213,700); });
-})();
-
+/* Descripción compacta usada por el PDF. */
 function descripcionPdfCorta(linea){
   try{
     const l = linea || {};
