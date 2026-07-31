@@ -96,7 +96,7 @@ function addProductoObj(p, qty=1, dto=null){
   if(!descFinal){
     try{ descFinal = String((descripcionProducto(p) || {}).desc || '').trim(); }catch(e){}
   }
-  lineas.push({name:p.name, brand:p.brand||'', pvp:p.pvp, desc:descFinal, short_description:String(p.short_description||'').trim(), stock:p.stock??'', precio_neto_compra:numero(p.precio_neto_compra)||0, qty:Math.max(1,Number(qty)||1), dto:dto===null ? descuentoActual() : (Number(dto)||0)});
+  lineas.push({name:p.name, brand:p.brand||'', pvp:p.pvp, desc:descFinal, short_description:String(p.short_description||'').trim(), origen_catalogo:String(p.origen_catalogo||''), stock:p.stock??'', precio_neto_compra:numero(p.precio_neto_compra)||0, qty:Math.max(1,Number(qty)||1), dto:dto===null ? descuentoActual() : (Number(dto)||0)});
   registrarReciente(p.name);
   hxBajarUltimaLineaPresupuesto();
   return true;
@@ -2476,7 +2476,7 @@ function hxUnirCatalogos(base, manual){
   const mapa = new Map();
   (Array.isArray(base) ? base : []).filter(hxEsProductoAjax).forEach(p=>{
     const ref = String(p?.name || '').trim().toUpperCase();
-    if(ref) mapa.set(ref, p);
+    if(ref) mapa.set(ref, {...p, origen_catalogo:'visio'});
   });
   // El CSV manual manda cuando una referencia existe también en el proveedor.
   (Array.isArray(manual) ? manual : []).forEach(p=>{
@@ -2492,7 +2492,8 @@ function hxUnirCatalogos(base, manual){
       short_description: p.short_description || anterior.short_description || '',
       image: p.image || anterior.image || '',
       stock: p.stock !== '' && p.stock != null ? p.stock : (anterior.stock || ''),
-      precio_neto_compra: numero(p.precio_neto_compra) || numero(anterior.precio_neto_compra) || 0
+      precio_neto_compra: numero(p.precio_neto_compra) || numero(anterior.precio_neto_compra) || 0,
+      origen_catalogo: 'manual'
     });
   });
   return [...mapa.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
@@ -6035,6 +6036,11 @@ function descripcionPdfCorta(linea){
     const descCortaCsv = String(l.short_description || '').trim();
     if(descCortaCsv) return descCortaCsv.length > 58 ? descCortaCsv.slice(0,55).trim() + '…' : descCortaCsv;
     const productoCatalogo = (Array.isArray(productos) ? productos : []).find(p=>hxRefProducto(p?.name)===hxRefProducto(refOriginal));
+    const esCatalogoManual = String(l.origen_catalogo || productoCatalogo?.origen_catalogo || '').toLowerCase() === 'manual';
+    if(esCatalogoManual){
+      const descManual = String(l.desc || productoCatalogo?.short_description || productoCatalogo?.description || refOriginal).trim();
+      return descManual.length > 58 ? descManual.slice(0,55).trim() + '…' : descManual;
+    }
     const descCortaCatalogo = String(productoCatalogo?.short_description || '').trim();
     if(descCortaCatalogo) return descCortaCatalogo.length > 58 ? descCortaCatalogo.slice(0,55).trim() + '…' : descCortaCatalogo;
     const descOriginal = String(l.desc || (!brandEsAjax ? brandOriginal : '') || '').trim();
