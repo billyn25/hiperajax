@@ -9,6 +9,7 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Expose-Headers": "Age, Cache-Status, X-NF-Cache, X-HiperAjax-Products, X-HiperAjax-Source, X-HiperAjax-Time-Ms, X-HiperAjax-Generated-At",
 };
 
 function decodeHtmlEntities(value) {
@@ -84,7 +85,7 @@ async function crearCatalogoAjax(response) {
       short_description: limpiarDescripcion(row.short_description || row.shortDescription || row.short_desc || row.description_short),
       image: String(row.image_path || "").trim(),
       stock: String(row.stock_label ?? row.stock ?? row.quantity ?? row.available_stock ?? row.stock_available ?? "").trim(),
-      cost: String(row.cost ?? row.coste ?? row.price_cost ?? row.cost_price ?? row.purchase_price ?? row.buy_price ?? "").trim(),
+      cost: String(row.cost ?? row.coste ?? row.price_cost ?? row.cost_price ?? row.purchase_price ?? row.buy_price ?? row.price ?? row.net_price ?? row.dealer_price ?? "").trim(),
     });
   }
 
@@ -145,6 +146,7 @@ export async function handler(event) {
         "X-HiperAjax-Products": String(result.products),
         "X-HiperAjax-Source": "visiotech-csv-parse-stream",
         "X-HiperAjax-Time-Ms": String(elapsedMs),
+        "X-HiperAjax-Generated-At": new Date().toISOString(),
       },
       body: result.csv,
     };
