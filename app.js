@@ -1250,12 +1250,18 @@ function render(){
     const stockHtml = estadoStock.visible ? `<span class="hx-stock-dot ${estadoStock.clase}" title="Stock: ${escapeHtml(estadoStock.texto)}" aria-label="Stock: ${escapeHtml(estadoStock.texto)}"></span>` : '';
     const costeLinea = numero(l.cost);
     const costeCatalogo = numero(productoCatalogo?.cost);
-    const coste = costeLinea > 0 ? costeLinea : (costeCatalogo > 0 ? costeCatalogo : 0);
-    const bajoCoste = coste > 0 && numero(l.pvp) < coste;
+    // Única referencia: precio_neto_compra del CSV, propagado como cost.
+    const costeUnitario = costeLinea > 0 ? costeLinea : costeCatalogo;
+    const cantidad = Math.max(1, numero(l.qty) || 1);
+    const descuentoLinea = Math.max(0, Math.min(100, numero(l.dto) || 0));
+    const precioFinalUnitario = numero(l.pvp) * (1 - descuentoLinea / 100);
+    const costeTotalLinea = costeUnitario * cantidad;
+    // Se compara exactamente lo que muestra el total de la línea contra el coste total de esas unidades.
+    const bajoCoste = costeUnitario > 0 && total < costeTotalLinea;
     const avisoCoste = bajoCoste
-      ? `<span class="hx-cost-warning" title="PVP ${fmt.format(numero(l.pvp))} inferior al coste ${fmt.format(coste)}">⚠ PVP bajo coste</span>`
+      ? `<span class="hx-cost-warning" title="Precio final unitario ${fmt.format(precioFinalUnitario)} inferior al coste ${fmt.format(costeUnitario)}">⚠ Venta bajo coste</span>`
       : '';
-    return `<tr class="${bajoCoste?'hx-bajo-coste':''}" data-linea-index="${i}" data-coste="${coste}"${bajoCoste?` title="Aviso: PVP por debajo del coste (${fmt.format(coste)})"`:''}><td class="product-cell"><span class="hx-product-ref">${producto}</span>${stockHtml}${avisoCoste}</td><td>${descripcion}</td><td class="num">${pvp}</td><td class="num qty-cell"><div class="line-qty-stepper"><button type="button" class="line-qty-btn" onclick="cambiarQtyLinea(${i},-1)" title="Bajar cantidad">−</button><input class="qty-input line-qty-input" type="number" min="1" value="${l.qty}" onchange="setLinea(${i},'qty',this.value)"><button type="button" class="line-qty-btn" onclick="cambiarQtyLinea(${i},1)" title="Subir cantidad">+</button></div></td><td class="num"><input class="dto-input" type="number" min="0" max="100" step="0.01" value="${l.dto||0}" onchange="setLinea(${i},'dto',this.value)"></td><td class="num"><b>${fmt.format(total)}</b></td><td class="num row-actions"><button type="button" class="drag-btn" draggable="true" title="Mantén y arrastra para mover" aria-label="Mover línea"><span></span><span></span><span></span></button><button class="trash" onclick="delLinea(${i})">×</button></td></tr>`;
+    return `<tr class="${bajoCoste?'hx-bajo-coste':''}" data-linea-index="${i}" data-coste-unitario="${costeUnitario}" data-precio-final-unitario="${precioFinalUnitario}"${bajoCoste?` title="Aviso: total de línea ${fmt.format(total)} inferior al coste total ${fmt.format(costeTotalLinea)}"`:''}><td class="product-cell"><span class="hx-product-ref">${producto}</span>${stockHtml}${avisoCoste}</td><td>${descripcion}</td><td class="num">${pvp}</td><td class="num qty-cell"><div class="line-qty-stepper"><button type="button" class="line-qty-btn" onclick="cambiarQtyLinea(${i},-1)" title="Bajar cantidad">−</button><input class="qty-input line-qty-input" type="number" min="1" value="${l.qty}" onchange="setLinea(${i},'qty',this.value)"><button type="button" class="line-qty-btn" onclick="cambiarQtyLinea(${i},1)" title="Subir cantidad">+</button></div></td><td class="num"><input class="dto-input" type="number" min="0" max="100" step="0.01" value="${l.dto||0}" onchange="setLinea(${i},'dto',this.value)"></td><td class="num"><b>${fmt.format(total)}</b></td><td class="num row-actions"><button type="button" class="drag-btn" draggable="true" title="Mantén y arrastra para mover" aria-label="Mover línea"><span></span><span></span><span></span></button><button class="trash" onclick="delLinea(${i})">×</button></td></tr>`;
   }).join('');
   const c=calc();
   $('#subtotalBruto').textContent=fmt.format(c.subtotalBruto);
@@ -2333,7 +2339,7 @@ function parseCSVRobusto175(txt){
     idxShortDescription = headerNorm.findIndex(h => ['shortdescription','descripcioncorta','shortdesc','desccorta'].includes(h));
     idxImage = headerNorm.findIndex(h => ['image','imagen','foto','photourl','imageurl','urlimagen'].includes(h));
     idxStock = headerNorm.findIndex(h => ['stock','stocklabel','existencias','disponible','quantity','cantidadstock','availablestock'].includes(h));
-    idxCost = headerNorm.findIndex(h => ['cost','coste','costo','pricecost','costprice','preciocoste','purchaseprice','buyprice','netprice','dealerprice','purchasecost','preciocompra'].includes(h));
+    idxCost = headerNorm.findIndex(h => h === 'precionetocompra');
     if(idxName < 0) idxName = 0;
   }
 
@@ -7922,7 +7928,7 @@ descripcionProducto = function(p){
     panel.scrollTop=0;
     hxBindProductImages(panel);
     panel.querySelectorAll('.result-item').forEach(el=>{
-      el.addEventListener('mouseenter',()=>{ activeIndex=Number(el.dataset.k); marcarActivo(); });
+      el.addEventListener('mouseenter',()=>{ activeIndex=Number(el.dataset.k); });
       el.addEventListener('click',()=>seleccionarProductoSeguro(el.dataset.ref,el.dataset.pvp,true));
       el.addEventListener('dblclick',()=>{ seleccionarProductoSeguro(el.dataset.ref,el.dataset.pvp,true); addLinea(); });
     });
