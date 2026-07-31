@@ -90,6 +90,13 @@ window.EXPLORAR_CATEGORIAS = [
     subcategorias: [
       { titulo: 'Detectores', icono: '🔥', incluye: ['fireprotect'], excluye: ['dummy', 'bracket'] },
       { titulo: 'Botón incendio', icono: '🚨', incluye: ['manualcallpoint', 'keymcp'] },
+    ]
+  },
+   {
+    id: 'calidad',
+    titulo: 'Calidad Ambiental',
+    icono: '🌡️',
+    subcategorias: [
       { titulo: 'LifeQuality', icono: '🌡️', incluye: ['lifequality'] }
     ]
   },
