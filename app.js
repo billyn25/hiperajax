@@ -76,7 +76,7 @@ function addProductoObj(p, qty=1, dto=null){
   if(!descFinal){
     try{ descFinal = String((descripcionProducto(p) || {}).desc || '').trim(); }catch(e){}
   }
-  lineas.push({name:p.name, brand:p.brand||'', pvp:p.pvp, desc:descFinal, qty:Math.max(1,Number(qty)||1), dto:dto===null ? descuentoActual() : (Number(dto)||0)});
+  lineas.push({name:p.name, brand:p.brand||'', pvp:p.pvp, desc:descFinal, short_description:String(p.short_description||'').trim(), stock:p.stock??'', cost:Number(p.cost)||0, qty:Math.max(1,Number(qty)||1), dto:dto===null ? descuentoActual() : (Number(dto)||0)});
   registrarReciente(p.name);
   hxBajarUltimaLineaPresupuesto();
   return true;
@@ -1225,7 +1225,14 @@ function render(){
       ? `<input class="manual-input desc-input" value="${escapeHtml(l.desc||'')}" placeholder="Descripción" onchange="setLinea(${i},'desc',this.value)">`
       : `<span class="desc-cell">${escapeHtml(l.desc || descAuto)}</span>`;
     const pvp = `<input class="price-input editable-pvp" type="number" min="0" step="0.01" value="${Number(l.pvp)||0}" title="Editar PVP solo para este presupuesto. No modifica el CSV." onchange="setLinea(${i},'pvp',this.value)">`;
-    return `<tr data-linea-index="${i}"><td class="product-cell">${producto}</td><td>${descripcion}</td><td class="num">${pvp}</td><td class="num qty-cell"><div class="line-qty-stepper"><button type="button" class="line-qty-btn" onclick="cambiarQtyLinea(${i},-1)" title="Bajar cantidad">−</button><input class="qty-input line-qty-input" type="number" min="1" value="${l.qty}" onchange="setLinea(${i},'qty',this.value)"><button type="button" class="line-qty-btn" onclick="cambiarQtyLinea(${i},1)" title="Subir cantidad">+</button></div></td><td class="num"><input class="dto-input" type="number" min="0" max="100" step="0.01" value="${l.dto||0}" onchange="setLinea(${i},'dto',this.value)"></td><td class="num"><b>${fmt.format(total)}</b></td><td class="num row-actions"><button type="button" class="drag-btn" draggable="true" title="Mantén y arrastra para mover" aria-label="Mover línea"><span></span><span></span><span></span></button><button class="trash" onclick="delLinea(${i})">×</button></td></tr>`;
+    const stockRaw = String(l.stock ?? productoCatalogo?.stock ?? '').trim();
+    const stockNum = numero(stockRaw);
+    const tieneStock = stockRaw !== '';
+    const stockClase = stockNum >= 10 ? 'is-ok' : stockNum > 0 ? 'is-low' : 'is-none';
+    const stockHtml = tieneStock ? `<span class="hx-stock-dot ${stockClase}" title="Stock: ${escapeHtml(stockRaw)}" aria-label="Stock: ${escapeHtml(stockRaw)}"></span>` : '';
+    const coste = Number(l.cost || productoCatalogo?.cost || 0);
+    const bajoCoste = coste > 0 && Number(l.pvp) < coste;
+    return `<tr class="${bajoCoste?'hx-bajo-coste':''}" data-linea-index="${i}"${bajoCoste?` title="Aviso: PVP por debajo del coste (${fmt.format(coste)})"`:''}><td class="product-cell"><span class="hx-product-ref">${producto}</span>${stockHtml}</td><td>${descripcion}</td><td class="num">${pvp}</td><td class="num qty-cell"><div class="line-qty-stepper"><button type="button" class="line-qty-btn" onclick="cambiarQtyLinea(${i},-1)" title="Bajar cantidad">−</button><input class="qty-input line-qty-input" type="number" min="1" value="${l.qty}" onchange="setLinea(${i},'qty',this.value)"><button type="button" class="line-qty-btn" onclick="cambiarQtyLinea(${i},1)" title="Subir cantidad">+</button></div></td><td class="num"><input class="dto-input" type="number" min="0" max="100" step="0.01" value="${l.dto||0}" onchange="setLinea(${i},'dto',this.value)"></td><td class="num"><b>${fmt.format(total)}</b></td><td class="num row-actions"><button type="button" class="drag-btn" draggable="true" title="Mantén y arrastra para mover" aria-label="Mover línea"><span></span><span></span><span></span></button><button class="trash" onclick="delLinea(${i})">×</button></td></tr>`;
   }).join('');
   const c=calc();
   $('#subtotalBruto').textContent=fmt.format(c.subtotalBruto);
@@ -2293,14 +2300,17 @@ function parseCSVRobusto175(txt){
   const hasHeader = headerNorm.some(h => ['name','nombre','producto','descripcion','referencia','codigo','brand','marca','fabricante','pvp','precio','price','importe'].includes(h));
 
   let start = hasHeader ? 1 : 0;
-  let idxName = 0, idxBrand = 1, idxPvp = 2, idxDescription = -1, idxImage = -1;
+  let idxName = 0, idxBrand = 1, idxPvp = 2, idxDescription = -1, idxShortDescription = -1, idxImage = -1, idxStock = -1, idxCost = -1;
 
   if(hasHeader){
     idxName = headerNorm.findIndex(h => ['name','nombre','producto','referencia','codigo','ref'].includes(h));
     idxBrand = headerNorm.findIndex(h => ['brand','marca','fabricante'].includes(h));
     idxPvp = headerNorm.findIndex(h => ['pvp','precio','price','importe'].includes(h));
     idxDescription = headerNorm.findIndex(h => ['description','descripcion','detalle','texto'].includes(h));
+    idxShortDescription = headerNorm.findIndex(h => ['shortdescription','descripcioncorta','shortdesc','desccorta'].includes(h));
     idxImage = headerNorm.findIndex(h => ['image','imagen','foto','photourl','imageurl','urlimagen'].includes(h));
+    idxStock = headerNorm.findIndex(h => ['stock','stocklabel','existencias','disponible','quantity','cantidadstock','availablestock'].includes(h));
+    idxCost = headerNorm.findIndex(h => ['cost','coste','costo','pricecost','costprice','preciocoste','purchaseprice','buyprice'].includes(h));
     if(idxName < 0) idxName = 0;
   }
 
@@ -2331,14 +2341,20 @@ function parseCSVRobusto175(txt){
     if(!Number.isFinite(pvp)) pvp = 0;
 
     const description = idxDescription >= 0 ? String(cols[idxDescription] || '').trim() : '';
+    const short_description = idxShortDescription >= 0 ? String(cols[idxShortDescription] || '').trim() : '';
     const image = idxImage >= 0 ? String(cols[idxImage] || '').trim() : '';
+    const stock = idxStock >= 0 ? String(cols[idxStock] || '').trim() : '';
+    const cost = idxCost >= 0 ? numero(cols[idxCost]) : 0;
 
     rows.push({
       name,
       brand,
       pvp,
       description,
+      short_description,
       image,
+      stock,
+      cost,
       raw: cols
     });
   }
@@ -2444,14 +2460,19 @@ function hxUnirCatalogos(base, manual){
       name: p.name || anterior.name,
       brand: p.brand || anterior.brand,
       description: p.description || anterior.description || '',
-      image: p.image || anterior.image || ''
+      short_description: p.short_description || anterior.short_description || '',
+      image: p.image || anterior.image || '',
+      stock: p.stock !== '' && p.stock != null ? p.stock : (anterior.stock || ''),
+      cost: Number(p.cost) || Number(anterior.cost) || 0
     });
   });
   return [...mapa.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
 }
 
 async function hxLeerCSV(url){
-  const r = await fetch(`${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`, {cache:'no-store'});
+  const esFuncionCatalogo = String(url || '').includes('/.netlify/functions/catalogo-remoto');
+  const finalUrl = esFuncionCatalogo ? url : `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`;
+  const r = await fetch(finalUrl, {cache: esFuncionCatalogo ? 'default' : 'no-store'});
   if(!r.ok) throw new Error(`HTTP ${r.status} en ${url}`);
   return r.text();
 }
@@ -5960,6 +5981,11 @@ function descripcionPdfCorta(linea){
     const brandEsAjax = normaliza(brandOriginal) === 'ajax';
     // En el CSV, la columna brand contiene la descripción de los artículos no AJAX.
     // El PDF debe conservarla en lugar de fabricar una descripción desde la referencia.
+    const descCortaCsv = String(l.short_description || '').trim();
+    if(descCortaCsv) return descCortaCsv.length > 58 ? descCortaCsv.slice(0,55).trim() + '…' : descCortaCsv;
+    const productoCatalogo = (Array.isArray(productos) ? productos : []).find(p=>hxRefProducto(p?.name)===hxRefProducto(refOriginal));
+    const descCortaCatalogo = String(productoCatalogo?.short_description || '').trim();
+    if(descCortaCatalogo) return descCortaCatalogo.length > 58 ? descCortaCatalogo.slice(0,55).trim() + '…' : descCortaCatalogo;
     const descOriginal = String(l.desc || (!brandEsAjax ? brandOriginal : '') || '').trim();
     if(!refOriginal && descOriginal) return descOriginal.slice(0, 58);
     if(l.manual){ return (descOriginal || refOriginal || 'Línea manual').slice(0, 58); }

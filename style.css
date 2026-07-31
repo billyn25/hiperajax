@@ -10148,3 +10148,17 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
     grid-auto-rows:max-content!important;
   }
 }
+
+
+/* Indicadores discretos de stock y aviso de PVP bajo coste */
+.product-cell{position:relative}
+.hx-product-ref{vertical-align:middle}
+.hx-stock-dot{display:inline-block;width:8px;height:8px;margin-left:7px;border-radius:50%;vertical-align:middle;box-shadow:0 0 0 2px color-mix(in srgb,currentColor 16%,transparent)}
+.hx-stock-dot.is-ok{background:#2ca66f;color:#2ca66f}
+.hx-stock-dot.is-low{background:#e39a2d;color:#e39a2d}
+.hx-stock-dot.is-none{background:#d5b62f;color:#d5b62f}
+#tbody tr.hx-bajo-coste>td{background:color-mix(in srgb,#d64545 8%,transparent)}
+#tbody tr.hx-bajo-coste{animation:hxCostePulse .42s ease-in-out 2}
+#tbody tr.hx-bajo-coste .editable-pvp{border-color:#c84343!important;box-shadow:0 0 0 2px color-mix(in srgb,#c84343 12%,transparent)}
+@keyframes hxCostePulse{0%,100%{transform:translateX(0)}35%{transform:translateX(-2px)}70%{transform:translateX(2px)}}
+@media (prefers-reduced-motion:reduce){#tbody tr.hx-bajo-coste{animation:none}}
