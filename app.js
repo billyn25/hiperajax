@@ -2570,16 +2570,6 @@ async function cargarCatalogo(){
   }
 
   prepararIndiceBusqueda175();
-  const pruebaCoste = ['AJ-HUB-W','AJ-KEYPAD-W'].map(ref=>{
-    const p = productos.find(x=>hxRefProducto(x?.name)===ref);
-    return p ? {referencia:ref,pvp:p.pvp,precio_neto_compra:p.precio_neto_compra,stock:p.stock,porDebajo:numero(p.pvp)<numero(p.precio_neto_compra)} : {referencia:ref,noEncontrado:true};
-  });
-  console.table(pruebaCoste);
-  console.info('[Diagnóstico coste catálogo]', {
-    productosConCoste: productos.filter(p=>numero(p.precio_neto_compra)>0).length,
-    campoDetectado: window.HX_CATALOGO_CACHE?.costField || 'no informado',
-    cabeceraNetlify: window.HX_CATALOGO_CACHE?.productsWithCost || 0
-  });
   if(prev){
     if(origen === 'remoto + manual'){
       const c = window.HX_CATALOGO_CACHE || {};
@@ -6071,31 +6061,7 @@ function descripcionPdfCorta(linea){
     const color = colorRef(ref);
     let base = ref.replace(/^AJ-/, '');
 
-    // Fuente principal editable: pdf_desc_config.js. Se elige la regla más
-    // específica para que, por ejemplo, un DUMMY de MotionCam no herede la
-    // descripción del detector real. El código de abajo queda solo como
-    // respaldo automático para referencias todavía no configuradas.
-    const compactaPdf = v => String(v || '')
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase().replace(/[^a-z0-9]+/g, '');
-    const refCompacta = compactaPdf(refOriginal);
-    const reglasPdf = Array.isArray(window.PDF_DESC_CONFIG) ? window.PDF_DESC_CONFIG : [];
-    const candidatasPdf = reglasPdf.map((regla, indice) => {
-      const tokens = (Array.isArray(regla && regla.match) ? regla.match : [])
-        .map(compactaPdf).filter(Boolean);
-      const coincide = tokens.length && tokens.every(token => refCompacta.includes(token));
-      return coincide ? {
-        regla, indice,
-        puntos: tokens.length * 1000 + tokens.reduce((n, token) => n + token.length, 0)
-      } : null;
-    }).filter(Boolean).sort((a,b) => b.puntos - a.puntos || a.indice - b.indice);
-
-    if(candidatasPdf.length){
-      let configurada = String(candidatasPdf[0].regla.titulo || '').trim();
-      if(color && !new RegExp(`\\b${color}\\b`, 'i').test(configurada)) configurada += ` · ${color}`;
-      configurada = configurada.replace(/\s+/g, ' ').trim();
-      return configurada.length > 54 ? configurada.slice(0,51).trim() + '…' : configurada;
-    }
+    // Si el CSV no trae short_description, se conserva el respaldo automático.
 
     const exactos = [
       [/^HUB2PLUS/, 'Hub 2 Plus'], [/^HUB2-4G/, 'Hub 2 4G'], [/^HUB2/, 'Hub 2'], [/^HUBBP/, 'Hub BP'], [/^HUB($|-)/, 'Hub'],
@@ -6104,7 +6070,7 @@ function descripcionPdfCorta(linea){
       [/^MOTIONPROTECTPLUS/, 'MotionProtect Plus'], [/^MOTIONPROTECT/, 'MotionProtect'], [/^OUTDOORPROTECT/, 'OutdoorProtect'],
       [/^DOORPROTECTPLUS/, 'DoorProtect Plus'], [/^DOORPROTECT/, 'DoorProtect'], [/^GLASSPROTECT/, 'GlassProtect'],
       [/^CURTAINCAM/, 'CurtainCam'], [/^DUALCURTAIN/, 'DualCurtain Outdoor'], [/^CURTAINOUTDOOR/, 'Curtain Outdoor'], [/^CURTAINPROTECT/, 'CurtainProtect'],
-      [/^KEYPADTOUCHSCREEN/, 'KeyPad TouchScreen'], [/^KEYPADPLUS/, 'KeyPad Plus'], [/^KEYPADOUTDOOR/, 'KeyPad Outdoor'], [/^KEYPAD/, 'KeyPad'],
+      [/^KEYPADTOUCHSCREEN/, 'KeyPad TouchScreen'], [/^KEYPADCOMBI/, 'KeyPad Combi'], [/^KEYPADPLUS/, 'KeyPad Plus'], [/^KEYPADOUTDOOR/, 'KeyPad Outdoor'], [/^KEYPAD/, 'KeyPad'],
       [/^HOMESIREN/, 'HomeSiren'], [/^STREETSIRENCUSTOM/, 'StreetSiren Custom'], [/^STREETSIREN/, 'StreetSiren'],
       [/^FIREPROTECT2-HSC/, 'FireProtect 2 HSC'], [/^FIREPROTECT2-HS/, 'FireProtect 2 HS'], [/^FIREPROTECT2-HC/, 'FireProtect 2 HC'], [/^FIREPROTECT2-H/, 'FireProtect 2 H'], [/^FIREPROTECT2-C/, 'FireProtect 2 C'], [/^FIREPROTECTPLUS/, 'FireProtect Plus'], [/^FIREPROTECT/, 'FireProtect'],
       [/^LEAKSPROTECT/, 'LeaksProtect'], [/^WATERSTOP/, 'WaterStop'], [/^LIFEQUALITY-LITE/, 'LifeQuality Lite'], [/^LIFEQUALITY/, 'LifeQuality'],
