@@ -2501,10 +2501,14 @@ async function hxLeerCSV(url){
     const age = Number(r.headers.get('age') || 0);
     const cacheStatus = String(r.headers.get('cache-status') || r.headers.get('x-nf-cache') || '').trim();
     const generatedAt = String(r.headers.get('x-hiperajax-generated-at') || '').trim();
+    const productsWithCost = Number(r.headers.get('x-hiperajax-products-with-cost') || 0);
+    const costField = String(r.headers.get('x-hiperajax-cost-field') || '').trim();
     window.HX_CATALOGO_CACHE = {
       age: Number.isFinite(age) ? age : 0,
       cacheStatus,
       generatedAt,
+      productsWithCost,
+      costField,
       cached: age > 0 || /hit/i.test(cacheStatus)
     };
     console.info('[Catálogo Netlify]', window.HX_CATALOGO_CACHE);
@@ -2560,6 +2564,16 @@ async function cargarCatalogo(){
   }
 
   prepararIndiceBusqueda175();
+  const pruebaCoste = ['AJ-HUB-W','AJ-KEYPAD-W'].map(ref=>{
+    const p = productos.find(x=>hxRefProducto(x?.name)===ref);
+    return p ? {referencia:ref,pvp:p.pvp,coste:p.cost,stock:p.stock,porDebajo:numero(p.pvp)<numero(p.cost)} : {referencia:ref,noEncontrado:true};
+  });
+  console.table(pruebaCoste);
+  console.info('[Diagnóstico coste catálogo]', {
+    productosConCoste: productos.filter(p=>numero(p.cost)>0).length,
+    campoDetectado: window.HX_CATALOGO_CACHE?.costField || 'no informado',
+    cabeceraNetlify: window.HX_CATALOGO_CACHE?.productsWithCost || 0
+  });
   if(prev){
     if(origen === 'remoto + manual'){
       const c = window.HX_CATALOGO_CACHE || {};
