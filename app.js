@@ -96,7 +96,7 @@ function addProductoObj(p, qty=1, dto=null){
   if(!descFinal){
     try{ descFinal = String((descripcionProducto(p) || {}).desc || '').trim(); }catch(e){}
   }
-  lineas.push({name:p.name, brand:p.brand||'', pvp:p.pvp, desc:descFinal, short_description:String(p.short_description||'').trim(), stock:p.stock??'', cost:numero(p.cost)||0, qty:Math.max(1,Number(qty)||1), dto:dto===null ? descuentoActual() : (Number(dto)||0)});
+  lineas.push({name:p.name, brand:p.brand||'', pvp:p.pvp, desc:descFinal, short_description:String(p.short_description||'').trim(), stock:p.stock??'', precio_neto_compra:numero(p.precio_neto_compra)||0, qty:Math.max(1,Number(qty)||1), dto:dto===null ? descuentoActual() : (Number(dto)||0)});
   registrarReciente(p.name);
   hxBajarUltimaLineaPresupuesto();
   return true;
@@ -1248,9 +1248,9 @@ function render(){
     const stockRaw = String((productoCatalogo && productoCatalogo.stock) ?? l.stock ?? '').trim();
     const estadoStock = hxEstadoStock(stockRaw);
     const stockHtml = estadoStock.visible ? `<span class="hx-stock-dot ${estadoStock.clase}" title="Stock: ${escapeHtml(estadoStock.texto)}" aria-label="Stock: ${escapeHtml(estadoStock.texto)}"></span>` : '';
-    const costeLinea = numero(l.cost);
-    const costeCatalogo = numero(productoCatalogo?.cost);
-    // Única referencia: precio_neto_compra del CSV, propagado como cost.
+    const costeLinea = numero(l.precio_neto_compra);
+    const costeCatalogo = numero(productoCatalogo?.precio_neto_compra);
+    // Única referencia: precio_neto_compra del CSV, conservada con el mismo nombre en todo el flujo.
     const costeUnitario = costeLinea > 0 ? costeLinea : costeCatalogo;
     const cantidad = Math.max(1, numero(l.qty) || 1);
     const descuentoLinea = Math.max(0, Math.min(100, numero(l.dto) || 0));
@@ -2373,7 +2373,7 @@ function parseCSVRobusto175(txt){
     const short_description = idxShortDescription >= 0 ? String(cols[idxShortDescription] || '').trim() : '';
     const image = idxImage >= 0 ? String(cols[idxImage] || '').trim() : '';
     const stock = idxStock >= 0 ? String(cols[idxStock] || '').trim() : '';
-    const cost = idxCost >= 0 ? numero(cols[idxCost]) : 0;
+    const precio_neto_compra = idxCost >= 0 ? numero(cols[idxCost]) : 0;
 
     rows.push({
       name,
@@ -2383,7 +2383,7 @@ function parseCSVRobusto175(txt){
       short_description,
       image,
       stock,
-      cost,
+      precio_neto_compra,
       raw: cols
     });
   }
@@ -2492,7 +2492,7 @@ function hxUnirCatalogos(base, manual){
       short_description: p.short_description || anterior.short_description || '',
       image: p.image || anterior.image || '',
       stock: p.stock !== '' && p.stock != null ? p.stock : (anterior.stock || ''),
-      cost: numero(p.cost) || numero(anterior.cost) || 0
+      precio_neto_compra: numero(p.precio_neto_compra) || numero(anterior.precio_neto_compra) || 0
     });
   });
   return [...mapa.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
@@ -2572,11 +2572,11 @@ async function cargarCatalogo(){
   prepararIndiceBusqueda175();
   const pruebaCoste = ['AJ-HUB-W','AJ-KEYPAD-W'].map(ref=>{
     const p = productos.find(x=>hxRefProducto(x?.name)===ref);
-    return p ? {referencia:ref,pvp:p.pvp,coste:p.cost,stock:p.stock,porDebajo:numero(p.pvp)<numero(p.cost)} : {referencia:ref,noEncontrado:true};
+    return p ? {referencia:ref,pvp:p.pvp,precio_neto_compra:p.precio_neto_compra,stock:p.stock,porDebajo:numero(p.pvp)<numero(p.precio_neto_compra)} : {referencia:ref,noEncontrado:true};
   });
   console.table(pruebaCoste);
   console.info('[Diagnóstico coste catálogo]', {
-    productosConCoste: productos.filter(p=>numero(p.cost)>0).length,
+    productosConCoste: productos.filter(p=>numero(p.precio_neto_compra)>0).length,
     campoDetectado: window.HX_CATALOGO_CACHE?.costField || 'no informado',
     cabeceraNetlify: window.HX_CATALOGO_CACHE?.productsWithCost || 0
   });
