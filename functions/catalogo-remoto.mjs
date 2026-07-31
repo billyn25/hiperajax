@@ -9,7 +9,7 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Expose-Headers": "Age, Cache-Status, X-NF-Cache, X-HiperAjax-Products, X-HiperAjax-Source, X-HiperAjax-Time-Ms, X-HiperAjax-Generated-At",
+  "Access-Control-Expose-Headers": "Age, Cache-Status, X-NF-Cache, X-HiperAjax-Products, X-HiperAjax-Source, X-HiperAjax-Time-Ms, X-HiperAjax-Generated-At, X-HiperAjax-Products-With-Cost, X-HiperAjax-Cost-Field",
 };
 
 function decodeHtmlEntities(value) {
@@ -47,6 +47,31 @@ function limpiarDescripcion(html) {
   return text;
 }
 
+
+function normalizarClave(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function filaNormalizada(row) {
+  const out = {};
+  for (const [key, value] of Object.entries(row || {})) {
+    out[normalizarClave(key)] = value;
+  }
+  return out;
+}
+
+function primerValor(row, aliases) {
+  for (const alias of aliases) {
+    const value = row[normalizarClave(alias)];
+    if (value !== undefined && value !== null && String(value).trim() !== "") return value;
+  }
+  return "";
+}
+
 function escaparCSV(value) {
   const text = String(value ?? "").replace(/[\r\n]+/g, " ").trim();
   return /[;"\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
@@ -57,6 +82,8 @@ async function crearCatalogoAjax(response) {
 
   const products = new Map();
   let totalRows = 0;
+  let productsWithCost = 0;
+  let detectedCostField = "";
 
   const parser = Readable.fromWeb(response.body).pipe(parse({
     delimiter: ";",
@@ -68,24 +95,42 @@ async function crearCatalogoAjax(response) {
     trim: false,
   }));
 
-  for await (const row of parser) {
+  for await (const originalRow of parser) {
     totalRows += 1;
-    const name = String(row.name || "").trim();
-    const brand = String(row.brand || "").trim();
+    const row = filaNormalizada(originalRow);
+    const name = String(primerValor(row, ["name", "reference", "referencia", "codigo", "sku"])).trim();
+    const brand = String(primerValor(row, ["brand", "marca", "manufacturer", "fabricante"])).trim();
     if (!name || brand.toUpperCase() !== "AJAX") continue;
 
     const key = name.toUpperCase();
     if (products.has(key)) continue;
 
+    const costAliases = [
+      "cost", "coste", "costo", "price_cost", "cost_price", "purchase_price",
+      "buy_price", "price", "net_price", "dealer_price", "purchase_cost",
+      "precio_compra", "precio_neto", "netprice", "your_price", "client_price"
+    ];
+    let cost = "";
+    for (const alias of costAliases) {
+      const normalized = normalizarClave(alias);
+      const value = row[normalized];
+      if (value !== undefined && value !== null && String(value).trim() !== "") {
+        cost = String(value).trim();
+        if (!detectedCostField) detectedCostField = normalized;
+        break;
+      }
+    }
+    if (cost) productsWithCost += 1;
+
     products.set(key, {
       name,
       brand: "Ajax",
-      pvp: String(row.PVP ?? "").trim(),
-      description: limpiarDescripcion(row.description),
-      short_description: limpiarDescripcion(row.short_description || row.shortDescription || row.short_desc || row.description_short),
-      image: String(row.image_path || "").trim(),
-      stock: String(row.stock_label ?? row.stock ?? row.quantity ?? row.available_stock ?? row.stock_available ?? "").trim(),
-      cost: String(row.cost ?? row.coste ?? row.price_cost ?? row.cost_price ?? row.purchase_price ?? row.buy_price ?? row.price ?? row.net_price ?? row.dealer_price ?? "").trim(),
+      pvp: String(primerValor(row, ["PVP", "recommended_retail_price", "retail_price", "precio_venta", "tarifa"])).trim(),
+      description: limpiarDescripcion(primerValor(row, ["description", "descripcion"])),
+      short_description: limpiarDescripcion(primerValor(row, ["short_description", "shortDescription", "short_desc", "description_short", "descripcion_corta"])),
+      image: String(primerValor(row, ["image_path", "image", "imagen", "photo_url"])).trim(),
+      stock: String(primerValor(row, ["stock_label", "stock", "quantity", "available_stock", "stock_available", "existencias"])).trim(),
+      cost,
     });
   }
 
@@ -106,7 +151,7 @@ async function crearCatalogoAjax(response) {
     ].map(escaparCSV).join(";"));
   }
 
-  return { csv: lines.join("\n"), products: sorted.length, totalRows };
+  return { csv: lines.join("\n"), products: sorted.length, totalRows, productsWithCost, detectedCostField };
 }
 
 export async function handler(event) {
@@ -147,6 +192,8 @@ export async function handler(event) {
         "X-HiperAjax-Source": "visiotech-csv-parse-stream",
         "X-HiperAjax-Time-Ms": String(elapsedMs),
         "X-HiperAjax-Generated-At": new Date().toISOString(),
+        "X-HiperAjax-Products-With-Cost": String(result.productsWithCost),
+        "X-HiperAjax-Cost-Field": result.detectedCostField || "none",
       },
       body: result.csv,
     };
