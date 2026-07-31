@@ -83,18 +83,7 @@
   }
 
   function shortDescription(product){
-    const ref = compact(product && product.name);
-    const rules = Array.isArray(global.PDF_DESC_CONFIG) ? global.PDF_DESC_CONFIG : [];
-    let winner = null;
-    for(const rule of rules){
-      const match = Array.isArray(rule.match) ? rule.match.map(compact).filter(Boolean) : [];
-      if(!match.length || !match.every(part=>ref.includes(part))) continue;
-      if(!winner || match.length > winner.match.length ||
-         (match.length === winner.match.length && match.join('').length > winner.size)){
-        winner = {title:String(rule.titulo||''), match, size:match.join('').length};
-      }
-    }
-    return winner ? winner.title : '';
+    return String(product && product.short_description || '').trim();
   }
 
   function commercialName(product){
@@ -158,7 +147,7 @@
     const nameHits = fieldTokenHits(query.expanded, record.nameTokens);
     if(nameHits){ score += nameHits * 45; meaningful=true; }
 
-    // Descripción corta mantenida en pdf_desc_config.js.
+    // Descripción corta oficial recibida desde el CSV.
     if(record.shortNorm && (record.shortNorm.includes(query.norm) || record.shortCompact.includes(query.compact))){ score += 70; meaningful=true; }
     const shortHits = fieldTokenHits(query.expanded, record.shortTokens);
     if(shortHits){ score += shortHits * 32; meaningful=true; }
