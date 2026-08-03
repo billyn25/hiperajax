@@ -9908,8 +9908,8 @@ body.light-mode .header-toolbar > .header-theme:hover,body.light-mode .header-to
   min-width:0;
   height:auto;
   line-height:1;
-  font-size:14px;
-  font-weight:800;
+  font-size:13px;
+  font-weight:600;
   letter-spacing:-.15px;
   font-family:Inter,Segoe UI,Arial,sans-serif;
   white-space:nowrap;
