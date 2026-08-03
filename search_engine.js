@@ -161,9 +161,14 @@
     const aliasOnly = query.expanded.filter(t=>!query.base.includes(t));
     let aliasScore=0;
     for(const t of aliasOnly){
-      if(record.refTokens.has(t) || record.nameTokens.has(t)) aliasScore += 38;
-      else if(record.shortTokens.has(t)) aliasScore += 30;
-      else if(record.fullTokens.has(t)) aliasScore += 8;
+      const compactAlias = compact(t);
+      const inReference = record.refTokens.has(t) || (compactAlias.length >= 3 && record.refCompact.includes(compactAlias));
+      const inName = record.nameTokens.has(t) || (compactAlias.length >= 3 && compact(record.name).includes(compactAlias));
+      const inShort = record.shortTokens.has(t) || (compactAlias.length >= 3 && record.shortCompact.includes(compactAlias));
+      const inFull = record.fullTokens.has(t) || (compactAlias.length >= 3 && record.fullCompact.includes(compactAlias));
+      if(inReference || inName) aliasScore += 38;
+      else if(inShort) aliasScore += 30;
+      else if(inFull) aliasScore += 8;
     }
     if(aliasScore){ score += aliasScore; meaningful=true; }
 
