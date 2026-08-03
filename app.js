@@ -1791,7 +1791,6 @@ async function pdf(){
 }
 
 
-
 /* =====================================================
    FAMILIAS RÁPIDAS PRO
    Abre el catálogo filtrado por familias sin tocar CSV.
@@ -1873,8 +1872,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 
-
-
 /* =====================================================
    BUSCADOR ESTABLE v1.6.3.1
    Regla principal: TODO lo que esté en el CSV debe salir.
@@ -1937,8 +1934,6 @@ function buscarCatalogo(term=''){
    MOTOR PRO v1.6.4 - Automatización, mecanismos, red/PoE y almacenamiento
    CSV siempre manda: el conocimiento solo suma, nunca oculta.
    ===================================================== */
-const APP_VERSION_164 = 'v1.6.4 PRO';
-
 function metaProducto164(p){
   const raw = String((p && p.name) || '');
   const n = normaliza(raw);
@@ -2106,8 +2101,6 @@ scoreProducto = function(p, term){
    - Almacenamiento muestra discos y tarjetas microSD.
    - CSV siempre manda: producto nuevo sale por referencia/nombre.
    ===================================================== */
-const APP_VERSION_165 = 'v1.6.5 PRO';
-
 function esSwitchPoe165(p){
   const n = normaliza((p && p.name) || '');
   return n.includes('vdms105gp') || n.includes('vdms108gp') || (n.includes('switch') && n.includes('poe'));
@@ -2200,13 +2193,6 @@ try{
   if(!existeAlm) FAMILIAS_RAPIDAS.push({icon:'💾', title:'Almacenamiento', desc:'Discos duros y tarjetas SD', term:'almacenamiento'});
 }catch(e){}
 
-try{
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = '· Creado por David Corregidor';
-    });
-  });
-}catch(e){}
 
 /* =====================================================
    MOTOR PRO v1.6.6 - Fix Incendio/CO y Baterías rápidas
@@ -2214,8 +2200,6 @@ try{
    - Baterías aparecen rápido por bateria/battery/pila.
    - Mantiene CSV como fuente principal y no oculta productos nuevos.
    ===================================================== */
-const APP_VERSION_166 = 'v1.6.6 PRO';
-
 function esProductoIncendio166(p){
   const n = normaliza((p && p.name) || '');
   return n.includes('fireprotect') || n.includes('manualcallpoint') || n.includes('en54') || n.includes('fire');
@@ -2283,15 +2267,6 @@ try{
   if(!existeBat) FAMILIAS_RAPIDAS.push({icon:'🔋', title:'Baterías', desc:'BatteryBox, BatteryKit e internas', term:'bateria'});
 }catch(e){}
 
-try{
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = '· Creado por David Corregidor';
-    });
-  });
-}catch(e){}
-
-
 
 /* =====================================================
    PRO v1.7.5 - CARGA CSV EXTERNO ROBUSTA + BÚSQUEDA ESTABLE
@@ -2302,8 +2277,6 @@ try{
    - Parser acepta ;, tabuladores, columnas extra y líneas pegadas simples.
    - Descripciones existentes se mantienen.
    ===================================================== */
-const APP_VERSION_175 = 'v1.7.5 PRO';
-
 function parseCSVRobusto175(txt){
   txt = String(txt || '').replace(/^\uFEFF/, '').replace(/\r/g, '').trim();
   if(!txt) return [];
@@ -2523,7 +2496,6 @@ async function hxLeerCSV(url){
 
 async function cargarCatalogo(){
   let origen = 'remoto + manual';
-  const inicio = performance.now();
   const prev = $('#previewProducto');
   let avisoLento = null;
 
@@ -2552,9 +2524,6 @@ async function cargarCatalogo(){
     const manual = manualTxt ? parseCSVRobusto175(manualTxt) : [];
     productos = hxUnirCatalogos(base, manual);
     if(!productos.length) throw new Error('Catálogo vacío o columnas no reconocidas');
-
-    const segundos = ((performance.now() - inicio) / 1000).toFixed(1);
-    console.info(`[Catálogo] base=${base.length}, manual=${manual.length}, total=${productos.length}, origen=${origen}, tiempo=${segundos}s`);
   }catch(e){
     productos = [];
     const msg = 'No se pudo cargar el catálogo remoto ni la copia local.';
@@ -2688,9 +2657,6 @@ buscarCatalogo = function(term=''){
 
 try{
   const setVersion = ()=>{
-    document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = '· Creado por David Corregidor';
-    });
   };
   document.addEventListener('DOMContentLoaded', setVersion);
 }catch(e){}
@@ -2703,7 +2669,6 @@ try{
    - Bracket/Holder/Mount = accesorios de instalación, no armarios.
    - Covers/Frames/Buttons/Core clasificados como mecanismos.
    ===================================================== */
-const APP_VERSION_181 = 'v1.8.1 PRO';
 const descripcionProductoAnterior_181 = descripcionProducto;
 const scoreProductoAnterior_181 = scoreProducto;
 
@@ -2898,18 +2863,10 @@ buscarCatalogo = function(term=''){
   return buscar(q);
 };
 
-try{
-  document.addEventListener('DOMContentLoaded', ()=>{
-    document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = '· Creado por David Corregidor';
-    });
-  });
-}catch(e){}
 
 /* =====================================================
    Hiper AJAX v1.8.2 PRO - Motor de catálogo estable
    ===================================================== */
-const APP_VERSION_182 = 'v1.8.2 PRO';
 function ref182(p){ return String((p && p.name) || '').trim(); }
 function n182(p){ return normaliza(ref182(p)); }
 function has182(n,...xs){ return xs.some(x => n.includes(normaliza(x))); }
@@ -3016,7 +2973,7 @@ const pintarResultados_PRE182 = pintarResultados;
 pintarResultados = function(term){ const r=pintarResultados_PRE182(term); const panel=document.querySelector('#resultados'); if(panel) panel.scrollTop=0; return r; };
 const pintarCatalogPanel_PRE182 = (typeof pintarCatalogPanel==='function') ? pintarCatalogPanel : null;
 if(pintarCatalogPanel_PRE182){ pintarCatalogPanel=function(term){ const r=pintarCatalogPanel_PRE182(term); const items=document.querySelector('#catalogItems'); if(items) items.scrollTop=0; const card=document.querySelector('#catalogModal .modal-card'); if(card) card.scrollTop=0; return r; }; }
-document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); ['#btnCatalogo','#btnFamilias'].forEach(sel=>document.querySelector(sel)?.addEventListener('click',()=>setTimeout(()=>{ document.querySelectorAll('.modal-card,#catalogItems,#resultados').forEach(x=>{try{x.scrollTop=0;}catch(e){}}); },30))); });
+document.addEventListener('DOMContentLoaded',()=>{ ['#btnCatalogo','#btnFamilias'].forEach(sel=>document.querySelector(sel)?.addEventListener('click',()=>setTimeout(()=>{ document.querySelectorAll('.modal-card,#catalogItems,#resultados').forEach(x=>{try{x.scrollTop=0;}catch(e){}}); },30))); });
 
 /* =====================================================
    PATCH v1.8.3 PRO - Familias rápidas + índice sin tocar descripciones
@@ -3024,8 +2981,6 @@ document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.c
    - Solo mejora familias, etiquetas y velocidad de búsqueda.
    - Fuente DC / PSU / AC clasificado como Alimentación.
    ===================================================== */
-const APP_VERSION_183 = 'v1.8.3 PRO';
-
 function ref183(p){ return String((p && p.name) || '').trim(); }
 function n183(p){ return normaliza(ref183(p)); }
 function has183(txt,...keys){ return keys.some(k => txt.includes(normaliza(k))); }
@@ -3233,9 +3188,6 @@ try{
   if(acc){ acc.term = 'soporte bracket holder mount junctionbox ip66 caja'; acc.desc = 'Soportes, cajas y montaje'; }
 }catch(e){}
 
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
-});
 
 /* =====================================================
    PATCH v1.8.6 PRO - Marca como conocimiento SIN tocar descripciones AJAX
@@ -3245,8 +3197,6 @@ document.addEventListener('DOMContentLoaded',()=>{
      descripción y clasificación SOLO para productos nuevos/no AJAX.
    - No sustituye las descripciones PRO existentes de AJAX_KNOWLEDGE.
    ===================================================== */
-const APP_VERSION_186 = 'v1.8.6 PRO';
-
 function brandInfo186(p){
   const b = String((p && p.brand) || '').trim();
   if(!b) return '';
@@ -3418,10 +3368,6 @@ try{
   }
 }catch(e){}
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
-});
-
 
 /* =====================================================
    PATCH v1.8.7 PRO - Búsqueda limpia WiFi / LTE / 4G / Hub Plus
@@ -3431,8 +3377,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - 4g/lte evita falsos positivos tipo 64G, baterías o accesorios.
    - Mantiene CSV como fuente principal para el resto de búsquedas.
    ===================================================== */
-const APP_VERSION_187 = 'v1.8.7 PRO';
-
 function q187(term){
   const q = normaliza(term).trim();
   if(q === 'wi fi' || q === 'wi-fi') return 'wifi';
@@ -3485,9 +3429,6 @@ buscarCatalogo = function(term=''){
   return buscarCatalogo_PRE187(term);
 };
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
-});
 
 /* =====================================================
    PATCH v1.8.8 PRO - Descripciones precisas para KIT Ajax
@@ -3495,8 +3436,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Interpreta HUB2 / 4G / MP / DP / PHOD / PRO / color.
    - Ajusta búsqueda para que "kit", "kit alarma", "kit 4g" y variantes prioricen kits reales.
    ===================================================== */
-const APP_VERSION_188 = 'v1.8.8 PRO';
-
 function ref188(p){ return String((p && p.name) || '').trim(); }
 function n188(p){ return normaliza(ref188(p)); }
 function isAjaxKit188(p){
@@ -3611,9 +3550,6 @@ buscarCatalogo = function(term=''){
   return buscarCatalogo_PRE188(term);
 };
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
-});
 
 /* =====================================================
    PATCH v1.8.9 PRO - NVR canales precisos
@@ -3621,8 +3557,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - 116/216 = 16 canales, 232 = 32 canales.
    - Evita deducir canales por coincidencias falsas dentro del código.
    ===================================================== */
-const APP_VERSION_189 = 'v1.8.9 PRO';
-
 function ref189(p){ return String((p && p.name) || '').trim(); }
 function n189(p){ return normaliza(ref189(p)); }
 function isNvrAjax189(p){
@@ -3702,9 +3636,6 @@ scoreProducto = function(p, term){
   return score;
 };
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
-});
 
 /* =====================================================
    PATCH v1.9.0 PRO - CurtainProtect / detectores cortina
@@ -3712,8 +3643,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Nunca los clasifica como puerta/ventana.
    - Añade búsqueda precisa para "cortina", "curtain", "perimetral".
    ===================================================== */
-const APP_VERSION_190 = 'v1.9.0 PRO';
-
 function ref190(p){ return String((p && p.name) || '').trim(); }
 function n190(p){ return normaliza(ref190(p)); }
 function color190(n){
@@ -3859,9 +3788,6 @@ buscarCatalogo = function(term=''){
   return buscarCatalogo_PRE190(term);
 };
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
-});
 
 /* =====================================================
    PATCH v1.9.1 PRO - Descripciones Ajax afinadas desde catálogo oficial pegado
@@ -3869,7 +3795,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Corrige cámaras, timbre, teclados, incendio, NVR, relés, enchufes, LifeQuality, WaterStop, módulos.
    - Mantiene prioridad de parches anteriores: kits, NVR canales y Curtain.
    ===================================================== */
-const APP_VERSION_191 = 'v1.9.1 PRO';
 function ref191(p){ return String((p && p.name) || '').trim(); }
 function n191(p){ return normaliza(ref191(p)); }
 function color191(n){
@@ -4039,9 +3964,6 @@ scoreProducto = function(p,term){
   }
   return score;
 };
-document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
-});
 
 /* =====================================================
    PATCH v1.9.2 PRO - Familias Ajax estables
@@ -4050,7 +3972,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Refuerza Curtain como familia propia.
    - Potencia intrusión, sirenas, mandos, botones, carcasas y accesorios.
    ===================================================== */
-const APP_VERSION_192 = 'v1.9.2 PRO';
 function ref192(p){ return String((p && p.name) || '').trim(); }
 function n192(p){ return normaliza(ref192(p)); }
 function color192(n){
@@ -4187,9 +4108,6 @@ scoreProducto = function(p,term){
   return score;
 };
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
-});
 
 /* =====================================================
    PATCH v1.9.3 LIGERO - Domo/Turret + A-Z catálogo
@@ -4200,7 +4118,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Bullet/Bala encuentra solo BulletCam.
    - Añade filtro A-Z en catálogo; en referencias AJ- usa la letra tras AJ-.
    ===================================================== */
-const APP_VERSION_193 = 'v1.9.3 PRO';
 let catalogLetter193 = '';
 
 function norm193(s){
@@ -4342,7 +4259,6 @@ if(abrirCatalogo_PRE193){
 document.addEventListener('DOMContentLoaded',()=>{
   try{
     ensureAlphabet193();
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 });
 
@@ -4355,7 +4271,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Cache de búsquedas para evitar recalcular dos veces.
    - Resolver de búsqueda con pequeño debounce conservador.
    ===================================================== */
-const APP_VERSION_194 = 'v1.9.4 PRO';
 const SEARCH_CACHE_194 = new Map();
 const CATALOG_CACHE_194 = new Map();
 function key194(term){ return norm193(String(term || '')).slice(0, 120); }
@@ -4413,11 +4328,6 @@ cargarCatalogo = async function(){
   return cargarCatalogo_BASE194.apply(this, arguments);
 };
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
-  }catch(e){}
-});
 
 /* =====================================================
    PATCH v1.9.6 PRO - Numeración de presupuestos segura
@@ -4425,8 +4335,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Al guardar uno nuevo, si el número ya existe, asigna automáticamente el siguiente.
    - Al recuperar un presupuesto y guardar, sí actualiza ese mismo presupuesto.
    ===================================================== */
-const APP_VERSION_196 = 'v1.9.6 PRO';
-
 function parseNumeroHA196(num){
   const m = String(num || '').trim().match(/^HA-(\d{4})-(\d+)$/i);
   if(!m) return null;
@@ -4540,7 +4448,6 @@ duplicarPresupuesto = function(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   try{
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
     const num = $('#numero');
     if(num && !String(num.value || '').trim()) num.value = siguienteNumero(true);
   }catch(e){}
@@ -4551,8 +4458,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Cambio pequeño y seguro sobre v1.9.6.
    - Si se escribe exterior/intemperie/perimetral, prioriza referencias Outdoor.
    ===================================================== */
-const APP_VERSION_197 = 'v1.9.7 PRO';
-
 const busquedaForzada_BASE197 = busquedaForzada;
 busquedaForzada = function(term){
   const t = normaliza(term).trim();
@@ -4566,11 +4471,6 @@ busquedaForzada = function(term){
   return busquedaForzada_BASE197.apply(this, arguments);
 };
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
-  }catch(e){}
-});
 
 /* =====================================================
    PATCH v1.9.8 PRO - Cámaras + búsqueda presupuestos
@@ -4580,8 +4480,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Buscador de presupuestos guardados por nº, cliente, fecha, tienda o estado.
    - Pequeños alias seguros para cámaras: 4mm, 2.8, varifocal, vf.
    ===================================================== */
-const APP_VERSION_198 = 'v1.9.8 PRO';
-
 function camaraDesc198(p, base){
   const n = normaliza((p && p.name) || '');
   if(!(n.includes('bulletcam') || n.includes('domecam') || n.includes('turretcam'))) return null;
@@ -4673,7 +4571,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   try{
     ensureBudgetSearch198();
     refrescarPresupuestosGuardados();
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 });
 
@@ -4683,8 +4580,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - Añade abreviaturas profesionales exactas.
    - Resultados con segunda línea más útil sin cambiar el motor general.
    ===================================================== */
-const APP_VERSION_199 = 'v2.0.1 PRO Limpia';
-
 function ref199(p){ return normaliza((p && p.name) || ''); }
 function contiene199(n, arr){ return arr.some(k => n.includes(k)); }
 
@@ -4834,11 +4729,6 @@ pintarResultados = function(term){
   panel.classList.remove('hidden');
 };
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
-  }catch(e){}
-});
 
 /* =====================================================
    PATCH v2.0.3 PRO - Corrección segura Hubs / fuentes
@@ -4846,7 +4736,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - BracketHub queda como soporte/accesorio.
    - Solo PSU/PCB/DC/AC se describen como fuente de alimentación.
    ===================================================== */
-const APP_VERSION_203 = 'v2.0.3 PRO';
 function ref203(p){ return normaliza((p && p.name) || ''); }
 function color203(n){
   if(/-w(\b|-|$)/.test(n)) return ' Blanco';
@@ -4929,10 +4818,6 @@ scoreProducto = function(p, term){
   return score;
 };
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{ document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); }catch(e){}
-});
-
 
 /* =====================================================
    PATCH v2.0.4 PRO - Acciones rápidas en catálogo
@@ -4940,7 +4825,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - No toca descripciones ni motor principal.
    - En modo claro queda visible qué filtro está seleccionado.
    ===================================================== */
-const APP_VERSION_205 = 'v2.0.5 PRO';
 let catalogQuick204 = '';
 
 const QUICK_CATALOG_204 = [
@@ -5015,7 +4899,6 @@ if(abrirCatalogo_BASE204){
 document.addEventListener('DOMContentLoaded',()=>{
   try{
     ensureQuickCatalog204();
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 });
 
@@ -5025,7 +4908,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - El botón 🕒 Más usados ya no usa lista fija: ordena por contador real.
    - No toca descripciones ni motor general.
    ===================================================== */
-const APP_VERSION_206 = 'v2.0.6 PRO';
 const STORAGE_USO_PRODUCTOS_206 = 'hiperajax_productos_mas_usados_v206';
 
 function leerUsoProductos206(){
@@ -5088,15 +4970,8 @@ pintarCatalogPanel = function(term=catalogTerm){
         itemsWrap.innerHTML = '<div class="catalog-empty">Todavía no hay estadísticas. Añade productos y este filtro aprenderá tus más usados.</div>';
       }
     }
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   }catch(e){}
 };
-
-document.addEventListener('DOMContentLoaded',()=>{
-  try{
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
-  }catch(e){}
-});
 
 
 /* =====================================================
@@ -5148,7 +5023,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       return r;
     };
   }
-  document.addEventListener('DOMContentLoaded',()=>{ fixCatalogButtons207(); setTimeout(orderCatalogFilters207,50); document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; }); });
+  document.addEventListener('DOMContentLoaded',()=>{ fixCatalogButtons207(); setTimeout(orderCatalogFilters207,50); });
 })();
 
 /* =====================================================
@@ -5158,7 +5033,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    - No toca descripciones ni motor de búsqueda.
    ===================================================== */
 (function(){
-  const APP_VERSION_208 = 'v2.0.8 PRO';
   let catalogOpenedFromFamily208 = false;
 
   function ensureCatalogHosts208(){
@@ -5204,12 +5078,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   }
 
-  function setVersion208(){
-    try{
-      document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
-    }catch(e){}
-  }
-
   // Click normal en Catálogo: mostrar acciones rápidas.
   document.addEventListener('click', (e)=>{
     if(e.target.closest('#btnCatalogo')){
@@ -5251,7 +5119,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     pintarCatalogPanel = function(){
       const r = _pintar208.apply(this, arguments);
       placeCatalogFilters208();
-      setVersion208();
       return r;
     };
   }
@@ -5262,13 +5129,11 @@ document.addEventListener('DOMContentLoaded',()=>{
       const r = _abrirCatalogo208.apply(this, arguments);
       setTimeout(placeCatalogFilters208, 0);
       setTimeout(placeCatalogFilters208, 40);
-      setVersion208();
       return r;
     };
   }
 
   document.addEventListener('DOMContentLoaded',()=>{
-    setVersion208();
     setTimeout(placeCatalogFilters208, 60);
   });
 })();
@@ -5280,16 +5145,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    - En Familias: buscador -> A-Z -> productos.
    ===================================================== */
 (function(){
-  const APP_VERSION_2016 = 'v2.0.16 PRO';
   let openedFromFamilies2016 = false;
-
-  function setVersion2016(){
-    try{
-      document.querySelectorAll('.creator').forEach(el=>{
-        el.textContent = '· Creado por David Corregidor';
-      });
-    }catch(e){}
-  }
 
   function ensureTopFilterHost2016(){
     const modal = document.getElementById('catalogModal');
@@ -5372,7 +5228,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     pintarCatalogPanel = function(){
       const r = _pintar2016.apply(this, arguments);
       placeFiltersSoon2016();
-      setVersion2016();
       return r;
     };
   }
@@ -5382,13 +5237,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     abrirCatalogo = function(){
       const r = _abrirCatalogo2016.apply(this, arguments);
       placeFiltersSoon2016();
-      setVersion2016();
       return r;
     };
   }
 
   document.addEventListener('DOMContentLoaded',()=>{
-    setVersion2016();
     setTimeout(placeFilters2016, 80);
   });
 })();
@@ -6001,7 +5854,6 @@ document.addEventListener('DOMContentLoaded',()=>{
       btn.dataset.explorarPro='1'; btn.innerHTML = '<span class="btn-ico">🧭</span>Explorar';
       btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); abrirExplorar211(); }, true);
     }
-    document.querySelectorAll('.creator').forEach(el=>{ el.textContent = '· Creado por David Corregidor'; });
   });
 })();
 
@@ -6113,29 +5965,6 @@ function descripcionPdfCorta(linea){
   }
 }
 
-
-/* =====================================================
-   3.0.0 - versión única
-   ===================================================== */
-(function(){
-  const APP_VERSION = '4.0.8';
-  function setAppVersion(){
-    document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = '· Creado por David Corregidor';
-    });
-  }
-  window.actualizarVersionApp = setAppVersion;
-  document.addEventListener('DOMContentLoaded', ()=>{
-    setAppVersion();
-    const target = document.querySelector('.creator');
-    if(target){
-      const observer = new MutationObserver(()=>{
-        if(target.textContent !== '· Creado por David Corregidor') setAppVersion();
-      });
-      observer.observe(target,{childList:true,characterData:true,subtree:true});
-    }
-  }, {once:true});
-})();
 
 /* =====================================================
    v4.1.5 - Recuperación robusta y gestor móvil espacioso
@@ -6676,7 +6505,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - Si se busca negro/blanco, prioriza el color solicitado.
    ===================================================== */
 (function(){
-  const HX_APP_VERSION='4.0.8';
   function hxFamilyKey407(product){
     return String((product&&product.name)||'').toUpperCase()
       .replace(/-(?:W|B)(?=-|$)/g,'')
@@ -6717,19 +6545,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     const buscarCatalogoBase407=buscarCatalogo;
     buscarCatalogo=function(term=''){ return hxOrderFamilies407(buscarCatalogoBase407.apply(this,arguments),term); };
   }
-
-  function setVersion407(){
-    document.querySelectorAll('.creator').forEach(el=>{
-      const versionText='· Creado por David Corregidor';
-      if(el.textContent !== versionText) el.textContent=versionText;
-    });
-  }
-  document.addEventListener('DOMContentLoaded',()=>{ setVersion407(); setTimeout(setVersion407,120); });
-  const observer407=new MutationObserver(setVersion407);
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.creator').forEach(el=>observer407.observe(el,{childList:true,characterData:true,subtree:true}));
-  });
-  window.HX_APP_VERSION='';
   window.HX_ORDER_FAMILIES=hxOrderFamilies407;
 })();
 
@@ -6740,8 +6555,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - No usa listas manuales por producto.
    ===================================================== */
 (function(){
-  const HX_APP_VERSION_409='4.0.9';
-
   function hxFamilyKey409(product){
     return String((product&&product.name)||'').toUpperCase()
       .replace(/-(?:W|B)(?=-|$)/g,'')
@@ -6809,15 +6622,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     const buscarCatalogoBase409=buscarCatalogo;
     buscarCatalogo=function(term=''){ return hxFinalize409(buscarCatalogoBase409.apply(this,arguments),term); };
   }
-
-  function setVersion409(){
-    document.querySelectorAll('.creator').forEach(el=>{
-      const txt='· Creado por David Corregidor';
-      if(el.textContent!==txt) el.textContent=txt;
-    });
-  }
-  document.addEventListener('DOMContentLoaded',()=>{setVersion409();setTimeout(setVersion409,150);});
-  window.HX_APP_VERSION='';
 })();
 
 /* =====================================================
@@ -6829,8 +6633,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - Se aplica al buscador principal y al Catálogo.
    ===================================================== */
 (function(){
-  const HX_APP_VERSION_410='4.0.11';
-
   function hxNorm410(v){
     return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .toLowerCase().trim();
@@ -6943,15 +6745,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
       return hxFinalizeSearch410(prev,this,arguments,term);
     };
   }
-
-  function setVersion410(){
-    document.querySelectorAll('.creator').forEach(el=>{
-      const t='· Creado por David Corregidor';
-      if(el.textContent!==t) el.textContent=t;
-    });
-  }
-  document.addEventListener('DOMContentLoaded',()=>{ setVersion410(); setTimeout(setVersion410,200); });
-  window.HX_APP_VERSION='';
 })();
 
 /* =====================================================
@@ -7161,23 +6954,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     const sel = $('#presupuestosGuardados');
     if(sel) sel.value = '';
   };
-
-  function hxVersionMongo(){
-    document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = '· Creado por David Corregidor';
-    });
-  }
-  document.addEventListener('DOMContentLoaded',()=>{
-    hxVersionMongo();
-    setTimeout(hxVersionMongo,250);
-    const numeroInput = $('#numero');
-    const sel = $('#presupuestosGuardados');
-    if(numeroInput && (!sel || !sel.value)){
-      numeroInput.value = '';
-      numeroInput.placeholder = 'Se genera al guardar';
-    }
-  });
-  window.HX_APP_VERSION='';
 })();
 
 
@@ -7189,7 +6965,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - localStorage se conserva únicamente como respaldo temporal.
    ===================================================== */
 (()=>{
-  const HX_APP_VERSION_CLOUD_413 = '4.2.19';
   const HX_LISTAR_ENDPOINT_413 = '/.netlify/functions/listar-presupuestos';
   const HX_LEER_ENDPOINT_413 = '/.netlify/functions/leer-presupuesto';
   let hxCloudLista413 = [];
@@ -7309,9 +7084,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   },true);
 
   document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = '· Creado por David Corregidor';
-    });
   });
 
   window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
@@ -7332,7 +7104,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     refrescarPresupuestosGuardados();
     window.dispatchEvent(new CustomEvent('hiperajax:presupuestos-importados'));
   };
-  window.HX_APP_VERSION='';
 })();
 
 
@@ -7393,11 +7164,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     event.stopImmediatePropagation();
     hxRenombrarCloud414();
   },true);
-
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.creator').forEach(el=>el.textContent = '· Creado por David Corregidor');
-  });
-  window.HX_APP_VERSION='';
 })();
 
 
@@ -7547,11 +7313,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   },true);
 
   document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = '· Creado por David Corregidor';
-    });
   });
-  window.HX_APP_VERSION='';
 })();
 
 /* =====================================================
@@ -7562,7 +7324,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
    - Muestra identificador en cabecera y mejora las tarjetas.
    ===================================================== */
 (()=>{
-  const HX_VERSION_416='4.1.2';
   const HX_DELETE_416='/.netlify/functions/borrar-presupuesto';
   let hxDeleting416=false;
 
@@ -7721,13 +7482,9 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     if(root){
       new MutationObserver(()=>hxEnhanceCards416()).observe(root,{childList:true,subtree:true});
     }
-    document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent = '· Creado por David Corregidor';
-    });
   });
 
   window.HX_GET_IDENTIFICADOR_ACTUAL=()=>String(hxIdentificadorActual || hxIdentifier416(hxSelected416()) || '').trim();
-  window.HX_APP_VERSION='';
 })();
 
 
@@ -7815,8 +7572,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     e.preventDefault();
     window.HX_ABRIR_PRESUPUESTO?.(id);
   },false);
-
-  window.HX_APP_VERSION='';
 })();
 
 
@@ -7890,6 +7645,4 @@ descripcionProducto = function(p){
     });
     panel.classList.remove('hidden');
   };
-
-  window.HX_APP_VERSION='';
 })();
