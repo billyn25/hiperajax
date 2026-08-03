@@ -9896,3 +9896,22 @@ body.light-mode .header-toolbar > .header-theme:hover,body.light-mode .header-to
   }
 }
 @media print{.header{display:none!important}}
+
+
+/* === CABECERA FINAL: PDF/XLS centrados === */
+.header-action.text-action{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0!important;
+  line-height:1!important;
+  font-size:15px!important;
+  font-weight:800!important;
+  letter-spacing:0!important;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+}
+@media (max-width:760px){
+  .header-action.text-action{
+    font-size:13px!important;
+  }
+}
