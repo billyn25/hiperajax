@@ -61,7 +61,7 @@
   });
 
   const CACHE = new Map();
-  let cachedLength = -1;
+  let cachedSignature = '';
 
   function normalize(value=''){
     return String(value)
@@ -94,6 +94,13 @@
     return [ref.replace(/^AJ-/i,'').replace(/-(W|B)$/i,'').replace(/-/g,' '), short].join(' ');
   }
 
+  function searchValue(value){
+    if(value === undefined || value === null) return '';
+    if(Array.isArray(value)) return value.map(searchValue).filter(Boolean).join(' ');
+    if(typeof value === 'object') return Object.values(value).map(searchValue).filter(Boolean).join(' ');
+    return String(value).trim();
+  }
+
   function productSearchFields(product){
     const p = product || {};
     return unique([
@@ -112,7 +119,7 @@
       p._family,
       p._official,
       p._search175
-    ].map(value=>String(value || '').trim()));
+    ].map(searchValue));
   }
 
   function buildRecord(product, index){
@@ -225,12 +232,19 @@
     return meaningful && score >= 8 ? score : 0;
   }
 
+  function catalogSignature(list){
+    if(!list.length) return '0';
+    const first=list[0]||{}, middle=list[Math.floor(list.length/2)]||{}, last=list[list.length-1]||{};
+    return [list.length, first.name, first.description, middle.name, middle.description, last.name, last.description].map(searchValue).join('|');
+  }
+
   function rank(products, rawQuery, limit=300){
     const list = Array.isArray(products) ? products : [];
     const query = expandedQuery(rawQuery);
     if(!query.norm) return [];
-    const key = `${query.norm}|${list.length}|${limit}`;
-    if(cachedLength !== list.length){ CACHE.clear(); cachedLength=list.length; }
+    const signature=catalogSignature(list);
+    const key = `${query.norm}|${signature}|${limit}`;
+    if(cachedSignature !== signature){ CACHE.clear(); cachedSignature=signature; }
     if(CACHE.has(key)) return CACHE.get(key);
 
     const ranked = list.map((product,index)=>{
@@ -265,7 +279,8 @@
     compact,
     rank,
     scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),
-    version:'5.0-unificado',
+    clearCache:()=>{ CACHE.clear(); cachedSignature=''; },
+    version:'5.1-unificado',
     catalogFilters:CATALOG_FILTERS
   };
   global.HXA_KNOWLEDGE_ENGINE = engine;
@@ -339,23 +354,4 @@
     return rows;
   };
 
-  global.HX_APP_VERSION='';
-
-  const SEARCH_PLACEHOLDER='Buscar por referencia o descripción…';
-  function applySharedUiPolicy(){
-    ['buscador','catalogFilter','exploreFilter210'].forEach(id=>{
-      const input=document.getElementById(id);
-      if(input) input.placeholder=SEARCH_PLACEHOLDER;
-    });
-    document.querySelectorAll('.creator').forEach(el=>{
-      el.textContent='· Creado por David Corregidor';
-    });
-  }
-  if(typeof document!=='undefined'){
-    document.addEventListener('DOMContentLoaded',applySharedUiPolicy);
-    document.addEventListener('input',e=>{
-      if(e.target && e.target.id==='exploreFilter210') e.target.placeholder=SEARCH_PLACEHOLDER;
-    },true);
-    setTimeout(applySharedUiPolicy,0);
-  }
 })(typeof window!=='undefined' ? window : globalThis);
