@@ -241,7 +241,6 @@ function cargarSelect(){
 }
 
 
-const APP_VERSION = 'v1.9.5 PRO';
 const AJAX_KNOWLEDGE = [{"n":"StarterKit","f":"Kits básicos","d":"Kit con Hub, MotionProtect, DoorProtect y SpaceControl"},{"n":"StarterKit (4G)","f":"Kits básicos","d":"Kit con Hub 2 (4G), MotionProtect, DoorProtect y SpaceControl"},{"n":"StarterKit 2","f":"Kits básicos","d":"Kit con Hub 2 (2G), MotionProtect, DoorProtect y SpaceControl"},{"n":"StarterKit Cam","f":"Kits básicos","d":"Kit con Hub 2 (2G), MotionCam, DoorProtect y SpaceControl"},{"n":"StarterKit Cam Plus","f":"Kits básicos","d":"Kit con Hub 2 Plus, MotionCam, DoorProtect y SpaceControl"},{"n":"StarterKit Plus","f":"Kits básicos","d":"Kit con Hub Plus, MotionProtect, DoorProtect y SpaceControl"},{"n":"EN54 Fire Hub Jeweller","f":"Hubs","d":"ECI inalámbrico para un sistema de alarma contra incendios, que admite dispositivos de protección contra intrusiones"},{"n":"Hub (2G) Jeweller","f":"Hubs","d":"Panel de control inalámbrico. Admite Ethernet y una tarjeta SIM (2G)"},{"n":"Hub (4G) Jeweller","f":"Hubs","d":"Panel de control inalámbrico. Admite Ethernet y una tarjeta SIM (LTE)"},{"n":"Hub 2 (2G) Jeweller","f":"Hubs","d":"Panel de control inalámbrico con soporte para la fotoverificación. Admite Ethernet y dos tarjetas SIM (2G)"},{"n":"Hub 2 (4G) Jeweller","f":"Hubs","d":"Panel de control inalámbrico con soporte para la fotoverificación. Admite Ethernet y dos tarjetas SIM (2G/3G/LTE)"},{"n":"Hub 2 Plus Jeweller","f":"Hubs","d":"Panel de control inalámbrico con soporte para la fotoverificación. Admite Wi-Fi, Ethernet y dos tarjetas SIM (2G/3G/LTE)"},{"n":"Hub BP Jeweller","f":"Hubs","d":"Panel de control inalámbrico alimentado por batería. Admite la verificación fotográfica. Se conecta mediante dos tarjetas SIM (2G/3G/LTE)."},{"n":"Hub BP Jeweller (without casing)","f":"Hubs","d":"Panel de control inalámbrico alimentado por batería diseñado para su instalación en una carcasa Ajax. Admite verificación fotográfica. Se conecta mediante dos tarjetas SIM (2G/3G/LTE)."},{"n":"Superior Hub G3 Jeweller","f":"Hubs","d":"Panel de control inalámbrico con soporte para fotoverificación. Puede conectarse a través de Ethernet, Wi-Fi y dos tarjetas SIM (2G/LTE)."},{"n":"Superior Hub Hybrid (2G)","f":"Hubs","d":"Panel de control híbrido con soporte para la fotoverificación. Funciona con dispositivos Fibra y Jeweller. Admite Ethernet y dos tarjetas SIM (2G)"},{"n":"Superior Hub Hybrid (4G)","f":"Hubs","d":"Panel de control híbrido con soporte para la fotoverificación. Funciona con dispositivos Fibra y Jeweller. Admite Ethernet y dos tarjetas SIM (2G/3G/LTE)"},{"n":"Superior Hub Hybrid (4G) (without casing)","f":"Hubs","d":"Panel de control híbrido diseñado para su instalación en la Case D. Funciona con dispositivos Fibra y Jeweller. Puede conectarse a través de Ethernet y dos tarjetas SIM (2G/3G/LTE)."},{"n":"Superior Hub Hybrid 2","f":"Hubs","d":"Panel de control híbrido para instalaciones medianas y grandes. Funciona con hasta 250 dispositivos Fibra y Jeweller. Puede conectarse a través de Ethernet y dos tarjetas SIM (2G/3G/LTE)."},{"n":"Superior Hub Hybrid 2 (without casing)","f":"Hubs","d":"Panel de control híbrido para instalaciones medianas y grandes. Diseñado para su instalación en una carcasa Ajax compatible. Funciona con hasta 250 dispositivos Fibra y Jeweller. Puede conectarse a través de Ethernet y dos tarjetas SIM (2G/3G/LTE)."},{"n":"Superior MegaHub","f":"Hubs","d":"Panel de control híbrido para los proyectos más grandes. Funciona con hasta 999 dispositivos Fibra y Jeweller. Puede conectarse a través de Ethernet, Wi-Fi y dos tarjetas SIM (2G/LTE)."},{"n":"Superior MegaHub (without casing)","f":"Hubs","d":"Panel de control híbrido para los proyectos más grandes. Diseñado para su instalación en una carcasa Ajax compatible. Funciona con hasta 999 dispositivos Fibra y Jeweller. Puede conectarse a través de Ethernet, Wi-Fi y dos tarjetas SIM (2G/LTE)."},{"n":"EN54 Fire ReX Jeweller","f":"Repetidores de señal","d":"Repetidor de señal de radio inalámbrico direccionable para un sistema de alarma contra incendios. Admite dispositivos de protección contra intrusiones"},{"n":"ReX 2 Jeweller","f":"Repetidores de señal","d":"Repetidor de señal de radio inalámbrico que admite los protocolos Jeweller y Wings"},{"n":"ReX Jeweller","f":"Repetidores de señal","d":"Repetidor de señal de radio inalámbrico"},{"n":"Superior ReX G3 Jeweller","f":"Repetidores de señal","d":"Repetidor de señal de radio inalámbrico con soporte para la fotoverificación y conexión Ethernet"},{"n":"DoorProtect Jeweller","f":"Detectores de apertura","d":"Detector inalámbrico de apertura con relé reed"},{"n":"DoorProtect Plus Jeweller","f":"Detectores de apertura","d":"Detector inalámbrico y combinado de apertura, impacto e inclinación con relé reed y acelerómetro"},{"n":"Superior DoorProtect Fibra","f":"Detectores de apertura","d":"Detector cableado de apertura para interiores"},{"n":"Superior DoorProtect Plus Fibra","f":"Detectores de apertura","d":"Detector cableado de apertura con sensores de impacto e inclinación"},{"n":"Superior DoorProtect G3 Fibra","f":"Detectores de apertura","d":"Detector de apertura con sensores de impacto, inclinación y enmascaramiento magnético"},{"n":"Superior DoorProtect G3 Jeweller","f":"Detectores de apertura","d":"Detector inalámbrico de apertura con relé reed y sensores de impacto, inclinación y enmascaramiento"},{"n":"Superior DoorProtect Jeweller","f":"Detectores de apertura","d":"Detector inalámbrico de apertura con dos relés reed. Versión Superior"},{"n":"Superior DoorProtect Plus Jeweller","f":"Detectores de apertura","d":"Detector inalámbrico y combinado de apertura, impacto e inclinación con dos relés reed y acelerómetro. Versión Superior"},{"n":"GlassProtect Jeweller","f":"Detectores de rotura de cristal","d":"Detector inalámbrico de rotura de cristal con micrófono"},{"n":"Superior GlassProtect Fibra","f":"Detectores de rotura de cristal","d":"Detector cableado de rotura de cristal con micrófono"},{"n":"Superior GlassProtect Jeweller","f":"Detectores de rotura de cristal","d":"Detector inalámbrico de rotura de cristal con micrófono. Versión Superior"},{"n":"CombiProtect Jeweller","f":"Detectores de movimiento","d":"Detector IR e inalámbrico de movimiento y de rotura de cristal con micrófono"},{"n":"Curtain Outdoor Jeweller","f":"Detectores de movimiento","d":"Detector inalámbrico de movimiento tipo cortina de doble tecnología para exteriores e interiores"},{"n":"DualCurtain Outdoor Jeweller","f":"Detectores de movimiento","d":"Detector IR inalámbrico y bidireccional de movimiento tipo cortina"},{"n":"MotionCam (PhOD) Jeweller","f":"Detectores de movimiento","d":"Detector PIR e inalámbrico de movimiento con posibilidades ampliadas de verificación fotográfica"},{"n":"MotionCam Jeweller","f":"Detectores de movimiento","d":"Detector IR e inalámbrico de movimiento que admite la función de foto por alarma"},{"n":"MotionCam Outdoor HighMount (PhOD) Jeweller","f":"Detectores de movimiento","d":"Detector PIR e inalámbrico de movimiento con posibilidades ampliadas de verificación fotográfica. Para instalación en exteriores a una altura de 2–4 m."},{"n":"MotionCam Outdoor Jeweller","f":"Detectores de movimiento","d":"Detector PIR e inalámbrico de movimiento que toma fotos por alarma. Para exteriores e interiores"},{"n":"MotionProtect Curtain Jeweller","f":"Detectores de movimiento","d":"Detector IR e inalámbrico de movimiento tipo cortina"},{"n":"MotionProtect Jeweller","f":"Detectores de movimiento","d":"Detector IR e inalámbrico de movimiento"},{"n":"MotionProtect Plus Jeweller","f":"Detectores de movimiento","d":"Detector IR e inalámbrico de movimiento con sensor de microondas de banda K adicional"},{"n":"Superior CombiProtect Fibra","f":"Detectores de movimiento","d":"Detector IR cableado y combinado de movimiento y de rotura de cristal con micrófono"},{"n":"Superior CombiProtect Jeweller","f":"Detectores de movimiento","d":"Detector IR inalámbrico y combinado de movimiento y de rotura de cristal con micrófono. Versión Superior"},{"n":"Superior MotionCam (PhOD) Fibra","f":"Detectores de movimiento","d":"Detector PIR y cableado de movimiento con posibilidades ampliadas de verificación fotográfica"},{"n":"Superior MotionCam (PhOD) Jeweller","f":"Detectores de movimiento","d":"Detector PIR e inalámbrico de movimiento con posibilidades ampliadas de verificación fotográfica"},{"n":"Superior MotionCam AM (PhOD) Jeweller","f":"Detectores de movimiento","d":"Detector PIR e inalámbrico de movimiento con un sistema antienmascaramiento y posibilidades ampliadas de verificación fotográfica. Admite resolución HD."},{"n":"Superior MotionCam Fibra","f":"Detectores de movimiento","d":"Detector IR y cableado de movimiento que admite la función de foto por alarma"},{"n":"Superior MotionCam HD (PhOD) Jeweller","f":"Detectores de movimiento","d":"Detector PIR e inalámbrico de movimiento con posibilidades ampliadas de verificación fotográfica. Admite resolución HD."},{"n":"Superior MotionProtect Fibra","f":"Detectores de movimiento","d":"Detector IR y cableado de movimiento"},{"n":"Superior MotionProtect G3 Fibra","f":"Detectores de movimiento","d":"Detector PIR y cableado de movimiento con un sistema antienmascaramiento"},{"n":"Superior MotionProtect Jeweller","f":"Detectores de movimiento","d":"Detector IR e inalámbrico de movimiento. Versión Superior"},{"n":"Superior MotionProtect Plus Fibra","f":"Detectores de movimiento","d":"Detector IR y cableado de movimiento con sensor de microondas de banda K adicional"},{"n":"Superior MotionProtect Plus G3 Fibra","f":"Detectores de movimiento","d":"Detector IR y cableado de movimiento con un sensor de microondas de banda K adicional y sistema antienmascaramiento"},{"n":"Superior MotionProtect Plus Jeweller","f":"Detectores de movimiento","d":"Detector IR e inalámbrico de movimiento con sensor de microondas de banda K adicional. Versión Superior"},{"n":"Curtain Outdoor Mini Jeweller","f":"Detectores de movimiento","d":"Detector inalámbrico de movimiento tipo cortina de doble tecnología para exteriores e interiores"},{"n":"CurtainCam Outdoor HighMount (PhOD) Jeweller","f":"Detectores de movimiento","d":"Detector inalámbrico de movimiento tipo cortina de doble tecnología con posibilidades ampliadas de verificación fotográfica. Para instalación en exteriores a una altura de 2–4 m."},{"n":"MotionCam Outdoor (PhOD) Jeweller","f":"Detectores de movimiento","d":"Detector PIR e inalámbrico de movimiento con posibilidades ampliadas de verificación fotográfica. Para exteriores e interiores"},{"n":"MotionProtect Outdoor Jeweller","f":"Detectores de movimiento","d":"Detector IR e inalámbrico de movimiento para exteriores e interiores"},{"n":"Superior MotionCam G3 (PhOD) Jeweller","f":"Detectores de movimiento","d":"Detector PIR e inalámbrico de movimiento con posibilidades ampliadas de verificación fotográfica. Admite resolución HD."},{"n":"Superior MotionProtect G3 Jeweller","f":"Detectores de movimiento","d":"Detector PIR e inalámbrico de movimiento con sistema antienmascaramiento"},{"n":"Superior MotionProtect Plus G3 Jeweller","f":"Detectores de movimiento","d":"Detector PIR e inalámbrico de movimiento con un sensor de microondas de banda K adicional y sistema antienmascaramiento"},{"n":"Superior SeismoProtect G3 Fibra","f":"Detectores sísmicos","d":"Detector sísmico cableado con un sensor de impacto adicional"},{"n":"HomeSiren Jeweller","f":"Sirenas","d":"Sirena inalámbrica"},{"n":"StreetSiren DoubleDeck Jeweller","f":"Sirenas","d":"Sirena inalámbrica con un soporte para un panel frontal personalizable"},{"n":"StreetSiren Jeweller","f":"Sirenas","d":"Sirena inalámbrica para interiores y exteriores"},{"n":"Superior HomeSiren Fibra","f":"Sirenas","d":"Sirena cableada con conector LED"},{"n":"Superior HomeSiren G3 Jeweller","f":"Sirenas","d":"Sirena inalámbrica con protección antisabotaje avanzada y conector LED"},{"n":"Superior HomeSiren Jeweller","f":"Sirenas","d":"Sirena inalámbrica. Versión Superior"},{"n":"Superior StreetSiren DoubleDeck Fibra","f":"Sirenas","d":"Sirena cableada con un soporte para un panel frontal personalizable"},{"n":"Superior StreetSiren DoubleDeck Jeweller","f":"Sirenas","d":"Sirena inalámbrica con un soporte para un panel frontal personalizable. Versión Superior"},{"n":"Superior StreetSiren Fibra","f":"Sirenas","d":"Sirena cableada para interiores y exteriores"},{"n":"Superior StreetSiren Plus Fibra","f":"Sirenas","d":"Sirena cableada con protección antisabotaje avanzada y una lista ampliada de certificados de cumplimiento. Para exteriores e interiores."},{"n":"Superior StreetSiren Plus G3 Jeweller","f":"Sirenas","d":"Sirena inalámbrica con protección antisabotaje avanzada y una lista ampliada de certificados de cumplimiento. Para exteriores e interiores."},{"n":"Superior StreetSiren Plus Jeweller","f":"Sirenas","d":"Sirena inalámbrica con protección antisabotaje avanzada y una lista ampliada de certificados de cumplimiento. Para exteriores e interiores."},{"n":"Ajax SpaceControl Jeweller","f":"Botones y mandos","d":"Mando inalámbrico con botón de pánico y control de los modos de seguridad"},{"n":"Ajax Superior SpaceControl Jeweller","f":"Botones y mandos","d":"Mando inalámbrico con botón de pánico y control de los modos de seguridad. Versión Superior"},{"n":"Button Jeweller","f":"Botones y mandos","d":"Botón de pánico inalámbrico / botón inteligente"},{"n":"DoubleButton Jeweller","f":"Botones y mandos","d":"Botón de emergencia inalámbrico"},{"n":"Superior Button Jeweller","f":"Botones y mandos","d":"Botón de pánico/botón inteligente e inalámbrico. Versión Superior"},{"n":"Superior DoubleButton G3 Jeweller","f":"Botones y mandos","d":"Botón inalámbrico de emergencia para instalaciones de alto riesgo"},{"n":"SpeakerPhone Jeweller","f":"Módulos de voz","d":"Módulo de voz inalámbrico para la verificación de alarmas"},{"n":"KeyPad Jeweller","f":"Teclados","d":"Teclado inalámbrico y táctil"},{"n":"KeyPad Plus Jeweller","f":"Teclados","d":"Teclado inalámbrico y táctil compatible con tarjetas y mandos cifrados sin contacto"},{"n":"Superior KeyPad Fibra","f":"Teclados","d":"Teclado cableado y táctil"},{"n":"KeyPad Outdoor Jeweller","f":"Teclados","d":"Teclado inalámbrico que admite la autenticación mediante Pass, Tag, smartphones y códigos. Para exteriores e interiores."},{"n":"KeyPad TouchScreen Jeweller","f":"Teclados","d":"Teclado inalámbrico con pantalla táctil que admite la autenticación con smartphones, Pass, Tag y códigos"},{"n":"Superior KeyPad Outdoor Fibra","f":"Teclados","d":"Teclado cableado para exteriores e interiores que admite la autenticación mediante Pass, Tag, smartphones y códigos"},{"n":"Superior KeyPad Plus G3 Jeweller","f":"Teclados","d":"Teclado inalámbrico con botones táctiles que admite la autenticación mediante Pass, Tag y códigos"},{"n":"Superior KeyPad Plus Jeweller","f":"Teclados","d":"Teclado inalámbrico y táctil compatible con tarjetas y mandos cifrados sin contacto. Versión Superior"},{"n":"Superior KeyPad TouchScreen Fibra","f":"Teclados","d":"Teclado cableado con pantalla táctil y autorización sin contacto"},{"n":"Superior KeyPad TouchScreen G3 Jeweller","f":"Teclados","d":"Teclado inalámbrico con pantalla táctil que admite la autenticación mediante Pass, Tag, smartphones y códigos"},{"n":"Ajax Superior BulletCam HLVF (4 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal P-Iris motorizado de 2.8–12 mm, iluminación híbrida, True WDR, micrófono y altavoz integrados, entradas/salidas de audio y alarma y PoE/12 V. Para exteriores e interiores."},{"n":"Ajax Superior TurretCam HLVF (4 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal P-Iris motorizado de 2.8–12 mm, iluminación híbrida, True WDR, micrófono y altavoz integrados, entradas/salidas de audio y alarma y PoE/12 V. Para exteriores e interiores."},{"n":"Ajax Superior TurretCam HLVF (8 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal P-Iris motorizado de 2.8–12 mm, iluminación híbrida, True WDR, micrófono y altavoz integrados, entradas/salidas de audio y alarma y PoE/12 V. Para exteriores e interiores."},{"n":"BulletCam HL (5 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"BulletCam HL (5 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"BulletCam HL (8 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"BulletCam HL (8 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"DomeCam Mini (5 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"DomeCam Mini (5 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"DomeCam Mini (8 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"DomeCam Mini (8 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"DomeCam Mini HL (5 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"DomeCam Mini HL (5 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"DomeCam Mini HL (8 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"DomeCam Mini HL (8 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"TurretCam (5 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"TurretCam (5 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"TurretCam (8 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"TurretCam (8 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"TurretCam HL (5 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"TurretCam HL (5 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"TurretCam HL (8 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"TurretCam HL (8 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación híbrida, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"Ajax Superior BulletCam HLVF (8 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal P-Iris motorizado de 2.8–12 mm, iluminación híbrida, True WDR, micrófono y altavoz integrados, entradas/salidas de audio y alarma y PoE/12 V. Para exteriores e interiores."},{"n":"Ajax Superior DomeCam HLVF (4 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal P-Iris motorizado de 2.8–12 mm, iluminación híbrida, True WDR, micrófono y altavoz integrados, entradas/salidas de audio y alarma y PoE/12 V. Para exteriores e interiores."},{"n":"Ajax Superior DomeCam HLVF (8 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal P-Iris motorizado de 2.8–12 mm, iluminación híbrida, True WDR, micrófono y altavoz integrados, entradas/salidas de audio y alarma y PoE/12 V. Para exteriores e interiores."},{"n":"BulletCam (5 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"BulletCam (5 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"BulletCam (8 Mp/2.8 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 110°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"BulletCam (8 Mp/4 mm)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un ángulo de visión de 85°, iluminación IR, True WDR, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"BulletCam HLVF (5 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal motorizado de 2.8–12 mm, iluminación híbrida, True WDR, entradas/salidas de audio y alarma, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"BulletCam HLVF (8 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal motorizado de 2.8–12 mm, iluminación híbrida, True WDR, entradas/salidas de audio y alarma, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"DomeCam HLVF (5 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal motorizado de 2.8–12 mm, iluminación híbrida, True WDR, entradas/salidas de audio y alarma, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"DomeCam HLVF (8 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal motorizado de 2.8–12 mm, iluminación híbrida, True WDR, entradas/salidas de audio y alarma, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"TurretCam HLVF (5 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal motorizado de 2.8–12 mm, iluminación híbrida, True WDR, entradas/salidas de audio y alarma, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"TurretCam HLVF (8 Mp)","f":"Cámaras cableadas","d":"Cámara IP de seguridad cableada con tecnología IA, un objetivo varifocal motorizado de 2.8–12 mm, iluminación híbrida, True WDR, entradas/salidas de audio y alarma, micrófono y PoE/12 V. Para exteriores e interiores."},{"n":"IndoorCam","f":"Cámaras Wi-Fi","d":"Cámara de seguridad Wi-Fi para interiores con sensor de movimiento PIR e IA integrada"},{"n":"DoorBell","f":"Timbres","d":"Vídeo timbre con IA integrada, sensor PIR y control a través de apps"},{"n":"Ajax Superior NVR H2DAI16PAC (16-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 16 canales con IA, salida HDMI 4K, interfaz Gigabit Ethernet, 16 puertos PoE y soporte para 2 discos duros sustituibles en caliente"},{"n":"Ajax Superior NVR H2DAI16PAC (32-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 32 canales con IA, salida HDMI 4K, interfaz Gigabit Ethernet, 16 puertos PoE y soporte para 2 discos duros sustituibles en caliente"},{"n":"Ajax Superior NVR H2DAI8PAC (16-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 16 canales con IA, salida HDMI 4K, interfaz Gigabit Ethernet, ocho puertos PoE y soporte para dos discos duros sustituibles en caliente"},{"n":"Ajax Superior NVR H2DAI8PAC (8-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 8 canales con IA, salida HDMI 4K, interfaz Gigabit Ethernet, ocho puertos PoE y soporte para dos discos duros sustituibles en caliente"},{"n":"NVR (16-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 16 canales"},{"n":"NVR (8-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 8 canales"},{"n":"NVR DC (16-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red para 16 canales alimentado por una fuente de energía de baja tensión"},{"n":"NVR DC (8-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red para 8 canales alimentado por una fuente de energía de baja tensión"},{"n":"NVR H2D16PAC (16-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 16 canales con salida HDMI 4K, 16 puertos PoE y soporte para 2 discos duros sustituibles en caliente"},{"n":"NVR H2D8PAC (16-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 16 canales con salida HDMI 4K, ocho puertos PoE y soporte para 2 discos duros sustituibles en caliente"},{"n":"NVR H2D8PAC (8-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 8 canales con salida HDMI 4K, ocho puertos PoE y soporte para 2 discos duros sustituibles en caliente"},{"n":"NVR H2DAC (16-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 16 canales con salida HDMI 4K y soporte para 2 discos duros sustituibles en caliente"},{"n":"NVR H2DAC (8-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 8 canales con salida HDMI 4K y soporte para 2 discos duros sustituibles en caliente"},{"n":"NVR HAC (16-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 16 canales con salida HDMI"},{"n":"NVR HAC (8-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 8 canales con salida HDMI"},{"n":"Ajax Superior NVR H2DAI2GAC (16-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 16 canales con IA, salida HDMI 4K, 2 puertos Gigabit Ethernet y soporte para 2 discos duros sustituibles en caliente"},{"n":"Ajax Superior NVR H2DAI2GAC (32-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 32 canales con IA, salida HDMI 4K, 2 puertos Gigabit Ethernet y soporte para 2 discos duros sustituibles en caliente"},{"n":"Ajax Superior NVR H2DAI2GAC (8-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 8 canales con IA, salida HDMI 4K, 2 puertos Gigabit Ethernet y soporte para 2 discos duros sustituibles en caliente"},{"n":"NVR HDC (16-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 16 canales con salida HDMI, alimentado por una fuente de energía de baja tensión"},{"n":"NVR HDC (8-ch)","f":"Grabadores de vídeo en red","d":"Grabador de vídeo en red de 8 canales con salida HDMI, alimentado por una fuente de energía de baja tensión"},{"n":"EN54 FireProtect (Heat) Jeweller","f":"Detectores de incendio","d":"Detector de calor puntual inalámbrico direccionable"},{"n":"EN54 FireProtect (Heat/Smoke) Jeweller","f":"Detectores de incendio","d":"Detector de calor y de humo puntual inalámbrico direccionable"},{"n":"EN54 FireProtect (Heat/Sounder) Jeweller","f":"Detectores de incendio","d":"Detector de calor puntual inalámbrico direccionable combinado con una sirena de alarma de incendio"},{"n":"EN54 FireProtect (Smoke) Jeweller","f":"Detectores de incendio","d":"Detector de humo puntual inalámbrico direccionable"},{"n":"FireProtect 2 AC (CO) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de incendio monóxido de carbono alimentado por la red eléctrica"},{"n":"FireProtect 2 AC (Heat) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de incendio de calor alimentado por la red eléctrica"},{"n":"FireProtect 2 AC (Heat/CO) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de incendio de calor y monóxido de carbono alimentado por la red eléctrica"},{"n":"FireProtect 2 AC (Heat/Smoke) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de incendio de humo y calor alimentado por la red eléctrica"},{"n":"FireProtect 2 AC (Heat/Smoke/CO) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de incendio de humo, calor y monóxido de carbono alimentado por la red eléctrica"},{"n":"FireProtect 2 RB (CO) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de CO con baterías reemplazables"},{"n":"FireProtect 2 RB (CO) UL Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de incendio con sensor de CO. Versión con baterías reemplazables"},{"n":"FireProtect 2 RB (Heat) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de calor con baterías reemplazables"},{"n":"FireProtect 2 RB (Heat) UL Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de incendio con sensor de calor. Versión con baterías reemplazables"},{"n":"FireProtect 2 RB (Heat/CO) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico y combinado de calor y CO con baterías reemplazables"},{"n":"FireProtect 2 RB (Heat/Smoke) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico y combinado de calor y humo con baterías reemplazables"},{"n":"FireProtect 2 RB (Heat/Smoke) UL Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico y combinado de calor y humo con baterías reemplazables"},{"n":"FireProtect 2 RB (Heat/Smoke/CO) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico y combinado de calor, humo y CO con baterías reemplazables"},{"n":"FireProtect 2 RB (Heat/Smoke/CO) UL Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico y combinado de calor y humo con baterías reemplazables"},{"n":"FireProtect 2 SB (CO) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de CO con baterías integradas"},{"n":"FireProtect 2 SB (Heat) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de calor con baterías integradas"},{"n":"FireProtect 2 SB (Heat/CO) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico y combinado de calor y CO con baterías integradas"},{"n":"FireProtect 2 SB (Heat/Smoke) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico y combinado de calor y humo con baterías integradas"},{"n":"FireProtect 2 SB (Heat/Smoke/CO) Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico y combinado de calor, humo y CO con baterías integradas"},{"n":"FireProtect Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico de incendio con sensores de calor y humo. Versión con baterías reemplazables"},{"n":"FireProtect Plus Jeweller","f":"Detectores de incendio","d":"Detector inalámbrico y combinado de calor, humo y CO con baterías reemplazables"},{"n":"EN54 FireProtect (Smoke/Sounder) Jeweller","f":"Detectores de incendio","d":"Detector de humo puntual inalámbrico direccionable combinado con una sirena de alarma de incendio"},{"n":"EN54 FireProtect (Sounder) Jeweller","f":"Dispositivos de alarma de incendio","d":"Sirena de alarma de incendio inalámbrica direccionable"},{"n":"EN54 FireProtect (Sounder/VAD) Jeweller","f":"Dispositivos de alarma de incendio","d":"Sirena de alarma de incendio inalámbrica direccionable combinada con un Flash-dispositivo de alarma visual (DAV)"},{"n":"EN54 FireProtect (VAD) Jeweller","f":"Dispositivos de alarma de incendio","d":"Flash-dispositivo de alarma de incendio visual (DAV) inalámbrico y direccionable"},{"n":"ManualCallPoint (Blue) Jeweller","f":"Pulsadores manuales de alarma","d":"Botón inalámbrico reajustable y programable de color azul"},{"n":"ManualCallPoint (Green) Jeweller","f":"Pulsadores manuales de alarma","d":"Botón inalámbrico reajustable con escenarios programables. Versión de color verde."},{"n":"ManualCallPoint (Red) Jeweller","f":"Pulsadores manuales de alarma","d":"Botón inalámbrico reajustable para la activación manual de la alarma de incendio con escenarios programables. Versión de color rojo"},{"n":"ManualCallPoint (White) Jeweller","f":"Pulsadores manuales de alarma","d":"Botón inalámbrico reajustable con escenarios programables. Versión de color blanco."},{"n":"ManualCallPoint (Yellow) Jeweller","f":"Pulsadores manuales de alarma","d":"Botón inalámbrico reajustable con escenarios programables. Versión de color amarillo."},{"n":"LightSwitch (1-gang) [120] Jeweller","f":"Interruptores de luz","d":"Interruptor de luz inteligente y táctil de 1 banda"},{"n":"LightSwitch (1-gang) Jeweller","f":"Interruptores de luz","d":"Interruptor de luz inteligente y táctil de 1 banda"},{"n":"LightSwitch (2-gang) Jeweller","f":"Interruptores de luz","d":"Interruptor de luz inteligente y táctil de 2 bandas"},{"n":"LightSwitch (2-gang/2-way) Jeweller","f":"Interruptores de luz","d":"Interruptor de luz inteligente y táctil de 2 bandas y de 2 vías"},{"n":"LightSwitch (2-way) Jeweller","f":"Interruptores de luz","d":"Interruptor de luz inteligente y táctil de 2 vías"},{"n":"LightSwitch (3-way) [120] Jeweller","f":"Interruptores de luz","d":"Interruptor de luz inteligente y táctil de 3 vías"},{"n":"LightSwitch (4-way) [120] Jeweller","f":"Interruptores de luz","d":"Interruptor de luz inteligente y táctil de 4 vías"},{"n":"LightSwitch (Crossover) Jeweller","f":"Interruptores de luz","d":"Interruptor de luz inteligente y táctil de cruce"},{"n":"LightSwitch (Dimmer) Jeweller","f":"Interruptores de luz","d":"Dimmer inteligente y táctil"},{"n":"CoverPlate","f":"Bases de enchufe","d":"Tapa de la caja de montaje"},{"n":"Outlet (basic) [type E]","f":"Bases de enchufe","d":"Base de enchufe con conexión a tierra"},{"n":"Outlet (basic) [type F]","f":"Bases de enchufe","d":"Base de enchufe con conexión a tierra"},{"n":"Outlet (LAN)","f":"Bases de enchufe","d":"Base de enchufe Ethernet con dos puertos"},{"n":"Outlet [type E] Jeweller","f":"Bases de enchufe","d":"Base de enchufe inteligente con monitor de consumo eléctrico"},{"n":"Outlet [type F] Jeweller","f":"Bases de enchufe","d":"Base de enchufe inteligente con monitor de consumo eléctrico"},{"n":"Socket (type B) Jeweller","f":"Enchufes inteligentes","d":"Enchufe inteligente con monitor de consumo eléctrico"},{"n":"Socket (type F) Jeweller","f":"Enchufes inteligentes","d":"Enchufe inteligente con monitor de consumo eléctrico"},{"n":"Socket (type G) Jeweller","f":"Enchufes inteligentes","d":"Enchufe inteligente con monitor de consumo eléctrico"},{"n":"Relay Jeweller","f":"Relés","d":"Relé inalámbrico de contacto seco"},{"n":"Superior MultiRelay Fibra","f":"Relés","d":"Relé de cuatro canales de control remoto"},{"n":"WallSwitch Jeweller","f":"Relés","d":"Relé de potencia para controlar la alimentación de 110/230 V~ en remoto"},{"n":"LifeQuality Jeweller","f":"Detectores de calidad del aire","d":"Monitor inalámbrico de temperatura, humedad y CO₂"},{"n":"LifeQuality Lite Jeweller","f":"Detectores de calidad del aire","d":"Monitor inalámbrico de temperatura y de humedad"},{"n":"LeaksProtect Jeweller","f":"Detectores de inundación","d":"Detector inalámbrico de inundación"},{"n":"Ajax WaterStop 1\" (DN 25) Jeweller","f":"Válvulas de cierre","d":"Válvula de cierre de agua inalámbrica de control remoto"},{"n":"Ajax WaterStop ½\" (DN 15) Jeweller","f":"Válvulas de cierre","d":"Válvula de cierre de agua inalámbrica de control remoto"},{"n":"Ajax WaterStop ¾\" (DN 20) Jeweller","f":"Válvulas de cierre","d":"Válvula de cierre de agua inalámbrica de control remoto"},{"n":"EN54 I/O Module (2X2) Jeweller","f":"Módulos de integración","d":"Módulo inalámbrico direccionable con dos entradas y dos salidas para un sistema de alarma contra incendios"},{"n":"MultiTransmitter Jeweller","f":"Módulos de integración","d":"Módulo inalámbrico para integrar hasta 18 dispositivos de terceros en el sistema Ajax"},{"n":"Superior MultiTransmitter Fibra","f":"Módulos de integración","d":"Módulo cableado para integrar hasta 18 dispositivos de terceros en un sistema Ajax"},{"n":"Superior MultiTransmitter Fibra (without casing)","f":"Módulos de integración","d":"Módulo cableado para integrar hasta 18 dispositivos de terceros en un sistema Ajax"},{"n":"Superior MultiTransmitter G3 Jeweller","f":"Módulos de integración","d":"Módulo inalámbrico para integrar hasta 18 dispositivos de terceros en un sistema Ajax"},{"n":"Superior MultiTransmitter G3 Jeweller (without casing)","f":"Módulos de integración","d":"Módulo inalámbrico para integrar hasta 18 dispositivos de terceros en un sistema Ajax. Diseñado para su instalación en una carcasa Ajax."},{"n":"Superior MultiTransmitter IO (4X4) Fibra","f":"Módulos de integración","d":"Módulo cableado con 4 entradas y 4 salidas. Diseñado para integrar dispositivos de terceros en un sistema Ajax"},{"n":"Superior Transmitter Fibra","f":"Módulos de integración","d":"Módulo cableado para integrar un dispositivo de terceros en el sistema Ajax"},{"n":"Transmitter Jeweller","f":"Módulos de integración","d":"Módulo inalámbrico para integrar un dispositivo de terceros en el sistema Ajax"},{"n":"vhfBridge Jeweller","f":"Módulos de integración","d":"Módulo inalámbrico para conectar un sistema Ajax a transmisores VHF de terceros"},{"n":"vhfBridge Jeweller (without casing)","f":"Módulos de integración","d":"Módulo inalámbrico para conectar un sistema Ajax a transmisores VHF de terceros"},{"n":"Superior LineProtect Fibra","f":"Accesorios Fibra","d":"Módulo de protección de los dispositivos en la línea Fibra contra el cortocircuito y el sabotaje"},{"n":"Superior LineSplit Fibra","f":"Accesorios Fibra","d":"Módulo para dividir una línea Fibra en cuatro líneas"},{"n":"Superior LineSupply (45 W) Fibra","f":"Accesorios Fibra","d":"Módulo para la alimentación adicional con una potencia de 45 W y una línea de salida Fibra"},{"n":"Superior LineSupply (75 W) Fibra","f":"Accesorios Fibra","d":"Módulo para la alimentación adicional con una potencia de 75 W y dos líneas de salida Fibra"},{"n":"Case A (106)","f":"Carcasas","d":"Carcasa para un módulo Ajax"},{"n":"Case B (175)","f":"Carcasas","d":"Carcasa para uno o dos módulos Fibra"},{"n":"Case C (260)","f":"Carcasas","d":"Carcasa para un módulo Ajax y una batería de 7 Ah"},{"n":"Case D (430)","f":"Carcasas","d":"Carcasa para hasta ocho módulos Ajax y dos baterías de 18 Ah"},{"n":"Case E (395)","f":"Carcasas","d":"Carcasa impermeable para un hub Ajax con batería interna. Para exteriores e interiores."},{"n":"12-24V PSU (type A)","f":"Fuentes de alimentación","d":"Fuente de alimentación para el funcionamiento del dispositivo con una alimentación de baja tensión"},{"n":"12V PSU for Hub/Hub Plus/ReX","f":"Fuentes de alimentación","d":"Fuente de alimentación para el funcionamiento del dispositivo con una alimentación de baja tensión"},{"n":"12V PSU for NVR","f":"Fuentes de alimentación","d":"Fuente de alimentación para el funcionamiento del NVR con una alimentación de baja tensión"},{"n":"6V PSU (type A)","f":"Fuentes de alimentación","d":"Fuente de alimentación para el funcionamiento del dispositivo con una batería portátil"}];
 const KNOWLEDGE_STOPWORDS = new Set(['ajax','jeweller','fibra','superior','nuevo','proximamente','próximamente','type','dn','mp','ch','w','b','black','white','color','sin','casing','without','case','plus']);
 const knowledgeCache = new Map();
@@ -589,7 +588,12 @@ function aplicarTemaGuardado(){
   const tema = localStorage.getItem(STORAGE_TEMA) || 'dark';
   document.body.classList.toggle('light-mode', tema === 'light');
   const btn = $('#themeToggle');
-  if(btn) btn.textContent = tema === 'light' ? '🌙 Modo oscuro' : '☀️ Modo claro';
+  if(btn){
+    btn.textContent = tema === 'light' ? '🌙' : '☀️';
+    const destino = tema === 'light' ? 'oscuro' : 'claro';
+    btn.setAttribute('aria-label', `Cambiar a modo ${destino}`);
+    btn.title = `Cambiar a modo ${destino}`;
+  }
 }
 function alternarTema(){
   const esClaro = !document.body.classList.contains('light-mode');
@@ -1928,12 +1932,8 @@ function buscarCatalogo(term=''){
   if(!q) return productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
   return buscar(q);
 }
-// fuerza version visible
 
-/* =====================================================
-   MOTOR PRO v1.6.4 - Automatización, mecanismos, red/PoE y almacenamiento
-   CSV siempre manda: el conocimiento solo suma, nunca oculta.
-   ===================================================== */
+
 function metaProducto164(p){
   const raw = String((p && p.name) || '');
   const n = normaliza(raw);
@@ -2095,12 +2095,6 @@ scoreProducto = function(p, term){
 };
 
 
-/* =====================================================
-   MOTOR PRO v1.6.5 - Familias corregidas
-   - Red / PoE muestra switches e inyector juntos en familia.
-   - Almacenamiento muestra discos y tarjetas microSD.
-   - CSV siempre manda: producto nuevo sale por referencia/nombre.
-   ===================================================== */
 function esSwitchPoe165(p){
   const n = normaliza((p && p.name) || '');
   return n.includes('vdms105gp') || n.includes('vdms108gp') || (n.includes('switch') && n.includes('poe'));
@@ -2194,12 +2188,6 @@ try{
 }catch(e){}
 
 
-/* =====================================================
-   MOTOR PRO v1.6.6 - Fix Incendio/CO y Baterías rápidas
-   - Evita falsos positivos tipo CenterCover al buscar CO/incendio.
-   - Baterías aparecen rápido por bateria/battery/pila.
-   - Mantiene CSV como fuente principal y no oculta productos nuevos.
-   ===================================================== */
 function esProductoIncendio166(p){
   const n = normaliza((p && p.name) || '');
   return n.includes('fireprotect') || n.includes('manualcallpoint') || n.includes('en54') || n.includes('fire');
@@ -2662,13 +2650,6 @@ try{
 }catch(e){}
 
 
-/* =====================================================
-   MOTOR PRO v1.8.1 - Normalizador técnico real
-   - CSV manda siempre: referencia/nombre aparecen aunque no haya ficha.
-   - DUMMY = carcasa vacía, con icono propio.
-   - Bracket/Holder/Mount = accesorios de instalación, no armarios.
-   - Covers/Frames/Buttons/Core clasificados como mecanismos.
-   ===================================================== */
 const descripcionProductoAnterior_181 = descripcionProducto;
 const scoreProductoAnterior_181 = scoreProducto;
 
@@ -2864,9 +2845,6 @@ buscarCatalogo = function(term=''){
 };
 
 
-/* =====================================================
-   Hiper AJAX v1.8.2 PRO - Motor de catálogo estable
-   ===================================================== */
 function ref182(p){ return String((p && p.name) || '').trim(); }
 function n182(p){ return normaliza(ref182(p)); }
 function has182(n,...xs){ return xs.some(x => n.includes(normaliza(x))); }
@@ -2975,12 +2953,7 @@ const pintarCatalogPanel_PRE182 = (typeof pintarCatalogPanel==='function') ? pin
 if(pintarCatalogPanel_PRE182){ pintarCatalogPanel=function(term){ const r=pintarCatalogPanel_PRE182(term); const items=document.querySelector('#catalogItems'); if(items) items.scrollTop=0; const card=document.querySelector('#catalogModal .modal-card'); if(card) card.scrollTop=0; return r; }; }
 document.addEventListener('DOMContentLoaded',()=>{ ['#btnCatalogo','#btnFamilias'].forEach(sel=>document.querySelector(sel)?.addEventListener('click',()=>setTimeout(()=>{ document.querySelectorAll('.modal-card,#catalogItems,#resultados').forEach(x=>{try{x.scrollTop=0;}catch(e){}}); },30))); });
 
-/* =====================================================
-   PATCH v1.8.3 PRO - Familias rápidas + índice sin tocar descripciones
-   - NO sustituye descripciones existentes.
-   - Solo mejora familias, etiquetas y velocidad de búsqueda.
-   - Fuente DC / PSU / AC clasificado como Alimentación.
-   ===================================================== */
+
 function ref183(p){ return String((p && p.name) || '').trim(); }
 function n183(p){ return normaliza(ref183(p)); }
 function has183(txt,...keys){ return keys.some(k => txt.includes(normaliza(k))); }
@@ -3189,14 +3162,6 @@ try{
 }catch(e){}
 
 
-/* =====================================================
-   PATCH v1.8.6 PRO - Marca como conocimiento SIN tocar descripciones AJAX
-   Objetivo:
-   - Si brand/marca == AJAX: comportamiento anterior intacto.
-   - Si brand/marca != AJAX: usar ese texto como conocimiento de búsqueda,
-     descripción y clasificación SOLO para productos nuevos/no AJAX.
-   - No sustituye las descripciones PRO existentes de AJAX_KNOWLEDGE.
-   ===================================================== */
 function brandInfo186(p){
   const b = String((p && p.brand) || '').trim();
   if(!b) return '';
@@ -3369,14 +3334,6 @@ try{
 }catch(e){}
 
 
-/* =====================================================
-   PATCH v1.8.7 PRO - Búsqueda limpia WiFi / LTE / 4G / Hub Plus
-   - wifi / wi-fi / wi fi => SOLO AJ-HUB2PLUS.
-   - hubplus / hub plus / hub 2 plus => SOLO AJ-HUB2PLUS.
-   - lte se trata igual que 4g.
-   - 4g/lte evita falsos positivos tipo 64G, baterías o accesorios.
-   - Mantiene CSV como fuente principal para el resto de búsquedas.
-   ===================================================== */
 function q187(term){
   const q = normaliza(term).trim();
   if(q === 'wi fi' || q === 'wi-fi') return 'wifi';
@@ -3430,12 +3387,6 @@ buscarCatalogo = function(term=''){
 };
 
 
-/* =====================================================
-   PATCH v1.8.8 PRO - Descripciones precisas para KIT Ajax
-   - Las referencias AJ-HUB2KIT... dejan de describirse como "kit básico".
-   - Interpreta HUB2 / 4G / MP / DP / PHOD / PRO / color.
-   - Ajusta búsqueda para que "kit", "kit alarma", "kit 4g" y variantes prioricen kits reales.
-   ===================================================== */
 function ref188(p){ return String((p && p.name) || '').trim(); }
 function n188(p){ return normaliza(ref188(p)); }
 function isAjaxKit188(p){
@@ -3551,12 +3502,6 @@ buscarCatalogo = function(term=''){
 };
 
 
-/* =====================================================
-   PATCH v1.8.9 PRO - NVR canales precisos
-   - Corrige referencias Ajax NVR 108/208 = 8 canales.
-   - 116/216 = 16 canales, 232 = 32 canales.
-   - Evita deducir canales por coincidencias falsas dentro del código.
-   ===================================================== */
 function ref189(p){ return String((p && p.name) || '').trim(); }
 function n189(p){ return normaliza(ref189(p)); }
 function isNvrAjax189(p){
@@ -3637,12 +3582,6 @@ scoreProducto = function(p, term){
 };
 
 
-/* =====================================================
-   PATCH v1.9.0 PRO - CurtainProtect / detectores cortina
-   - Corrige CurtainProtect, CurtainOutdoor, DualCurtainOutdoor y CurtainCamOutdoor.
-   - Nunca los clasifica como puerta/ventana.
-   - Añade búsqueda precisa para "cortina", "curtain", "perimetral".
-   ===================================================== */
 function ref190(p){ return String((p && p.name) || '').trim(); }
 function n190(p){ return normaliza(ref190(p)); }
 function color190(n){
@@ -3789,12 +3728,6 @@ buscarCatalogo = function(term=''){
 };
 
 
-/* =====================================================
-   PATCH v1.9.1 PRO - Descripciones Ajax afinadas desde catálogo oficial pegado
-   - Usa textos reales del catálogo pegado por David para familias nuevas.
-   - Corrige cámaras, timbre, teclados, incendio, NVR, relés, enchufes, LifeQuality, WaterStop, módulos.
-   - Mantiene prioridad de parches anteriores: kits, NVR canales y Curtain.
-   ===================================================== */
 function ref191(p){ return String((p && p.name) || '').trim(); }
 function n191(p){ return normaliza(ref191(p)); }
 function color191(n){
@@ -3965,13 +3898,7 @@ scoreProducto = function(p,term){
   return score;
 };
 
-/* =====================================================
-   PATCH v1.9.2 PRO - Familias Ajax estables
-   - Añade una capa de familias/categorías sin reescribir la app.
-   - Corrige Dummy como carcasas/maquetas, no dispositivos reales.
-   - Refuerza Curtain como familia propia.
-   - Potencia intrusión, sirenas, mandos, botones, carcasas y accesorios.
-   ===================================================== */
+
 function ref192(p){ return String((p && p.name) || '').trim(); }
 function n192(p){ return normaliza(ref192(p)); }
 function color192(n){
@@ -4109,15 +4036,6 @@ scoreProducto = function(p,term){
 };
 
 
-/* =====================================================
-   PATCH v1.9.3 LIGERO - Domo/Turret + A-Z catálogo
-   Base conservadora sobre el código que mejor funcionaba.
-   - No reescribe la app ni el PDF.
-   - Domo encuentra DomeCam + TurretCam sin tocar domótica.
-   - Turret encuentra solo TurretCam.
-   - Bullet/Bala encuentra solo BulletCam.
-   - Añade filtro A-Z en catálogo; en referencias AJ- usa la letra tras AJ-.
-   ===================================================== */
 let catalogLetter193 = '';
 
 function norm193(s){
@@ -4263,14 +4181,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 
-/* =====================================================
-   PATCH v1.9.4 PRO - Ajustes seguros + búsqueda más ágil
-   Base: v1.9.3 PRO.
-   - Mantiene A-Z, domo/turret/bullet/street.
-   - Tienda sin seleccionar por defecto se aplica desde HTML.
-   - Cache de búsquedas para evitar recalcular dos veces.
-   - Resolver de búsqueda con pequeño debounce conservador.
-   ===================================================== */
 const SEARCH_CACHE_194 = new Map();
 const CATALOG_CACHE_194 = new Map();
 function key194(term){ return norm193(String(term || '')).slice(0, 120); }
@@ -4329,12 +4239,6 @@ cargarCatalogo = async function(){
 };
 
 
-/* =====================================================
-   PATCH v1.9.6 PRO - Numeración de presupuestos segura
-   - No sobrescribe un presupuesto guardado por reutilizar el mismo número.
-   - Al guardar uno nuevo, si el número ya existe, asigna automáticamente el siguiente.
-   - Al recuperar un presupuesto y guardar, sí actualiza ese mismo presupuesto.
-   ===================================================== */
 function parseNumeroHA196(num){
   const m = String(num || '').trim().match(/^HA-(\d{4})-(\d+)$/i);
   if(!m) return null;
@@ -4453,11 +4357,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }catch(e){}
 });
 
-/* =====================================================
-   PATCH v1.9.7 PRO - Búsqueda exterior = Outdoor
-   - Cambio pequeño y seguro sobre v1.9.6.
-   - Si se escribe exterior/intemperie/perimetral, prioriza referencias Outdoor.
-   ===================================================== */
+
 const busquedaForzada_BASE197 = busquedaForzada;
 busquedaForzada = function(term){
   const t = normaliza(term).trim();
@@ -4472,14 +4372,6 @@ busquedaForzada = function(term){
 };
 
 
-/* =====================================================
-   PATCH v1.9.8 PRO - Cámaras + búsqueda presupuestos
-   - Bullet/Dome/Turret: lente 4 mm si referencia contiene 0400.
-   - Bullet/Dome/Turret: lente fija 2,8 mm si no contiene 0400 ni VF/HLVF.
-   - VF/HLVF: objetivo varifocal 2,8–12 mm.
-   - Buscador de presupuestos guardados por nº, cliente, fecha, tienda o estado.
-   - Pequeños alias seguros para cámaras: 4mm, 2.8, varifocal, vf.
-   ===================================================== */
 function camaraDesc198(p, base){
   const n = normaliza((p && p.name) || '');
   if(!(n.includes('bulletcam') || n.includes('domecam') || n.includes('turretcam'))) return null;
@@ -4574,12 +4466,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }catch(e){}
 });
 
-/* =====================================================
-   PATCH v1.9.9 PRO - Búsqueda rápida segura
-   - Arregla A-Z en modo claro vía CSS.
-   - Añade abreviaturas profesionales exactas.
-   - Resultados con segunda línea más útil sin cambiar el motor general.
-   ===================================================== */
+
 function ref199(p){ return normaliza((p && p.name) || ''); }
 function contiene199(n, arr){ return arr.some(k => n.includes(k)); }
 
@@ -4730,12 +4617,6 @@ pintarResultados = function(term){
 };
 
 
-/* =====================================================
-   PATCH v2.0.3 PRO - Corrección segura Hubs / fuentes
-   - Evita que AJ-HUB-W / AJ-HUB2... tomen descripción de PSU.
-   - BracketHub queda como soporte/accesorio.
-   - Solo PSU/PCB/DC/AC se describen como fuente de alimentación.
-   ===================================================== */
 function ref203(p){ return normaliza((p && p.name) || ''); }
 function color203(n){
   if(/-w(\b|-|$)/.test(n)) return ' Blanco';
@@ -4819,12 +4700,6 @@ scoreProducto = function(p, term){
 };
 
 
-/* =====================================================
-   PATCH v2.0.4 PRO - Acciones rápidas en catálogo
-   - Panel compacto de filtros dentro del catálogo.
-   - No toca descripciones ni motor principal.
-   - En modo claro queda visible qué filtro está seleccionado.
-   ===================================================== */
 let catalogQuick204 = '';
 
 const QUICK_CATALOG_204 = [
@@ -4902,12 +4777,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }catch(e){}
 });
 
-/* =====================================================
-   PATCH v2.0.6 PRO - Más usados con aprendizaje real
-   - Aprende automáticamente cada producto añadido.
-   - El botón 🕒 Más usados ya no usa lista fija: ordena por contador real.
-   - No toca descripciones ni motor general.
-   ===================================================== */
+
 const STORAGE_USO_PRODUCTOS_206 = 'hiperajax_productos_mas_usados_v206';
 
 function leerUsoProductos206(){
@@ -4974,11 +4844,6 @@ pintarCatalogPanel = function(term=catalogTerm){
 };
 
 
-/* =====================================================
-   PATCH v2.0.7 PRO - UI catálogo uniforme + orden filtros
-   - Botones Catálogo/Familias con texto corto.
-   - Acciones rápidas debajo del buscador y encima del A-Z.
-   ===================================================== */
 (function(){
   function fixCatalogButtons207(){
     const c=document.getElementById('btnCatalogo'); if(c) c.innerHTML='<span class="btn-ico">📖</span>Catálogo';
@@ -5026,12 +4891,7 @@ pintarCatalogPanel = function(term=catalogTerm){
   document.addEventListener('DOMContentLoaded',()=>{ fixCatalogButtons207(); setTimeout(orderCatalogFilters207,50); });
 })();
 
-/* =====================================================
-   PATCH v2.0.8 PRO - filtros del catálogo bien colocados
-   - En Catálogo: buscador -> acciones rápidas -> A-Z -> productos.
-   - En Familias: buscador -> A-Z -> productos, sin acciones rápidas.
-   - No toca descripciones ni motor de búsqueda.
-   ===================================================== */
+
 (function(){
   let catalogOpenedFromFamily208 = false;
 
@@ -5138,12 +4998,7 @@ pintarCatalogPanel = function(term=catalogTerm){
   });
 })();
 
-/* =====================================================
-   PATCH v2.0.16 PRO - filtros del modal estables
-   - Evita que acciones rápidas / A-Z salten abajo al seleccionar un atajo.
-   - En Catálogo: buscador -> acciones rápidas -> A-Z -> productos.
-   - En Familias: buscador -> A-Z -> productos.
-   ===================================================== */
+
 (function(){
   let openedFromFamilies2016 = false;
 
@@ -6624,14 +6479,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   }
 })();
 
-/* =====================================================
-   Hiper Ajax 4.0.10 - Revisión global del motor de búsqueda
-   - Las referencias exactas tienen prioridad absoluta.
-   - Una búsqueda de familia/referencia no mezcla familias por fragmentos
-     internos (KEYPADCOMBI ya no arrastra COMBIPROTECT).
-   - Expande automáticamente W/B de la misma referencia base.
-   - Se aplica al buscador principal y al Catálogo.
-   ===================================================== */
+
 (function(){
   function hxNorm410(v){
     return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -6747,13 +6595,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   }
 })();
 
-/* =====================================================
-   PATCH v4.0.12 · MongoDB + respaldo local
-   - Nuevo: MongoDB genera _id y número.
-   - Editar: conserva mongoId y número.
-   - Duplicar: genera mongoId y número nuevos.
-   - localStorage se mantiene temporalmente como respaldo.
-   ===================================================== */
+
 (()=>{
   const HX_MONGO_ENDPOINT = '/.netlify/functions/guardar-presupuesto';
   const HX_APP_VERSION_MONGO = '4.2.19';
@@ -6957,13 +6799,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 })();
 
 
-/* =====================================================
-   PATCH v4.0.13 · Presupuestos Cloud: listar + abrir
-   - MongoDB pasa a ser el origen del gestor de presupuestos.
-   - La lista se precarga al iniciar para reducir la espera.
-   - Abrir siempre recupera el documento completo por mongoId.
-   - localStorage se conserva únicamente como respaldo temporal.
-   ===================================================== */
 (()=>{
   const HX_LISTAR_ENDPOINT_413 = '/.netlify/functions/listar-presupuestos';
   const HX_LEER_ENDPOINT_413 = '/.netlify/functions/leer-presupuesto';
@@ -7107,13 +6942,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 })();
 
 
-/* =====================================================
-   PATCH v4.0.14 · Identificador + Comercial
-   - Renombrar guarda `identificador` en MongoDB.
-   - Número HA-YYYY-XXXX permanece inmutable.
-   - Tienda y Comercial quedan separados.
-   - Comercial: Sin asignar / Luis / Toño.
-   ===================================================== */
 (()=>{
   const HX_GUARDAR_414='/.netlify/functions/guardar-presupuesto';
 
@@ -7167,14 +6995,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 })();
 
 
-/* =====================================================
-   PATCH v4.0.15 · Duplicar presupuesto en MongoDB
-   - Nuevo _id y nuevo número automático.
-   - Fecha actual local y estado Borrador.
-   - Conserva contenido, tienda, comercial, cliente, teléfono y email.
-   - El identificador queda vacío.
-   - Intercepta tanto el botón principal como el del gestor.
-   ===================================================== */
 (()=>{
   const HX_APP_VERSION_DUP_415='4.2.16';
   const HX_DUP_ENDPOINT_415='/.netlify/functions/guardar-presupuesto';
@@ -7316,13 +7136,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   });
 })();
 
-/* =====================================================
-   PATCH v4.0.16 · Borrar MongoDB + identificador visible
-   - Borrado real en MongoDB con confirmación clara.
-   - Refresca el gestor inmediatamente.
-   - Limpia el presupuesto si se elimina el documento abierto.
-   - Muestra identificador en cabecera y mejora las tarjetas.
-   ===================================================== */
+
 (()=>{
   const HX_DELETE_416='/.netlify/functions/borrar-presupuesto';
   let hxDeleting416=false;

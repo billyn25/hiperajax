@@ -18,14 +18,14 @@
 }
 
 /* Acción principal: verde más sobrio, sin efecto fosforito */
-button:not(.secondary):not(.danger):not(.theme-toggle):not(.modal-close):not(.trash):not(.move):not(.line-qty-btn):not(.az-chip):not(.quick-cat-chip){
+button:not(.secondary):not(.danger):not(.theme-toggle):not(.modal-close):not(.trash):not(.move):not(.line-qty-btn):not(.az-chip):not(.quick-cat-chip):not(.header-action){
   background:var(--btn-green)!important;
   border:1px solid var(--btn-green-border)!important;
   color:#fff!important;
   box-shadow:0 5px 12px rgba(20,65,48,.16)!important;
   border-radius:var(--btn-radius)!important;
 }
-button:not(.secondary):not(.danger):not(.theme-toggle):not(.modal-close):not(.trash):not(.move):not(.line-qty-btn):not(.az-chip):not(.quick-cat-chip):hover{
+button:not(.secondary):not(.danger):not(.theme-toggle):not(.modal-close):not(.trash):not(.move):not(.line-qty-btn):not(.az-chip):not(.quick-cat-chip):not(.header-action):hover{
   background:var(--btn-green-hover)!important;
 }
 

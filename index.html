@@ -19,30 +19,25 @@
         <p class="subtitle">by Hiper Antena</p>
       </div>
     </div>
-    <button type="button" id="themeToggle" class="theme-toggle" aria-label="Cambiar tema">☀️</button>
+
+    <div class="header-toolbar" role="toolbar" aria-label="Acciones principales">
+      <button type="button" id="btnSave" class="header-action" aria-label="Guardar presupuesto" title="Guardar presupuesto">💾</button>
+      <button type="button" id="btnBudgets" class="header-action" aria-label="Abrir presupuestos" title="Presupuestos">📂</button>
+      <button type="button" id="btnPDF" class="header-action header-action-primary" aria-label="Generar PDF" title="PDF">📄</button>
+      <button type="button" id="btnExcel" class="header-action" aria-label="Exportar a Excel" title="Excel">📊</button>
+      <button type="button" id="btnClear" class="header-action header-action-danger" aria-label="Vaciar presupuesto" title="Vaciar">🗑️</button>
+      <button type="button" id="themeToggle" class="header-action header-theme" aria-label="Cambiar tema" title="Cambiar tema">☀️</button>
+    </div>
   </header>
 
   <main class="wrap">
     <section class="card top-card">
-      <div class="section-head budget-actions-head">
-        <div class="actions actions-budget">
-          <div class="action-group action-group-left">
-            <button class="secondary" id="btnSave"><span class="btn-ico">💾</span>Guardar</button>
-            <button class="secondary" id="btnBudgets"><span class="btn-ico">📂</span>Presupuestos</button>
-            <div class="pm-legacy-controls" aria-hidden="true">
-              <button id="btnDuplicate" type="button">Duplicar</button>
-              <input id="buscarPresupuestoGuardado" autocomplete="off">
-              <select id="presupuestosGuardados"><option value="">Presupuestos guardados</option></select>
-              <button id="btnLoadSaved" type="button">Recuperar</button>
-              <button id="btnDeleteSaved" type="button">Borrar guardado</button>
-            </div>
-          </div>
-          <div class="action-group action-group-right">
-            <button id="btnPDF"><span class="btn-ico">📄</span>PDF</button>
-            <button id="btnExcel" class="secondary"><span class="btn-ico">📊</span>Excel</button>
-            <button class="danger" id="btnClear"><span class="btn-ico">🗑️</span>Vaciar</button>
-          </div>
-        </div>
+      <div class="pm-legacy-controls" aria-hidden="true">
+        <button id="btnDuplicate" type="button">Duplicar</button>
+        <input id="buscarPresupuestoGuardado" autocomplete="off">
+        <select id="presupuestosGuardados"><option value="">Presupuestos guardados</option></select>
+        <button id="btnLoadSaved" type="button">Recuperar</button>
+        <button id="btnDeleteSaved" type="button">Borrar guardado</button>
       </div>
 
       <div class="section-title-under-actions">

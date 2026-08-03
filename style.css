@@ -61,7 +61,7 @@ textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,143,95,.14
 .catalog-more{width:100%;height:34px;margin-top:7px;background:rgba(31,143,95,.13);border:1px solid rgba(31,143,95,.34);box-shadow:none;text-align:center;color:#eafff3!important}
 .catalog-more:hover{background:rgba(31,143,95,.22)}
 
-/* Corrección PRO PDF/desplegable */
+
 .catalog-panel{z-index:9999;}
 .catalog-item{min-height:34px;}
 
@@ -156,7 +156,7 @@ body.light-mode .trash:hover, body.light-mode button.danger:hover{background:#99
 body.light-mode .recent-chip{background:#dcfce7!important;color:#14532d!important;border:1px solid #86efac!important}
 body.light-mode .move{background:#e8f4ee;color:#14532d;border-color:#86efac}
 
-/* === Fixes finales PRO v1.1 === */
+
 /* Fecha sin desbordarse en móvil */
 input[type="date"]{min-width:0;max-width:100%;}
 @media(max-width:760px){
@@ -185,7 +185,6 @@ body.light-mode .creator{color:#14532d !important;font-weight:800;}
 body:not(.light-mode) .creator{color:#d6f6e4 !important;font-weight:700;}
 
 
-/* Fix definitivo: borrar líneas rojo completo en modo claro */
 body.light-mode .row-actions button.trash,
 body.light-mode button.trash,
 body.light-mode .trash{
@@ -203,7 +202,7 @@ body.light-mode .trash:hover{
   color:#ffffff !important;
 }
 
-/* === Fix definitivo PRO+: borrar línea rojo completo también en modo claro === */
+
 body.light-mode .row-actions .trash,
 body.light-mode .row-actions button.trash,
 body.light-mode table button.trash,
@@ -223,13 +222,13 @@ body.light-mode button.trash.trash:hover{
   color:#ffffff !important;
 }
 
-/* Fix búsqueda rápida PRO: muestra todos los NVR y resultados largos sin cortarse */
+
 .results-panel{max-height:56vh!important;overflow:auto!important;scrollbar-width:thin;scrollbar-color:rgba(31,143,95,.45) transparent;}
 .results-panel::-webkit-scrollbar{width:8px;display:block!important;}
 .results-panel::-webkit-scrollbar-thumb{background:rgba(31,143,95,.45);border-radius:999px;}
 body.light-mode .results-panel::-webkit-scrollbar-thumb{background:rgba(22,101,52,.45);}
 
-/* FIX FINAL ABSOLUTO: botón X borrar líneas rojo sólido en modo claro */
+
 body.light-mode table tbody tr td button.trash,
 body.light-mode table tbody tr td button.trash.trash,
 body.light-mode .table-scroll table button.trash,
@@ -252,7 +251,6 @@ body.light-mode button.trash:hover {
 }
 
 
-/* FIX FINAL v1.2.1: borrar líneas rojo sólido en modo claro, por encima de botones verdes */
 body.light-mode .table-scroll table tbody tr td.row-actions button.trash,
 body.light-mode table tbody tr td.row-actions button.trash,
 body.light-mode td.row-actions button.trash,
@@ -275,16 +273,13 @@ body.light-mode .trash:hover{
   color:#ffffff !important;
 }
 
-/* FIX móvil: la fecha no se desborda */
+
 @media(max-width:760px){
   #fecha{min-width:0;width:100%;max-width:100%;}
   input[type="date"]{min-width:0;width:100%;max-width:100%;}
 }
 
 
-/* =====================================================
-   FIX VISUAL FINAL v1.3
-   ===================================================== */
 .results-panel{
   max-height:58vh !important;
   overflow:auto !important;
@@ -321,7 +316,7 @@ body.light-mode .trash:hover{
 body.light-mode .creator{color:#14532d!important;font-weight:800;}
 @media(max-width:760px){#fecha,input[type="date"]{min-width:0;width:100%;max-width:100%;}}
 
-/* FIX v1.3.1: contador del modal visible sin tocar JS */
+
 .modal .catalog-count{
   color:#eafff3 !important;
   background:rgba(31,143,95,.22) !important;
@@ -334,7 +329,7 @@ body.light-mode .modal .catalog-count{
   border:1px solid #86efac !important;
 }
 
-/* FIX v1.3.1: botón borrar siempre rojo sólido en modo claro */
+
 html body.light-mode button.trash,
 html body.light-mode .trash,
 html body.light-mode td button.trash,
@@ -595,10 +590,6 @@ body.light-mode .modal .catalog-count{
 }
 
 
-/* =====================================================
-   FIX FINAL: Familias en modo claro con contraste alto
-   Fondo verde oscuro + texto blanco / gris claro
-   ===================================================== */
 body.light-mode .family-chip,
 body.light-mode .familia-card,
 body.light-mode .family-card,
@@ -641,7 +632,6 @@ body.light-mode .family-item:hover{
 }
 
 
-/* Fix v1.5.7: fecha móvil y borrar rojo en modo claro */
 @media(max-width:760px){
   .quote-row label{min-width:0; overflow:hidden;}
   input#fecha{width:100%; max-width:100%; min-width:0; box-sizing:border-box; display:block;}
@@ -658,9 +648,6 @@ body.light-mode button.danger:hover{background:#991b1b!important;}
 body.light-mode .creator{color:#14532d!important;font-weight:700;}
 
 
-/* =====================================================
-   v1.6.0 PRO - Selector de tienda + fix fecha móvil
-   ===================================================== */
 .quote-row{
   grid-template-columns:.98fr 1.12fr .72fr 1fr .78fr .64fr .68fr .58fr .68fr .48fr;
 }
@@ -742,7 +729,7 @@ body.light-mode .price-input.editable-pvp{
 }
 body.light-mode .price-input.editable-pvp{background:#fff!important;color:#111827!important;border-color:#166534!important;}
 
-/* PATCH v1.9.3 - A-Z compacto y letras algo más pequeñas */
+
 .catalog-az{
   display:flex;
   flex-wrap:wrap;
@@ -775,7 +762,6 @@ body.light-mode .price-input.editable-pvp{background:#fff!important;color:#11182
 .catalog-row span,.result-meta{font-size:10px;}
 .catalog-count{font-size:11px;}
 .modal-head p{font-size:11px;}
-
 
 
 /* v1.9.8 PRO - buscador de presupuestos guardados */
@@ -1453,7 +1439,6 @@ body.light .explore-product-main strong{color:#16251f}body.light .explore-produc
 @media(max-width:900px){.explore-layout{height:auto!important;grid-template-columns:1fr!important}.explore-col{overflow:visible!important}.explore-products{height:auto!important;max-height:55vh!important}}
 
 
-/* v2.1.2 PRO - FIX contraste modo claro Explorador */
 body.light-mode #familiasModal .explore-cat,
 body.light-mode #familiasModal .explore-sub{
   background:#ffffff!important;
@@ -2800,9 +2785,7 @@ body.light #familiasModal .explore-sub.active span{
   .totals,.totals.totals-v3{grid-template-columns:1fr!important;}
 }
 
-/* =====================================================
-   PATCH v2.2.6 PRO - Explorar: quitar espacio muerto del modal
-   ===================================================== */
+
 #familiasModal .modal-card{
   gap:6px!important;
 }
@@ -2869,11 +2852,7 @@ body.light #familiasModal .explore-sub.active span{
   }
 }
 
-/* =====================================================
-   PATCH v2.2.7 PRO - Explorar sin hueco muerto real
-   Fuerza el modal de Explorar a comportarse como el Catálogo:
-   cabecera compacta + contenido pegado arriba + un único alto útil.
-   ===================================================== */
+
 #familiasModal.modal{
   align-items:center!important;
   justify-items:center!important;
@@ -3002,12 +2981,7 @@ body.light #familiasModal .explore-sub.active span{
   }
 }
 
-/* =====================================================
-   PATCH v2.3 PRO - Pulido visual Explorar PC/Móvil
-   - Modal un poco más ancho.
-   - Contador igual al Catálogo.
-   - Cerrar móvil arriba a la derecha.
-   ===================================================== */
+
 @media(min-width:761px){
   #familiasModal .modal-card{
     width:min(1280px,97vw)!important;
@@ -3080,12 +3054,7 @@ body.light-mode #familiasModal .explore-mobile-head span{
   }
 }
 
-/* =====================================================
-   PATCH v2.3.1 PRO - Explorador móvil iPhone / Safe Area
-   - Corrige barra inferior Safari iPhone (100dvh)
-   - Botón cerrar siempre arriba
-   - El contenido no queda escondido abajo
-   ===================================================== */
+
 @media (max-width:760px){
   #familiasModal.modal,
   #familiasModal{
@@ -3783,14 +3752,6 @@ body.claro #familiasModal .explore-mobile-head span{
   }
 }
 
-/* =====================================================
-   v2.3.8 PRO - CSS pulido final
-   - Catálogo y Explorar mismo ancho en PC
-   - Catálogo móvil: buscador + contador misma línea
-   - Catálogo móvil: cierre visible y cabecera sin comprimir
-   - Badge verde legible como versión anterior
-   - No se toca el diseño móvil del Explorador
-   ===================================================== */
 
 /* PC: ambos modales con el mismo ancho real */
 @media (min-width:761px){
@@ -4356,9 +4317,6 @@ body.claro .line-qty-btn,
 }
 
 
-/* =====================================================
-   v2.5.7 FIX - volver a tabla estable + +/- solo en líneas
-   ===================================================== */
 /* La cantidad superior vuelve a ser una casilla normal */
 .qty-stepper252{display:contents!important;}
 .qty-stepper252 .qty-step-btn252{display:none!important;}
@@ -5385,9 +5343,6 @@ body.claro .line-qty-btn,
 }
 
 
-/* =====================================================
-   2.8.0 - FIX FINAL tabla/separador/cantidad
-   ===================================================== */
 @media (min-width:761px){
   /* Cantidad con más aire: separación equilibrada entre PVP / Cantidad / Desc. */
   .budget-card th:nth-child(4),
@@ -6191,7 +6146,6 @@ body:not(.light-mode) .totals .total-box strong{
 }
 
 
-
 /* 2.8.6 - Un único control de movimiento en todos los dispositivos */
 #tbody .drag-btn{
   display:inline-flex!important;
@@ -6732,7 +6686,7 @@ body.light-mode #pmModal .pmx-row-side strong{
     max-height:52vh !important;
   }
 }
-/* FIX móvil: scroll fluido en presupuestos */
+
 @media(max-width:760px){
 
   #pmModal{
@@ -7031,7 +6985,7 @@ body.light-mode #familiasModal .explore-add.added-ok{
   color:#17324a!important;
 }
 
-/* 3.0.0 FIX: texto legible en secciones seleccionadas del Explorador (modo claro) */
+
 body.light-mode #familiasModal .explore-cat.active,
 body.light-mode #familiasModal .explore-sub.active,
 body.light #familiasModal .explore-cat.active,
@@ -7290,10 +7244,7 @@ body.light-mode #tbody tr.hx-drag-placeholder > td{
   }
 }
 
-/* =====================================================
-   FIX 3.0.1 - Mantener el icono de arrastre en la fila flotante
-   La fila clonada sale fuera de #tbody y no debe heredar el botón verde global.
-   ===================================================== */
+
 .hx-drag-ghost .drag-btn{
   width:30px!important;
   height:30px!important;
@@ -7563,12 +7514,7 @@ body.light .hx-modal-qty-value{color:#173126;}
   }
 }
 
-/* =====================================================
-   3.4.4 — FIX EXPLORER: SCROLL + TÁCTIL + MÓVIL
-   - Conserva el scroll de subcategorías.
-   - En táctil no queda hover/focus falso bajo el dedo.
-   - Cantidad y Añadir comparten fila en móvil.
-   ===================================================== */
+
 @media (hover:none), (pointer:coarse){
   #familiasModal .explore-cat:hover:not(.active),
   #familiasModal .explore-sub:hover:not(.active),
@@ -7630,12 +7576,6 @@ body.light .hx-modal-qty-value{color:#173126;}
   }
 }
 
-/* =====================================================
-   3.4.5 — FIX REAL EXPLORER + CABECERA MÓVIL
-   1) Categorías y subcategorías tienen su propio scroll estable.
-   2) En pantallas táctiles no queda hover/active/focus pegado.
-   3) Guardar/Presupuestos y PDF/Vaciar quedan compactos por parejas.
-   ===================================================== */
 
 /* PC/tablet: las dos columnas laterales deben ser scrollers reales.
    Así scrollTop pertenece a la columna y puede restaurarse tras renderizar. */
@@ -9896,7 +9836,6 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
 }
 
 
-
 /* v4.2.12 · ajustes integrados del gestor */
 @media(min-width:981px){
   #pmModal .pmx-workspace{
@@ -10168,3 +10107,114 @@ body.dark .hx-cost-warning{color:#fecaca;background:rgba(220,38,38,.24);border-c
 @keyframes hxCostePulse{0%,100%{transform:translateX(0)}35%{transform:translateX(-3px)}70%{transform:translateX(3px)}}
 @media (prefers-reduced-motion:reduce){#tbody tr.hx-bajo-coste{animation:none}}
 @media (max-width:760px){.hx-cost-warning{display:flex;width:max-content;margin:5px 0 0;font-size:9px}}
+
+/* =====================================================
+   CABECERA PRINCIPAL — TOOLBAR ÚNICA PC / MÓVIL
+   ===================================================== */
+.header{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:14px!important;
+}
+.header .brand{
+  min-width:0;
+  flex:1 1 auto;
+}
+.header-toolbar{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex:0 0 auto;
+}
+.header-action{
+  appearance:none;
+  width:40px;
+  min-width:40px;
+  height:40px;
+  padding:0;
+  margin:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:11px;
+  border:1px solid #3b4c44;
+  background:#19241f;
+  color:#f5faf7;
+  box-shadow:none;
+  font-size:20px;
+  line-height:1;
+  cursor:pointer;
+  transition:transform .14s ease,background-color .14s ease,border-color .14s ease,box-shadow .14s ease;
+}
+.header-action:hover,
+.header-action:focus-visible{
+  background:#26352e;
+  border-color:#64786e;
+  color:#fff;
+  outline:none;
+  box-shadow:0 0 0 3px rgba(31,143,95,.13);
+}
+.header-action:active{transform:scale(.95);}
+.header-action-primary{
+  background:#176c48;
+  border-color:#2d9469;
+}
+.header-action-primary:hover,
+.header-action-primary:focus-visible{background:#1d8057;}
+.header-action-danger{
+  background:#4b2025;
+  border-color:#85343e;
+}
+.header-action-danger:hover,
+.header-action-danger:focus-visible{background:#652a32;}
+body.light-mode .header-action{
+  background:#f2f5f3;
+  border-color:#cbd5d0;
+  color:#26342d;
+}
+body.light-mode .header-action:hover,
+body.light-mode .header-action:focus-visible{
+  background:#e3e9e6;
+  border-color:#aebbb4;
+  color:#172019;
+}
+body.light-mode .header-action-primary{
+  background:#e5f5ec;
+  border-color:#91c9aa;
+  color:#145a3e;
+}
+body.light-mode .header-action-danger{
+  background:#fdebed;
+  border-color:#d9a0a7;
+  color:#8d2632;
+}
+@media(max-width:760px){
+  .header{
+    min-height:62px!important;
+    padding:10px 12px!important;
+    gap:8px!important;
+  }
+  .header .brand{gap:7px!important;}
+  .header .logo{width:32px!important;height:32px!important;}
+  .header .brand h1{font-size:18px!important;line-height:1.05!important;}
+  .header .subtitle{font-size:10px!important;line-height:1.1!important;}
+  .header-toolbar{gap:5px;}
+  .header-action{
+    width:32px;
+    min-width:32px;
+    height:32px;
+    border-radius:9px;
+    font-size:16px;
+  }
+}
+@media(max-width:370px){
+  .header .logo{display:none!important;}
+  .header .brand h1{font-size:16px!important;}
+  .header-toolbar{gap:4px;}
+  .header-action{width:30px;min-width:30px;height:30px;font-size:15px;}
+}
+
