@@ -94,17 +94,41 @@
     return [ref.replace(/^AJ-/i,'').replace(/-(W|B)$/i,'').replace(/-/g,' '), short].join(' ');
   }
 
+  function productSearchFields(product){
+    const p = product || {};
+    return unique([
+      p.name,
+      p.brand,
+      p.short_description,
+      p.description,
+      p.desc,
+      p.family,
+      p.familia,
+      p.category,
+      p.categoria,
+      p.tags,
+      p.keywords,
+      p._desc,
+      p._family,
+      p._official,
+      p._search175
+    ].map(value=>String(value || '').trim()));
+  }
+
   function buildRecord(product, index){
     const ref = String(product && product.name || '');
     const short = shortDescription(product);
     const full = String(product && (product.description || product.desc) || '');
     const name = commercialName(product);
+    const searchFields = productSearchFields(product);
+    const unified = searchFields.join(' ');
     return {
-      product, index, ref, short, full, name,
+      product, index, ref, short, full, name, unified,
       refNorm: normalize(ref), refCompact: compact(ref), refTokens: new Set(refParts(ref)),
-      nameNorm: normalize(name), nameTokens: new Set(tokens(name)),
+      nameNorm: normalize(name), nameCompact: compact(name), nameTokens: new Set(tokens(name)),
       shortNorm: normalize(short), shortCompact: compact(short), shortTokens: new Set(tokens(short)),
       fullNorm: normalize(full), fullCompact: compact(full), fullTokens: new Set(tokens(full)),
+      unifiedNorm: normalize(unified), unifiedCompact: compact(unified), unifiedTokens: new Set(tokens(unified)),
       isAccessory: /DUMMY|BRACKET|HOOD|LENS|COVER|HOLDER|MAGNET|REED|REPAIR|BRANDPLATE|JUNCTIONBOX|SURFACEBOX/i.test(ref),
       isBundle: /KIT/i.test(ref)
     };
@@ -152,10 +176,19 @@
     const shortHits = fieldTokenHits(query.expanded, record.shortTokens);
     if(shortHits){ score += shortHits * 32; meaningful=true; }
 
-    // Descripción completa: permite relacionados, pero nunca domina.
-    if(query.base.length > 1 && record.fullNorm && record.fullNorm.includes(query.norm)){ score += 18; meaningful=true; }
+    // Índice común para todos los orígenes. Incluye descripción completa,
+    // familia, categoría y etiquetas, sin distinguir entre Visio y manual.
+    if(record.unifiedNorm.includes(query.norm) || record.unifiedCompact.includes(query.compact)){
+      score += 58;
+      meaningful=true;
+    }
+    const unifiedHits = fieldTokenHits(query.base, record.unifiedTokens);
+    if(unifiedHits){ score += unifiedHits * 18; meaningful=true; }
+
+    // La descripción completa ayuda a ordenar, pero no sustituye a la referencia.
+    if(record.fullNorm && record.fullNorm.includes(query.norm)){ score += 24; meaningful=true; }
     const fullHits = fieldTokenHits(query.base, record.fullTokens);
-    if(fullHits){ score += fullHits * 8; meaningful=true; }
+    if(fullHits){ score += fullHits * 10; meaningful=true; }
 
     // Alias técnicos: ayudan solo cuando encuentran palabras reales.
     const aliasOnly = query.expanded.filter(t=>!query.base.includes(t));
@@ -163,12 +196,12 @@
     for(const t of aliasOnly){
       const compactAlias = compact(t);
       const inReference = record.refTokens.has(t) || (compactAlias.length >= 3 && record.refCompact.includes(compactAlias));
-      const inName = record.nameTokens.has(t) || (compactAlias.length >= 3 && compact(record.name).includes(compactAlias));
+      const inName = record.nameTokens.has(t) || (compactAlias.length >= 3 && record.nameCompact.includes(compactAlias));
       const inShort = record.shortTokens.has(t) || (compactAlias.length >= 3 && record.shortCompact.includes(compactAlias));
-      const inFull = record.fullTokens.has(t) || (compactAlias.length >= 3 && record.fullCompact.includes(compactAlias));
-      if(inReference || inName) aliasScore += 38;
-      else if(inShort) aliasScore += 30;
-      else if(inFull) aliasScore += 8;
+      const inUnified = record.unifiedTokens.has(t) || (compactAlias.length >= 3 && record.unifiedCompact.includes(compactAlias));
+      if(inReference || inName) aliasScore += 48;
+      else if(inShort) aliasScore += 36;
+      else if(inUnified) aliasScore += 20;
     }
     if(aliasScore){ score += aliasScore; meaningful=true; }
 
@@ -182,7 +215,7 @@
     if(query.base.length > 1){
       const allFields = new Set([
         ...record.refTokens, ...record.nameTokens,
-        ...record.shortTokens, ...record.fullTokens
+        ...record.shortTokens, ...record.fullTokens, ...record.unifiedTokens
       ]);
       const covered = query.base.filter(t=>allFields.has(t)).length;
       if(covered === query.base.length) score += 45;
@@ -232,7 +265,7 @@
     compact,
     rank,
     scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),
-    version:'',
+    version:'5.0-unificado',
     catalogFilters:CATALOG_FILTERS
   };
   global.HXA_KNOWLEDGE_ENGINE = engine;
