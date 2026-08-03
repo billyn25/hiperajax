@@ -4926,8 +4926,8 @@ body.claro .line-qty-btn,
   }
 
   #familiasModal .modal-card{
-    width:calc(100svw - 20px)!important;
-    max-width:calc(100svw - 20px)!important;
+    width:calc(100svw - 0px)!important;
+    max-width:calc(100svw - 0px)!important;
     margin:0 auto!important;
     overflow:hidden!important;
   }
