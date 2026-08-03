@@ -9843,7 +9843,9 @@ body.dark .hx-cost-warning{color:#fecaca;background:rgba(220,38,38,.24);border-c
 .header-toolbar > .header-action:active{transform:translateY(0) scale(.94)}
 .header-icon{display:grid;place-items:center;flex:0 0 18px;width:18px;height:18px;line-height:0}
 .header-icon svg{display:block;width:18px;height:18px;max-width:18px;max-height:18px;aspect-ratio:1/1;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.header-icon-pdf svg text{fill:currentColor;stroke:none;font-size:5px;font-weight:800;font-family:Arial,sans-serif}
+/* PDF: mismo botón y peso óptico, con texto legible dentro del documento */
+.header-icon-pdf svg{width:19px;height:19px;max-width:19px;max-height:19px}
+.header-icon-pdf svg text{fill:currentColor;stroke:none;font-size:6.2px;font-weight:900;font-family:Arial,Helvetica,sans-serif;letter-spacing:-.25px}
 .header-action:not(.header-action-danger):not(.header-theme){color:#159454}
 .header-toolbar > .header-action-danger{color:#ef4444}
 .header-toolbar > .header-action-danger:hover,.header-toolbar > .header-action-danger:focus-visible{background:#351c20;border-color:#d65761;color:#ff5f69;box-shadow:0 6px 16px rgba(0,0,0,.19),0 0 0 3px rgba(220,38,38,.12)}
@@ -9872,6 +9874,7 @@ body.light-mode .header-toolbar > .header-theme:hover,body.light-mode .header-to
   }
   .header-icon{flex-basis:17px;width:17px;height:17px}
   .header-icon svg{width:17px;height:17px;max-width:17px;max-height:17px}
+  .header-icon-pdf svg{width:18px;height:18px;max-width:18px;max-height:18px}
 }
 @media(max-width:390px){
   .header{gap:6px;padding-inline:7px}
@@ -9883,6 +9886,7 @@ body.light-mode .header-toolbar > .header-theme:hover,body.light-mode .header-to
   }
   .header-icon{flex-basis:17px;width:17px;height:17px}
   .header-icon svg{width:17px;height:17px;max-width:17px;max-height:17px}
+  .header-icon-pdf svg{width:18px;height:18px;max-width:18px;max-height:18px}
 }
 @media(max-width:350px){
   .header .brand h1{font-size:11px}
