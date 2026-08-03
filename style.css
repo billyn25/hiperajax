@@ -9834,7 +9834,7 @@ button#btnClear.header-action{
   flex:0 0 42px;width:42px;min-width:42px;max-width:42px;height:42px;min-height:42px;max-height:42px;
   aspect-ratio:1/1;margin:0;padding:0;
   border:1px solid #435149;border-radius:12px;
-  background:#18211d;color:#f4f8f6;box-shadow:0 4px 12px rgba(0,0,0,.14);
+  background:#18211d;color:#159454;box-shadow:0 4px 12px rgba(0,0,0,.14);
   cursor:pointer;overflow:hidden;
   transition:transform .16s ease,background-color .16s ease,border-color .16s ease,box-shadow .16s ease,color .16s ease;
 }
@@ -9847,9 +9847,10 @@ button#btnClear.header-action{
 .header-icon svg{display:block;width:20px;height:20px;max-width:20px;max-height:20px;aspect-ratio:1/1;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .header-icon-pdf svg text{fill:currentColor;stroke:none;font-size:5px;font-weight:800;font-family:Arial,sans-serif}
 .header-action:not(.header-action-danger):not(.header-theme){color:#159454}
-.header-action-danger{color:#ef4444}
+.header-action-danger{color:#ef4444!important}
 .header-action-danger:hover,.header-action-danger:focus-visible{background:#351c20;border-color:#d65761;color:#ff5f69;box-shadow:0 6px 16px rgba(0,0,0,.19),0 0 0 3px rgba(220,38,38,.12)}
-.theme-icon-sun{display:none!important}.header-theme.is-light-theme .theme-icon-moon{display:block!important}.header-theme.is-light-theme .theme-icon-sun{display:none!important}
+.theme-icon-sun{display:none!important}#themeToggle.header-action{color:#d7dfda!important}
+.header-theme.is-light-theme .theme-icon-moon{display:block!important}.header-theme.is-light-theme .theme-icon-sun{display:none!important}
 body:not(.light-mode) .header-theme .theme-icon-moon{display:none!important}body:not(.light-mode) .header-theme .theme-icon-sun{display:block!important}
 body.light-mode .header{background:rgba(255,255,255,.95);border-bottom-color:#d7e1dc}
 body.light-mode .header .subtitle{color:#66776e}
@@ -9863,7 +9864,7 @@ body.light-mode .header-action-danger:hover,body.light-mode .header-action-dange
   .header .brand{flex:0 1 auto;min-width:64px;overflow:visible}
   .header .logo,.header .subtitle{display:none}
   .header .brand h1{font-size:14px;line-height:1;letter-spacing:.01em}
-  .header-toolbar{gap:8px;margin-left:auto}
+  .header-toolbar{gap:11px;margin-left:auto}
   .header-action,
   button#btnPDF.header-action,
   button#btnClear.header-action{
@@ -9877,7 +9878,7 @@ body.light-mode .header-action-danger:hover,body.light-mode .header-action-dange
   .header{gap:6px;padding-inline:7px}
   .header .brand{min-width:58px}
   .header .brand h1{font-size:12px}
-  .header-toolbar{gap:7px}
+  .header-toolbar{gap:10px}
   .header-action,
   button#btnPDF.header-action,
   button#btnClear.header-action{
@@ -9888,7 +9889,7 @@ body.light-mode .header-action-danger:hover,body.light-mode .header-action-dange
 }
 @media(max-width:350px){
   .header .brand h1{font-size:11px}
-  .header-toolbar{gap:6px}
+  .header-toolbar{gap:9px}
   .header-action,
   button#btnPDF.header-action,
   button#btnClear.header-action{
