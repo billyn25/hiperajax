@@ -589,7 +589,7 @@ function aplicarTemaGuardado(){
   document.body.classList.toggle('light-mode', tema === 'light');
   const btn = $('#themeToggle');
   if(btn){
-    btn.textContent = tema === 'light' ? '🌙' : '☀️';
+    btn.classList.toggle('is-light-theme', tema === 'light');
     const destino = tema === 'light' ? 'oscuro' : 'claro';
     btn.setAttribute('aria-label', `Cambiar a modo ${destino}`);
     btn.title = `Cambiar a modo ${destino}`;
