@@ -9917,7 +9917,7 @@ body.light-mode .header-toolbar > .header-theme:hover,body.light-mode .header-to
 }
 @media (max-width:760px){
   .header-toolbar .header-format-label{
-    font-size:12px;
+    font-size:11px;
     letter-spacing:-.2px;
   }
 }
