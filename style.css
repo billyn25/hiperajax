@@ -8991,10 +8991,10 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row:hover:not(.is-selected) *{
 @media(max-width:900px){
   /* Modal móvil casi completo pero con respiración exterior */
   #pmModal .pmx-modal-card.explore-wrap{
-    width:calc(100vw - 16px)!important;
-    height:calc(100dvh - 16px)!important;
-    max-height:calc(100dvh - 16px)!important;
-    margin:8px!important;
+    width:calc(100vw - 0px)!important;
+    height:calc(100dvh - 0px)!important;
+    max-height:calc(100dvh - 0px)!important;
+    margin:-5px!important;
     padding:14px!important;
   }
 
