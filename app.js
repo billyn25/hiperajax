@@ -1963,42 +1963,8 @@ function esInyectorPoe(p){ const n=normaliza(p.name); return n.includes('inj-poe
 function esDiscoDuro(p){ const n=normaliza(p.name); return /^hd\d+tb/.test(n) || n.includes('disco') || n.includes('hdd'); }
 function esTarjetaSD(p){ const n=normaliza(p.name); return n.includes('hs-tf') || n.includes('microsd') || n.includes('micro-sd') || n.includes('tarjeta-sd'); }
 function esBarrera(p){ const n=normaliza(p.name); return n.includes('abe-150') || n.includes('barrera'); }
-function scoreProducto(p, term){
-  const q = normaliza(term).trim(); if(!q) return 0;
-  const n = normaliza(p.name), b = normaliza(p.brand), texto = textoBusquedaEstable(p);
-  const parts = q.split(/\s+/).filter(Boolean); let score = 0;
-  if(q === 'nvr' || q === 'grabador' || q === 'grabadores' || q === 'videograbador') return esNvrReal(p) ? 10000 + ((n.includes('hac')||n.includes('hdc'))?500:0) : 0;
-  if(q.includes('fuente nvr') || q.includes('psu nvr') || q.includes('alimentacion nvr') || q.includes('alimentación nvr')) return esFuenteNvr(p) ? 10000 : 0;
-  if(q === 'hdmi') return esNvrHdmi(p) ? 10000 : 0;
-  if(q === 'wifi' || q === 'wi-fi' || q === 'wi fi') return esProductoWifi(p) ? 10000 : 0;
-  if(q.includes('switch poe')) return esSwitchPoe(p) ? 10000 : 0;
-  if(q.includes('inyector poe') || q.includes('injector poe')) return esInyectorPoe(p) ? 10000 : 0;
-  if(q === 'disco' || q === 'discos' || q === 'hdd' || q.includes('disco duro')) return esDiscoDuro(p) ? 10000 : 0;
-  if(q === 'tarjeta sd' || q === 'microsd' || q === 'micro sd' || q === 'sd') return esTarjetaSD(p) ? 10000 : 0;
-  if(q === 'barrera' || q.includes('abe') || q.includes('perimetral')) return esBarrera(p) ? 10000 : (texto.includes(q)?100:0);
-  if(n === q) score += 20000;
-  if(n.startsWith(q)) score += 12000;
-  if(n.includes(q)) score += 9000;
-  if(b.includes(q)) score += 200;
-  for(const part of parts){
-    if(n.split(/[^a-z0-9]+/).includes(part)) score += 5000;
-    else if(n.includes(part)) score += 3000;
-    if(texto.includes(part)) score += 450;
-  }
-  if(texto.includes(q)) score += 800;
-  return score;
-}
-function buscar(term){
-  const q = normaliza(term).trim(); if(!q) return [];
-  const arr = productos.map((p,i)=>({p,i,score:scoreProducto(p, q)})).filter(x=>x.score>0);
-  arr.sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
-  return arr.slice(0,300);
-}
-function buscarCatalogo(term=''){
-  const q=String(term||'').trim();
-  if(!q) return productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-  return buscar(q);
-}
+
+/* Eliminado durante la unificación del buscador: duplicate function scoreProducto; duplicate function buscar; duplicate function buscarCatalogo. */
 
 
 function metaProducto164(p){
@@ -2128,38 +2094,7 @@ function textoBusqueda164(p){
 function esMecanismo164(p){ const m=metaProducto164(p); return !!(m && m.family.includes('Confort') && (m.sub.includes('Mecanismos') || m.sub.includes('Tapas') || m.sub.includes('Marcos') || m.sub.includes('LightSwitch') || m.sub.includes('Outlet') || m.sub.includes('Cajas'))); }
 function esRedPoe164(p){ const m=metaProducto164(p); return !!(m && m.family === 'Red / PoE'); }
 function esAlmacenamiento164(p){ const m=metaProducto164(p); return !!(m && m.family === 'Almacenamiento'); }
-const scoreProductoAnterior_164 = scoreProducto;
-scoreProducto = function(p, term){
-  const q = normaliza(term).trim();
-  if(!q) return 0;
-  const texto = textoBusqueda164(p);
-  const n = normaliza(p.name);
-  const meta = metaProducto164(p);
-  if(['mecanismo','mecanismos','tapa','tapas','panel','paneles','embellecedor','embellecedores'].includes(q)) return esMecanismo164(p) ? 12000 : 0;
-  if(q.includes('solocover') || q.includes('solo cover')) return n.includes('solocover') ? 15000 : 0;
-  if(q.includes('centercover') || q.includes('center cover')) return n.includes('centercover') ? 15000 : 0;
-  if(q.includes('sidecover') || q.includes('side cover')) return n.includes('sidecover') ? 15000 : 0;
-  if(q.includes('solobutton') || q.includes('solo button')) return n.includes('solobutton') ? 15000 : 0;
-  if(q.includes('centerbutton') || q.includes('center button')) return n.includes('centerbutton') ? 15000 : 0;
-  if(q.includes('sidebutton') || q.includes('side button')) return n.includes('sidebutton') ? 15000 : 0;
-  if(q.includes('outletcore') || q.includes('outlet core')) return n.includes('outletcore') || n.includes('solocover') || n.includes('centercover') || n.includes('sidecover') ? 12000 : 0;
-  if(q.includes('lightcore') || q.includes('light core')) return n.includes('lightcore') || n.includes('solobutton') || n.includes('centerbutton') || n.includes('sidebutton') ? 12000 : 0;
-  if(['poe','switch poe','switch','inyector poe','injector poe','red poe'].some(x=>q===x || q.includes(x))){
-    if(q.includes('inyector') || q.includes('injector')) return meta && meta.sub === 'Inyectores PoE' ? 15000 : 0;
-    if(q.includes('switch')) return meta && meta.sub === 'Switches PoE' ? 15000 : 0;
-    return esRedPoe164(p) ? 13000 : scoreProductoAnterior_164(p, q);
-  }
-  if(['almacenamiento','memoria','memorias'].includes(q)) return esAlmacenamiento164(p) ? 13000 : 0;
-  if(q.includes('disco') || q==='hdd') return meta && meta.sub === 'Discos duros' ? 15000 : 0;
-  if(q.includes('tarjeta') || q.includes('microsd') || q === 'sd' || q.includes('micro sd')) return meta && meta.sub === 'Tarjetas microSD' ? 15000 : 0;
-  if(q.includes('automatismo') || q.includes('automatizacion') || q.includes('automatización') || q.includes('domotica') || q.includes('domótica')) return meta && meta.family === 'Confort y automatización' ? 12000 : 0;
-  if(q.includes('panico') || q.includes('pánico') || q.includes('emergencia')){ if(n.includes('solobutton') || n.includes('centerbutton') || n.includes('sidebutton')) return 0; }
-  let score = scoreProductoAnterior_164(p, q);
-  if(texto.includes(q)) score += meta ? 1800 : 300;
-  const parts = q.split(/\s+/).filter(Boolean);
-  for(const part of parts){ if(texto.includes(part)) score += meta ? 550 : 120; }
-  return score;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
 
 
 function esSwitchPoe165(p){
@@ -2209,40 +2144,7 @@ metaProducto164 = function(p){
   }
   return metaProductoAnterior_165 ? metaProductoAnterior_165(p) : null;
 };
-
-const scoreProductoAnterior_165 = scoreProducto;
-scoreProducto = function(p, term){
-  const q = normaliza(term).trim();
-  if(!q) return 0;
-  const n = normaliza((p && p.name) || '');
-
-  // Familias completas: aquí se corrige el problema de Red / PoE.
-  if(q === 'red poe' || q === 'red / poe' || q === 'poe' || q === 'red' || q === 'ethernet'){
-    return esRedPoe165(p) ? 20000 : scoreProductoAnterior_165(p, q);
-  }
-  if(q === 'switch poe' || q === 'switch' || q === 'switches poe'){
-    return esSwitchPoe165(p) ? 22000 : 0;
-  }
-  if(q === 'inyector poe' || q === 'injector poe' || q === 'inyector' || q === 'injector'){
-    return esInyectorPoe165(p) ? 22000 : 0;
-  }
-  if(q === 'almacenamiento' || q === 'memoria' || q === 'memorias' || q === 'grabacion' || q === 'grabación'){
-    return esAlmacenamiento165(p) ? 20000 : scoreProductoAnterior_165(p, q);
-  }
-  if(q === 'disco' || q === 'discos' || q === 'hdd' || q.includes('disco duro')){
-    return esDiscoDuro165(p) ? 22000 : 0;
-  }
-  if(q === 'sd' || q === 'tarjeta sd' || q === 'microsd' || q === 'micro sd' || q.includes('tarjeta memoria')){
-    return esTarjetaSD165(p) ? 22000 : 0;
-  }
-
-  // Fallback obligatorio al CSV: referencia/nombre siempre puntúa aunque no exista conocimiento.
-  let score = scoreProductoAnterior_165(p, q);
-  if(n === q) score += 30000;
-  if(n.startsWith(q)) score += 18000;
-  if(n.includes(q)) score += 12000;
-  return score;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
 
 // Familias rápidas añadidas/corregidas sin tocar la UI existente.
 try{
@@ -2284,34 +2186,7 @@ metaProducto164 = function(p){
   }
   return metaProductoAnterior_166 ? metaProductoAnterior_166(p) : null;
 };
-
-const scoreProductoAnterior_166 = scoreProducto;
-scoreProducto = function(p, term){
-  const q = normaliza(term).trim();
-  if(!q) return 0;
-
-  // Incendio / CO: no permitir que palabras cortas como "co" arrastren CenterCover, SoloCover, etc.
-  const pideIncendio = q.includes('incendio') || q.includes('humo') || q.includes('fuego') || q.includes('calor') || q.includes('temperatura') || q.includes('fireprotect') || q.includes('en54') || q.includes('alarma incendio');
-  const pideCO = q === 'co' || q.includes(' co ') || q.includes('monoxido') || q.includes('monóxido') || q.includes('carbono');
-  if(pideIncendio || pideCO){
-    if(pideCO && !pideIncendio) return esProductoCO166(p) ? 25000 : 0;
-    if(pideCO && pideIncendio) return esProductoCO166(p) ? 26000 : (esProductoIncendio166(p) ? 18000 : 0);
-    return esProductoIncendio166(p) ? 22000 : 0;
-  }
-
-  // Baterías: búsqueda rápida y limpia.
-  if(q === 'bateria' || q === 'batería' || q === 'baterias' || q === 'baterías' || q === 'battery' || q === 'batteries' || q === 'pila' || q === 'pilas'){
-    return esProductoBateria166(p) ? 25000 : 0;
-  }
-  if(q.includes('batterybox') || q.includes('battery box')){
-    return normaliza((p && p.name) || '').includes('batterybox') ? 26000 : 0;
-  }
-  if(q.includes('batterykit') || q.includes('battery kit')){
-    return normaliza((p && p.name) || '').includes('batterykit') ? 26000 : 0;
-  }
-
-  return scoreProductoAnterior_166(p, q);
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
 
 try{
   const inc = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('incendio'));
@@ -2648,67 +2523,7 @@ descripcionProducto = function(p){
 
   return descripcionProductoAnterior_175(p);
 };
-
-const scoreProductoAnterior_175 = scoreProducto;
-scoreProducto = function(p, term){
-  const q = normaliza(term).trim();
-  if(!q) return 0;
-
-  const n = normaliza((p && p.name) || '');
-  const b = normaliza((p && p.brand) || '');
-  const search = p._search175 || normaliza([p.name, p.brand, extraTagsCSV175(p)].join(' '));
-  const parts = q.split(/\s+/).filter(Boolean);
-
-  // CO: evitar falsos positivos como CenterCover, SoloCover, etc.
-  if(q === 'co' || q === 'monoxido' || q === 'monóxido' || q.includes('monoxido') || q.includes('monóxido')){
-    return (n.includes('fireprotectplus') || n.includes('-c-') || n.includes('-hc-') || n.includes('-hsc-')) ? 30000 : 0;
-  }
-
-  let score = 0;
-
-  // CSV manda siempre: referencia/nombre nunca queda oculto.
-  if(n === q) score += 50000;
-  if(n.startsWith(q)) score += 35000;
-  if(n.includes(q)) score += 26000;
-  if(b.includes(q)) score += 1000;
-
-  // Palabras separadas.
-  for(const part of parts){
-    if(!part) continue;
-    if(n.split(/[^a-z0-9]+/).includes(part)) score += 12000;
-    else if(n.includes(part)) score += 8000;
-    if(search.includes(part)) score += 1500;
-  }
-
-  if(search.includes(q)) score += 5000;
-
-  // Mantener el motor anterior, pero que no pueda cargarse el fallback del CSV.
-  try{
-    score += Math.max(0, scoreProductoAnterior_175(p, q));
-  }catch(e){}
-
-  return score;
-};
-
-buscar = function(term){
-  const q = normaliza(term).trim();
-  if(!q) return [];
-  const arr = productos
-    .map((p,i)=>({p,i,score:scoreProducto(p,q), n:normaliza(p.name)}))
-    .filter(x=>x.score>0)
-    .sort((a,b)=>{
-      const aExact = a.n === q ? 0 : (a.n.startsWith(q) ? 1 : (a.n.includes(q) ? 2 : 3));
-      const bExact = b.n === q ? 0 : (b.n.startsWith(q) ? 1 : (b.n.includes(q) ? 2 : 3));
-      return aExact-bExact || b.score-a.score || a.p.name.localeCompare(b.p.name,'es');
-    });
-  return arr.slice(0, 220);
-};
-
-buscarCatalogo = function(term=''){
-  const q = String(term||'').trim();
-  if(!q) return productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-  return buscar(q);
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto; legacy reassignment buscar; legacy reassignment buscarCatalogo. */
 
 try{
   const setVersion = ()=>{
@@ -2718,8 +2533,6 @@ try{
 
 
 const descripcionProductoAnterior_181 = descripcionProducto;
-const scoreProductoAnterior_181 = scoreProducto;
-
 function ref181(p){ return String((p && p.name) || '').trim(); }
 function n181(p){ return normaliza(ref181(p)); }
 function has181(n, ...xs){ return xs.some(x => n.includes(normaliza(x))); }
@@ -2857,59 +2670,7 @@ descripcionProducto = function(p){
   return descripcionProductoAnterior_181(p);
 };
 
-scoreProducto = function(p, term){
-  const q = normaliza(term).trim(); if(!q) return 0;
-  const n = n181(p), brand = normaliza((p && p.brand)||'');
-  const search = textoBusqueda181(p);
-  const parts = q.split(/\s+/).filter(Boolean);
-  let score = 0;
-
-  // CSV manda siempre.
-  if(n === q) score += 60000;
-  if(n.startsWith(q)) score += 42000;
-  if(n.includes(q)) score += 32000;
-  if(brand.includes(q)) score += 1000;
-  for(const part of parts){
-    if(n.split(/[^a-z0-9]+/).includes(part)) score += 16000;
-    else if(n.includes(part)) score += 10000;
-    if(search.includes(part)) score += 2500;
-  }
-  if(search.includes(q)) score += 9000;
-
-  // Sinónimos técnicos fuertes.
-  if(['carcasa','carcasa vacia','carcasa vacía','maqueta','dummy'].includes(q)) score += n.includes('dummy') ? 50000 : 0;
-  if(['tapa','embellecedor','cover'].includes(q)) score += has181(n,'cover','coverplate') ? 45000 : 0;
-  if(['marco','frame'].includes(q)) score += has181(n,'frame') ? 45000 : 0;
-  if(['soporte','bracket','holder','mount'].includes(q)) score += has181(n,'bracket','holder','mountcam','hood') ? 45000 : 0;
-  if(q.includes('soporte camara') || q.includes('soporte cámara')) score += has181(n,'mountcam') ? 50000 : 0;
-  if(q.includes('caja conexiones')) score += has181(n,'junctionbox') ? 50000 : 0;
-  if(q.includes('rack') || q.includes('armario') || q.includes('mural')) score += has181(n,'rack') ? 50000 : 0;
-  if(q.includes('switch poe') || q==='poe') score += has181(n,'sw1008poe','vdms108gp','vdms105gp','inj-poe') ? 30000 : 0;
-  if(q.includes('inyector')) score += has181(n,'inj-poe','injector') ? 50000 : 0;
-  if(q.includes('keypad') || q.includes('teclado') || q.includes('sirena')) score += has181(n,'keypadcombi') ? 12000 : 0;
-
-  try{ score += Math.max(0, scoreProductoAnterior_181(p, q)); }catch(e){}
-  return score;
-};
-
-buscar = function(term){
-  const q = normaliza(term).trim(); if(!q) return [];
-  return productos
-    .map((p,i)=>({p,i,score:scoreProducto(p,q), n:n181(p)}))
-    .filter(x=>x.score>0)
-    .sort((a,b)=>{
-      const ae = a.n===q?0:(a.n.startsWith(q)?1:(a.n.includes(q)?2:3));
-      const be = b.n===q?0:(b.n.startsWith(q)?1:(b.n.includes(q)?2:3));
-      return ae-be || b.score-a.score || a.p.name.localeCompare(b.p.name,'es');
-    })
-    .slice(0,260);
-};
-
-buscarCatalogo = function(term=''){
-  const q = String(term||'').trim();
-  if(!q) return productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-  return buscar(q);
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto; legacy reassignment buscar; legacy reassignment buscarCatalogo. */
 
 
 function ref182(p){ return String((p && p.name) || '').trim(); }
@@ -2967,29 +2728,7 @@ function meta182(p){
 const descripcionProducto_PRE182 = descripcionProducto;
 descripcionProducto = function(p){ const m = meta182(p); if(m) return {icon:m.icon,desc:m.desc,family:m.sub?`${m.family} · ${m.sub}`:m.family,official:m.official}; try{return descripcionProducto_PRE182(p);}catch(e){return {icon:'📦',desc:'Producto del catálogo',family:'Producto nuevo',official:ref182(p)};} };
 function textoBusqueda182(p){ const m=meta182(p)||{}; let prev=''; try{const d=descripcionProducto_PRE182(p); prev=[d.desc,d.family,d.official].join(' ');}catch(e){} return normaliza([ref182(p),p&&p.brand,m.family,m.sub,m.desc,m.official,(m.tags||[]).join(' '),prev,p&&p._search175].join(' ')); }
-const scoreProducto_PRE182 = scoreProducto;
-scoreProducto = function(p, term){
-  const q=normaliza(term).trim(); if(!q) return 0; const n=n182(p), search=textoBusqueda182(p); const parts=q.split(/\s+/).filter(Boolean); let score=0;
-  if(n===q) score+=100000; if(n.startsWith(q)) score+=70000; if(n.includes(q)) score+=55000; for(const part of parts){ if(n.split(/[^a-z0-9]+/).includes(part)) score+=26000; else if(n.includes(part)) score+=18000; if(search.includes(part)) score+=5000; } if(search.includes(q)) score+=14000;
-  const boost=(cond,val)=>{if(cond) score+=val;};
-  boost(['enchufe','base enchufe','toma corriente','schuko','toma'].includes(q), has182(n,'socket','outlet','outletcore')?70000:0);
-  boost(['carcasa','carcasa vacia','carcasa vacía','maqueta','dummy'].includes(q), has182(n,'dummy','case')?70000:0);
-  boost(['tapa','embellecedor','cover'].includes(q), has182(n,'cover','coverplate')?65000:0);
-  boost(['marco','frame'].includes(q), has182(n,'frame')?65000:0);
-  boost(['soporte','bracket','holder','mount','montaje'].includes(q), has182(n,'bracket','holder','mountcam','hood')?65000:0);
-  boost(q.includes('soporte camara') || q.includes('soporte cámara'), has182(n,'mountcam')?75000:0);
-  boost(q.includes('caja') || q.includes('ip66'), has182(n,'junctionbox','surfacebox','ip66')?52000:0);
-  boost(q.includes('rack') || q.includes('armario') || q.includes('mural'), has182(n,'rack')?70000:0);
-  boost(q.includes('switch poe') || q==='poe', has182(n,'sw1008poe','vdms108gp','vdms105gp','inj-poe')?55000:0);
-  boost(q.includes('inyector'), has182(n,'inj-poe','injector')?75000:0);
-  boost(q.includes('fuente') || q.includes('alimentacion') || q.includes('alimentación') || q.includes('dc12'), has182(n,'dc12','dc1224','psu','ac220','dc6')?70000:0);
-  boost(q.includes('bateria') || q.includes('batería') || q.includes('battery') || q.includes('pila'), has182(n,'battery','batt')?70000:0);
-  boost(q.includes('teclado') || q.includes('keypad'), has182(n,'keypad')?55000:0);
-  boost(q.includes('sirena'), has182(n,'siren','keypadcombi')?50000:0);
-  try{score+=Math.max(0,scoreProducto_PRE182(p,q));}catch(e){} return score;
-};
-buscar = function(term){ const q=normaliza(term).trim(); if(!q) return []; return productos.map((p,i)=>({p,i,score:scoreProducto(p,q),n:n182(p)})).filter(x=>x.score>0).sort((a,b)=>{const ae=a.n===q?0:(a.n.startsWith(q)?1:(a.n.includes(q)?2:3)); const be=b.n===q?0:(b.n.startsWith(q)?1:(b.n.includes(q)?2:3)); return ae-be||b.score-a.score||a.p.name.localeCompare(b.p.name,'es');}).slice(0,260); };
-buscarCatalogo = function(term=''){ const q=String(term||'').trim(); if(!q) return productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es')); return buscar(q); };
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto; legacy reassignment buscar; legacy reassignment buscarCatalogo. */
 let recientesSesion182 = [];
 registrarReciente = function(nombre){ const name=String(nombre||'').trim(); if(!name) return; const idx=recientesSesion182.findIndex(x=>x.name===name); if(idx>=0) recientesSesion182[idx].count+=1; else recientesSesion182.unshift({name,count:1}); recientesSesion182=recientesSesion182.sort((a,b)=>b.count-a.count).slice(0,12); renderRecientes(); };
 renderRecientes = function(){
@@ -3200,23 +2939,7 @@ function scoreProducto183(p, term){
   return score;
 }
 
-buscar = function(term){
-  const q = normaliza(term).trim();
-  if(!q) return [];
-  return productos.map((p,i)=>({p,i,score:scoreProducto183(p,q),n:p._n183 || n183(p)}))
-    .filter(x=>x.score>0)
-    .sort((a,b)=>{
-      const ae = a.n===q ? 0 : (a.n.startsWith(q)?1:(a.n.includes(q)?2:3));
-      const be = b.n===q ? 0 : (b.n.startsWith(q)?1:(b.n.includes(q)?2:3));
-      return ae-be || b.score-a.score || a.p.name.localeCompare(b.p.name,'es');
-    })
-    .slice(0,180);
-};
-buscarCatalogo = function(term=''){
-  const q = String(term||'').trim();
-  if(!q) return productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-  return buscar(q);
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment buscar; legacy reassignment buscarCatalogo. */
 
 // Ajustar familias rápidas sin cambiar diseño.
 try{
@@ -3372,23 +3095,8 @@ function scoreProducto186(p, term){
   boost(q.includes('disco') || q.includes('hdd') || q.includes('almacenamiento'), /^hd\d+tb/.test(n) || has186(nText186(p),'hdd','disco duro') ? 82000 : 0);
   return score;
 }
-buscar = function(term){
-  const q = normaliza(term).trim();
-  if(!q) return [];
-  return productos.map((p,i)=>({p,i,score:scoreProducto186(p,q),n:p._n186 || normaliza(String((p&&p.name)||''))}))
-    .filter(x=>x.score>0)
-    .sort((a,b)=>{
-      const ae = a.n===q ? 0 : (a.n.startsWith(q)?1:(a.n.includes(q)?2:3));
-      const be = b.n===q ? 0 : (b.n.startsWith(q)?1:(b.n.includes(q)?2:3));
-      return ae-be || b.score-a.score || a.p.name.localeCompare(b.p.name,'es');
-    })
-    .slice(0,180);
-};
-buscarCatalogo = function(term=''){
-  const q = String(term||'').trim();
-  if(!q) return productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-  return buscar(q);
-};
+
+/* Eliminado durante la unificación del buscador: legacy reassignment buscar; legacy reassignment buscarCatalogo. */
 
 // Familias rápidas: ampliar términos sin tocar las existentes.
 try{
@@ -3438,20 +3146,8 @@ function specialResults187(term){
   }
   return null;
 }
-
-const buscar_PRE187 = buscar;
-buscar = function(term){
-  const forced = specialResults187(term);
-  if(forced) return forced.slice(0, 40);
-  return buscar_PRE187(term);
-};
-
-const buscarCatalogo_PRE187 = buscarCatalogo;
-buscarCatalogo = function(term=''){
-  const forced = specialResults187(term);
-  if(forced) return forced.slice(0, 40);
-  return buscarCatalogo_PRE187(term);
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment buscar. */
+/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
 
 
 function ref188(p){ return String((p && p.name) || '').trim(); }
@@ -3545,28 +3241,8 @@ function ordenar188(arr, q){
     return ae-be || b.score-a.score || a.p.name.localeCompare(b.p.name,'es');
   });
 }
-
-const buscar_PRE188 = buscar;
-buscar = function(term){
-  const q = q187 ? q187(term) : normaliza(term).trim();
-  if(!q) return [];
-  const wantsKit = q === 'kit' || q.includes('kit ') || q.includes(' kit') || q.includes('kit alarma') || q.includes('kit ajax') || q.includes('starter') || q.includes('pack alarma');
-  if(wantsKit){
-    return ordenar188(productos.map((p,i)=>({p,i,score:scoreProducto188(p,q)})), q).slice(0,80);
-  }
-  return buscar_PRE188(term);
-};
-
-const buscarCatalogo_PRE188 = buscarCatalogo;
-buscarCatalogo = function(term=''){
-  const q = q187 ? q187(term) : normaliza(term).trim();
-  if(!q) return productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-  const wantsKit = q === 'kit' || q.includes('kit ') || q.includes(' kit') || q.includes('kit alarma') || q.includes('kit ajax') || q.includes('starter') || q.includes('pack alarma');
-  if(wantsKit){
-    return ordenar188(productos.map((p,i)=>({p,i,score:scoreProducto188(p,q)})), q).slice(0,120);
-  }
-  return buscarCatalogo_PRE188(term);
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment buscar. */
+/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
 
 
 function ref189(p){ return String((p && p.name) || '').trim(); }
@@ -3626,27 +3302,7 @@ descripcionProducto = function(p){
   if(nvr) return nvr;
   return descripcionProducto_PRE189(p);
 };
-
-const scoreProducto_PRE189 = scoreProducto;
-scoreProducto = function(p, term){
-  const q = q187 ? q187(term) : normaliza(term).trim();
-  if(!q) return 0;
-  let score = 0;
-  try{ score += Math.max(0, scoreProducto_PRE189(p, q)); }catch(e){}
-  if(isNvrAjax189(p)){
-    const ch = nvrChannels189(p);
-    const poe = nvrPoePorts189(p);
-    if(q.includes('nvr') || q.includes('grabador') || q.includes('videograbador')) score += 120000;
-    if(ch && (q.includes(`${ch} canales`) || q.includes(`${ch} canal`) || q.includes(`${ch}ch`))) score += 160000;
-    if(q.includes('8 canales') || q.includes('8ch') || q.includes('ocho canales')) score += ch === 8 ? 180000 : -90000;
-    if(q.includes('16 canales') || q.includes('16ch') || q.includes('dieciseis') || q.includes('dieciséis')) score += ch === 16 ? 180000 : -90000;
-    if(q.includes('32 canales') || q.includes('32ch')) score += ch === 32 ? 180000 : -90000;
-    if(q.includes('poe')) score += poe ? 120000 : -30000;
-    if(q.includes('hdmi')) score += (n189(p).includes('hac') || n189(p).includes('hdc')) ? 90000 : 0;
-    if(q.includes('ia') || q.includes('ai')) score += n189(p).includes('ai') ? 90000 : 0;
-  }
-  return score;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
 
 
 function ref190(p){ return String((p && p.name) || '').trim(); }
@@ -3741,34 +3397,7 @@ descripcionProducto = function(p){
   if(door) return door;
   return descripcionProducto_PRE190(p);
 };
-
-const scoreProducto_PRE190 = scoreProducto;
-scoreProducto = function(p, term){
-  const q = q187 ? q187(term) : normaliza(term).trim();
-  if(!q) return 0;
-  let score = 0;
-  try{ score += Math.max(0, scoreProducto_PRE190(p, q)); }catch(e){}
-  const isCurtain = isCurtainAjax190(p);
-  const isDoor = isDoorAjax190(p);
-  const n = n190(p);
-
-  const wantsCurtain = q.includes('curtain') || q.includes('cortina') || q.includes('barrera cortina') || q.includes('tipo cortina');
-  if(wantsCurtain){
-    score += isCurtain ? 260000 : -120000;
-    if(isCurtain && n.includes(q.replace(/\s+/g,''))) score += 90000;
-    if(isCurtain && q.includes('outdoor')) score += n.includes('outdoor') ? 80000 : -30000;
-    if(isCurtain && (q.includes('exterior') || q.includes('perimetral'))) score += n.includes('outdoor') || n.includes('dualcurtain') || n.includes('curtaincamoutdoor') ? 70000 : 10000;
-    if(isCurtain && (q.includes('cam') || q.includes('camara') || q.includes('cámara') || q.includes('phod') || q.includes('foto'))) score += n.includes('cam') || n.includes('phod') ? 80000 : -20000;
-  }
-
-  const wantsDoorWindow = q.includes('doorprotect') || q.includes('puerta') || q.includes('ventana') || q.includes('apertura') || q.includes('magnetico') || q.includes('magnético');
-  if(wantsDoorWindow){
-    if(isCurtain) score -= 220000; // evita que Curtain salga como puerta/ventana
-    if(isDoor) score += 180000;
-  }
-
-  return score;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
 
 function specialResults190(term){
   const q = q187 ? q187(term) : normaliza(term).trim();
@@ -3779,20 +3408,8 @@ function specialResults190(term){
     .filter(x=>x.score>0 && isCurtainAjax190(x.p))
     .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
 }
-
-const buscar_PRE190 = buscar;
-buscar = function(term){
-  const forced = specialResults190(term);
-  if(forced) return forced.slice(0,80);
-  return buscar_PRE190(term);
-};
-
-const buscarCatalogo_PRE190 = buscarCatalogo;
-buscarCatalogo = function(term=''){
-  const forced = specialResults190(term);
-  if(forced) return forced.slice(0,120);
-  return buscarCatalogo_PRE190(term);
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment buscar. */
+/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
 
 
 function ref191(p){ return String((p && p.name) || '').trim(); }
@@ -3947,23 +3564,7 @@ descripcionProducto = function(p){
   const m = preciseDesc191(p); if(m) return m;
   return descripcionProducto_PRE191(p);
 };
-const scoreProducto_PRE191 = scoreProducto;
-scoreProducto = function(p,term){
-  const q = q187 ? q187(term) : normaliza(term).trim();
-  let score = 0;
-  try{ score += Math.max(0, scoreProducto_PRE191(p,q)); }catch(e){}
-  const m = preciseDesc191(p);
-  if(m && q){
-    const hay = normaliza([m.desc,m.family,m.official,(m.tags||[]).join(' '),ref191(p)].join(' '));
-    for(const t of q.split(/\s+/).filter(Boolean)){ if(hay.includes(t)) score += 8000; }
-    if(q.includes('curtain') || q.includes('cortina')){ if(n191(p).includes('curtain')) score += 240000; }
-    if(q.includes('wifi') || q.includes('wi fi')){ if(n191(p).includes('indoorcam') || n191(p).includes('hub2plus')) score += 120000; }
-    if(q.includes('teclado') || q.includes('keypad')){ if(n191(p).includes('keypad')) score += 100000; }
-    if(q.includes('incendio') || q.includes('humo') || q.includes('co') || q.includes('calor')){ if(n191(p).includes('fireprotect')) score += 100000; }
-    if(q.includes('camara') || q.includes('cámara') || q.includes('camera')){ if(isCamera191(n191(p))) score += 100000; }
-  }
-  return score;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
 
 
 function ref192(p){ return String((p && p.name) || '').trim(); }
@@ -4078,29 +3679,7 @@ descripcionProducto = function(p){
   const m=familyDesc192(p); if(m) return m;
   return descripcionProducto_PRE192(p);
 };
-const scoreProducto_PRE192 = scoreProducto;
-scoreProducto = function(p,term){
-  const q = q187 ? q187(term) : normaliza(term).trim();
-  let score=0;
-  try{ score += Math.max(0, scoreProducto_PRE192(p,q)); }catch(e){}
-  const n=n192(p), m=familyDesc192(p);
-  if(!q) return score;
-  if(m){
-    const hay=normaliza([m.official,m.family,m.desc,(m.tags||[]).join(' '),ref192(p)].join(' '));
-    q.split(/\s+/).filter(Boolean).forEach(t=>{ if(hay.includes(t)) score += 9000; });
-  }
-  const wantsDummy = q.includes('dummy') || q.includes('maqueta') || q.includes('carcasa') || q.includes('demo');
-  if(wantsDummy){ score += isDummy192(n) ? 260000 : -50000; }
-  else if(isDummy192(n) && (q.includes('detector') || q.includes('sirena') || q.includes('hub') || q.includes('teclado') || q.includes('motion') || q.includes('door') || q.includes('curtain'))){
-    score -= 140000; // no mezclar maquetas con producto real salvo búsqueda explícita
-  }
-  if(q.includes('cortina') || q.includes('curtain')) score += n.includes('curtain') ? 250000 : -60000;
-  if(q.includes('sirena') || q.includes('siren')) score += (n.includes('homesiren') || n.includes('streetsiren')) ? 170000 : 0;
-  if(q.includes('mando') || q.includes('spacecontrol') || q.includes('llavero')) score += n.includes('spacecontrol') ? 170000 : 0;
-  if(q.includes('pulsador') || q.includes('panico') || q.includes('pánico')) score += (n.includes('button') || n.includes('manualcallpoint')) ? 150000 : 0;
-  if(q.includes('detector') && (q.includes('movimiento') || q.includes('pir') || q.includes('volumetrico') || q.includes('volumétrico'))) score += (n.includes('motionprotect') || n.includes('motioncam') || n.includes('outdoorprotect') || n.includes('curtain')) ? 120000 : 0;
-  return score;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
 
 
 let catalogLetter193 = '';
@@ -4142,8 +3721,6 @@ function ensureAlphabet193(){
     setCatalogLetter193(btn.dataset.letter || '');
   });
 }
-
-const buscar_PRE193 = buscar;
 function busquedaIntencion193(term){
   const tks = tokens193(term);
   const exact = (w) => tks.includes(w);
@@ -4180,28 +3757,7 @@ function busquedaIntencion193(term){
   return strong ? rows : null;
 }
 
-buscar = function(term){
-  const q = String(term || '').trim();
-  if(!q) return [];
-  const forced = busquedaIntencion193(q);
-  if(forced) return forced.slice(0,300);
-  return buscar_PRE193(q);
-};
-
-buscarCatalogo = function(term=''){
-  const q = String(term || '').trim();
-  let lista;
-  if(q){
-    const forced = busquedaIntencion193(q);
-    lista = forced || buscar(q);
-  }else{
-    lista = productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-  }
-  if(catalogLetter193){
-    lista = lista.filter(x => catalogLetterOf193(x.p) === catalogLetter193);
-  }
-  return lista;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment buscar; legacy reassignment buscarCatalogo. */
 
 const pintarCatalogPanel_PRE193 = pintarCatalogPanel;
 pintarCatalogPanel = function(term=catalogTerm){
@@ -4210,25 +3766,7 @@ pintarCatalogPanel = function(term=catalogTerm){
 };
 
 // Pequeños refuerzos de puntuación sin filtrar de forma agresiva.
-const scoreProducto_PRE193 = scoreProducto;
-scoreProducto = function(p, term){
-  let score = 0;
-  try{ score = scoreProducto_PRE193(p, term); }catch(e){}
-  const q = norm193(term), n = n193(p);
-  if(!q) return score;
-  const tks = tokens193(q);
-  if(tks.includes('domo') || tks.includes('dome')){
-    if(n.includes('domecam')) score += 250000;
-    if(n.includes('turretcam')) score += 180000;
-    if(n.includes('domotica')) score -= 500000;
-  }
-  if(tks.includes('turret')) score += n.includes('turretcam') ? 260000 : -100000;
-  if(tks.includes('bullet') || tks.includes('bala')) score += n.includes('bulletcam') ? 260000 : -100000;
-  if(tks.includes('street')) score += n.includes('streetsiren') ? 260000 : -120000;
-  if(tks.includes('homesiren')) score += n.includes('homesiren') ? 260000 : -120000;
-  if(tks.includes('fotosensor') || tks.includes('fotodetector') || (tks.includes('foto') && tks.includes('detector'))) score += (n.includes('motioncam') || n.includes('curtaincam') || n.includes('phod')) ? 240000 : -80000;
-  return score;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
 
 // Reinicia A-Z al abrir catálogo desde botón para que no parezca que faltan productos.
 const abrirCatalogo_PRE193 = typeof abrirCatalogo === 'function' ? abrirCatalogo : null;
@@ -4251,29 +3789,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 const SEARCH_CACHE_194 = new Map();
 const CATALOG_CACHE_194 = new Map();
 function key194(term){ return norm193(String(term || '')).slice(0, 120); }
-
-const buscar_BASE194 = buscar;
-buscar = function(term){
-  const raw = String(term || '');
-  if(!raw.trim()) return [];
-  const k = key194(raw) + '|' + (productos ? productos.length : 0);
-  if(SEARCH_CACHE_194.has(k)) return SEARCH_CACHE_194.get(k);
-  const out = buscar_BASE194(raw);
-  if(SEARCH_CACHE_194.size > 120) SEARCH_CACHE_194.clear();
-  SEARCH_CACHE_194.set(k, out);
-  return out;
-};
-
-const buscarCatalogo_BASE194 = buscarCatalogo;
-buscarCatalogo = function(term=''){
-  const raw = String(term || '');
-  const k = key194(raw) + '|' + (catalogLetter193 || '') + '|' + (productos ? productos.length : 0);
-  if(CATALOG_CACHE_194.has(k)) return CATALOG_CACHE_194.get(k);
-  const out = buscarCatalogo_BASE194(raw);
-  if(CATALOG_CACHE_194.size > 80) CATALOG_CACHE_194.clear();
-  CATALOG_CACHE_194.set(k, out);
-  return out;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment buscar. */
+/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
 
 const resolverDesdeInput_BASE194 = resolverDesdeInput;
 let searchTimer194 = null;
@@ -4459,22 +3976,7 @@ descripcionProducto = function(p){
   const cam = camaraDesc198(p, base);
   return cam || base;
 };
-
-const scoreProducto_BASE198 = scoreProducto;
-scoreProducto = function(p, term){
-  let score = 0;
-  try{ score = scoreProducto_BASE198(p, term); }catch(e){}
-  const q = normaliza(term).trim();
-  const n = normaliza((p && p.name) || '');
-  if(!q) return score;
-  const isCam = n.includes('bulletcam') || n.includes('domecam') || n.includes('turretcam');
-  if(isCam){
-    if(['4mm','4 mm','lente 4','lente 4mm'].includes(q)) score += n.includes('0400') ? 220000 : -60000;
-    if(['2.8','2,8','2.8mm','2,8mm','2.8 mm','2,8 mm'].includes(q)) score += (!n.includes('0400') && !n.includes('hlvf') && !n.includes('-vf') && !n.includes('vf-')) ? 220000 : -60000;
-    if(['vf','varifocal','varifocales'].includes(q)) score += (n.includes('hlvf') || n.includes('-vf') || n.includes('vf-')) ? 220000 : -60000;
-  }
-  return score;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
 
 function presupuestoTexto198(p){
   return normaliza([
@@ -4749,22 +4251,7 @@ descripcionProducto = function(p){
   if(hub) return hub;
   return descripcionProducto_BASE203.apply(this, arguments);
 };
-
-const scoreProducto_BASE203 = scoreProducto;
-scoreProducto = function(p, term){
-  let score = 0;
-  try{ score = scoreProducto_BASE203.apply(this, arguments); }catch(e){}
-  const q = normaliza(term || '').trim();
-  const n = ref203(p);
-  if(!q) return score;
-  const hub = descHubSeguro203(p);
-  if(hub){
-    const hay = normaliza([n, hub.desc, hub.family, hub.official].join(' '));
-    for(const t of q.split(/\s+/).filter(Boolean)) if(hay.includes(t)) score += 50000;
-    if((q === 'fuente' || q === 'psu' || q.includes('alimentacion')) && /^aj-hub(?:2|bp|-|$)/.test(n) && !n.includes('batt')) score -= 300000;
-  }
-  return score;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
 
 
 let catalogQuick204 = '';
@@ -4804,18 +4291,7 @@ function ensureQuickCatalog204(){
     pintarCatalogPanel(document.getElementById('catalogFilter')?.value || catalogTerm || '');
   });
 }
-
-const buscarCatalogo_BASE204 = buscarCatalogo;
-buscarCatalogo = function(term=''){
-  let lista = buscarCatalogo_BASE204.apply(this, arguments);
-  if(catalogQuick204){
-    const def = quickDef204(catalogQuick204);
-    if(def){
-      lista = lista.filter(x => def.test(normaliza((x.p && x.p.name) || '')));
-    }
-  }
-  return lista;
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
 
 const pintarCatalogPanel_BASE204 = pintarCatalogPanel;
 pintarCatalogPanel = function(term=catalogTerm){
@@ -4885,14 +4361,7 @@ addProductoObj = function(p, qty=1, dto=null){
   if(ok) registrarUsoProducto206(p);
   return ok;
 };
-
-const buscarCatalogo_BASE206 = buscarCatalogo;
-buscarCatalogo = function(term=''){
-  if(typeof catalogQuick204 !== 'undefined' && catalogQuick204 === 'used'){
-    return listaMasUsados206(term);
-  }
-  return buscarCatalogo_BASE206.apply(this, arguments);
-};
+/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
 
 const pintarCatalogPanel_BASE206 = pintarCatalogPanel;
 pintarCatalogPanel = function(term=catalogTerm){
@@ -6439,247 +5908,8 @@ escribirListaPresupuestos = function(){
 document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
 
-/* =====================================================
-   4.0.8 - Orden automático compartido de familias (carga corregida)
-   - Buscador inicial y catálogo: variantes W/B contiguas.
-   - Mantiene la relevancia de cada familia y ordena sus variantes.
-   - Si se busca negro/blanco, prioriza el color solicitado.
-   ===================================================== */
-(function(){
-  function hxFamilyKey407(product){
-    return String((product&&product.name)||'').toUpperCase()
-      .replace(/-(?:W|B)(?=-|$)/g,'')
-      .replace(/--+/g,'-').replace(/-$/,'').trim();
-  }
-  function hxColor407(product,query){
-    const ref=String((product&&product.name)||'').toUpperCase();
-    let order=/-W(?:-|$)/.test(ref)?0:/-B(?:-|$)/.test(ref)?1:2;
-    const q=String(query||'').toLowerCase();
-    if(/\b(?:negro|black)\b/.test(q)) order=/-B(?:-|$)/.test(ref)?0:/-W(?:-|$)/.test(ref)?1:2;
-    return order;
-  }
-  function hxOrderFamilies407(items,query=''){
-    if(!Array.isArray(items)||items.length<2) return items;
-    const groups=new Map();
-    items.forEach((item,pos)=>{
-      const p=item&&item.p?item.p:item;
-      const key=hxFamilyKey407(p);
-      if(!groups.has(key)) groups.set(key,{key,items:[],best:-Infinity,first:pos});
-      const g=groups.get(key);
-      g.items.push({item,p,pos});
-      g.best=Math.max(g.best,Number(item&&item.score)||0);
-    });
-    return [...groups.values()]
-      .sort((a,b)=>(b.best-a.best)||(a.first-b.first)||a.key.localeCompare(b.key,'es',{numeric:true,sensitivity:'base'}))
-      .flatMap(g=>g.items.sort((a,b)=>
-        hxColor407(a.p,query)-hxColor407(b.p,query) ||
-        (Number(b.item&&b.item.score)||0)-(Number(a.item&&a.item.score)||0) ||
-        String(a.p&&a.p.name||'').localeCompare(String(b.p&&b.p.name||''),'es',{numeric:true,sensitivity:'base'})
-      ).map(x=>x.item));
-  }
 
-  if(typeof buscar==='function'){
-    const buscarBase407=buscar;
-    buscar=function(term){ return hxOrderFamilies407(buscarBase407.apply(this,arguments),term); };
-  }
-  if(typeof buscarCatalogo==='function'){
-    const buscarCatalogoBase407=buscarCatalogo;
-    buscarCatalogo=function(term=''){ return hxOrderFamilies407(buscarCatalogoBase407.apply(this,arguments),term); };
-  }
-  window.HX_ORDER_FAMILIES=hxOrderFamilies407;
-})();
-
-/* =====================================================
-   4.0.9 - Recuperación automática de variantes de familia
-   - Si una referencia coincide, incorpora sus variantes W/B del catálogo.
-   - Funciona en buscador principal y Catálogo.
-   - No usa listas manuales por producto.
-   ===================================================== */
-(function(){
-  function hxFamilyKey409(product){
-    return String((product&&product.name)||'').toUpperCase()
-      .replace(/-(?:W|B)(?=-|$)/g,'')
-      .replace(/--+/g,'-').replace(/-$/,'').trim();
-  }
-  function hxColorOrder409(product,query=''){
-    const ref=String((product&&product.name)||'').toUpperCase();
-    const q=String(query||'').toLowerCase();
-    if(/\b(?:negro|black)\b/.test(q)) return /-B(?:-|$)/.test(ref)?0:/-W(?:-|$)/.test(ref)?1:2;
-    return /-W(?:-|$)/.test(ref)?0:/-B(?:-|$)/.test(ref)?1:2;
-  }
-  function hxExpandFamilyVariants409(items,query=''){
-    if(!Array.isArray(items)||!items.length||!Array.isArray(productos)) return items;
-
-    const familyIndex=new Map();
-    productos.forEach((p,i)=>{
-      const key=hxFamilyKey409(p);
-      if(!key) return;
-      if(!familyIndex.has(key)) familyIndex.set(key,[]);
-      familyIndex.get(key).push({p,i});
-    });
-
-    const present=new Set();
-    items.forEach(item=>{
-      const p=item&&item.p?item.p:item;
-      const idx=item&&Number.isInteger(item.i)?item.i:productos.indexOf(p);
-      present.add(idx>=0?`i:${idx}`:`n:${String(p&&p.name||'')}`);
-    });
-
-    const expanded=[];
-    const processedFamilies=new Set();
-    items.forEach((item,pos)=>{
-      const p=item&&item.p?item.p:item;
-      const key=hxFamilyKey409(p);
-      if(processedFamilies.has(key)) return;
-      processedFamilies.add(key);
-
-      const originalFamily=items.filter(x=>hxFamilyKey409(x&&x.p?x.p:x)===key);
-      originalFamily.forEach(x=>expanded.push(x));
-
-      const baseScore=Math.max(...originalFamily.map(x=>Number(x&&x.score)||0),0);
-      const variants=(familyIndex.get(key)||[])
-        .filter(v=>!present.has(`i:${v.i}`))
-        .sort((a,b)=>hxColorOrder409(a.p,query)-hxColorOrder409(b.p,query)||String(a.p.name||'').localeCompare(String(b.p.name||''),'es',{numeric:true,sensitivity:'base'}));
-
-      variants.forEach((v,n)=>{
-        expanded.push({p:v.p,i:v.i,score:Math.max(1,baseScore-(n+1)*0.001),familyVariant:true});
-        present.add(`i:${v.i}`);
-      });
-    });
-    return expanded;
-  }
-
-  function hxFinalize409(items,term){
-    const expanded=hxExpandFamilyVariants409(items,term);
-    if(typeof window.HX_ORDER_FAMILIES==='function') return window.HX_ORDER_FAMILIES(expanded,term);
-    return expanded;
-  }
-
-  if(typeof buscar==='function'){
-    const buscarBase409=buscar;
-    buscar=function(term){ return hxFinalize409(buscarBase409.apply(this,arguments),term); };
-  }
-  if(typeof buscarCatalogo==='function'){
-    const buscarCatalogoBase409=buscarCatalogo;
-    buscarCatalogo=function(term=''){ return hxFinalize409(buscarCatalogoBase409.apply(this,arguments),term); };
-  }
-})();
-
-
-(function(){
-  function hxNorm410(v){
-    return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .toLowerCase().trim();
-  }
-  function hxCompact410(v){ return hxNorm410(v).replace(/[^a-z0-9]+/g,''); }
-  function hxRef410(p){ return String((p&&p.name)||'').trim(); }
-  function hxFamilyKey410(p){
-    return hxRef410(p).toUpperCase()
-      .replace(/-(?:W|B)(?=-|$)/g,'')
-      .replace(/--+/g,'-').replace(/-$/,'').trim();
-  }
-  function hxColor410(p,q=''){
-    const r=hxRef410(p).toUpperCase(), n=hxNorm410(q);
-    const black=/(^|\s)(negro|black)(\s|$)|-b(?:-|$)/i.test(n);
-    if(black) return /-B(?:-|$)/.test(r)?0:/-W(?:-|$)/.test(r)?1:2;
-    return /-W(?:-|$)/.test(r)?0:/-B(?:-|$)/.test(r)?1:2;
-  }
-  function hxDirectReferenceMatches410(term){
-    const q=hxCompact410(term);
-    if(!q || q.length<4 || !Array.isArray(productos)) return [];
-    const matches=productos.map((p,i)=>{
-      const ref=hxRef410(p), c=hxCompact410(ref);
-      let score=0;
-      if(c===q) score=1000000;
-      else if(c.startsWith(q)) score=800000;
-      else if(c.includes(q)) score=650000;
-      else if(q.startsWith(c) && c.length>=6) score=500000;
-      if(score && /(?:dummy|lens|bracket|holder|cover|case)/i.test(ref) && !/(?:dummy|lens|bracket|holder|cover|case)/i.test(String(term||''))) score-=100000;
-      return {p,i,score};
-    }).filter(x=>x.score>0);
-    // Con una referencia exacta, no añadimos accesorios cuyo nombre solo
-    // empieza igual; las variantes W/B se recuperan después por familia.
-    const exact=matches.filter(x=>x.score===1000000);
-    return (exact.length?exact:matches)
-      .sort((a,b)=>b.score-a.score || hxRef410(a.p).localeCompare(hxRef410(b.p),'es',{numeric:true,sensitivity:'base'}));
-  }
-  function hxLooksReferenceLike410(term,direct){
-    const raw=String(term||'').trim();
-    const q=hxCompact410(raw);
-    if(!direct.length) return false;
-    if(/^aj[-_ ]/i.test(raw)) return true;
-    if(/[0-9]/.test(raw) || /[-_]/.test(raw)) return true;
-    // Nombres comerciales suficientemente específicos: keypadcombi,
-    // motioncamoutdoor, hub2plus, etc.
-    return q.length>=7;
-  }
-  function hxExpandAndOrder410(items,term=''){
-    if(!Array.isArray(items)||!items.length) return [];
-    const byFamily=new Map();
-    productos.forEach((p,i)=>{
-      const k=hxFamilyKey410(p);
-      if(!byFamily.has(k)) byFamily.set(k,[]);
-      byFamily.get(k).push({p,i});
-    });
-    const result=[], seen=new Set(), families=[];
-    items.forEach((x,pos)=>{
-      const p=x&&x.p?x.p:x, i=Number.isInteger(x&&x.i)?x.i:productos.indexOf(p);
-      const k=hxFamilyKey410(p);
-      if(!families.includes(k)) families.push(k);
-      const id=i>=0?'i'+i:'n'+hxRef410(p);
-      if(!seen.has(id)){ result.push({p,i,score:Number(x&&x.score)||0,__pos:pos}); seen.add(id); }
-    });
-    families.forEach(k=>{
-      const base=Math.max(0,...result.filter(x=>hxFamilyKey410(x.p)===k).map(x=>x.score));
-      (byFamily.get(k)||[]).forEach((v,n)=>{
-        const id='i'+v.i;
-        if(!seen.has(id)){ result.push({p:v.p,i:v.i,score:Math.max(1,base-(n+1)/1000),__pos:9999}); seen.add(id); }
-      });
-    });
-    const familyRank=new Map();
-    result.forEach((x,pos)=>{
-      const k=hxFamilyKey410(x.p), s=Number(x.score)||0;
-      const old=familyRank.get(k);
-      if(!old || s>old.score) familyRank.set(k,{score:s,pos});
-    });
-    return result.sort((a,b)=>{
-      const ka=hxFamilyKey410(a.p), kb=hxFamilyKey410(b.p);
-      if(ka!==kb){
-        const ra=familyRank.get(ka), rb=familyRank.get(kb);
-        return rb.score-ra.score || ra.pos-rb.pos || ka.localeCompare(kb,'es',{numeric:true,sensitivity:'base'});
-      }
-      return hxColor410(a.p,term)-hxColor410(b.p,term) ||
-        (Number(b.score)||0)-(Number(a.score)||0) ||
-        hxRef410(a.p).localeCompare(hxRef410(b.p),'es',{numeric:true,sensitivity:'base'});
-    }).map(({__pos,...x})=>x);
-  }
-  function hxFinalizeSearch410(baseFn,ctx,args,term){
-    const direct=hxDirectReferenceMatches410(term);
-    if(hxLooksReferenceLike410(term,direct)) return hxExpandAndOrder410(direct,term);
-    const base=baseFn.apply(ctx,args);
-    // Incluso en búsquedas generales, las coincidencias directas quedan delante.
-    const merged=[];
-    const seen=new Set();
-    [...direct,...(Array.isArray(base)?base:[])].forEach(x=>{
-      const p=x&&x.p?x.p:x, i=Number.isInteger(x&&x.i)?x.i:productos.indexOf(p);
-      const id=i>=0?'i'+i:'n'+hxRef410(p);
-      if(!seen.has(id)){ merged.push(x); seen.add(id); }
-    });
-    return hxExpandAndOrder410(merged,term);
-  }
-
-  if(typeof buscar==='function'){
-    const prev=buscar;
-    buscar=function(term){ return hxFinalizeSearch410(prev,this,arguments,term); };
-  }
-  if(typeof buscarCatalogo==='function'){
-    const prev=buscarCatalogo;
-    buscarCatalogo=function(term=''){
-      if(!String(term||'').trim()) return prev.apply(this,arguments);
-      return hxFinalizeSearch410(prev,this,arguments,term);
-    };
-  }
-})();
+/* Eliminado durante la unificación del buscador: obsolete search wrappers 4.0.8-4.1.0; legacy reassignment buscar; legacy reassignment buscarCatalogo; legacy reassignment buscar; legacy reassignment buscarCatalogo; legacy reassignment buscar; legacy reassignment buscarCatalogo. */
 
 
 (()=>{

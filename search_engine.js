@@ -25,7 +25,9 @@
     mcam: ['motioncam'],
     mocam: ['motioncam'],
     lte: ['4g'],
+    '4g': ['lte'],
     'wi fi': ['wifi'],
+    wifi: ['wi fi'],
     domo: ['domecam', 'turretcam'],
     torreta: ['turretcam'],
     pir: ['motionprotect', 'movimiento'],
@@ -62,6 +64,9 @@
 
   const CACHE = new Map();
   let cachedSignature = '';
+  let indexedSignature = '';
+  let indexedRecords = [];
+  let indexedProducts = null;
 
   function normalize(value=''){
     return String(value)
@@ -167,6 +172,14 @@
     return hits;
   }
 
+  function fieldContains(fieldNorm,fieldTokens,queryNorm){
+    if(!fieldNorm || !queryNorm) return false;
+    if(fieldNorm===queryNorm || fieldTokens.has(queryNorm)) return true;
+    // Evita falsos positivos de fragmentos cortos: 4g dentro de 64g o
+    // domo dentro de domótica. Para términos largos sí admitimos frase parcial.
+    return queryNorm.length>=5 && fieldNorm.includes(queryNorm);
+  }
+
   function scoreRecord(record, query){
     if(!query.norm) return 0;
     let score = 0;
@@ -175,42 +188,42 @@
     // Referencia: siempre manda.
     if(record.refCompact === query.compact){ score += 320; meaningful=true; }
     else if(record.refCompact.startsWith(query.compact)){ score += 220; meaningful=true; }
-    else if(query.compact.length >= 2 && record.refCompact.includes(query.compact)){ score += 180; meaningful=true; }
+    else if(query.compact.length >= 3 && record.refCompact.includes(query.compact)){ score += 180; meaningful=true; }
 
     const refHits = fieldTokenHits(query.base, record.refTokens);
     if(refHits){ score += refHits * 95; meaningful=true; }
     if(query.base.length > 1 && refHits === query.base.length) score += 70;
 
     // Nombre/familia comercial.
-    if(record.nameNorm.includes(query.norm)){ score += 90; meaningful=true; }
+    if(fieldContains(record.nameNorm,record.nameTokens,query.norm)){ score += 90; meaningful=true; }
     const nameHits = fieldTokenHits(query.expanded, record.nameTokens);
     if(nameHits){ score += nameHits * 45; meaningful=true; }
 
     // Descripción corta oficial recibida desde el CSV.
-    if(record.shortNorm && (record.shortNorm.includes(query.norm) || record.shortCompact.includes(query.compact))){ score += 70; meaningful=true; }
+    if(record.shortNorm && (fieldContains(record.shortNorm,record.shortTokens,query.norm) || (query.compact.length>=6 && record.shortCompact.includes(query.compact)))){ score += 70; meaningful=true; }
     const shortHits = fieldTokenHits(query.expanded, record.shortTokens);
     if(shortHits){ score += shortHits * 32; meaningful=true; }
 
     // Familia y categoría son campos propios. Permiten buscar términos como
     // “domótica”, “sirenas” o “videovigilancia” aunque no aparezcan literalmente
     // en la descripción comercial. Pesan menos que referencia/descripciones.
-    if(record.familyNorm && record.familyNorm.includes(query.norm)){ score += 52; meaningful=true; }
+    if(fieldContains(record.familyNorm,record.familyTokens,query.norm)){ score += 52; meaningful=true; }
     const familyHits = fieldTokenHits(query.expanded, record.familyTokens);
     if(familyHits){ score += familyHits * 24; meaningful=true; }
 
-    if(record.categoryNorm && record.categoryNorm.includes(query.norm)){ score += 44; meaningful=true; }
+    if(fieldContains(record.categoryNorm,record.categoryTokens,query.norm)){ score += 44; meaningful=true; }
     const categoryHits = fieldTokenHits(query.expanded, record.categoryTokens);
     if(categoryHits){ score += categoryHits * 20; meaningful=true; }
 
-    if(record.tagsNorm && record.tagsNorm.includes(query.norm)){ score += 30; meaningful=true; }
+    if(fieldContains(record.tagsNorm,record.tagsTokens,query.norm)){ score += 30; meaningful=true; }
     const tagHits = fieldTokenHits(query.expanded, record.tagsTokens);
     if(tagHits){ score += tagHits * 14; meaningful=true; }
 
-    if(record.brandNorm && record.brandNorm.includes(query.norm)){ score += 16; meaningful=true; }
+    if(fieldContains(record.brandNorm,record.brandTokens,query.norm)){ score += 16; meaningful=true; }
 
     // Índice común para todos los orígenes. Incluye descripción completa,
     // familia, categoría y etiquetas, sin distinguir entre Visio y manual.
-    if(record.unifiedNorm.includes(query.norm) || record.unifiedCompact.includes(query.compact)){
+    if(fieldContains(record.unifiedNorm,record.unifiedTokens,query.norm) || (query.compact.length>=6 && record.unifiedCompact.includes(query.compact))){
       score += 58;
       meaningful=true;
     }
@@ -218,7 +231,7 @@
     if(unifiedHits){ score += unifiedHits * 18; meaningful=true; }
 
     // La descripción completa ayuda a ordenar, pero no sustituye a la referencia.
-    if(record.fullNorm && record.fullNorm.includes(query.norm)){ score += 24; meaningful=true; }
+    if(fieldContains(record.fullNorm,record.fullTokens,query.norm)){ score += 24; meaningful=true; }
     const fullHits = fieldTokenHits(query.base, record.fullTokens);
     if(fullHits){ score += fullHits * 10; meaningful=true; }
 
@@ -259,9 +272,83 @@
   }
 
   function catalogSignature(list){
-    if(!list.length) return '0';
-    const first=list[0]||{}, middle=list[Math.floor(list.length/2)]||{}, last=list[list.length-1]||{};
-    return [list.length, first.name, first.description, middle.name, middle.description, last.name, last.description].map(searchValue).join('|');
+    // Huella de todo el contenido indexable. Así una actualización del CSV
+    // invalida el índice aunque conserve exactamente el mismo número de filas.
+    let hash=2166136261;
+    for(const product of list){
+      const value=productSearchFields(product).join('\u001f');
+      for(let i=0;i<value.length;i++){
+        hash^=value.charCodeAt(i);
+        hash=Math.imul(hash,16777619);
+      }
+    }
+    return `${list.length}:${hash>>>0}`;
+  }
+
+  function recordsFor(list,signature){
+    if(indexedProducts!==list || indexedSignature!==signature){
+      indexedProducts=list;
+      indexedSignature=signature;
+      indexedRecords=list.map(buildRecord);
+      CACHE.clear();
+      cachedSignature=signature;
+    }
+    return indexedRecords;
+  }
+
+  function familyKey(record){
+    return String(record&&record.ref||'').toUpperCase()
+      .replace(/-(?:W|B)(?=-|$)/g,'')
+      .replace(/--+/g,'-').replace(/-$/,'').trim();
+  }
+
+  function colorOrder(record,query){
+    const ref=String(record&&record.ref||'').toUpperCase();
+    const asksBlack=/\b(?:negro|black)\b/.test(query.norm);
+    if(asksBlack) return /-B(?:-|$)/.test(ref)?0:/-W(?:-|$)/.test(ref)?1:2;
+    return /-W(?:-|$)/.test(ref)?0:/-B(?:-|$)/.test(ref)?1:2;
+  }
+
+  function expandFamilyVariants(ranked,records,query,limit){
+    if(!ranked.length) return ranked;
+    const byFamily=new Map();
+    for(const record of records){
+      const key=familyKey(record);
+      if(!key) continue;
+      if(!byFamily.has(key)) byFamily.set(key,[]);
+      byFamily.get(key).push(record);
+    }
+    const rankedByFamily=new Map();
+    for(const item of ranked){
+      const key=familyKey(records[item._hxaIndex]);
+      if(!rankedByFamily.has(key)) rankedByFamily.set(key,[]);
+      rankedByFamily.get(key).push(item);
+    }
+    const out=[];
+    const seen=new Set();
+    for(const item of ranked){
+      const record=records[item._hxaIndex];
+      const key=familyKey(record);
+      if(seen.has(key)) continue;
+      seen.add(key);
+      const present=rankedByFamily.get(key)||[];
+      const best=Math.max(...present.map(x=>x._score),item._score);
+      const presentIndexes=new Set(present.map(x=>x._hxaIndex));
+      const variants=(byFamily.get(key)||[])
+        .filter(r=>!presentIndexes.has(r.index))
+        .sort((a,b)=>colorOrder(a,query)-colorOrder(b,query)||a.ref.localeCompare(b.ref,'es',{numeric:true,sensitivity:'base'}))
+        .map((r,n)=>({
+          ...r.product,_hxaIndex:r.index,_score:Math.max(1,best-(n+1)/1000),
+          _reasons:['variante de familia'],_variantBase:key,
+          _color:/-B(?:-|$)/i.test(r.ref)?'black':/-W(?:-|$)/i.test(r.ref)?'white':''
+        }));
+      out.push(...present.sort((a,b)=>
+        colorOrder(records[a._hxaIndex],query)-colorOrder(records[b._hxaIndex],query)||
+        b._score-a._score||String(a.name||'').localeCompare(String(b.name||''),'es',{numeric:true,sensitivity:'base'})
+      ),...variants);
+      if(out.length>=limit) break;
+    }
+    return out.slice(0,limit);
   }
 
   function rank(products, rawQuery, limit=300){
@@ -270,25 +357,26 @@
     if(!query.norm) return [];
     const signature=catalogSignature(list);
     const key = `${query.norm}|${signature}|${limit}`;
-    if(cachedSignature !== signature){ CACHE.clear(); cachedSignature=signature; }
+    const records=recordsFor(list,signature);
     if(CACHE.has(key)) return CACHE.get(key);
 
-    const ranked = list.map((product,index)=>{
-      const record = buildRecord(product,index);
+    let ranked = records.map(record=>{
+      const product=record.product;
       const score = scoreRecord(record,query);
       return score ? {
         ...product,
-        _hxaIndex: Number.isInteger(product && product._hxaIndex) ? product._hxaIndex : index,
+        _hxaIndex: Number.isInteger(product && product._hxaIndex) ? product._hxaIndex : record.index,
         _score: score,
         _reasons: [],
-        _variantBase: normalize(record.ref).replace(/\b(?:w|b)\b/g,'').trim(),
+        _variantBase: familyKey(record),
         _color: /-B(?:-|$)/i.test(record.ref) ? 'black' : /-W(?:-|$)/i.test(record.ref) ? 'white' : ''
       } : null;
     }).filter(Boolean).sort((a,b)=>
       b._score-a._score ||
       String(a.name||'').localeCompare(String(b.name||''),'es',{numeric:true,sensitivity:'base'})
-    ).slice(0,limit);
+    );
 
+    ranked=expandFamilyVariants(ranked,records,query,limit);
     if(CACHE.size>160) CACHE.clear();
     CACHE.set(key,ranked);
     return ranked;
@@ -305,8 +393,8 @@
     compact,
     rank,
     scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),
-    clearCache:()=>{ CACHE.clear(); cachedSignature=''; },
-    version:'5.2-unificado-categorias',
+    clearCache:()=>{ CACHE.clear(); cachedSignature=''; indexedSignature=''; indexedRecords=[]; indexedProducts=null; },
+    version:'6.0-indice-unico',
     catalogFilters:CATALOG_FILTERS
   };
   global.HXA_KNOWLEDGE_ENGINE = engine;
