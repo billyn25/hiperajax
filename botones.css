@@ -253,31 +253,6 @@ body.light-mode .line-qty-btn{
 #pmModal .pmx-actions .pmx-action-icon{width:18px!important;height:18px!important;flex-basis:18px!important;font-size:0!important}
 #pmModal .pmx-actions .pmx-action-icon svg{width:18px!important;height:18px!important;stroke-width:1.9}
 
-/* Presupuesto: controles compactos y coherentes */
-.budget-card .drag-btn,
-.budget-card button.trash,
-.budget-card .line-qty-btn{
-  display:inline-grid!important;
-  place-items:center!important;
-  width:32px!important;
-  min-width:28px!important;
-  height:32px!important;
-  min-height:32px!important;
-  padding:0!important;
-  border-radius:9px!important;
-  transition:transform .14s ease,background-color .16s ease,border-color .16s ease!important;
-}
-.budget-card .drag-btn:hover,
-.budget-card button.trash:hover,
-.budget-card .line-qty-btn:hover{transform:translateY(-1px)}
-.budget-card .drag-btn:active,
-.budget-card button.trash:active,
-.budget-card .line-qty-btn:active{transform:translateY(0) scale(.96)}
-button.trash .ui-row-icon{width:16px;height:16px;flex-basis:16px}
-button.trash .ui-row-icon svg{stroke-width:2}
-.budget-card .drag-btn{gap:2px!important}
-.budget-card .drag-btn span{width:14px!important;height:1.5px!important;border-radius:2px!important}
-
 /* Chips y acciones pequeñas */
 .recent-chip,
 .az-chip,
@@ -301,3 +276,110 @@ button.trash .ui-row-icon svg{stroke-width:2}
   .budget-card button.trash,
   .budget-card .line-qty-btn{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}
 }
+
+/* =====================================================
+   PRESUPUESTO UI — implementación única
+   Tabla, cantidad, mover, borrar, separadores y móvil.
+   ===================================================== */
+.budget-card{--budget-gap:8px;--budget-control:36px;--budget-radius:10px}
+.budget-card .table-scroll{max-height:55vh;overflow:auto;border:1px solid rgba(31,143,95,.22);border-radius:14px}
+.budget-card table{width:100%;table-layout:fixed;border-collapse:collapse}
+.budget-card th,.budget-card td{box-sizing:border-box;padding:12px 10px;vertical-align:middle}
+.budget-card th{font-size:11px;line-height:1.2}
+.budget-card td{font-size:13px}
+.budget-card th:nth-child(1),.budget-card td:nth-child(1){width:20%}
+.budget-card th:nth-child(2),.budget-card td:nth-child(2){width:auto}
+.budget-card th:nth-child(3),.budget-card td:nth-child(3){width:96px;text-align:center}
+.budget-card th:nth-child(4),.budget-card td:nth-child(4){width:126px;text-align:center}
+.budget-card th:nth-child(5),.budget-card td:nth-child(5){width:92px;text-align:center}
+.budget-card th:nth-child(6),.budget-card td:nth-child(6){width:112px;text-align:right}
+.budget-card th:nth-child(7),.budget-card td:nth-child(7){width:92px;text-align:center}
+.budget-card .product-cell{padding-left:18px;font-weight:800}
+.budget-card .desc-cell{display:block;max-width:none;white-space:normal;line-height:1.38;color:var(--muted)}
+.budget-card .price-input.editable-pvp,
+.budget-card .dto-input,
+.budget-card .line-qty-input{
+  box-sizing:border-box;height:var(--budget-control);margin:0;border-radius:var(--budget-radius);font:inherit
+}
+.budget-card .price-input.editable-pvp{width:84px;max-width:84px;text-align:center}
+.budget-card .dto-input{width:68px;min-width:68px;max-width:68px;text-align:center}
+.budget-card .qty-cell{white-space:nowrap}
+.budget-card .line-qty-stepper{
+  display:inline-grid;grid-template-columns:var(--budget-control) 52px var(--budget-control);
+  align-items:center;justify-content:center;gap:var(--budget-gap);width:auto;margin:0 auto
+}
+.budget-card .line-qty-input{width:52px;min-width:52px;max-width:52px;padding:0 4px;text-align:center}
+.budget-card .line-qty-btn,
+.budget-card #tbody .drag-btn,
+.budget-card button.trash{
+  box-sizing:border-box;display:inline-grid;place-items:center;
+  width:var(--budget-control);min-width:var(--budget-control);max-width:var(--budget-control);
+  height:var(--budget-control);min-height:var(--budget-control);max-height:var(--budget-control);
+  margin:0;padding:0;border-radius:var(--budget-radius);box-shadow:none;
+  transition:transform .14s ease,background-color .16s ease,border-color .16s ease
+}
+.budget-card .line-qty-btn:hover,
+.budget-card #tbody .drag-btn:hover,
+.budget-card button.trash:hover{transform:translateY(-1px)}
+.budget-card .line-qty-btn:active,
+.budget-card #tbody .drag-btn:active,
+.budget-card button.trash:active{transform:translateY(0) scale(.96)}
+.budget-card td.row-actions{white-space:nowrap;text-align:center}
+.budget-card td.row-actions>*+*{margin-left:var(--budget-gap)!important}
+.budget-card #tbody .drag-btn{
+  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:#167c4d;background:rgba(31,143,95,.10);border:1px solid rgba(31,143,95,.34);cursor:grab;touch-action:none;user-select:none
+}
+.budget-card #tbody .drag-btn span{display:block;width:14px;height:2px;border-radius:999px;background:currentColor;pointer-events:none}
+.budget-card #tbody .drag-btn:active{cursor:grabbing}
+.budget-card button.trash{background:#b91c1c!important;color:#fff!important;border:1px solid #991b1b!important}
+.budget-card button.trash:hover{background:#991b1b!important;border-color:#7f1d1d!important}
+.budget-card button.trash .ui-row-icon{width:17px;height:17px;flex-basis:17px}
+.budget-card button.trash .ui-row-icon svg{width:17px;height:17px;stroke-width:2}
+body.light-mode .budget-card #tbody .drag-btn{background:#edf8f1;border-color:#9ed6b3;color:#167c3d}
+.budget-card .section-row td{background:rgba(31,143,95,.10)!important;border-color:rgba(31,143,95,.25)}
+.budget-card .section-row .section-input{text-align:center!important}
+
+/* Estados de arrastre, una sola implementación */
+#tbody tr.row-dragging284{opacity:.82;transform:scale(1.008);filter:drop-shadow(0 9px 14px rgba(0,0,0,.20));position:relative;z-index:20}
+#tbody tr.row-dragging284>td{background:rgba(31,143,95,.18)!important}
+#tbody tr.row-drag-target284>td{box-shadow:inset 0 -2px 0 rgba(72,190,128,.72)!important}
+#tbody tr.row-drop-saved284>td{animation:row-drop-saved284 .62s cubic-bezier(.2,.75,.25,1) both}
+@keyframes row-drop-saved284{0%{transform:scale(.992);background:rgba(31,143,95,.26)}45%{transform:scale(1.004);background:rgba(31,143,95,.15)}100%{transform:scale(1);background:transparent}}
+#tbody .move,#tbody .move-up-mobile284,#tbody .move-down-mobile284{display:none!important}
+
+@media(max-width:760px){
+  .budget-card{--budget-gap:9px;--budget-control:40px;--budget-radius:11px}
+  .budget-card .table-scroll{max-height:none;overflow:visible;border:0;border-radius:0}
+  .budget-card table,.budget-card tbody{display:block;width:100%}
+  .budget-card thead{display:none}
+  .budget-card tbody tr[data-linea-index]{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 14px;
+    padding:15px 13px;border-bottom:1px solid rgba(31,143,95,.17)
+  }
+  .budget-card tbody tr[data-linea-index]>td{display:block;width:auto!important;min-width:0!important;max-width:none!important;padding:0!important;border:0!important;white-space:normal!important;text-align:left!important}
+  .budget-card tbody tr[data-linea-index]>td:nth-child(1),
+  .budget-card tbody tr[data-linea-index]>td:nth-child(2){grid-column:1/-1}
+  .budget-card tbody tr[data-linea-index]>td:nth-child(3)::before,
+  .budget-card tbody tr[data-linea-index]>td:nth-child(4)::before,
+  .budget-card tbody tr[data-linea-index]>td:nth-child(5)::before,
+  .budget-card tbody tr[data-linea-index]>td:nth-child(6)::before{
+    display:block;margin-bottom:5px;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em
+  }
+  .budget-card tbody tr[data-linea-index]>td:nth-child(3)::before{content:'PVP'}
+  .budget-card tbody tr[data-linea-index]>td:nth-child(4)::before{content:'Cantidad'}
+  .budget-card tbody tr[data-linea-index]>td:nth-child(5)::before{content:'Desc. %'}
+  .budget-card tbody tr[data-linea-index]>td:nth-child(6)::before{content:'Total'}
+  .budget-card tbody tr[data-linea-index]>td:nth-child(6){display:flex!important;flex-direction:column;justify-content:flex-end}
+  .budget-card tbody tr[data-linea-index]>td.row-actions{grid-column:1/-1;display:flex!important;justify-content:flex-end;align-items:center;padding-top:2px!important}
+  .budget-card .product-cell{font-size:14px}
+  .budget-card .desc-cell{font-size:11px;line-height:1.42}
+  .budget-card .price-input.editable-pvp,.budget-card .dto-input{width:100%!important;max-width:none!important;height:var(--budget-control)!important}
+  .budget-card .line-qty-stepper{grid-template-columns:var(--budget-control) minmax(48px,1fr) var(--budget-control);width:100%;gap:var(--budget-gap);margin:0}
+  .budget-card .line-qty-input{width:100%!important;min-width:0!important;max-width:none!important;height:var(--budget-control)!important}
+  .budget-card .section-row{grid-template-columns:minmax(0,1fr) auto!important;align-items:center}
+  .budget-card .section-row>td:first-child{grid-column:1!important}
+  .budget-card .section-row>td.row-actions{grid-column:2!important;padding-top:0!important}
+  .budget-card .section-row .section-input{text-align:left!important}
+}
+
