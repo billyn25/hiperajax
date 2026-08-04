@@ -664,3 +664,152 @@ body.light-mode .budget-card #tbody .drag-btn{background:#edf8f1;border-color:#9
   body:not(.light-mode) .budget-card .totals.totals-v3 .total-box span,
   body:not(.light-mode) .budget-card .totals.totals-v3 .total-box strong{color:#d8f7e5!important}
 }
+
+/* =====================================================
+   CIERRE PRESUPUESTO: línea vacía + separador estable
+   Estructura propia para evitar reglas históricas de tabla.
+   ===================================================== */
+.budget-card .section-row > .section-full-cell{
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+}
+.budget-card .section-bar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-width:0;
+  padding:9px 11px;
+  border:1px solid rgba(31,143,95,.22);
+  border-radius:13px;
+  background:rgba(31,143,95,.06);
+}
+body.light-mode .budget-card .section-bar{
+  background:#f3faf6;
+  border-color:#cfe4d7;
+}
+.budget-card .section-bar .section-divider{
+  display:grid!important;
+  grid-template-columns:minmax(12px,1fr) minmax(0,auto) minmax(12px,1fr)!important;
+  align-items:center!important;
+  gap:9px!important;
+  min-width:0!important;
+  width:100%!important;
+}
+.budget-card .section-bar .section-divider-line{
+  display:block!important;
+  width:100%!important;
+  height:1px!important;
+  background:rgba(31,143,95,.48)!important;
+  border:0!important;
+}
+.budget-card .section-bar .section-input{
+  width:auto!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:30px!important;
+  margin:0!important;
+  padding:4px 9px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:inherit!important;
+  font-size:11px!important;
+  font-weight:850!important;
+  line-height:1!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.budget-card .section-bar .section-actions{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:7px!important;
+  width:auto!important;
+  min-width:max-content!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+@media(max-width:760px){
+  /* El separador es siempre una sola franja. */
+  .budget-card .section-row{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:2px 0 12px!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+  }
+  .budget-card .section-row > .section-full-cell{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    padding:0!important;
+  }
+  .budget-card .section-bar{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    min-height:52px!important;
+  }
+  .budget-card .section-bar .section-input{
+    max-width:45vw!important;
+  }
+  .budget-card .section-bar .drag-btn,
+  .budget-card .section-bar button.trash{
+    flex:0 0 32px!important;
+    width:32px!important;
+    min-width:32px!important;
+    max-width:32px!important;
+    height:32px!important;
+    min-height:32px!important;
+    max-height:32px!important;
+    margin:0!important;
+  }
+
+  /* Línea vacía: cabecera limpia y descripción debajo. */
+  .budget-card tbody tr.manual-row{
+    grid-template-columns:repeat(12,minmax(0,1fr))!important;
+  }
+  .budget-card tbody tr.manual-row > td:nth-child(1){
+    grid-column:1/10!important;
+    grid-row:1!important;
+    align-self:center!important;
+  }
+  .budget-card tbody tr.manual-row > td.row-actions{
+    grid-column:10/13!important;
+    grid-row:1!important;
+    align-self:center!important;
+  }
+  .budget-card tbody tr.manual-row > td:nth-child(2){
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    margin-top:1px!important;
+  }
+  .budget-card tbody tr.manual-row .product-cell .manual-input,
+  .budget-card tbody tr.manual-row .desc-input{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+  }
+  .budget-card tbody tr.manual-row .product-cell .manual-input{
+    height:38px!important;
+  }
+  .budget-card tbody tr.manual-row .desc-input{
+    height:38px!important;
+  }
+}
