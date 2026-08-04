@@ -458,3 +458,32 @@ body.light-mode .budget-card #tbody .drag-btn{background:#edf8f1;border-color:#9
     border-radius:12px!important;
   }
 }
+
+/* Arrastre móvil: destino compacto y estable */
+@media (max-width:760px){
+  #tbody tr.hx-drag-placeholder-mobile{
+    display:table-row!important;
+    height:16px!important;
+    min-height:16px!important;
+  }
+  #tbody tr.hx-drag-placeholder-mobile > td{
+    display:table-cell!important;
+    height:16px!important;
+    min-height:16px!important;
+    padding:5px 0!important;
+    border:0!important;
+    background:transparent!important;
+    box-shadow:inset 0 3px 0 #2fa76f!important;
+  }
+  body.light-mode #tbody tr.hx-drag-placeholder-mobile > td{
+    background:transparent!important;
+    border:0!important;
+    box-shadow:inset 0 3px 0 #16824f!important;
+  }
+  #tbody tr.row-drag-target284 > td{
+    box-shadow:none!important;
+  }
+  body.hx-arrastrando-linea{
+    overscroll-behavior:none;
+  }
+}

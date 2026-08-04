@@ -1131,16 +1131,28 @@ function activarArrastreLineas(){
     return ghostTable;
   }
 
+  function esMovilArrastre(){
+    return window.matchMedia('(max-width:760px)').matches;
+  }
+
   function crearHueco(row){
     const ph = document.createElement('tr');
     ph.className='hx-drag-placeholder';
+    if(esMovilArrastre()) ph.classList.add('hx-drag-placeholder-mobile');
     const td=document.createElement('td');
     td.colSpan=7;
-    td.style.height=row.getBoundingClientRect().height+'px';
+    // En móvil mostramos solo una franja de destino. Evita crear una segunda
+    // tarjeta completa que empuje bruscamente todas las filas inferiores.
+    td.style.height=(esMovilArrastre() ? 16 : row.getBoundingClientRect().height)+'px';
     ph.appendChild(td);
     row.parentNode.insertBefore(ph,row);
     row.style.display='none';
     return ph;
+  }
+
+  function marcarDestino(row){
+    tbody.querySelectorAll('.row-drag-target284').forEach(x=>x.classList.remove('row-drag-target284'));
+    if(row) row.classList.add('row-drag-target284');
   }
 
   function moverHueco(clientY){
@@ -1148,22 +1160,36 @@ function activarArrastreLineas(){
     let colocado=false;
     for(const row of rows){
       const rect=row.getBoundingClientRect();
+      // El destino cambia únicamente al cruzar el centro de la tarjeta.
+      // Así no oscila al mover el dedo unos pocos píxeles.
       if(clientY < rect.top + rect.height/2){
         if(hueco.nextSibling!==row) tbody.insertBefore(hueco,row);
+        marcarDestino(row);
         colocado=true;
         break;
       }
     }
-    if(!colocado) tbody.appendChild(hueco);
+    if(!colocado){
+      tbody.appendChild(hueco);
+      marcarDestino(null);
+    }
   }
 
   function autoscroll(clientY){
+    const margen=86;
+    if(esMovilArrastre()){
+      const alto=window.innerHeight || document.documentElement.clientHeight;
+      let delta=0;
+      if(clientY < margen) delta=-Math.ceil((margen-clientY)/7);
+      else if(clientY > alto-margen) delta=Math.ceil((clientY-(alto-margen))/7);
+      if(delta) window.scrollBy(0,Math.max(-18,Math.min(18,delta)));
+      return;
+    }
     const box=document.querySelector('.budget-card .table-scroll') || document.querySelector('.table-scroll');
     if(!box) return;
     const r=box.getBoundingClientRect();
-    const margen=55;
-    if(clientY < r.top + margen) box.scrollTop -= 14;
-    else if(clientY > r.bottom - margen) box.scrollTop += 14;
+    if(clientY < r.top + 55) box.scrollTop -= 14;
+    else if(clientY > r.bottom - 55) box.scrollTop += 14;
   }
 
   function finalizar(){
