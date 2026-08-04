@@ -1141,9 +1141,15 @@ function activarArrastreLineas(){
     if(esMovilArrastre()) ph.classList.add('hx-drag-placeholder-mobile');
     const td=document.createElement('td');
     td.colSpan=7;
-    // En móvil mostramos solo una franja de destino. Evita crear una segunda
-    // tarjeta completa que empuje bruscamente todas las filas inferiores.
-    td.style.height=(esMovilArrastre() ? 16 : row.getBoundingClientRect().height)+'px';
+    // En móvil usamos una zona de destino compacta y claramente identificable.
+    // No replica la tarjeta completa, por lo que las filas vecinas apenas saltan.
+    if(esMovilArrastre()){
+      td.style.height='34px';
+      td.innerHTML='<span class="hx-drop-label">Suelta aquí para colocar</span>';
+      ph.setAttribute('aria-label','Suelta aquí para colocar');
+    }else{
+      td.style.height=row.getBoundingClientRect().height+'px';
+    }
     ph.appendChild(td);
     row.parentNode.insertBefore(ph,row);
     row.style.display='none';
@@ -1258,7 +1264,7 @@ function render(){
   else body.innerHTML=lineas.map((l,i)=>{
     if(l.separador){
       const titulo = escapeHtml(String(l.name || 'SECCIÓN').toUpperCase());
-      return `<tr class="section-row" data-linea-index="${i}"><td colspan="6"><input class="manual-input section-input" value="${titulo}" placeholder="Título de sección" onchange="setLinea(${i},'name',this.value)"></td><td class="num row-actions"><button type="button" class="drag-btn" title="Mantén y arrastra para mover" aria-label="Mover línea"><span></span><span></span><span></span></button><button class="trash" onclick="delLinea(${i})" title="Eliminar línea" aria-label="Eliminar línea"><span class="ui-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg></span></button></td></tr>`;
+      return `<tr class="section-row" data-linea-index="${i}"><td colspan="6"><div class="section-divider"><span class="section-divider-line" aria-hidden="true"></span><input class="manual-input section-input" value="${titulo}" placeholder="Título de sección" onchange="setLinea(${i},'name',this.value)"><span class="section-divider-line" aria-hidden="true"></span></div></td><td class="num row-actions"><button type="button" class="drag-btn" title="Mantén y arrastra para mover" aria-label="Mover línea"><span></span><span></span><span></span></button><button class="trash" onclick="delLinea(${i})" title="Eliminar línea" aria-label="Eliminar línea"><span class="ui-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg></span></button></td></tr>`;
     }
     const bruto=(Number(l.pvp)||0)*(Number(l.qty)||0), total=bruto*(1-(Number(l.dto)||0)/100);
     const producto = l.manual
