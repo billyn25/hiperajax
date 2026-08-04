@@ -9168,7 +9168,8 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row:hover:not(.is-selected) *{
   padding:10px 14px!important;
   font-size:13px!important;
   line-height:1!important;
-  font-weight:800!important;
+  font-weight:700!important;
+  letter-spacing:0!important;
   text-align:center!important;
   border-radius:11px!important;
 }

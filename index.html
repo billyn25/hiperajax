@@ -78,14 +78,14 @@
           </div>
         </div>
         <label class="qty-field quick-qty">Cant.<input id="cantidad" type="number" min="1" value="1"></label>
-        <button id="add" class="add-btn quick-add">+ Añadir</button>
-        <button id="btnManual" class="secondary manual-btn quick-manual">+ Línea vacia</button>
-        <button id="btnSeparador" class="secondary separator-btn quick-separator">+ Separador</button>
+        <button id="add" class="add-btn quick-add"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span>Añadir</span></button>
+        <button id="btnManual" class="secondary manual-btn quick-manual"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg></span><span>Línea vacía</span></button>
+        <button id="btnSeparador" class="secondary separator-btn quick-separator"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><path d="M8 12h8"/></svg></span><span>Separador</span></button>
         <div class="normal-select custom-select-box quick-catalog">
           <label>Catálogo completo</label>
           <div class="catalog-actions">
-            <button type="button" id="btnCatalogo" class="catalog-btn"><span class="btn-ico">📖</span>Catálogo</button>
-            <button type="button" id="btnFamilias" class="family-btn"><span class="btn-ico">🧭</span>Explorar</button>
+            <button type="button" id="btnCatalogo" class="catalog-btn"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22z"/></svg></span><span>Catálogo</span></button>
+            <button type="button" id="btnFamilias" class="family-btn"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg></span><span>Explorar</span></button>
           </div>
           <select id="producto" class="native-hidden"><option value="">Cargando catálogo...</option></select>
         </div>
@@ -229,10 +229,10 @@
       </div>
 
       <div class="modal-foot pmx-actions">
-        <button type="button" id="pmDuplicate" class="secondary" disabled><span class="pmx-action-icon" aria-hidden="true">⧉</span><span>Duplicar</span></button>
-        <button type="button" id="pmOpen" class="primary pmx-open-visible" disabled><span class="pmx-action-icon" aria-hidden="true">▣</span><span>Recuperar</span></button>
-        <button type="button" id="pmRename" class="secondary" disabled><span class="pmx-action-icon" aria-hidden="true">#</span><span>Identificador</span></button>
-        <button type="button" id="pmDelete" class="danger" disabled><span class="pmx-action-icon" aria-hidden="true">⌫</span><span>Eliminar</span></button>
+        <button type="button" id="pmDuplicate" class="secondary" disabled><span class="pmx-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></span><span>Duplicar</span></button>
+        <button type="button" id="pmOpen" class="primary pmx-open-visible" disabled><span class="pmx-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9l-2 10H5z"/><path d="M3 7v12"/></svg></span><span>Recuperar</span></button>
+        <button type="button" id="pmRename" class="secondary" disabled><span class="pmx-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13 11 22l-9-9V4h9z"/><circle cx="7" cy="9" r="1.5"/></svg></span><span>Identificador</span></button>
+        <button type="button" id="pmDelete" class="danger" disabled><span class="pmx-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg></span><span>Eliminar</span></button>
       </div>
     </div>
   </div>

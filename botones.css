@@ -130,3 +130,63 @@ body.light-mode .line-qty-btn{
     align-self:flex-end!important;
   }
 }
+
+
+/* === SISTEMA ÚNICO DE ICONOS Y ACCIONES UI 5.0 === */
+.ui-btn-icon,
+.pmx-action-icon,
+.ui-row-icon{
+  display:inline-grid;
+  place-items:center;
+  flex:0 0 18px;
+  width:18px;
+  height:18px;
+  line-height:0;
+}
+.ui-btn-icon svg,
+.pmx-action-icon svg,
+.ui-row-icon svg{
+  display:block;
+  width:18px;
+  height:18px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.add-card .quick-add,
+.add-card .quick-manual,
+.add-card .quick-separator,
+.add-card .catalog-actions button{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  font-family:Inter,Segoe UI,Arial,sans-serif!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  line-height:1!important;
+}
+#pmModal .pmx-actions button{
+  font-family:Inter,Segoe UI,Arial,sans-serif!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  letter-spacing:0!important;
+  gap:8px!important;
+}
+#pmModal .pmx-actions .pmx-action-icon{
+  flex-basis:18px!important;
+  width:18px!important;
+  height:18px!important;
+  font-size:0!important;
+}
+#pmModal .pmx-actions .pmx-action-icon svg{width:18px!important;height:18px!important;}
+button.trash .ui-row-icon{width:16px;height:16px;flex-basis:16px;}
+button.trash .ui-row-icon svg{width:16px;height:16px;stroke-width:2;}
+@media(max-width:760px){
+  .add-card .quick-add,
+  .add-card .quick-manual,
+  .add-card .quick-separator,
+  .add-card .catalog-actions button{font-size:12.5px!important;gap:6px!important;}
+}
