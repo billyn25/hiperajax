@@ -5831,6 +5831,15 @@ function descripcionPdfCorta(linea){
   let pmSelectedId='';
   let pmView={type:'recent',value:''};
   const byId=id=>document.getElementById(id);
+  const PM_ICON={
+    warning:'<span class="pmx-nav-icon pmx-nav-warning" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 2.8 20h18.4z"/><path d="M12 9v5M12 17.3v.2"/></svg></span>',
+    store:'<span class="pmx-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 9h16v11H4zM3 9l2-5h14l2 5"/><path d="M8 20v-6h4v6M3 9c0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0 0 2 3 2 3 0"/></svg></span>',
+    person:'<span class="pmx-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4.3 3.3-7 8-7s7.3 2.7 8 7"/></svg></span>',
+    calendar:'<span class="pmx-inline-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span>',
+    folder:'<span class="pmx-inline-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 6h7l2 2h9v11H3z"/></svg></span>',
+    search:'<span class="pmx-inline-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>',
+    document:'<span class="pmx-document-svg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg></span>'
+  };
   const modal=()=>byId('pmModal');
   const rows=p=>Array.isArray(p?.lineas)?p.lineas.filter(l=>l&&!l.separador&&l.tipo!=='separador'):[];
   const qty=l=>Math.max(0,Number(l?.qty??l?.cantidad??l?.cant)||0);
@@ -5857,15 +5866,15 @@ function descripcionPdfCorta(linea){
     const noCommercial=all.filter(p=>!String(p?.comercial||'').trim()).length;
     const noAssignment=all.filter(p=>!String(p?.tienda||'').trim()&&!String(p?.comercial||'').trim()).length;
     if(sf)sf.innerHTML=[
-      `<button type="button" class="pmx-folder pmx-folder-child pmx-folder-warning" data-pm-view="missing-store">⚠ <span>Sin tienda</span><b class="pmx-folder-count">(${noStore})</b></button>`,
-      ...unique('tienda').map(x=>`<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="store" data-pm-value="${escapeHtml(x)}">🏪 <span>${escapeHtml(x)}</span><b class="pmx-folder-count">(${countBy('tienda',x)})</b></button>`)
+      `<button type="button" class="pmx-folder pmx-folder-child pmx-folder-warning" data-pm-view="missing-store">${PM_ICON.warning}<span>Sin tienda</span><b class="pmx-folder-count">(${noStore})</b></button>`,
+      ...unique('tienda').map(x=>`<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="store" data-pm-value="${escapeHtml(x)}">${PM_ICON.store}<span>${escapeHtml(x)}</span><b class="pmx-folder-count">(${countBy('tienda',x)})</b></button>`)
     ].join('');
     if(cf)cf.innerHTML=[
-      `<button type="button" class="pmx-folder pmx-folder-child pmx-folder-warning" data-pm-view="missing-commercial">⚠ <span>Sin comercial</span><b class="pmx-folder-count">(${noCommercial})</b></button>`,
-      ...unique('comercial').map(x=>`<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="commercial" data-pm-value="${escapeHtml(x)}">👤 <span>${escapeHtml(x)}</span><b class="pmx-folder-count">(${countBy('comercial',x)})</b></button>`)
+      `<button type="button" class="pmx-folder pmx-folder-child pmx-folder-warning" data-pm-view="missing-commercial">${PM_ICON.warning}<span>Sin comercial</span><b class="pmx-folder-count">(${noCommercial})</b></button>`,
+      ...unique('comercial').map(x=>`<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="commercial" data-pm-value="${escapeHtml(x)}">${PM_ICON.person}<span>${escapeHtml(x)}</span><b class="pmx-folder-count">(${countBy('comercial',x)})</b></button>`)
     ].join('');
     const pending=byId('pmPendingFolders');
-    if(pending)pending.innerHTML=`<button type="button" class="pmx-folder pmx-folder-child pmx-folder-warning" data-pm-view="unassigned">⚠ <span>Sin tienda ni comercial</span><b class="pmx-folder-count">(${noAssignment})</b></button>`;
+    if(pending)pending.innerHTML=`<button type="button" class="pmx-folder pmx-folder-child pmx-folder-warning" data-pm-view="unassigned">${PM_ICON.warning}<span>Sin tienda ni comercial</span><b class="pmx-folder-count">(${noAssignment})</b></button>`;
     const recent=byId('pmFolderRecentCount'),total=byId('pmFolderAllCount');
     if(recent)recent.textContent=`(${Math.min(20,all.length)})`;
     if(total)total.textContent=`(${all.length})`;
@@ -5918,7 +5927,7 @@ function descripcionPdfCorta(linea){
     if(q)parts.push(`Búsqueda: “${q}”`);
     const active=pmView.type!=='recent'||store||commercial||q;
     box.classList.toggle('is-filtered',!!active);
-    box.innerHTML=`<span>${active?'🔎 Filtrando':'📂 Vista'}: <strong>${escapeHtml(parts.join(' · ')||'Recientes')}</strong></span>${active?'<button type="button" id="pmClearFilters">Quitar filtros</button>':''}`;
+    box.innerHTML=`<span>${active?PM_ICON.search+' Filtrando':PM_ICON.folder+' Vista'}: <strong>${escapeHtml(parts.join(' · ')||'Recientes')}</strong></span>${active?'<button type="button" id="pmClearFilters">Quitar filtros</button>':''}`;
     byId('pmClearFilters')?.addEventListener('click',()=>{pmView={type:'recent',value:''};if(byId('pmFilterStore'))byId('pmFilterStore').value='';if(byId('pmFilterCommercial'))byId('pmFilterCommercial').value='';if(byId('pmSearch'))byId('pmSearch').value='';clearSelection();render()});
   }
   function clearMobileInlineState(){
@@ -5960,17 +5969,17 @@ function descripcionPdfCorta(linea){
     ['pmOpen','pmDuplicate','pmRename','pmDelete'].forEach(id=>{const e=byId(id);if(e)e.disabled=!active});
     modal()?.classList.toggle('pm-has-selection',active);
     if(!root||!head)return;
-    if(!p){head.textContent='Selecciona un presupuesto';root.className='pmx-preview-body pmx-preview-empty';root.innerHTML='<div class="pmx-empty-icon">▤</div><strong>Selecciona un presupuesto</strong><p>Aquí verás sus datos antes de recuperarlo.</p>';return}
+    if(!p){head.textContent='Selecciona un presupuesto';root.className='pmx-preview-body pmx-preview-empty';root.innerHTML=`<div class="pmx-empty-icon">${PM_ICON.document}</div><strong>Selecciona un presupuesto</strong><p>Aquí verás sus datos antes de recuperarlo.</p>`;return}
     const c=calc(p),r=rows(p),shown=r.slice(0,5);head.textContent=title(p);
-    root.className='pmx-preview-body';root.innerHTML=`<div class="pmx-identity"><span class="pmx-document-icon">▤</span><div><h4>${escapeHtml(title(p))}</h4><p>${escapeHtml(p.numero||'Sin número')}</p></div></div><dl class="pmx-meta"><div><dt>Cliente</dt><dd>${escapeHtml(p.cliente||'Sin cliente')}</dd></div><div><dt>Tienda</dt><dd>${escapeHtml(p.tienda||'Sin tienda')}</dd></div><div><dt>Comercial</dt><dd>${escapeHtml(p.comercial||'Sin asignar')}</dd></div><div><dt>Fecha</dt><dd>${escapeHtml(date(p.fecha||modified(p)))}</dd></div><div><dt>Productos</dt><dd>${c.count}</dd></div></dl><div class="pmx-total"><span>Total</span><strong>${fmt.format(c.total)}</strong></div><div class="pmx-products"><div class="pmx-products-title"><span>Primeros productos</span>${r.length>5?`<small>+${r.length-5} más</small>`:''}</div><ul>${shown.length?shown.map(l=>`<li><span>${escapeHtml(product(l))}</span><b>x${qty(l)||1}</b></li>`).join(''):'<li class="pmx-no-products">Sin productos</li>'}</ul></div>`;
+    root.className='pmx-preview-body';root.innerHTML=`<div class="pmx-identity"><span class="pmx-document-icon">${PM_ICON.document}</span><div><h4>${escapeHtml(title(p))}</h4><p>${escapeHtml(p.numero||'Sin número')}</p></div></div><dl class="pmx-meta"><div><dt>Cliente</dt><dd>${escapeHtml(p.cliente||'Sin cliente')}</dd></div><div><dt>Tienda</dt><dd>${escapeHtml(p.tienda||'Sin tienda')}</dd></div><div><dt>Comercial</dt><dd>${escapeHtml(p.comercial||'Sin asignar')}</dd></div><div><dt>Fecha</dt><dd>${escapeHtml(date(p.fecha||modified(p)))}</dd></div><div><dt>Productos</dt><dd>${c.count}</dd></div></dl><div class="pmx-total"><span>Total</span><strong>${fmt.format(c.total)}</strong></div><div class="pmx-products"><div class="pmx-products-title"><span>Primeros productos</span>${r.length>5?`<small>+${r.length-5} más</small>`:''}</div><ul>${shown.length?shown.map(l=>`<li><span>${escapeHtml(product(l))}</span><b>x${qty(l)||1}</b></li>`).join(''):'<li class="pmx-no-products">Sin productos</li>'}</ul></div>`;
   }
   function render(){
     syncFilters();markFolder();updateFilterNotice();const all=listAll(),list=filtered(),root=byId('pmList');
     if(byId('pmCount'))byId('pmCount').textContent=`${all.length} ${all.length===1?'guardado':'guardados'}`;
     if(byId('pmVisibleCount'))byId('pmVisibleCount').textContent=`${list.length} visibles`;
     if(!root)return;if(pmSelectedId&&!all.some(p=>idOf(p)===pmSelectedId))pmSelectedId='';
-    if(!list.length){window.HX_PM_SELECTED_ID='';root.innerHTML='<div class="pmx-list-empty"><span>▤</span><strong>No hay presupuestos</strong><small>Cambia la carpeta o los filtros.</small></div>';pmSelectedId='';preview();return}
-    root.innerHTML=list.map(p=>{const c=calc(p),id=idOf(p),sel=id===pmSelectedId;return `<button type="button" class="pmx-row${sel?' is-selected':''}" data-pm-id="${escapeHtml(id)}"><span class="pmx-row-icon">▤</span><span class="pmx-row-main"><strong class="pmx-card-identifier${identifier(p)?'':' is-empty'}">${escapeHtml(identifier(p)||'Sin identificador')}</strong><b class="pmx-card-number">${escapeHtml(p.numero||'Sin número')}</b><small class="pmx-card-client">👤 <span>Cliente:</span> ${escapeHtml(p.cliente||'Sin cliente')}</small><span class="pmx-card-fields"><em>🏪 ${escapeHtml(p.tienda||'Sin tienda')}</em><em>👤 ${escapeHtml(p.comercial||'Sin asignar')}</em><em>📅 ${escapeHtml(date(p.fecha||modified(p)))}</em></span></span><span class="pmx-row-side"><strong>${fmt.format(c.total)}</strong><small>${c.count} productos</small></span></button>`}).join('');
+    if(!list.length){window.HX_PM_SELECTED_ID='';root.innerHTML=`<div class="pmx-list-empty"><span>${PM_ICON.document}</span><strong>No hay presupuestos</strong><small>Cambia la carpeta o los filtros.</small></div>`;pmSelectedId='';preview();return}
+    root.innerHTML=list.map(p=>{const c=calc(p),id=idOf(p),sel=id===pmSelectedId;return `<button type="button" class="pmx-row${sel?' is-selected':''}" data-pm-id="${escapeHtml(id)}"><span class="pmx-row-icon">${PM_ICON.document}</span><span class="pmx-row-main"><strong class="pmx-card-identifier${identifier(p)?'':' is-empty'}">${escapeHtml(identifier(p)||'Sin identificador')}</strong><b class="pmx-card-number">${escapeHtml(p.numero||'Sin número')}</b><small class="pmx-card-client">${PM_ICON.person}<span>Cliente:</span> ${escapeHtml(p.cliente||'Sin cliente')}</small><span class="pmx-card-fields"><em>${PM_ICON.store}${escapeHtml(p.tienda||'Sin tienda')}</em><em>${PM_ICON.person}${escapeHtml(p.comercial||'Sin asignar')}</em><em>${PM_ICON.calendar}${escapeHtml(date(p.fecha||modified(p)))}</em></span></span><span class="pmx-row-side"><strong>${fmt.format(c.total)}</strong><small>${c.count} productos</small></span></button>`}).join('');
     root.querySelectorAll('.pmx-row').forEach(row=>row.addEventListener('click',()=>{
       // En PC selecciona; en móvil abre una vista previa separada antes de recuperar.
       pmSelectedId=row.dataset.pmId||'';

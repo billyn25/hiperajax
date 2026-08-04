@@ -131,62 +131,173 @@ body.light-mode .line-qty-btn{
   }
 }
 
+/* === SISTEMA VISUAL ÚNICO DE ACCIONES UI 5.1 === */
+:root{
+  --ui-control-height:40px;
+  --ui-control-radius:11px;
+  --ui-control-gap:7px;
+  --ui-icon-size:18px;
+  --ui-focus:0 0 0 3px rgba(47,118,92,.16);
+}
 
-/* === SISTEMA ÚNICO DE ICONOS Y ACCIONES UI 5.0 === */
+.ui-icon,
 .ui-btn-icon,
 .pmx-action-icon,
-.ui-row-icon{
+.ui-row-icon,
+.pmx-nav-icon,
+.pmx-inline-icon,
+.pmx-document-svg{
   display:inline-grid;
   place-items:center;
-  flex:0 0 18px;
-  width:18px;
-  height:18px;
+  flex:0 0 var(--ui-icon-size);
+  width:var(--ui-icon-size);
+  height:var(--ui-icon-size);
   line-height:0;
 }
+.ui-icon svg,
 .ui-btn-icon svg,
 .pmx-action-icon svg,
-.ui-row-icon svg{
+.ui-row-icon svg,
+.pmx-nav-icon svg,
+.pmx-inline-icon svg,
+.pmx-document-svg svg{
   display:block;
-  width:18px;
-  height:18px;
+  width:100%;
+  height:100%;
   fill:none;
   stroke:currentColor;
   stroke-width:1.9;
   stroke-linecap:round;
   stroke-linejoin:round;
 }
+
+/* Zona Añadir producto: una sola métrica visual */
 .add-card .quick-add,
 .add-card .quick-manual,
 .add-card .quick-separator,
 .add-card .catalog-actions button{
+  min-height:var(--ui-control-height)!important;
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
-  gap:7px!important;
+  gap:var(--ui-control-gap)!important;
+  padding:0 13px!important;
+  border-radius:var(--ui-control-radius)!important;
   font-family:Inter,Segoe UI,Arial,sans-serif!important;
   font-size:13px!important;
-  font-weight:700!important;
+  font-weight:650!important;
   line-height:1!important;
-}
-#pmModal .pmx-actions button{
-  font-family:Inter,Segoe UI,Arial,sans-serif!important;
-  font-size:13px!important;
-  font-weight:700!important;
   letter-spacing:0!important;
-  gap:8px!important;
+  transition:transform .14s ease,background-color .16s ease,border-color .16s ease,box-shadow .16s ease!important;
 }
-#pmModal .pmx-actions .pmx-action-icon{
-  flex-basis:18px!important;
-  width:18px!important;
-  height:18px!important;
+.add-card .quick-add:hover,
+.add-card .quick-manual:hover,
+.add-card .quick-separator:hover,
+.add-card .catalog-actions button:hover{transform:translateY(-1px)}
+.add-card .quick-add:active,
+.add-card .quick-manual:active,
+.add-card .quick-separator:active,
+.add-card .catalog-actions button:active{transform:translateY(0) scale(.97)}
+
+/* Cerrar modales: icono real, sin carácter × */
+.modal-close{
+  display:inline-grid!important;
+  place-items:center!important;
+  width:38px!important;
+  min-width:38px!important;
+  height:38px!important;
+  padding:0!important;
+  border-radius:11px!important;
   font-size:0!important;
 }
-#pmModal .pmx-actions .pmx-action-icon svg{width:18px!important;height:18px!important;}
-button.trash .ui-row-icon{width:16px;height:16px;flex-basis:16px;}
-button.trash .ui-row-icon svg{width:16px;height:16px;stroke-width:2;}
+.modal-close .ui-icon{width:18px;height:18px;flex-basis:18px}
+.modal-close .ui-icon svg{stroke-width:2}
+
+/* Navegación y metadatos del gestor: sin emojis */
+#pmModal .pmx-folder{
+  display:grid!important;
+  grid-template-columns:20px minmax(0,1fr) auto!important;
+  align-items:center!important;
+  column-gap:8px!important;
+}
+#pmModal .pmx-nav-icon{width:17px;height:17px;flex-basis:17px;color:currentColor}
+#pmModal .pmx-nav-warning{color:#e6a23c}
+#pmModal .pmx-inline-icon{width:14px;height:14px;flex-basis:14px;margin-right:5px;vertical-align:-2px}
+#pmModal .pmx-card-client,
+#pmModal .pmx-card-fields em{display:flex!important;align-items:center!important;gap:4px!important}
+#pmModal .pmx-document-svg{width:22px;height:22px;flex-basis:22px}
+#pmModal .pmx-row-icon .pmx-document-svg{width:24px;height:24px}
+#pmModal .pmx-filter-notice>span{display:flex;align-items:center;gap:5px}
+#pmModal .pmx-search>.ui-icon{width:17px;height:17px;flex-basis:17px}
+#pmModal .pmx-mobile-back,
+#pmModal .pmx-mobile-back-filters{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important}
+
+/* Acciones del gestor: misma voz tipográfica y métrica */
+#pmModal .pmx-actions button{
+  min-height:44px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  padding:9px 15px!important;
+  border-radius:11px!important;
+  font-family:Inter,Segoe UI,Arial,sans-serif!important;
+  font-size:13px!important;
+  font-weight:650!important;
+  line-height:1!important;
+  letter-spacing:0!important;
+  transition:transform .14s ease,background-color .16s ease,border-color .16s ease,box-shadow .16s ease!important;
+}
+#pmModal .pmx-actions button:hover:not(:disabled){transform:translateY(-1px)}
+#pmModal .pmx-actions button:active:not(:disabled){transform:translateY(0) scale(.98)}
+#pmModal .pmx-actions .pmx-action-icon{width:18px!important;height:18px!important;flex-basis:18px!important;font-size:0!important}
+#pmModal .pmx-actions .pmx-action-icon svg{width:18px!important;height:18px!important;stroke-width:1.9}
+
+/* Presupuesto: controles compactos y coherentes */
+.budget-card .drag-btn,
+.budget-card button.trash,
+.budget-card .line-qty-btn{
+  display:inline-grid!important;
+  place-items:center!important;
+  width:32px!important;
+  min-width:32px!important;
+  height:32px!important;
+  min-height:32px!important;
+  padding:0!important;
+  border-radius:9px!important;
+  transition:transform .14s ease,background-color .16s ease,border-color .16s ease!important;
+}
+.budget-card .drag-btn:hover,
+.budget-card button.trash:hover,
+.budget-card .line-qty-btn:hover{transform:translateY(-1px)}
+.budget-card .drag-btn:active,
+.budget-card button.trash:active,
+.budget-card .line-qty-btn:active{transform:translateY(0) scale(.96)}
+button.trash .ui-row-icon{width:16px;height:16px;flex-basis:16px}
+button.trash .ui-row-icon svg{stroke-width:2}
+.budget-card .drag-btn{gap:2px!important}
+.budget-card .drag-btn span{width:14px!important;height:1.5px!important;border-radius:2px!important}
+
+/* Chips y acciones pequeñas */
+.recent-chip,
+.az-chip,
+.quick-cat-chip{
+  font-family:Inter,Segoe UI,Arial,sans-serif!important;
+  font-weight:650!important;
+  transition:transform .14s ease,background-color .16s ease,border-color .16s ease!important;
+}
+.recent-chip:hover,
+.az-chip:hover,
+.quick-cat-chip:hover{transform:translateY(-1px)}
+
 @media(max-width:760px){
+  :root{--ui-control-height:42px;--ui-control-gap:6px;--ui-icon-size:17px}
   .add-card .quick-add,
   .add-card .quick-manual,
   .add-card .quick-separator,
-  .add-card .catalog-actions button{font-size:12.5px!important;gap:6px!important;}
+  .add-card .catalog-actions button{font-size:12.5px!important;padding-inline:10px!important}
+  #pmModal .pmx-actions button{min-height:48px!important;font-size:13px!important;padding-inline:9px!important}
+  .budget-card .drag-btn,
+  .budget-card button.trash,
+  .budget-card .line-qty-btn{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}
 }
