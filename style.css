@@ -9453,3 +9453,29 @@ body.light-mode .header-toolbar > .header-theme:hover,body.light-mode .header-to
     letter-spacing:-.2px;
   }
 }
+
+
+/* Control de precios: cierre visible y táctil en todos los modos */
+.catalog-diagnostic-modal .catalog-diagnostic-close{
+  flex:0 0 42px!important;width:42px!important;min-width:42px!important;max-width:42px!important;
+  height:42px!important;min-height:42px!important;max-height:42px!important;padding:0!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  color:var(--text)!important;background:rgba(127,127,127,.06)!important;
+  border:1px solid rgba(127,127,127,.20)!important;border-radius:13px!important;
+  position:relative;z-index:3;overflow:visible!important;
+}
+.catalog-diagnostic-modal .catalog-diagnostic-close svg{
+  display:block;width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2.6;
+  stroke-linecap:round;stroke-linejoin:round;pointer-events:none;
+}
+.catalog-diagnostic-modal .catalog-diagnostic-close:hover,
+.catalog-diagnostic-modal .catalog-diagnostic-close:focus-visible{
+  background:rgba(31,143,95,.12)!important;border-color:rgba(31,143,95,.42)!important;outline:none;
+}
+@media(max-width:760px){
+  .catalog-diagnostic-modal .modal-head{align-items:flex-start!important;}
+  .catalog-diagnostic-modal .catalog-diagnostic-close{
+    flex-basis:44px!important;width:44px!important;min-width:44px!important;max-width:44px!important;
+    height:44px!important;min-height:44px!important;max-height:44px!important;
+  }
+}

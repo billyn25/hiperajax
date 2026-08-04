@@ -6200,7 +6200,9 @@ function hxEnsureCatalogDiagnosticUI(){
             <h2 id="catalogDiagnosticTitle">Control de precios</h2>
             <p id="catalogDiagnosticSubtitle">Comprobación del catálogo y presupuestos guardados.</p>
           </div>
-          <button type="button" class="modal-close" data-catalog-diagnostic-close aria-label="Cerrar">×</button>
+          <button type="button" class="modal-close catalog-diagnostic-close" data-catalog-diagnostic-close aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
         </div>
         <div id="catalogDiagnosticBody" class="catalog-diagnostic-body"></div>
         <div class="modal-foot">
@@ -6395,8 +6397,21 @@ function hxDiagnosticarCatalogo(opciones={}){
 const cargarCatalogo_BASE_DIAGNOSTICO = cargarCatalogo;
 cargarCatalogo = async function(){
   const resultado = await cargarCatalogo_BASE_DIAGNOSTICO.apply(this, arguments);
-  // Al arrancar no se abre ningún modal ni toast. Si existen diferencias,
-  // queda visible el enlace ámbar para revisarlas cuando convenga.
+
+  // El control de precios necesita también la lista cloud. Se realiza una sola
+  // carga silenciosa al arrancar para poder avisar en Inicio sin obligar a abrir
+  // primero el gestor de presupuestos. No abre modal ni muestra toast.
+  if(!window.HX_PRICE_CONTROL_CLOUD_LOADED){
+    window.HX_PRICE_CONTROL_CLOUD_LOADED=true;
+    try{
+      if(typeof window.HX_RECARGAR_PRESUPUESTOS === 'function'){
+        await window.HX_RECARGAR_PRESUPUESTOS({silencioso:true});
+      }
+    }catch(error){
+      console.warn('[Hiper Ajax] Control de precios: no se pudo cargar la lista cloud.',error);
+    }
+  }
+
   hxDiagnosticarCatalogo({abrirSiHayAvisos:false,avisarToast:false});
   return resultado;
 };
@@ -7477,31 +7492,7 @@ descripcionProducto = function(p){
    - No modifica Catálogo, Explorer, presupuesto ni responsive existente.
    ===================================================== */
 (function(){
-  const hxBuscarAntes420c = buscar;
-  function hxCompact420c(v){
-    return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .toLowerCase().replace(/[^a-z0-9]+/g,'');
-  }
-  buscar = function(term){
-    const resultados = hxBuscarAntes420c.apply(this, arguments);
-    const raw = String(term||'').trim();
-    const q = hxCompact420c(raw);
-    if(!Array.isArray(resultados) || !q || /\s/.test(raw) || q.length < 4) return resultados;
-
-    // Cuando existe una coincidencia real y suficientemente concreta en la
-    // referencia, no dejamos que la búsqueda difusa añada productos porque
-    // sus descripciones contengan letras parecidas (ej.: "combi" -> "compatible").
-    const directosCatalogo = (Array.isArray(productos)?productos:[])
-      .filter(p=>hxCompact420c(p && p.name).includes(q));
-    if(!directosCatalogo.length || directosCatalogo.length > 24) return resultados;
-
-    const filtrados = resultados.filter(x=>{
-      const p=x&&x.p?x.p:x;
-      return hxCompact420c(p&&p.name).includes(q);
-    });
-    return filtrados.length ? filtrados : resultados;
-  };
-
+  // El ranking pertenece exclusivamente a search_engine.js.
   pintarResultados = function(term){
     const panel = document.querySelector('#resultados');
     if(!panel) return;

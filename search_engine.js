@@ -127,14 +127,22 @@
     const short = shortDescription(product);
     const full = String(product && (product.description || product.desc) || '');
     const name = commercialName(product);
+    const brand = searchValue(product && (product.brand || product.marca));
+    const family = searchValue(product && (product.family || product.familia || product._family));
+    const category = searchValue(product && (product.category || product.categoria));
+    const tags = searchValue(product && (product.tags || product.keywords));
     const searchFields = productSearchFields(product);
     const unified = searchFields.join(' ');
     return {
-      product, index, ref, short, full, name, unified,
+      product, index, ref, short, full, name, brand, family, category, tags, unified,
       refNorm: normalize(ref), refCompact: compact(ref), refTokens: new Set(refParts(ref)),
       nameNorm: normalize(name), nameCompact: compact(name), nameTokens: new Set(tokens(name)),
       shortNorm: normalize(short), shortCompact: compact(short), shortTokens: new Set(tokens(short)),
       fullNorm: normalize(full), fullCompact: compact(full), fullTokens: new Set(tokens(full)),
+      brandNorm: normalize(brand), brandTokens: new Set(tokens(brand)),
+      familyNorm: normalize(family), familyTokens: new Set(tokens(family)),
+      categoryNorm: normalize(category), categoryTokens: new Set(tokens(category)),
+      tagsNorm: normalize(tags), tagsTokens: new Set(tokens(tags)),
       unifiedNorm: normalize(unified), unifiedCompact: compact(unified), unifiedTokens: new Set(tokens(unified)),
       isAccessory: /DUMMY|BRACKET|HOOD|LENS|COVER|HOLDER|MAGNET|REED|REPAIR|BRANDPLATE|JUNCTIONBOX|SURFACEBOX/i.test(ref),
       isBundle: /KIT/i.test(ref)
@@ -183,6 +191,23 @@
     const shortHits = fieldTokenHits(query.expanded, record.shortTokens);
     if(shortHits){ score += shortHits * 32; meaningful=true; }
 
+    // Familia y categoría son campos propios. Permiten buscar términos como
+    // “domótica”, “sirenas” o “videovigilancia” aunque no aparezcan literalmente
+    // en la descripción comercial. Pesan menos que referencia/descripciones.
+    if(record.familyNorm && record.familyNorm.includes(query.norm)){ score += 52; meaningful=true; }
+    const familyHits = fieldTokenHits(query.expanded, record.familyTokens);
+    if(familyHits){ score += familyHits * 24; meaningful=true; }
+
+    if(record.categoryNorm && record.categoryNorm.includes(query.norm)){ score += 44; meaningful=true; }
+    const categoryHits = fieldTokenHits(query.expanded, record.categoryTokens);
+    if(categoryHits){ score += categoryHits * 20; meaningful=true; }
+
+    if(record.tagsNorm && record.tagsNorm.includes(query.norm)){ score += 30; meaningful=true; }
+    const tagHits = fieldTokenHits(query.expanded, record.tagsTokens);
+    if(tagHits){ score += tagHits * 14; meaningful=true; }
+
+    if(record.brandNorm && record.brandNorm.includes(query.norm)){ score += 16; meaningful=true; }
+
     // Índice común para todos los orígenes. Incluye descripción completa,
     // familia, categoría y etiquetas, sin distinguir entre Visio y manual.
     if(record.unifiedNorm.includes(query.norm) || record.unifiedCompact.includes(query.compact)){
@@ -221,8 +246,9 @@
     // aparezcan en algún campo. Evita listas enormes por una sola palabra común.
     if(query.base.length > 1){
       const allFields = new Set([
-        ...record.refTokens, ...record.nameTokens,
-        ...record.shortTokens, ...record.fullTokens, ...record.unifiedTokens
+        ...record.refTokens, ...record.nameTokens, ...record.shortTokens, ...record.fullTokens,
+        ...record.familyTokens, ...record.categoryTokens, ...record.tagsTokens, ...record.brandTokens,
+        ...record.unifiedTokens
       ]);
       const covered = query.base.filter(t=>allFields.has(t)).length;
       if(covered === query.base.length) score += 45;
@@ -280,7 +306,7 @@
     rank,
     scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),
     clearCache:()=>{ CACHE.clear(); cachedSignature=''; },
-    version:'5.1-unificado',
+    version:'5.2-unificado-categorias',
     catalogFilters:CATALOG_FILTERS
   };
   global.HXA_KNOWLEDGE_ENGINE = engine;
