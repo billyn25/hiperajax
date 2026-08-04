@@ -260,7 +260,7 @@ body.light-mode .line-qty-btn{
   display:inline-grid!important;
   place-items:center!important;
   width:32px!important;
-  min-width:32px!important;
+  min-width:28px!important;
   height:32px!important;
   min-height:32px!important;
   padding:0!important;
