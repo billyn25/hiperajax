@@ -1038,27 +1038,34 @@ function activarArrastreLineas(){
     const rect = row.getBoundingClientRect();
     const srcCells = Array.from(row.children);
 
+    const mobileGhost = esMovilArrastre();
     const ghostTable = document.createElement('table');
     ghostTable.className = 'hx-drag-ghost';
     ghostTable.style.position = 'fixed';
     ghostTable.style.left = rect.left + 'px';
     ghostTable.style.top = rect.top + 'px';
     ghostTable.style.width = rect.width + 'px';
+    ghostTable.style.minWidth = rect.width + 'px';
+    ghostTable.style.maxWidth = rect.width + 'px';
     ghostTable.style.height = rect.height + 'px';
     ghostTable.style.zIndex = '100000';
     ghostTable.style.pointerEvents = 'none';
     ghostTable.style.margin = '0';
+    ghostTable.style.overflow = 'hidden';
+    ghostTable.style.boxSizing = 'border-box';
     ghostTable.style.tableLayout = 'fixed';
     ghostTable.style.borderCollapse = 'collapse';
     ghostTable.style.borderSpacing = '0';
 
-    const colgroup = document.createElement('colgroup');
-    srcCells.forEach(cell => {
-      const col = document.createElement('col');
-      col.style.width = cell.getBoundingClientRect().width + 'px';
-      colgroup.appendChild(col);
-    });
-    ghostTable.appendChild(colgroup);
+    if(!mobileGhost){
+      const colgroup = document.createElement('colgroup');
+      srcCells.forEach(cell => {
+        const col = document.createElement('col');
+        col.style.width = cell.getBoundingClientRect().width + 'px';
+        colgroup.appendChild(col);
+      });
+      ghostTable.appendChild(colgroup);
+    }
 
     const ghostBody = document.createElement('tbody');
     const ghostRow = row.cloneNode(true);
@@ -1093,20 +1100,39 @@ function activarArrastreLineas(){
     }
     copiarEstiloCalculado(row, ghostRow);
 
-    ghostRow.style.setProperty('display','table-row','important');
     ghostRow.style.setProperty('height',rect.height+'px','important');
-    ghostRow.style.setProperty('width',rect.width+'px','important');
+    ghostRow.style.setProperty('width','100%','important');
+    ghostRow.style.setProperty('min-width','0','important');
+    ghostRow.style.setProperty('max-width','100%','important');
+    ghostRow.style.setProperty('box-sizing','border-box','important');
 
-    Array.from(ghostRow.children).forEach((cell, i) => {
-      const src = srcCells[i];
-      if(!src) return;
-      const width = src.getBoundingClientRect().width;
-      cell.style.setProperty('display','table-cell','important');
-      cell.style.setProperty('width',width+'px','important');
-      cell.style.setProperty('min-width',width+'px','important');
-      cell.style.setProperty('max-width',width+'px','important');
-      cell.style.setProperty('box-sizing','border-box','important');
-    });
+    if(mobileGhost){
+      ghostTable.style.setProperty('display','block','important');
+      ghostBody.style.setProperty('display','block','important');
+      ghostBody.style.setProperty('width','100%','important');
+      ghostRow.style.setProperty('display','grid','important');
+      ghostRow.style.setProperty('grid-template-columns',getComputedStyle(row).gridTemplateColumns,'important');
+      ghostRow.style.setProperty('overflow','hidden','important');
+      Array.from(ghostRow.children).forEach(cell => {
+        cell.style.setProperty('display','block','important');
+        cell.style.setProperty('width','100%','important');
+        cell.style.setProperty('min-width','0','important');
+        cell.style.setProperty('max-width','100%','important');
+        cell.style.setProperty('box-sizing','border-box','important');
+      });
+    }else{
+      ghostRow.style.setProperty('display','table-row','important');
+      Array.from(ghostRow.children).forEach((cell, i) => {
+        const src = srcCells[i];
+        if(!src) return;
+        const width = src.getBoundingClientRect().width;
+        cell.style.setProperty('display','table-cell','important');
+        cell.style.setProperty('width',width+'px','important');
+        cell.style.setProperty('min-width',width+'px','important');
+        cell.style.setProperty('max-width',width+'px','important');
+        cell.style.setProperty('box-sizing','border-box','important');
+      });
+    }
 
     // cloneNode no refleja el valor actual escrito en inputs/selects.
     const srcFields = row.querySelectorAll('input,select,textarea');
@@ -1117,9 +1143,15 @@ function activarArrastreLineas(){
       if('value' in field) field.value = src.value;
       field.setAttribute('tabindex', '-1');
       const fieldRect = src.getBoundingClientRect();
-      field.style.setProperty('width',fieldRect.width+'px','important');
-      field.style.setProperty('min-width',fieldRect.width+'px','important');
-      field.style.setProperty('max-width',fieldRect.width+'px','important');
+      if(mobileGhost){
+        field.style.setProperty('width','100%','important');
+        field.style.setProperty('min-width','0','important');
+        field.style.setProperty('max-width','100%','important');
+      }else{
+        field.style.setProperty('width',fieldRect.width+'px','important');
+        field.style.setProperty('min-width',fieldRect.width+'px','important');
+        field.style.setProperty('max-width',fieldRect.width+'px','important');
+      }
       field.style.setProperty('height',fieldRect.height+'px','important');
       field.style.setProperty('box-sizing','border-box','important');
     });

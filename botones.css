@@ -483,7 +483,7 @@ body.light-mode .budget-card #tbody .drag-btn{background:#edf8f1;border-color:#9
     white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important;
   }
   .budget-card .desc-cell{
-    display:block!important;margin-top:-3px!important;color:var(--muted)!important;
+    display:block!important;margin-top:3px!important;color:var(--muted)!important;
     font-size:11px!important;line-height:1.45!important;
   }
   .budget-card .price-input.editable-pvp,.budget-card .dto-input{
