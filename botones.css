@@ -768,14 +768,15 @@ body.light-mode .budget-card .section-bar{
   }
   .budget-card .section-bar .drag-btn,
   .budget-card .section-bar button.trash{
-    flex:0 0 32px!important;
-    width:32px!important;
-    min-width:32px!important;
-    max-width:32px!important;
-    height:32px!important;
-    min-height:32px!important;
-    max-height:32px!important;
+    flex:0 0 34px!important;
+    width:34px!important;
+    min-width:34px!important;
+    max-width:34px!important;
+    height:34px!important;
+    min-height:34px!important;
+    max-height:34px!important;
     margin:0!important;
+    align-self:center!important;
   }
 
   /* Línea vacía: cabecera limpia y descripción debajo. */
@@ -783,14 +784,18 @@ body.light-mode .budget-card .section-bar{
     grid-template-columns:repeat(12,minmax(0,1fr))!important;
   }
   .budget-card tbody tr.manual-row > td:nth-child(1){
-    grid-column:1/10!important;
+    grid-column:1/9!important;
     grid-row:1!important;
     align-self:center!important;
+    min-width:0!important;
+    padding-right:2px!important;
   }
   .budget-card tbody tr.manual-row > td.row-actions{
-    grid-column:10/13!important;
+    grid-column:9/13!important;
     grid-row:1!important;
     align-self:center!important;
+    justify-content:flex-end!important;
+    min-width:78px!important;
   }
   .budget-card tbody tr.manual-row > td:nth-child(2){
     grid-column:1/-1!important;
@@ -812,4 +817,16 @@ body.light-mode .budget-card .section-bar{
   .budget-card tbody tr.manual-row .desc-input{
     height:38px!important;
   }
+}
+
+
+/* === CIERRE REAL: línea vacía y separador alineados === */
+@media(max-width:760px){
+  .budget-card tbody tr.manual-row > td:nth-child(1){grid-column:1/9!important;min-width:0!important;overflow:hidden!important}
+  .budget-card tbody tr.manual-row > td.row-actions{grid-column:9/13!important;min-width:78px!important;justify-content:flex-end!important}
+  .budget-card tbody tr.manual-row .product-cell .manual-input{width:100%!important;max-width:100%!important;min-width:0!important}
+  .budget-card .section-bar{align-items:center!important;min-height:54px!important}
+  .budget-card .section-bar .section-actions{align-items:center!important}
+  .budget-card .section-bar .drag-btn,
+  .budget-card .section-bar button.trash{width:34px!important;min-width:34px!important;max-width:34px!important;height:34px!important;min-height:34px!important;max-height:34px!important;align-self:center!important}
 }
