@@ -1042,11 +1042,13 @@ function activarArrastreLineas(){
     const ghostTable = document.createElement('table');
     ghostTable.className = 'hx-drag-ghost';
     ghostTable.style.position = 'fixed';
-    ghostTable.style.left = rect.left + 'px';
+    const ghostWidth = mobileGhost ? Math.min(rect.width, window.innerWidth - 20) : rect.width;
+    const ghostLeft = mobileGhost ? Math.max(10, Math.min(rect.left, window.innerWidth - ghostWidth - 10)) : rect.left;
+    ghostTable.style.left = ghostLeft + 'px';
     ghostTable.style.top = rect.top + 'px';
-    ghostTable.style.width = rect.width + 'px';
-    ghostTable.style.minWidth = rect.width + 'px';
-    ghostTable.style.maxWidth = rect.width + 'px';
+    ghostTable.style.width = ghostWidth + 'px';
+    ghostTable.style.minWidth = ghostWidth + 'px';
+    ghostTable.style.maxWidth = ghostWidth + 'px';
     ghostTable.style.height = rect.height + 'px';
     ghostTable.style.zIndex = '100000';
     ghostTable.style.pointerEvents = 'none';
@@ -1112,10 +1114,13 @@ function activarArrastreLineas(){
       ghostBody.style.setProperty('width','100%','important');
       ghostRow.style.setProperty('display','grid','important');
       ghostRow.style.setProperty('grid-template-columns',getComputedStyle(row).gridTemplateColumns,'important');
+      ghostRow.style.setProperty('grid-template-rows',getComputedStyle(row).gridTemplateRows,'important');
+      ghostRow.style.setProperty('position','relative','important');
       ghostRow.style.setProperty('overflow','hidden','important');
+      ghostRow.style.setProperty('margin','0','important');
       Array.from(ghostRow.children).forEach(cell => {
         cell.style.setProperty('display','block','important');
-        cell.style.setProperty('width','100%','important');
+        cell.style.setProperty('width','auto','important');
         cell.style.setProperty('min-width','0','important');
         cell.style.setProperty('max-width','100%','important');
         cell.style.setProperty('box-sizing','border-box','important');
