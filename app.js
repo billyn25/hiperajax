@@ -682,7 +682,6 @@ function seleccionarProducto(i, cerrar=false){
   seleccionado = productos[i] ? i : null;
   if(seleccionado===null) return;
   $('#producto').value = String(i);
-  const btnCat=$('#btnCatalogo'); if(btnCat) btnCat.innerHTML = '<span class="btn-ico">📖</span>Catálogo';
   $('#buscador').value = productos[i].name;
   { const d = descripcionProducto(productos[i]); $('#previewProducto').innerHTML = `<b>${escapeHtml(d.icon)} ${escapeHtml(productos[i].name)}</b> · ${escapeHtml(d.desc)} · ${fmt.format(productos[i].pvp)}`; }
   if(cerrar) $('#resultados').classList.add('hidden');
@@ -944,7 +943,6 @@ function addLinea(){
   seleccionadoPvp=null;
   activeIndex=-1;
   $('#previewProducto').textContent='Selecciona un producto para ver su precio.';
-  const btnCat=$('#btnCatalogo'); if(btnCat) btnCat.innerHTML='<span class="btn-ico">📖</span>Catálogo';
   const panel=$('#resultados'); if(panel){panel.classList.add('hidden'); panel.innerHTML='';}
   /* No reconstruir el catálogo completo después de cada alta.
      Era la principal causa de lentitud al elegir el siguiente producto. */
@@ -4845,10 +4843,6 @@ pintarCatalogPanel = function(term=catalogTerm){
 
 
 (function(){
-  function fixCatalogButtons207(){
-    const c=document.getElementById('btnCatalogo'); if(c) c.innerHTML='<span class="btn-ico">📖</span>Catálogo';
-    const f=document.getElementById('btnFamilias'); if(f) f.innerHTML='<span class="btn-ico">🧭</span>Explorar';
-  }
   function orderCatalogFilters207(){
     const row=document.querySelector('#catalogModal .modal-search-row');
     const quick=document.getElementById('catalogQuick204');
@@ -4867,7 +4861,6 @@ pintarCatalogPanel = function(term=catalogTerm){
   if(_ensureQuick){
     ensureQuickCatalog204 = function(){
       const r=_ensureQuick.apply(this, arguments);
-      fixCatalogButtons207();
       orderCatalogFilters207();
       return r;
     };
@@ -4884,11 +4877,11 @@ pintarCatalogPanel = function(term=catalogTerm){
   if(_pintar){
     pintarCatalogPanel = function(){
       const r=_pintar.apply(this, arguments);
-      setTimeout(()=>{ fixCatalogButtons207(); orderCatalogFilters207(); },0);
+      setTimeout(orderCatalogFilters207,0);
       return r;
     };
   }
-  document.addEventListener('DOMContentLoaded',()=>{ fixCatalogButtons207(); setTimeout(orderCatalogFilters207,50); });
+  document.addEventListener('DOMContentLoaded',()=>{ setTimeout(orderCatalogFilters207,50); });
 })();
 
 
@@ -5706,7 +5699,7 @@ pintarCatalogPanel = function(term=catalogTerm){
   document.addEventListener('DOMContentLoaded',()=>{
     const btn = document.getElementById('btnFamilias');
     if(btn){
-      btn.dataset.explorarPro='1'; btn.innerHTML = '<span class="btn-ico">🧭</span>Explorar';
+      btn.dataset.explorarPro='1';
       btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); abrirExplorar211(); }, true);
     }
   });
