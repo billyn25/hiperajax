@@ -411,3 +411,50 @@ body.light-mode .budget-card #tbody .drag-btn{background:#edf8f1;border-color:#9
   .budget-card .section-row>td.row-actions{grid-column:2!important;padding-top:0!important}
   .budget-card .section-row .section-input{text-align:left!important;width:100%!important;min-width:0!important}
 }
+
+
+/* =====================================================
+   PRESUPUESTO MÓVIL — asa de mover táctil y acciones compactas
+   Evita el drag nativo del navegador y mejora la zona de agarre.
+   ===================================================== */
+@media(max-width:760px){
+  .budget-card tbody tr[data-linea-index]>td.row-actions{
+    justify-content:flex-end!important;
+    gap:8px!important;
+    padding-top:8px!important;
+  }
+  .budget-card #tbody .drag-btn{
+    width:52px!important;
+    min-width:52px!important;
+    max-width:52px!important;
+    height:44px!important;
+    min-height:44px!important;
+    max-height:44px!important;
+    border-radius:12px!important;
+    gap:4px!important;
+    touch-action:none!important;
+    -webkit-user-select:none!important;
+    user-select:none!important;
+    -webkit-touch-callout:none!important;
+    cursor:grab!important;
+  }
+  .budget-card #tbody .drag-btn span{
+    width:19px!important;
+    height:2px!important;
+  }
+  .budget-card #tbody .drag-btn:active{
+    cursor:grabbing!important;
+    transform:scale(.94)!important;
+    background:rgba(31,143,95,.20)!important;
+    border-color:rgba(31,143,95,.62)!important;
+  }
+  .budget-card button.trash{
+    width:44px!important;
+    min-width:44px!important;
+    max-width:44px!important;
+    height:44px!important;
+    min-height:44px!important;
+    max-height:44px!important;
+    border-radius:12px!important;
+  }
+}
