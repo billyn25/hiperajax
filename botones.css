@@ -568,28 +568,46 @@ body.light-mode .budget-card #tbody .drag-btn{background:#edf8f1;border-color:#9
     color:#fecaca!important;background:rgba(127,29,29,.28)!important;border-color:rgba(248,113,113,.55)!important;
   }
 
-  /* Separador moderno con acciones superiores discretas. */
+  /* Separador móvil: una sola franja, título y acciones en la misma línea. */
   .budget-card .section-row{
-    position:relative!important;display:block!important;width:100%!important;max-width:100%!important;
-    margin:2px 0 12px!important;padding:12px 82px 12px 12px!important;
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;
+    column-gap:10px!important;
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    margin:2px 0 12px!important;padding:10px 12px!important;
     border:1px solid rgba(31,143,95,.20)!important;border-radius:13px!important;
-    background:rgba(31,143,95,.055)!important;overflow:visible!important;
+    background:rgba(31,143,95,.055)!important;overflow:hidden!important;
   }
   body.light-mode .budget-card .section-row{background:#f3faf6!important;border-color:#d0e5d8!important}
-  .budget-card .section-row>td:first-child{display:block!important;width:100%!important;overflow:visible!important}
-  .budget-card .section-row>td.row-actions{position:absolute!important;top:8px!important;right:8px!important;width:auto!important}
+  .budget-card .section-row>td:first-child{
+    display:block!important;grid-column:1!important;width:100%!important;min-width:0!important;
+    padding:0!important;overflow:hidden!important;
+  }
+  .budget-card .section-row>td.row-actions{
+    position:static!important;grid-column:2!important;display:flex!important;align-items:center!important;
+    justify-content:flex-end!important;gap:7px!important;width:auto!important;min-width:0!important;
+    padding:0!important;margin:0!important;overflow:visible!important;
+  }
   .budget-card .section-row .section-divider{
-    display:grid!important;grid-template-columns:minmax(12px,1fr) minmax(94px,auto) minmax(12px,1fr)!important;
-    align-items:center!important;gap:8px!important;width:100%!important;
+    display:grid!important;
+    grid-template-columns:minmax(10px,1fr) minmax(0,auto) minmax(10px,1fr)!important;
+    align-items:center!important;gap:8px!important;width:100%!important;min-width:0!important;
+  }
+  .budget-card .section-row .section-divider-line{
+    display:block!important;width:100%!important;height:1px!important;
+    background:rgba(31,143,95,.42)!important;border:0!important;
   }
   .budget-card .section-row .section-input{
-    width:auto!important;min-width:94px!important;max-width:52vw!important;height:31px!important;
+    width:auto!important;min-width:0!important;max-width:42vw!important;height:31px!important;
     margin:0!important;padding:4px 9px!important;border-radius:999px!important;
     font-size:10.5px!important;font-weight:850!important;text-align:center!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
   }
   .budget-card .section-row .drag-btn,.budget-card .section-row button.trash{
-    width:32px!important;min-width:32px!important;max-width:32px!important;
-    height:32px!important;min-height:32px!important;max-height:32px!important;
+    flex:0 0 32px!important;width:32px!important;min-width:32px!important;max-width:32px!important;
+    height:32px!important;min-height:32px!important;max-height:32px!important;margin:0!important;
   }
 
   /* Destino de arrastre claro y compacto. */
