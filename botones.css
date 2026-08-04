@@ -349,37 +349,65 @@ body.light-mode .budget-card #tbody .drag-btn{background:#edf8f1;border-color:#9
 #tbody .move,#tbody .move-up-mobile284,#tbody .move-down-mobile284{display:none!important}
 
 @media(max-width:760px){
-  .budget-card{--budget-gap:9px;--budget-control:40px;--budget-radius:11px}
-  .budget-card .table-scroll{max-height:none;overflow:visible;border:0;border-radius:0}
-  .budget-card table,.budget-card tbody{display:block;width:100%}
-  .budget-card thead{display:none}
-  .budget-card tbody tr[data-linea-index]{
-    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 14px;
-    padding:15px 13px;border-bottom:1px solid rgba(31,143,95,.17)
+  .budget-card{--budget-gap:10px;--budget-control:40px;--budget-radius:11px;overflow:hidden}
+  .budget-card .table-scroll{
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    min-height:0!important;max-height:none!important;
+    overflow:visible!important;border:0;border-radius:0
   }
-  .budget-card tbody tr[data-linea-index]>td{display:block;width:auto!important;min-width:0!important;max-width:none!important;padding:0!important;border:0!important;white-space:normal!important;text-align:left!important}
+  .budget-card table,.budget-card tbody{
+    display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
+    table-layout:auto!important
+  }
+  .budget-card thead{display:none!important}
+  .budget-card tbody tr[data-linea-index]{
+    display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    gap:14px 12px;padding:16px 12px;margin:0;
+    border-bottom:1px solid rgba(31,143,95,.17);overflow:hidden
+  }
+  .budget-card tbody tr[data-linea-index]>td{
+    display:block;width:100%!important;min-width:0!important;max-width:100%!important;
+    padding:0!important;border:0!important;white-space:normal!important;
+    text-align:left!important;overflow:hidden!important;box-sizing:border-box!important
+  }
   .budget-card tbody tr[data-linea-index]>td:nth-child(1),
   .budget-card tbody tr[data-linea-index]>td:nth-child(2){grid-column:1/-1}
   .budget-card tbody tr[data-linea-index]>td:nth-child(3)::before,
   .budget-card tbody tr[data-linea-index]>td:nth-child(4)::before,
   .budget-card tbody tr[data-linea-index]>td:nth-child(5)::before,
   .budget-card tbody tr[data-linea-index]>td:nth-child(6)::before{
-    display:block;margin-bottom:5px;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em
+    display:block;margin-bottom:6px;color:var(--muted);font-size:10px;font-weight:800;
+    text-transform:uppercase;letter-spacing:.05em
   }
   .budget-card tbody tr[data-linea-index]>td:nth-child(3)::before{content:'PVP'}
   .budget-card tbody tr[data-linea-index]>td:nth-child(4)::before{content:'Cantidad'}
   .budget-card tbody tr[data-linea-index]>td:nth-child(5)::before{content:'Desc. %'}
   .budget-card tbody tr[data-linea-index]>td:nth-child(6)::before{content:'Total'}
   .budget-card tbody tr[data-linea-index]>td:nth-child(6){display:flex!important;flex-direction:column;justify-content:flex-end}
-  .budget-card tbody tr[data-linea-index]>td.row-actions{grid-column:1/-1;display:flex!important;justify-content:flex-end;align-items:center;padding-top:2px!important}
-  .budget-card .product-cell{font-size:14px}
-  .budget-card .desc-cell{font-size:11px;line-height:1.42}
-  .budget-card .price-input.editable-pvp,.budget-card .dto-input{width:100%!important;max-width:none!important;height:var(--budget-control)!important}
-  .budget-card .line-qty-stepper{grid-template-columns:var(--budget-control) minmax(48px,1fr) var(--budget-control);width:100%;gap:var(--budget-gap);margin:0}
-  .budget-card .line-qty-input{width:100%!important;min-width:0!important;max-width:none!important;height:var(--budget-control)!important}
+  .budget-card tbody tr[data-linea-index]>td.row-actions{
+    grid-column:1/-1;display:flex!important;justify-content:flex-end;align-items:center;
+    gap:var(--budget-gap);padding-top:2px!important;overflow:visible!important
+  }
+  .budget-card td.row-actions>*+*{margin-left:0!important}
+  .budget-card .product-cell{font-size:14px;overflow-wrap:anywhere!important}
+  .budget-card .desc-cell,.budget-card .desc-input{
+    width:100%!important;min-width:0!important;max-width:100%!important;
+    white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important
+  }
+  .budget-card .desc-cell{font-size:11px;line-height:1.42;display:block!important;overflow:visible!important}
+  .budget-card .price-input.editable-pvp,.budget-card .dto-input{
+    width:100%!important;min-width:0!important;max-width:100%!important;height:var(--budget-control)!important
+  }
+  .budget-card .line-qty-stepper{
+    display:grid!important;grid-template-columns:var(--budget-control) minmax(0,1fr) var(--budget-control)!important;
+    width:100%!important;min-width:0!important;max-width:100%!important;gap:var(--budget-gap);margin:0
+  }
+  .budget-card .line-qty-input{
+    width:100%!important;min-width:0!important;max-width:100%!important;height:var(--budget-control)!important
+  }
   .budget-card .section-row{grid-template-columns:minmax(0,1fr) auto!important;align-items:center}
   .budget-card .section-row>td:first-child{grid-column:1!important}
   .budget-card .section-row>td.row-actions{grid-column:2!important;padding-top:0!important}
-  .budget-card .section-row .section-input{text-align:left!important}
+  .budget-card .section-row .section-input{text-align:left!important;width:100%!important;min-width:0!important}
 }
-
