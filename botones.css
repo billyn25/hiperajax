@@ -987,3 +987,27 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
     margin:0!important;
   }
 }
+
+/* =====================================================
+   SEPARADOR PC — alineación definitiva del asa de mover
+   Neutraliza la regla histórica #tbody .drag-btn (margen 0 9px).
+   Móvil permanece intacto.
+   ===================================================== */
+@media (min-width:761px){
+  #tbody .section-row .section-actions .drag-btn{
+    box-sizing:border-box!important;
+    flex:0 0 36px!important;
+    width:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+    margin:0!important;
+    padding:0!important;
+    align-self:center!important;
+  }
+  #tbody .section-row .section-actions .drag-btn span{
+    margin:0!important;
+  }
+}
