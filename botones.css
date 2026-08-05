@@ -666,51 +666,46 @@ body.light-mode .budget-card #tbody .drag-btn{background:#edf8f1;border-color:#9
 }
 
 /* =====================================================
-   SEPARADOR — estructura real de tabla
-   PC: texto en columnas 1–6 y acciones en ORDEN.
-   Móvil: misma franja visual aprobada.
+   CIERRE PRESUPUESTO: línea vacía + separador estable
+   Estructura propia para evitar reglas históricas de tabla.
    ===================================================== */
-.budget-card .section-row .section-content-cell{
-  padding:9px 10px 9px 13px!important;
-  background:rgba(31,143,95,.06)!important;
-  border-top:1px solid rgba(31,143,95,.22)!important;
-  border-bottom:1px solid rgba(31,143,95,.22)!important;
-  border-left:1px solid rgba(31,143,95,.22)!important;
-  border-radius:13px 0 0 13px!important;
+.budget-card .section-row > .section-full-cell{
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
 }
-.budget-card .section-row .section-actions{
-  width:92px!important;
-  min-width:92px!important;
-  max-width:92px!important;
-  padding:9px 10px!important;
-  background:rgba(31,143,95,.06)!important;
-  border-top:1px solid rgba(31,143,95,.22)!important;
-  border-bottom:1px solid rgba(31,143,95,.22)!important;
-  border-right:1px solid rgba(31,143,95,.22)!important;
-  border-radius:0 13px 13px 0!important;
-  white-space:nowrap!important;
-  text-align:center!important;
+.budget-card .section-bar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-width:0;
+  padding:9px 13px;
+  border:1px solid rgba(31,143,95,.22);
+  border-radius:13px;
+  background:rgba(31,143,95,.06);
 }
-body.light-mode .budget-card .section-row .section-content-cell,
-body.light-mode .budget-card .section-row .section-actions{
-  background:#f3faf6!important;
-  border-color:#cfe4d7!important;
+body.light-mode .budget-card .section-bar{
+  background:#f3faf6;
+  border-color:#cfe4d7;
 }
-.budget-card .section-row .section-divider{
+.budget-card .section-bar .section-divider{
   display:grid!important;
   grid-template-columns:minmax(12px,1fr) minmax(0,auto) minmax(12px,1fr)!important;
   align-items:center!important;
   gap:9px!important;
-  width:100%!important;
   min-width:0!important;
+  width:100%!important;
 }
-.budget-card .section-row .section-divider-line{
+.budget-card .section-bar .section-divider-line{
   display:block!important;
   width:100%!important;
   height:1px!important;
   background:rgba(31,143,95,.48)!important;
+  border:0!important;
 }
-.budget-card .section-row .section-input{
+.budget-card .section-bar .section-input{
   width:auto!important;
   min-width:0!important;
   max-width:100%!important;
@@ -730,52 +725,49 @@ body.light-mode .budget-card .section-row .section-actions{
   overflow:hidden!important;
   text-overflow:ellipsis!important;
 }
-@media(min-width:761px){
-  #tbody tr.section-row .section-actions .drag-btn,
-  #tbody tr.section-row .section-actions button.trash{
-    position:static!important;
-    display:inline-flex!important;
-    width:36px!important;
-    min-width:36px!important;
-    max-width:36px!important;
-    height:36px!important;
-    min-height:36px!important;
-    max-height:36px!important;
-    margin:0!important;
-    vertical-align:middle!important;
-  }
-  #tbody tr.section-row .section-actions button.trash{margin-left:7px!important}
+.budget-card .section-bar .section-actions{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:7px!important;
+  width:auto!important;
+  min-width:max-content!important;
+  margin:0!important;
+  padding:0!important;
 }
+
 @media(max-width:760px){
+  /* El separador es siempre una sola franja. */
   .budget-card .section-row{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    align-items:center!important;
+    display:block!important;
     width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
     margin:2px 0 12px!important;
     padding:0!important;
     border:0!important;
+    border-radius:0!important;
     background:transparent!important;
     box-shadow:none!important;
+    overflow:visible!important;
   }
-  .budget-card .section-row .section-content-cell{
-    grid-column:1!important;
+  .budget-card .section-row > .section-full-cell{
     display:block!important;
+    width:100%!important;
     min-width:0!important;
-    padding:9px 8px 9px 13px!important;
+    max-width:100%!important;
+    padding:0!important;
   }
-  .budget-card .section-row .section-actions{
-    grid-column:2!important;
-    display:flex!important;
-    align-items:center!important;
-    gap:7px!important;
-    width:auto!important;
-    min-width:max-content!important;
-    max-width:none!important;
-    padding:9px 13px 9px 0!important;
+  .budget-card .section-bar{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    min-height:52px!important;
   }
-  .budget-card .section-row .section-actions .drag-btn,
-  .budget-card .section-row .section-actions button.trash{
+  .budget-card .section-bar .section-input{
+    max-width:45vw!important;
+  }
+  .budget-card .section-bar .drag-btn,
+  .budget-card .section-bar button.trash{
     flex:0 0 34px!important;
     width:34px!important;
     min-width:34px!important;
@@ -784,7 +776,170 @@ body.light-mode .budget-card .section-row .section-actions{
     min-height:34px!important;
     max-height:34px!important;
     margin:0!important;
+    align-self:center!important;
   }
-  .budget-card .section-row .section-input{max-width:45vw!important}
+
+  /* Línea vacía: cabecera limpia y descripción debajo. */
+  .budget-card tbody tr.manual-row{
+    grid-template-columns:repeat(12,minmax(0,1fr))!important;
+  }
+  .budget-card tbody tr.manual-row > td:nth-child(1){
+    grid-column:1/9!important;
+    grid-row:1!important;
+    align-self:center!important;
+    min-width:0!important;
+    padding-right:2px!important;
+  }
+  .budget-card tbody tr.manual-row > td.row-actions{
+    grid-column:9/13!important;
+    grid-row:1!important;
+    align-self:center!important;
+    justify-content:flex-end!important;
+    min-width:78px!important;
+  }
+  .budget-card tbody tr.manual-row > td:nth-child(2){
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    margin-top:1px!important;
+  }
+  .budget-card tbody tr.manual-row .product-cell .manual-input,
+  .budget-card tbody tr.manual-row .desc-input{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+  }
+  .budget-card tbody tr.manual-row .product-cell .manual-input{
+    height:38px!important;
+  }
+  .budget-card tbody tr.manual-row .desc-input{
+    height:38px!important;
+  }
 }
 
+
+/* === CIERRE REAL: línea vacía y separador alineados === */
+@media(max-width:760px){
+  .budget-card tbody tr.manual-row > td:nth-child(1){grid-column:1/9!important;min-width:0!important;overflow:hidden!important}
+  .budget-card tbody tr.manual-row > td.row-actions{grid-column:9/13!important;min-width:78px!important;justify-content:flex-end!important}
+  .budget-card tbody tr.manual-row .product-cell .manual-input{width:100%!important;max-width:100%!important;min-width:0!important}
+  .budget-card .section-bar{align-items:center!important;min-height:54px!important}
+  .budget-card .section-bar .section-actions{align-items:center!important}
+  .budget-card .section-bar .drag-btn,
+  .budget-card .section-bar button.trash{width:34px!important;min-width:34px!important;max-width:34px!important;height:34px!important;min-height:34px!important;max-height:34px!important;align-self:center!important}
+}
+
+/* =====================================================
+   INICIO 2.2 — distribución final
+   PC conserva el formulario original.
+   Móvil usa rejilla compacta sin tarjetas por campo.
+   ===================================================== */
+
+.budget-card .budget-head-v2{
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:space-between!important;gap:18px!important;margin:0 0 20px!important;
+  padding:0 0 14px!important;border-bottom:1px solid rgba(31,143,95,.18)!important;
+}
+.budget-card .budget-head-title{display:block!important;min-width:0!important}
+.budget-card .budget-head-title h2{margin:0!important}
+.budget-card .budget-head-hint{display:none!important}
+.budget-card .budget-toolbar.header-toolbar{display:flex!important;align-items:center!important;justify-content:flex-end!important;flex:0 0 auto!important;gap:18px!important;margin:0!important}
+.budget-card .budget-toolbar.header-toolbar > .header-action{
+  appearance:none;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 42px;width:42px;min-width:42px;max-width:42px;height:42px;min-height:42px;max-height:42px;
+  aspect-ratio:1/1;margin:0;padding:0;border:1px solid #435149;border-radius:12px;
+  background:#18211d;color:#f4f8f6;box-shadow:0 4px 12px rgba(0,0,0,.14);cursor:pointer;overflow:hidden;
+  transform-origin:center;transition:transform .14s ease,background-color .16s ease,border-color .16s ease,box-shadow .16s ease,color .16s ease;
+}
+.budget-card .budget-toolbar.header-toolbar > .header-action:not(.header-action-danger){color:#159454}
+.budget-card .budget-toolbar.header-toolbar > .header-action:hover,
+.budget-card .budget-toolbar.header-toolbar > .header-action:focus-visible{
+  background:#223029;border-color:#65a486;color:#fff;transform:translateY(-1px) scale(1.02);
+  box-shadow:0 6px 16px rgba(0,0,0,.19),0 0 0 3px rgba(56,156,111,.12);outline:none;
+}
+.budget-card .budget-toolbar.header-toolbar > .header-action:active{transform:translateY(0) scale(.94)}
+.budget-card .budget-toolbar.header-toolbar > .header-action-danger{color:#ef4444}
+.budget-card .budget-toolbar.header-toolbar > .header-action-danger:hover,
+.budget-card .budget-toolbar.header-toolbar > .header-action-danger:focus-visible{background:#351c20;border-color:#d65761;color:#ff5f69;box-shadow:0 6px 16px rgba(0,0,0,.19),0 0 0 3px rgba(220,38,38,.12)}
+body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action{background:#fff;border-color:#c9d3ce;color:#159454;box-shadow:0 3px 10px rgba(24,51,39,.06)}
+body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action:hover,
+body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action:focus-visible{background:#f1f7f4;border-color:#6caf8e;color:#17271f;box-shadow:0 6px 16px rgba(24,51,39,.10),0 0 0 3px rgba(31,143,95,.09)}
+body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-danger{color:#d32936}
+body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-danger:hover,
+body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-danger:focus-visible{background:#fff2f3;border-color:#df6a73;color:#be1724}
+
+@media(max-width:760px){
+  .top-card .quote-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;align-items:end!important}
+  .top-card .quote-row > label{grid-column:auto!important;width:auto!important;min-width:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;text-transform:none!important;letter-spacing:0!important;overflow:visible!important}
+  .top-card .quote-row input,.top-card .quote-row select{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+  .top-card .notes-row{grid-column:1/-1!important;margin-top:10px!important}
+  .top-card .notes-row > label{padding:0!important;border:0!important;background:transparent!important;text-transform:none!important;letter-spacing:0!important}
+  .top-card .notes-row textarea{width:100%!important;min-height:72px!important;margin-top:5px!important}
+
+  .add-card .product-tools-pro{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;align-items:end!important}
+  .add-card .quick-main{grid-column:1/-1!important;min-width:0!important}
+  .add-card .quick-qty{grid-column:1!important;min-width:0!important}
+  .add-card .quick-add{grid-column:2!important;width:100%!important;min-width:0!important}
+  .add-card .quick-manual{grid-column:1!important;width:100%!important;min-width:0!important}
+  .add-card .quick-separator{grid-column:2!important;width:100%!important;min-width:0!important}
+  .add-card .quick-catalog{grid-column:1/-1!important;width:100%!important;min-width:0!important}
+  .add-card .quick-qty input,
+  .add-card .quick-add,
+  .add-card .quick-manual,
+  .add-card .quick-separator{height:42px!important;min-height:42px!important}
+  .add-card .quick-add,
+  .add-card .quick-manual,
+  .add-card .quick-separator{padding-inline:10px!important}
+
+  .section-title-under-actions .hx-budget-identifier-416{margin-top:7px!important;margin-bottom:5px!important}
+
+  .budget-card .budget-head-v2{gap:8px!important;margin-bottom:18px!important;padding-bottom:12px!important}
+  .budget-card .budget-head-title{flex:1 1 auto!important}
+  .budget-card .budget-head-title h2{font-size:17px!important;white-space:nowrap!important}
+  .budget-card .budget-toolbar.header-toolbar{gap:7px!important}
+  .budget-card .budget-toolbar.header-toolbar > .header-action{flex:0 0 39px;width:39px;min-width:39px;max-width:39px;height:39px;min-height:39px;max-height:39px;border-radius:10px;box-shadow:none}
+  .budget-card .budget-toolbar .header-icon{flex-basis:19px;width:19px;height:19px}
+  .budget-card .budget-toolbar .header-icon svg{width:19px;height:19px;max-width:19px;max-height:19px}
+  .budget-card .budget-toolbar .header-format-label{font-size:12px!important;letter-spacing:-.2px!important}
+}
+@media(max-width:390px){
+  .top-card .quote-row{gap:8px!important}
+  .budget-card .budget-head-title h2{font-size:14px!important}
+  .budget-card .budget-toolbar.header-toolbar{gap:5px!important}
+  .budget-card .budget-toolbar.header-toolbar > .header-action{flex-basis:36px;width:36px;min-width:36px;max-width:36px;height:36px;min-height:36px;max-height:36px;border-radius:9px}
+  .budget-card .budget-toolbar .header-format-label{font-size:11px!important}
+}
+
+/* =====================================================
+   INICIO 3.1 — cierre visual barra de acciones
+   Colores explícitos y respiración móvil.
+   ===================================================== */
+.budget-card .budget-toolbar #btnSave,
+.budget-card .budget-toolbar #btnBudgets{
+  color:#159454!important;
+}
+.budget-card .budget-toolbar #btnPDF,
+.budget-card .budget-toolbar #btnPDF .header-format-label{
+  color:#d43a3a!important;
+}
+.budget-card .budget-toolbar #btnExcel,
+.budget-card .budget-toolbar #btnExcel .header-format-label{
+  color:#1d6f42!important;
+}
+.budget-card .budget-toolbar #btnClear{
+  color:#d43a3a!important;
+}
+.budget-card .budget-toolbar #btnSave svg,
+.budget-card .budget-toolbar #btnBudgets svg,
+.budget-card .budget-toolbar #btnClear svg{
+  stroke:currentColor!important;
+}
+
+@media(max-width:760px){
+  .budget-card .budget-toolbar.header-toolbar{gap:9px!important}
+}
+@media(max-width:390px){
+  .budget-card .budget-toolbar.header-toolbar{gap:7px!important}
+}
