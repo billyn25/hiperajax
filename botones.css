@@ -911,3 +911,35 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
   .budget-card .budget-toolbar.header-toolbar > .header-action{flex-basis:36px;width:36px;min-width:36px;max-width:36px;height:36px;min-height:36px;max-height:36px;border-radius:9px}
   .budget-card .budget-toolbar .header-format-label{font-size:11px!important}
 }
+
+/* =====================================================
+   INICIO 3.1 — cierre visual barra de acciones
+   Colores explícitos y respiración móvil.
+   ===================================================== */
+.budget-card .budget-toolbar #btnSave,
+.budget-card .budget-toolbar #btnBudgets{
+  color:#159454!important;
+}
+.budget-card .budget-toolbar #btnPDF,
+.budget-card .budget-toolbar #btnPDF .header-format-label{
+  color:#d43a3a!important;
+}
+.budget-card .budget-toolbar #btnExcel,
+.budget-card .budget-toolbar #btnExcel .header-format-label{
+  color:#1d6f42!important;
+}
+.budget-card .budget-toolbar #btnClear{
+  color:#d43a3a!important;
+}
+.budget-card .budget-toolbar #btnSave svg,
+.budget-card .budget-toolbar #btnBudgets svg,
+.budget-card .budget-toolbar #btnClear svg{
+  stroke:currentColor!important;
+}
+
+@media(max-width:760px){
+  .budget-card .budget-toolbar.header-toolbar{gap:9px!important}
+}
+@media(max-width:390px){
+  .budget-card .budget-toolbar.header-toolbar{gap:7px!important}
+}
