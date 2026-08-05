@@ -1963,10 +1963,6 @@ function esInyectorPoe(p){ const n=normaliza(p.name); return n.includes('inj-poe
 function esDiscoDuro(p){ const n=normaliza(p.name); return /^hd\d+tb/.test(n) || n.includes('disco') || n.includes('hdd'); }
 function esTarjetaSD(p){ const n=normaliza(p.name); return n.includes('hs-tf') || n.includes('microsd') || n.includes('micro-sd') || n.includes('tarjeta-sd'); }
 function esBarrera(p){ const n=normaliza(p.name); return n.includes('abe-150') || n.includes('barrera'); }
-
-/* Eliminado durante la unificación del buscador: duplicate function scoreProducto; duplicate function buscar; duplicate function buscarCatalogo. */
-
-
 function metaProducto164(p){
   const raw = String((p && p.name) || '');
   const n = normaliza(raw);
@@ -2094,9 +2090,6 @@ function textoBusqueda164(p){
 function esMecanismo164(p){ const m=metaProducto164(p); return !!(m && m.family.includes('Confort') && (m.sub.includes('Mecanismos') || m.sub.includes('Tapas') || m.sub.includes('Marcos') || m.sub.includes('LightSwitch') || m.sub.includes('Outlet') || m.sub.includes('Cajas'))); }
 function esRedPoe164(p){ const m=metaProducto164(p); return !!(m && m.family === 'Red / PoE'); }
 function esAlmacenamiento164(p){ const m=metaProducto164(p); return !!(m && m.family === 'Almacenamiento'); }
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
-
-
 function esSwitchPoe165(p){
   const n = normaliza((p && p.name) || '');
   return n.includes('vdms105gp') || n.includes('vdms108gp') || (n.includes('switch') && n.includes('poe'));
@@ -2144,8 +2137,6 @@ metaProducto164 = function(p){
   }
   return metaProductoAnterior_165 ? metaProductoAnterior_165(p) : null;
 };
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
-
 // Familias rápidas añadidas/corregidas sin tocar la UI existente.
 try{
   const existeRed = FAMILIAS_RAPIDAS.some(f=>normaliza(f.title).includes('red'));
@@ -2186,8 +2177,6 @@ metaProducto164 = function(p){
   }
   return metaProductoAnterior_166 ? metaProductoAnterior_166(p) : null;
 };
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
-
 try{
   const inc = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('incendio'));
   if(inc){ inc.term = 'incendio'; inc.desc = 'FireProtect, humo, calor y CO'; }
@@ -2523,8 +2512,6 @@ descripcionProducto = function(p){
 
   return descripcionProductoAnterior_175(p);
 };
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto; legacy reassignment buscar; legacy reassignment buscarCatalogo. */
-
 try{
   const setVersion = ()=>{
   };
@@ -2669,10 +2656,6 @@ descripcionProducto = function(p){
   if(m) return {icon:m.icon, desc:m.desc, family:m.sub ? `${m.family} · ${m.sub}` : m.family, official:m.official};
   return descripcionProductoAnterior_181(p);
 };
-
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto; legacy reassignment buscar; legacy reassignment buscarCatalogo. */
-
-
 function ref182(p){ return String((p && p.name) || '').trim(); }
 function n182(p){ return normaliza(ref182(p)); }
 function has182(n,...xs){ return xs.some(x => n.includes(normaliza(x))); }
@@ -2728,7 +2711,6 @@ function meta182(p){
 const descripcionProducto_PRE182 = descripcionProducto;
 descripcionProducto = function(p){ const m = meta182(p); if(m) return {icon:m.icon,desc:m.desc,family:m.sub?`${m.family} · ${m.sub}`:m.family,official:m.official}; try{return descripcionProducto_PRE182(p);}catch(e){return {icon:'📦',desc:'Producto del catálogo',family:'Producto nuevo',official:ref182(p)};} };
 function textoBusqueda182(p){ const m=meta182(p)||{}; let prev=''; try{const d=descripcionProducto_PRE182(p); prev=[d.desc,d.family,d.official].join(' ');}catch(e){} return normaliza([ref182(p),p&&p.brand,m.family,m.sub,m.desc,m.official,(m.tags||[]).join(' '),prev,p&&p._search175].join(' ')); }
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto; legacy reassignment buscar; legacy reassignment buscarCatalogo. */
 let recientesSesion182 = [];
 registrarReciente = function(nombre){ const name=String(nombre||'').trim(); if(!name) return; const idx=recientesSesion182.findIndex(x=>x.name===name); if(idx>=0) recientesSesion182[idx].count+=1; else recientesSesion182.unshift({name,count:1}); recientesSesion182=recientesSesion182.sort((a,b)=>b.count-a.count).slice(0,12); renderRecientes(); };
 renderRecientes = function(){
@@ -2908,39 +2890,6 @@ cargarCatalogo = async function(){
   construirIndice183();
   return r;
 };
-
-function scoreProducto183(p, term){
-  const q = normaliza(term).trim();
-  if(!q) return 0;
-  if(!p._search183) { p._n183 = n183(p); p._tokens183 = p._n183.split(/[^a-z0-9]+/).filter(Boolean); p._search183 = textoIndex183(p); }
-  const n = p._n183 || n183(p);
-  const search = p._search183 || '';
-  const parts = q.split(/\s+/).filter(Boolean);
-  let score = 0;
-  if(n === q) score += 100000;
-  if(n.startsWith(q)) score += 70000;
-  if(n.includes(q)) score += 52000;
-  if(search.includes(q)) score += 15000;
-  for(const part of parts){
-    if((p._tokens183||[]).includes(part)) score += 26000;
-    else if(n.includes(part)) score += 17000;
-    if(search.includes(part)) score += 6000;
-  }
-  const boost = (cond,val)=>{ if(cond) score += val; };
-  boost(['enchufe','base enchufe','toma corriente','schuko','toma'].includes(q), has183(n,'socket','outlet','outletcore') ? 70000 : 0);
-  boost(['fuente','fuente dc','alimentacion','alimentación','alimentador','dc','dc12','dc12v','dc12v2a','12v'].some(x=>q.includes(x)), has183(n,'dc12','dc1224','dc6','psu','ac220') ? 72000 : 0);
-  boost(['bateria','batería','battery','pila'].some(x=>q.includes(x)), has183(n,'battery','batt','batterybox','batterykit','hubbatt') ? 70000 : 0);
-  boost(q.includes('switch') || q === 'poe' || q.includes('switch poe'), has183(n,'sw1008poe','sw1005poe','vdms105gp','vdms108gp') ? 70000 : 0);
-  boost(q.includes('inyector') || q.includes('injector'), has183(n,'inj-poe','injector') ? 75000 : 0);
-  boost(q.includes('rack') || q.includes('armario') || q.includes('mural'), has183(n,'rack') ? 70000 : 0);
-  boost(q.includes('ip66') || q.includes('estanca'), has183(n,'ip66') ? 70000 : 0);
-  boost(q.includes('sd') || q.includes('micro sd') || q.includes('microsd') || q.includes('tarjeta'), has183(n,'hs-tf','microsd','tarjeta') ? 65000 : 0);
-  boost(q.includes('disco') || q.includes('hdd') || q.includes('almacenamiento'), /^hd\d+tb/.test(n) || has183(n,'hdd') ? 65000 : 0);
-  return score;
-}
-
-/* Eliminado durante la unificación del buscador: legacy reassignment buscar; legacy reassignment buscarCatalogo. */
-
 // Ajustar familias rápidas sin cambiar diseño.
 try{
   const ali = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('alimentacion') || normaliza(f.title).includes('alimentación'));
@@ -3064,40 +3013,6 @@ cargarCatalogo = async function(){
   construirIndice186();
   return r;
 };
-
-const scoreProducto_PRE186 = (typeof scoreProducto183 === 'function') ? scoreProducto183 : scoreProducto;
-function scoreProducto186(p, term){
-  const q = normaliza(term).trim();
-  if(!q) return 0;
-  if(!p._search186){ p._n186 = normaliza(String((p&&p.name)||'')); p._tokens186 = p._n186.split(/[^a-z0-9]+/).filter(Boolean); p._search186 = textoIndex186(p); }
-  const n = p._n186 || '';
-  const search = p._search186 || '';
-  const parts = q.split(/\s+/).filter(Boolean);
-  let score = 0;
-  try{ score += Math.max(0, scoreProducto_PRE186(p,q)); }catch(e){}
-  if(n === q) score += 130000;
-  if(n.startsWith(q)) score += 90000;
-  if(n.includes(q)) score += 70000;
-  if(search.includes(q)) score += 28000;
-  for(const part of parts){
-    if((p._tokens186||[]).includes(part)) score += 42000;
-    else if(n.includes(part)) score += 26000;
-    if(search.includes(part)) score += 12000;
-  }
-  const boost=(cond,val)=>{ if(cond) score+=val; };
-  boost(['enchufe','base enchufe','toma corriente','schuko','toma'].includes(q), has186(nText186(p),'socket','outlet','outletcore') ? 90000 : 0);
-  boost(q.includes('fuente') || q.includes('alimentacion') || q.includes('alimentación') || q.includes('dc12') || q.includes('12v'), has186(nText186(p),'dc12','dc1224','dc6','psu','ac220','fuente dc') ? 95000 : 0);
-  boost(q.includes('switch') || q === 'poe' || q.includes('switch poe'), has186(nText186(p),'sw1008','sw1005','vdms105','vdms108','switch poe') ? 90000 : 0);
-  boost(q.includes('inyector') || q.includes('injector'), has186(nText186(p),'inj-poe','injector poe','inyector poe') ? 90000 : 0);
-  boost(q.includes('rack') || q.includes('armario') || q.includes('mural'), has186(nText186(p),'rack') ? 90000 : 0);
-  boost(q.includes('ip66') || q.includes('estanca'), has186(nText186(p),'ip66') ? 90000 : 0);
-  boost(q.includes('sd') || q.includes('microsd') || q.includes('micro sd') || q.includes('tarjeta'), has186(nText186(p),'hs-tf','microsd','tarjeta sd') ? 82000 : 0);
-  boost(q.includes('disco') || q.includes('hdd') || q.includes('almacenamiento'), /^hd\d+tb/.test(n) || has186(nText186(p),'hdd','disco duro') ? 82000 : 0);
-  return score;
-}
-
-/* Eliminado durante la unificación del buscador: legacy reassignment buscar; legacy reassignment buscarCatalogo. */
-
 // Familias rápidas: ampliar términos sin tocar las existentes.
 try{
   if(typeof FAMILIAS_RAPIDAS !== 'undefined'){
@@ -3130,26 +3045,6 @@ function isHub4G187(p){
   if(n.includes('starterkit') && n.includes('4g')) return true;
   return false;
 }
-function specialResults187(term){
-  const q = q187(term);
-  if(q === 'wifi' || q === 'hub2plus'){
-    return productos
-      .map((p,i)=>({p,i,score:isHub2Plus187(p) ? 1000000 : 0,n:n187(p)}))
-      .filter(x=>x.score>0)
-      .sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-  }
-  if(q === '4g'){
-    return productos
-      .map((p,i)=>({p,i,score:isHub4G187(p) ? 900000 + (isHub2Plus187(p) ? 50000 : 0) : 0,n:n187(p)}))
-      .filter(x=>x.score>0)
-      .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
-  }
-  return null;
-}
-/* Eliminado durante la unificación del buscador: legacy reassignment buscar. */
-/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
-
-
 function ref188(p){ return String((p && p.name) || '').trim(); }
 function n188(p){ return normaliza(ref188(p)); }
 function isAjaxKit188(p){
@@ -3199,52 +3094,6 @@ descripcionProducto = function(p){
   if(k) return k;
   return descripcionProducto_PRE188(p);
 };
-
-const scoreProducto_PRE188 = (typeof scoreProducto186 === 'function') ? scoreProducto186 : scoreProducto;
-function scoreProducto188(p, term){
-  const q = q187 ? q187(term) : normaliza(term).trim();
-  if(!q) return 0;
-  const n = n188(p);
-  const isKit = isAjaxKit188(p);
-  let score = 0;
-  try{ score += Math.max(0, scoreProducto_PRE188(p, q)); }catch(e){}
-
-  // Intención clara de kit: prioriza kits reales y baja centrales sueltas.
-  const wantsKit = q === 'kit' || q.includes('kit ') || q.includes(' kit') || q.includes('kit alarma') || q.includes('kit ajax') || q.includes('starter') || q.includes('pack alarma');
-  if(wantsKit){
-    score += isKit ? 350000 : -80000;
-    if(isKit && q.includes('4g')) score += n.includes('kit4g') ? 160000 : -50000;
-    if(isKit && (q.includes('motion') || q.includes('mp'))) score += /(^|-)mp($|-)/.test(n) ? 90000 : 0;
-    if(isKit && (q.includes('door') || q.includes('dp') || q.includes('puerta'))) score += /(^|-)dp($|-)/.test(n) ? 90000 : 0;
-    if(isKit && (q.includes('phod') || q.includes('foto') || q.includes('photo'))) score += /(^|-)phod($|-)/.test(n) ? 90000 : 0;
-    if(isKit && (q.includes('pro') || q.includes('professional'))) score += /(^|-)pro($|-)/.test(n) ? 70000 : 0;
-  }
-
-  // Consulta "hub 4g" o "central 4g": primero centrales, después kits.
-  const wantsHub4g = (q.includes('hub') || q.includes('central')) && q.includes('4g');
-  if(wantsHub4g && isKit) score -= 60000;
-
-  // Búsqueda por la propia referencia del kit.
-  if(isKit && n.includes(q)) score += 240000;
-
-  return score;
-}
-
-function ordenar188(arr, q){
-  return arr.filter(x=>x.score>0).sort((a,b)=>{
-    const an = n188(a.p), bn = n188(b.p);
-    const ak = isAjaxKit188(a.p), bk = isAjaxKit188(b.p);
-    const wantsKit = q === 'kit' || q.includes('kit ') || q.includes(' kit') || q.includes('kit alarma') || q.includes('kit ajax') || q.includes('starter') || q.includes('pack alarma');
-    if(wantsKit && ak !== bk) return ak ? -1 : 1;
-    const ae = an===q ? 0 : (an.startsWith(q)?1:(an.includes(q)?2:3));
-    const be = bn===q ? 0 : (bn.startsWith(q)?1:(bn.includes(q)?2:3));
-    return ae-be || b.score-a.score || a.p.name.localeCompare(b.p.name,'es');
-  });
-}
-/* Eliminado durante la unificación del buscador: legacy reassignment buscar. */
-/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
-
-
 function ref189(p){ return String((p && p.name) || '').trim(); }
 function n189(p){ return normaliza(ref189(p)); }
 function isNvrAjax189(p){
@@ -3302,9 +3151,6 @@ descripcionProducto = function(p){
   if(nvr) return nvr;
   return descripcionProducto_PRE189(p);
 };
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
-
-
 function ref190(p){ return String((p && p.name) || '').trim(); }
 function n190(p){ return normaliza(ref190(p)); }
 function color190(n){
@@ -3397,8 +3243,6 @@ descripcionProducto = function(p){
   if(door) return door;
   return descripcionProducto_PRE190(p);
 };
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
-
 function specialResults190(term){
   const q = q187 ? q187(term) : normaliza(term).trim();
   const wantsCurtain = q && (q.includes('curtain') || q.includes('cortina') || q.includes('barrera cortina') || q.includes('tipo cortina'));
@@ -3408,10 +3252,6 @@ function specialResults190(term){
     .filter(x=>x.score>0 && isCurtainAjax190(x.p))
     .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
 }
-/* Eliminado durante la unificación del buscador: legacy reassignment buscar. */
-/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
-
-
 function ref191(p){ return String((p && p.name) || '').trim(); }
 function n191(p){ return normaliza(ref191(p)); }
 function color191(n){
@@ -3564,9 +3404,6 @@ descripcionProducto = function(p){
   const m = preciseDesc191(p); if(m) return m;
   return descripcionProducto_PRE191(p);
 };
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
-
-
 function ref192(p){ return String((p && p.name) || '').trim(); }
 function n192(p){ return normaliza(ref192(p)); }
 function color192(n){
@@ -3679,9 +3516,6 @@ descripcionProducto = function(p){
   const m=familyDesc192(p); if(m) return m;
   return descripcionProducto_PRE192(p);
 };
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
-
-
 let catalogLetter193 = '';
 
 function norm193(s){
@@ -3756,9 +3590,6 @@ function busquedaIntencion193(term){
     .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
   return strong ? rows : null;
 }
-
-/* Eliminado durante la unificación del buscador: legacy reassignment buscar; legacy reassignment buscarCatalogo. */
-
 const pintarCatalogPanel_PRE193 = pintarCatalogPanel;
 pintarCatalogPanel = function(term=catalogTerm){
   ensureAlphabet193();
@@ -3766,8 +3597,6 @@ pintarCatalogPanel = function(term=catalogTerm){
 };
 
 // Pequeños refuerzos de puntuación sin filtrar de forma agresiva.
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
-
 // Reinicia A-Z al abrir catálogo desde botón para que no parezca que faltan productos.
 const abrirCatalogo_PRE193 = typeof abrirCatalogo === 'function' ? abrirCatalogo : null;
 if(abrirCatalogo_PRE193){
@@ -3789,9 +3618,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 const SEARCH_CACHE_194 = new Map();
 const CATALOG_CACHE_194 = new Map();
 function key194(term){ return norm193(String(term || '')).slice(0, 120); }
-/* Eliminado durante la unificación del buscador: legacy reassignment buscar. */
-/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
-
 const resolverDesdeInput_BASE194 = resolverDesdeInput;
 let searchTimer194 = null;
 resolverDesdeInput = function(){
@@ -3976,8 +3802,6 @@ descripcionProducto = function(p){
   const cam = camaraDesc198(p, base);
   return cam || base;
 };
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
-
 function presupuestoTexto198(p){
   return normaliza([
     p && p.numero,
@@ -4251,9 +4075,6 @@ descripcionProducto = function(p){
   if(hub) return hub;
   return descripcionProducto_BASE203.apply(this, arguments);
 };
-/* Eliminado durante la unificación del buscador: legacy reassignment scoreProducto. */
-
-
 let catalogQuick204 = '';
 
 const QUICK_CATALOG_204 = [
@@ -4291,8 +4112,6 @@ function ensureQuickCatalog204(){
     pintarCatalogPanel(document.getElementById('catalogFilter')?.value || catalogTerm || '');
   });
 }
-/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
-
 const pintarCatalogPanel_BASE204 = pintarCatalogPanel;
 pintarCatalogPanel = function(term=catalogTerm){
   ensureQuickCatalog204();
@@ -4361,8 +4180,6 @@ addProductoObj = function(p, qty=1, dto=null){
   if(ok) registrarUsoProducto206(p);
   return ok;
 };
-/* Eliminado durante la unificación del buscador: legacy reassignment buscarCatalogo. */
-
 const pintarCatalogPanel_BASE206 = pintarCatalogPanel;
 pintarCatalogPanel = function(term=catalogTerm){
   pintarCatalogPanel_BASE206.apply(this, arguments);
@@ -5906,12 +5723,6 @@ escribirListaPresupuestos = function(){
 };
 
 document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
-
-
-
-/* Eliminado durante la unificación del buscador: obsolete search wrappers 4.0.8-4.1.0; legacy reassignment buscar; legacy reassignment buscarCatalogo; legacy reassignment buscar; legacy reassignment buscarCatalogo; legacy reassignment buscar; legacy reassignment buscarCatalogo. */
-
-
 (()=>{
   const HX_MONGO_ENDPOINT = '/.netlify/functions/guardar-presupuesto';
   const HX_APP_VERSION_MONGO = '4.2.19';
