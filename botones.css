@@ -943,3 +943,47 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
 @media(max-width:390px){
   .budget-card .budget-toolbar.header-toolbar{gap:7px!important}
 }
+
+/* =====================================================
+   AJUSTE FINAL SEPARADOR — SOLO PC
+   La zona de acciones ocupa exactamente la columna ORDEN (92 px).
+   Móvil permanece intacto.
+   ===================================================== */
+@media (min-width:761px){
+  .budget-card .section-bar{
+    grid-template-columns:minmax(0,1fr) 92px!important;
+    box-sizing:border-box!important;
+    padding:9px 0 9px 13px!important;
+    gap:0!important;
+  }
+
+  .budget-card .section-bar .section-divider{
+    padding-right:10px!important;
+    box-sizing:border-box!important;
+  }
+
+  .budget-card .section-bar .section-actions{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:8px!important;
+    width:92px!important;
+    min-width:92px!important;
+    max-width:92px!important;
+    padding:0 6px!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+  }
+
+  .budget-card .section-bar .section-actions .drag-btn,
+  .budget-card .section-bar .section-actions button.trash{
+    flex:0 0 36px!important;
+    width:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+    margin:0!important;
+  }
+}

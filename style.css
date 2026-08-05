@@ -9479,32 +9479,3 @@ body.light-mode .header-toolbar > .header-theme:hover,body.light-mode .header-to
     height:44px!important;min-height:44px!important;max-height:44px!important;
   }
 }
-/* =====================================================
-   AJUSTE FINAL SEPARADOR - SOLO PC
-   Alinea los botones del separador con la columna ORDEN
-   ===================================================== */
-@media (min-width: 761px){
-
-  /* El separador usa la misma rejilla que una línea normal */
-  .budget-card tr.separator-row td:last-child,
-  .budget-card .separator-row .row-actions{
-    width:92px !important;
-    min-width:92px !important;
-    max-width:92px !important;
-
-    display:flex !important;
-    justify-content:center !important;
-    align-items:center !important;
-    gap:8px !important;
-
-    padding:0 10px !important;
-    box-sizing:border-box;
-  }
-
-  .budget-card .separator-row .drag-btn,
-  .budget-card .separator-row .trash{
-    margin:0 !important;
-    flex:0 0 36px;
-  }
-
-}
