@@ -878,27 +878,36 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
   .top-card .notes-row > label{padding:0!important;border:0!important;background:transparent!important;text-transform:none!important;letter-spacing:0!important}
   .top-card .notes-row textarea{width:100%!important;min-height:72px!important;margin-top:5px!important}
 
-  .add-card .product-tools-pro{display:grid!important;grid-template-columns:minmax(0,1fr) 86px!important;gap:9px!important;align-items:end!important}
+  .add-card .product-tools-pro{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;align-items:end!important}
   .add-card .quick-main{grid-column:1/-1!important;min-width:0!important}
   .add-card .quick-qty{grid-column:1!important;min-width:0!important}
   .add-card .quick-add{grid-column:2!important;width:100%!important;min-width:0!important}
   .add-card .quick-manual{grid-column:1!important;width:100%!important;min-width:0!important}
   .add-card .quick-separator{grid-column:2!important;width:100%!important;min-width:0!important}
   .add-card .quick-catalog{grid-column:1/-1!important;width:100%!important;min-width:0!important}
+  .add-card .quick-qty input,
+  .add-card .quick-add,
+  .add-card .quick-manual,
+  .add-card .quick-separator{height:42px!important;min-height:42px!important}
+  .add-card .quick-add,
+  .add-card .quick-manual,
+  .add-card .quick-separator{padding-inline:10px!important}
+
+  .section-title-under-actions .hx-budget-identifier-416{margin-top:7px!important;margin-bottom:5px!important}
 
   .budget-card .budget-head-v2{gap:8px!important;margin-bottom:18px!important;padding-bottom:12px!important}
   .budget-card .budget-head-title{flex:1 1 auto!important}
   .budget-card .budget-head-title h2{font-size:17px!important;white-space:nowrap!important}
   .budget-card .budget-toolbar.header-toolbar{gap:7px!important}
-  .budget-card .budget-toolbar.header-toolbar > .header-action{flex:0 0 34px;width:34px;min-width:34px;max-width:34px;height:34px;min-height:34px;max-height:34px;border-radius:9px;box-shadow:none}
-  .budget-card .budget-toolbar .header-icon{flex-basis:17px;width:17px;height:17px}
-  .budget-card .budget-toolbar .header-icon svg{width:17px;height:17px;max-width:17px;max-height:17px}
+  .budget-card .budget-toolbar.header-toolbar > .header-action{flex:0 0 39px;width:39px;min-width:39px;max-width:39px;height:39px;min-height:39px;max-height:39px;border-radius:10px;box-shadow:none}
+  .budget-card .budget-toolbar .header-icon{flex-basis:19px;width:19px;height:19px}
+  .budget-card .budget-toolbar .header-icon svg{width:19px;height:19px;max-width:19px;max-height:19px}
   .budget-card .budget-toolbar .header-format-label{font-size:12px!important;letter-spacing:-.2px!important}
 }
 @media(max-width:390px){
   .top-card .quote-row{gap:8px!important}
   .budget-card .budget-head-title h2{font-size:14px!important}
   .budget-card .budget-toolbar.header-toolbar{gap:5px!important}
-  .budget-card .budget-toolbar.header-toolbar > .header-action{flex-basis:31px;width:31px;min-width:31px;max-width:31px;height:31px;min-height:31px;max-height:31px;border-radius:8px}
-  .budget-card .budget-toolbar .header-format-label{font-size:10px!important}
+  .budget-card .budget-toolbar.header-toolbar > .header-action{flex-basis:36px;width:36px;min-width:36px;max-width:36px;height:36px;min-height:36px;max-height:36px;border-radius:9px}
+  .budget-card .budget-toolbar .header-format-label{font-size:11px!important}
 }
