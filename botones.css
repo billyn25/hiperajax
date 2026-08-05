@@ -945,9 +945,9 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
 }
 
 /* =====================================================
-   AJUSTE FINAL SEPARADOR — SOLO PC
-   La zona de acciones ocupa exactamente la columna ORDEN (92 px).
-   Móvil permanece intacto.
+   SEPARADOR PC — acciones alineadas de forma estable
+   La papelera conserva su posición; mover se coloca a su izquierda.
+   Móvil no se modifica.
    ===================================================== */
 @media (min-width:761px){
   .budget-card .section-bar{
@@ -962,52 +962,41 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
     box-sizing:border-box!important;
   }
 
-  .budget-card .section-bar .section-actions{
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    gap:8px!important;
+  #tbody tr.section-row .section-actions{
+    position:relative!important;
+    display:block!important;
     width:92px!important;
     min-width:92px!important;
     max-width:92px!important;
-    padding:0 6px!important;
-    margin:0!important;
-    box-sizing:border-box!important;
-  }
-
-  .budget-card .section-bar .section-actions .drag-btn,
-  .budget-card .section-bar .section-actions button.trash{
-    flex:0 0 36px!important;
-    width:36px!important;
-    min-width:36px!important;
-    max-width:36px!important;
     height:36px!important;
-    min-height:36px!important;
-    max-height:36px!important;
-    margin:0!important;
-  }
-}
-
-/* =====================================================
-   SEPARADOR PC — alineación definitiva del asa de mover
-   Neutraliza la regla histórica #tbody .drag-btn (margen 0 9px).
-   Móvil permanece intacto.
-   ===================================================== */
-@media (min-width:761px){
-  #tbody .section-row .section-actions .drag-btn{
-    box-sizing:border-box!important;
-    flex:0 0 36px!important;
-    width:36px!important;
-    min-width:36px!important;
-    max-width:36px!important;
-    height:36px!important;
-    min-height:36px!important;
-    max-height:36px!important;
-    margin:0!important;
     padding:0!important;
-    align-self:center!important;
+    margin:0!important;
+    box-sizing:border-box!important;
   }
-  #tbody .section-row .section-actions .drag-btn span{
+
+  #tbody tr.section-row .section-actions button.trash{
+    position:absolute!important;
+    top:0!important;
+    right:6px!important;
+    width:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+    margin:0!important;
+  }
+
+  #tbody tr.section-row .section-actions .drag-btn{
+    position:absolute!important;
+    top:0!important;
+    right:50px!important;
+    width:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
     margin:0!important;
   }
 }
