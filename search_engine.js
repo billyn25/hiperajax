@@ -456,11 +456,25 @@
 
   // Punto único de entrada para Inicio y Catálogo.
   // El Catálogo añade únicamente sus filtros de navegación sobre el mismo ranking.
-  buscar = function(term){
+  global.buscar = function(term){
     return searchRows(getProducts(),term,300);
   };
 
-  buscarCatalogo = function(term=''){
+  global.HX_SEARCH_ENGINE = Object.freeze({
+    version:'6.2.0',
+    normalize,
+    rank,
+    fields:productSearchFields,
+    clearCache(){
+      CACHE.clear();
+      cachedSignature='';
+      indexedSignature='';
+      indexedRecords=[];
+      indexedProducts=null;
+    }
+  });
+
+  global.buscarCatalogo = function(term=''){
     const source=getProducts();
     let rows=searchRows(source,term,300);
     rows=applyCatalogQuick(rows,term);
