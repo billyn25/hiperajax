@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Presupuestador de AJAX · Hiper Antena</title>
-  <link rel="stylesheet" href="style.css?v=inicio-2-0">
+  <link rel="stylesheet" href="style.css?v=inicio-2-1">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="botones.css?v=inicio-2-0">
+  <link rel="stylesheet" href="botones.css?v=inicio-2-1">
 </head>
 <body>
   <header class="header">
@@ -98,12 +98,12 @@
           <h2>Presupuesto</h2>
           <span class="budget-head-hint">Gestiona, exporta o vacía el presupuesto actual.</span>
         </div>
-        <div class="budget-toolbar" role="toolbar" aria-label="Acciones del presupuesto">
-          <button type="button" id="btnSave" class="budget-action" aria-label="Guardar presupuesto" title="Guardar presupuesto"><span class="budget-action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l2 2v16H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg></span></button>
-          <button type="button" id="btnBudgets" class="budget-action" aria-label="Abrir presupuestos" title="Presupuestos"><span class="budget-action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/><path d="M3 9h18"/></svg></span></button>
-          <button type="button" id="btnPDF" class="budget-action budget-format" aria-label="Generar PDF" title="PDF"><span aria-hidden="true">PDF</span></button>
-          <button type="button" id="btnExcel" class="budget-action budget-format" aria-label="Exportar a Excel" title="Excel"><span aria-hidden="true">XLS</span></button>
-          <button type="button" id="btnClear" class="budget-action budget-action-danger" aria-label="Vaciar presupuesto" title="Vaciar"><span class="budget-action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg></span></button>
+        <div class="budget-toolbar header-toolbar" role="toolbar" aria-label="Acciones del presupuesto">
+          <button type="button" id="btnSave" class="header-action" aria-label="Guardar presupuesto" title="Guardar presupuesto"><span class="header-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l2 2v16H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg></span></button>
+          <button type="button" id="btnBudgets" class="header-action" aria-label="Abrir presupuestos" title="Presupuestos"><span class="header-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/><path d="M3 9h18"/></svg></span></button>
+          <button type="button" id="btnPDF" class="header-action" aria-label="Generar PDF" title="PDF"><span class="header-icon header-format-label" aria-hidden="true">PDF</span></button>
+          <button type="button" id="btnExcel" class="header-action" aria-label="Exportar a Excel" title="Excel"><span class="header-icon header-format-label" aria-hidden="true">XLS</span></button>
+          <button type="button" id="btnClear" class="header-action header-action-danger" aria-label="Vaciar presupuesto" title="Vaciar"><span class="header-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg></span></button>
         </div>
       </div>
       <div class="table-scroll">
