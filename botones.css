@@ -730,7 +730,7 @@ body.light-mode .budget-card .section-bar{
   display:flex!important;
   align-items:center!important;
   justify-content:flex-end!important;
-  gap:7px!important;
+  gap:0px!important;
   width:auto!important;
   min-width:max-content!important;
   margin:0!important;
