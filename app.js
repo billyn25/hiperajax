@@ -211,7 +211,29 @@ function parseCSV(txt){
   }).filter(p=>p.name && p.pvp>=0).sort((a,b)=>a.name.localeCompare(b.name,'es'));
 }
 
-async 
+async function cargarCatalogoLegacyInterno(){
+  let origen = 'csv';
+  try{
+    const r = await fetch(`${CSV_URL}?v=${Date.now()}`, {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    productos = parseCSV(await r.text());
+    if(!productos.length) throw new Error('CSV vacío o columnas no reconocidas');
+  }catch(e){
+    // Si se abre con doble clic, algunos navegadores bloquean fetch().
+    // Para que la herramienta siga funcionando, usamos la copia interna incluida en app.js.
+    productos = parseCSV(CSV_INTERNO);
+    origen = 'interno';
+  }
+  if(!productos.length){
+    $('#previewProducto').textContent = '0 productos cargados.';
+  }else{
+    $('#previewProducto').textContent = `${productos.length} productos cargados.`;
+  }
+  cargarSelect();
+  renderRecientes();
+  pintarResultados('');
+}
+
 function cargarSelect(){
   const sel = $('#producto');
   sel.innerHTML = '<option value="">Elegir desde desplegable...</option>' + productos.map((p,i)=>`<option value="${i}">${escapeHtml(p.name)}</option>`).join('');
@@ -580,6 +602,55 @@ function alternarTema(){
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function scoreProducto(p, term){
+  const t = normaliza(term);
+  if(!t) return 0;
+  const n = normaliza(p.name), b = normaliza(p.brand), indice = textoBusquedaProducto(p);
+  const tokensNombre = n.split(/[^a-z0-9]+/).filter(Boolean);
+  let score = 0;
+  const parts = t.split(/\s+/).filter(Boolean);
+  for(const part of parts){
+    // Prioridad alta para coincidencias reales en nombre/referencia.
+    // Ejemplo: al escribir "nvr" deben salir todos los AJ-NVR..., antes que cámaras relacionadas por etiquetas.
+    if(tokensNombre.includes(part)) score += 520;
+    else if(n === part) score += 500;
+    else if(n.startsWith(part)) score += 260;
+    else if(n.includes(part)) score += 180;
+    if(b.includes(part)) score += 12;
+    if(indice.includes(part)) score += 55;
+  }
+  if(n === t) score += 600;
+  if(tokensNombre.includes(t)) score += 520;
+  if(n.includes(t)) score += 220;
+  if(indice.includes(t)) score += 80;
+  return score;
+}
+function buscar(term){
+  const forzada = busquedaForzada(term);
+  if(forzada) return forzada;
+  const t = normaliza(term);
+  if(!t) return [];
+  const base = productos
+    .map((p,i)=>({p,i,score:scoreProducto(p,term), n:normaliza(p.name), b:normaliza(p.brand)}))
+    .filter(x=>x.score>0);
+
+  // PRO: si el texto aparece literalmente en referencia/nombre, esos productos van SIEMPRE primero.
+  // Corrige casos como "nvr" o "motion", donde antes podían quedar mezclados con resultados semánticos.
+  const exactos = base
+    .filter(x=>x.n.includes(t) || x.b.includes(t))
+    .sort((a,b)=>{
+      const ap = a.n.startsWith(t) ? 0 : 1;
+      const bp = b.n.startsWith(t) ? 0 : 1;
+      return ap-bp || a.p.name.localeCompare(b.p.name,'es');
+    });
+  const resto = base
+    .filter(x=>!(x.n.includes(t) || x.b.includes(t)))
+    .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
+
+  // Para búsquedas cortas de familias (nvr, hub, rex, poe, etc.) no recortamos demasiado.
+  const limite = t.length <= 6 ? 160 : 90;
+  return [...exactos, ...resto].slice(0, limite);
+}
 function pintarResultados(term){
   const panel = $('#resultados');
   const results = buscar(term);
@@ -652,6 +723,18 @@ function registrarReciente(nombre){ /* desactivado para no arrastrar productos e
 
 function renderRecientes(){ const wrap=$('#recentes'); if(wrap) wrap.innerHTML=''; }
 
+function buscarCatalogo(term=''){
+  const limpio = String(term||'').trim();
+  if(!limpio){
+    return productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
+  }
+  const forzada = busquedaForzada(limpio);
+  if(forzada) return forzada;
+  return productos
+    .map((p,i)=>({p,i,score:scoreProducto(p,limpio)}))
+    .filter(x=>x.score>0)
+    .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
+}
 const HX_MODAL_QTY = { catalog:new Map(), explorer:new Map() };
 const HX_MODAL_LINE = { catalog:new Map(), explorer:new Map() };
 let HX_MODAL_LINE_SEQ = 0;
@@ -1865,6 +1948,12 @@ document.addEventListener('DOMContentLoaded',()=>{
    Regla principal: TODO lo que esté en el CSV debe salir.
    El conocimiento mejora familia/descripción, pero nunca oculta.
    ===================================================== */
+function textoBusquedaEstable(p){
+  const desc = (typeof descripcionProducto === 'function') ? descripcionProducto(p).desc : '';
+  let extra = '';
+  try{ extra = [textoKnowledgeProducto(p), etiquetasProducto(p).join(' ')].join(' '); }catch(e){ extra=''; }
+  return normaliza([p.name,p.brand,desc,extra].join(' '));
+}
 function esNvrReal(p){ const n=normaliza(p.name); return n.startsWith('aj-nvr') || n.startsWith('nvr') || n.includes('nvrkit'); }
 function esFuenteNvr(p){ const n=normaliza(p.name); return n.includes('psu-nvr') || (n.includes('psu') && n.includes('nvr')) || n.includes('dc12v-psu-nvr'); }
 function esNvrHdmi(p){ const n=normaliza(p.name); if(!esNvrReal(p)) return false; return n.includes('hac') || n.includes('hdc') || n.includes('h2d') || n.includes('hdmi'); }
@@ -1991,6 +2080,13 @@ descripcionProducto = function(p){
   if(meta) return {icon:meta.icon, desc:meta.desc, family:meta.family, official:meta.sub};
   return descripcionProductoAnterior_164(p);
 };
+function textoBusqueda164(p){
+  const meta = metaProducto164(p);
+  const base = [p.name, p.brand, descripcionProducto(p).desc];
+  if(meta) base.push(meta.family, meta.sub, meta.tags.join(' '));
+  try{ base.push(textoKnowledgeProducto(p), etiquetasProducto(p).join(' ')); }catch(e){}
+  return normaliza(base.join(' '));
+}
 function esMecanismo164(p){ const m=metaProducto164(p); return !!(m && m.family.includes('Confort') && (m.sub.includes('Mecanismos') || m.sub.includes('Tapas') || m.sub.includes('Marcos') || m.sub.includes('LightSwitch') || m.sub.includes('Outlet') || m.sub.includes('Cajas'))); }
 function esRedPoe164(p){ const m=metaProducto164(p); return !!(m && m.family === 'Red / PoE'); }
 function esAlmacenamiento164(p){ const m=metaProducto164(p); return !!(m && m.family === 'Almacenamiento'); }
@@ -2549,6 +2645,11 @@ function meta181(p){
   return null;
 }
 
+function textoBusqueda181(p){
+  const m = meta181(p);
+  const prev = (()=>{ try{ const d = descripcionProductoAnterior_181(p); return [d.desc,d.family,d.official].join(' '); }catch(e){ return ''; }})();
+  return normaliza([ref181(p), p && p.brand, m && m.family, m && m.sub, m && m.desc, m && m.official, m && (m.tags||[]).join(' '), prev].join(' '));
+}
 
 descripcionProducto = function(p){
   const m = meta181(p);
@@ -2609,6 +2710,7 @@ function meta182(p){
 }
 const descripcionProducto_PRE182 = descripcionProducto;
 descripcionProducto = function(p){ const m = meta182(p); if(m) return {icon:m.icon,desc:m.desc,family:m.sub?`${m.family} · ${m.sub}`:m.family,official:m.official}; try{return descripcionProducto_PRE182(p);}catch(e){return {icon:'📦',desc:'Producto del catálogo',family:'Producto nuevo',official:ref182(p)};} };
+function textoBusqueda182(p){ const m=meta182(p)||{}; let prev=''; try{const d=descripcionProducto_PRE182(p); prev=[d.desc,d.family,d.official].join(' ');}catch(e){} return normaliza([ref182(p),p&&p.brand,m.family,m.sub,m.desc,m.official,(m.tags||[]).join(' '),prev,p&&p._search175].join(' ')); }
 let recientesSesion182 = [];
 registrarReciente = function(nombre){ const name=String(nombre||'').trim(); if(!name) return; const idx=recientesSesion182.findIndex(x=>x.name===name); if(idx>=0) recientesSesion182[idx].count+=1; else recientesSesion182.unshift({name,count:1}); recientesSesion182=recientesSesion182.sort((a,b)=>b.count-a.count).slice(0,12); renderRecientes(); };
 renderRecientes = function(){
@@ -3141,6 +3243,15 @@ descripcionProducto = function(p){
   if(door) return door;
   return descripcionProducto_PRE190(p);
 };
+function specialResults190(term){
+  const q = q187 ? q187(term) : normaliza(term).trim();
+  const wantsCurtain = q && (q.includes('curtain') || q.includes('cortina') || q.includes('barrera cortina') || q.includes('tipo cortina'));
+  if(!wantsCurtain) return null;
+  return productos
+    .map((p,i)=>({p,i,score:scoreProducto(p,q)}))
+    .filter(x=>x.score>0 && isCurtainAjax190(x.p))
+    .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
+}
 function ref191(p){ return String((p && p.name) || '').trim(); }
 function n191(p){ return normaliza(ref191(p)); }
 function color191(n){
@@ -3444,6 +3555,41 @@ function ensureAlphabet193(){
     setCatalogLetter193(btn.dataset.letter || '');
   });
 }
+function busquedaIntencion193(term){
+  const tks = tokens193(term);
+  const exact = (w) => tks.includes(w);
+  let predicate = null;
+  let strong = false;
+
+  // Coincidencias por palabra completa para evitar domo dentro de domótica.
+  if(exact('domo') || exact('dome')){
+    predicate = p => { const n=n193(p); return n.includes('domecam') || n.includes('turretcam'); };
+    strong = true;
+  }else if(exact('turret')){
+    predicate = p => n193(p).includes('turretcam');
+    strong = true;
+  }else if(exact('bullet') || exact('bala')){
+    predicate = p => n193(p).includes('bulletcam');
+    strong = true;
+  }else if(exact('street')){
+    predicate = p => n193(p).includes('streetsiren');
+    strong = true;
+  }else if(exact('homesiren')){
+    predicate = p => n193(p).includes('homesiren');
+    strong = true;
+  }else if(exact('fotosensor') || (exact('foto') && exact('detector')) || exact('fotodetector') || exact('fotoverificacion') || exact('fotoverificacion') || exact('phod')){
+    predicate = p => { const n=n193(p); return n.includes('motioncam') || n.includes('curtaincam') || n.includes('phod'); };
+    strong = true;
+  }
+
+  if(!predicate) return null;
+  const rows = productos
+    .map((p,i)=>({p,i,score:scoreProducto(p, term)}))
+    .filter(x => predicate(x.p))
+    .map(x => ({...x, score: Math.max(x.score, 1000000)}))
+    .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
+  return strong ? rows : null;
+}
 const pintarCatalogPanel_PRE193 = pintarCatalogPanel;
 pintarCatalogPanel = function(term=catalogTerm){
   ensureAlphabet193();
@@ -3469,6 +3615,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 
+const SEARCH_CACHE_194 = new Map();
+const CATALOG_CACHE_194 = new Map();
+function key194(term){ return norm193(String(term || '')).slice(0, 120); }
+const resolverDesdeInput_BASE194 = resolverDesdeInput;
 let searchTimer194 = null;
 resolverDesdeInput = function(){
   clearTimeout(searchTimer194);
@@ -3488,6 +3638,14 @@ resolverDesdeInput = function(){
       $('#previewProducto').textContent='Selecciona un producto para ver su precio.';
     }
   }, 55);
+};
+
+// Limpia caches al recargar catálogo y mantiene versión visible simple.
+const cargarCatalogo_BASE194 = cargarCatalogo;
+cargarCatalogo = async function(){
+  SEARCH_CACHE_194.clear();
+  CATALOG_CACHE_194.clear();
+  return cargarCatalogo_BASE194.apply(this, arguments);
 };
 
 
