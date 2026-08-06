@@ -9401,7 +9401,7 @@ body.light-mode .header-toolbar > .header-theme:hover,body.light-mode .header-to
   .header .brand h1{font-size:14px;line-height:1;letter-spacing:.01em}
   .header-toolbar{gap:10px;margin-left:auto}
   .header-toolbar > .header-action{
-    flex:0 0 34px;width:34px;min-width:34px;max-width:34px;height:34px;min-height:34px;max-height:34px;
+    flex:0 0 34px;width:39px;min-width:39px;max-width:39px;height:39px;min-height:39px;max-height:39px;
     border-radius:9px;box-shadow:none
   }
   .header-icon{flex-basis:17px;width:17px;height:17px}
