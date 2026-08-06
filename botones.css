@@ -981,3 +981,18 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
   }
 
 }
+@media (min-width:761px){
+
+  .budget-card .section-bar .section-actions .drag-btn{
+    transform:translateX(8px) !important;
+  }
+
+  .budget-card .section-bar .section-actions .drag-btn:hover{
+    transform:translateX(8px) translateY(-1px) !important;
+  }
+
+  .budget-card .section-bar .section-actions .drag-btn:active{
+    transform:translateX(8px) scale(.96) !important;
+  }
+
+}
