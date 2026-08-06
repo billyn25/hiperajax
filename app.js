@@ -4488,7 +4488,7 @@ pintarCatalogPanel = function(term=catalogTerm){
   const clean = value => String(value || '').replace(/\s+/g,' ').trim();
   const slug = value => normaliza(clean(value)).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'otros';
   const collator = new Intl.Collator('es',{numeric:true,sensitivity:'base'});
-  let state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories'};
+  let state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories',filtersOpen:false};
 
   function splitHierarchy(value){return clean(value).split(/\s*(?:>|\/|\\|\||»|→)\s*/).map(clean).filter(Boolean)}
   function inferredSubcategory(product){
@@ -4565,14 +4565,27 @@ pintarCatalogPanel = function(term=catalogTerm){
   function controls(family,items){
     const subs=(family?.subcategories||[]).filter(s=>s.title!=='Todos');
     const colors=[...new Map(items.map(x=>[slug(x.color),x.color]).filter(x=>x[1])).entries()].sort((a,b)=>collator.compare(a[1],b[1]));
-    const subHtml=subs.length?`<div class="hx-explorer-subchips"><button class="hx-explorer-chip ${!state.subcategory?'active':''}" data-subcategory="">Todos <em>${family.count}</em></button>${subs.map(s=>`<button class="hx-explorer-chip ${state.subcategory===s.id?'active':''}" data-subcategory="${esc(s.id)}">${esc(s.title)} <em>${s.count}</em></button>`).join('')}</div>`:'';
+    let subHtml='';
+    if(subs.length){
+      const limit=6;
+      let visible=subs.slice(0,limit);
+      if(state.subcategory&&!visible.some(s=>s.id===state.subcategory)){
+        const active=subs.find(s=>s.id===state.subcategory);
+        if(active)visible=[...visible.slice(0,limit-1),active];
+      }
+      const visibleIds=new Set(visible.map(s=>s.id));
+      const extra=subs.filter(s=>!visibleIds.has(s.id));
+      const chip=s=>`<button class="hx-explorer-chip ${state.subcategory===s.id?'active':''}" data-subcategory="${esc(s.id)}" title="${esc(s.title)}"><span>${esc(s.title)}</span><em>${s.count}</em></button>`;
+      subHtml=`<div class="hx-explorer-filterbar"><div class="hx-explorer-subchips"><button class="hx-explorer-chip ${!state.subcategory?'active':''}" data-subcategory=""><span>Todos</span><em>${family.count}</em></button>${visible.map(chip).join('')}${extra.length?`<button type="button" class="hx-explorer-more ${state.filtersOpen?'active':''}" data-more-filters aria-expanded="${state.filtersOpen?'true':'false'}">Más filtros <em>+${extra.length}</em></button>`:''}</div>${extra.length&&state.filtersOpen?`<div class="hx-explorer-filter-popover">${extra.map(chip).join('')}</div>`:''}</div>`;
+    }
     return `<div class="hx-explorer-controls">${subHtml}<div class="hx-explorer-selects">${colors.length>1?`<select id="hxExplorerColor"><option value="">Todos los colores</option>${colors.map(([id,title])=>`<option value="${esc(id)}" ${state.color===id?'selected':''}>${esc(title)}</option>`).join('')}</select>`:''}<select id="hxExplorerSort"><option value="price-asc" ${state.sort==='price-asc'?'selected':''}>Precio: menor a mayor</option><option value="price-desc" ${state.sort==='price-desc'?'selected':''}>Precio: mayor a menor</option><option value="name" ${state.sort==='name'?'selected':''}>Nombre</option><option value="ref" ${state.sort==='ref'?'selected':''}>Referencia</option></select></div></div>`;
   }
   function bindCommon(grid,mobile){
     const input=grid.querySelector('#exploreFilter210');if(input){let timer;input.addEventListener('input',e=>{state.query=e.target.value;clearTimeout(timer);timer=setTimeout(()=>{if(state.query)state.step='products';render();requestAnimationFrame(()=>{const n=document.getElementById('exploreFilter210');n?.focus({preventScroll:true});n?.setSelectionRange(n.value.length,n.value.length)})},220)})}
     grid.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click',()=>{state.category=btn.dataset.category;state.family='';state.subcategory='';state.color='';state.query='';state.step='families';render()}));
     grid.querySelectorAll('[data-family]').forEach(btn=>btn.addEventListener('click',()=>{state.family=btn.dataset.family;state.subcategory='';state.color='';state.query='';const tree=buildTree(),family=current(tree).family;state.step=mobile&&family?.subcategories?.filter(s=>s.title!=='Todos').length?'subcategories':'products';render()}));
-    grid.querySelectorAll('[data-subcategory]').forEach(btn=>btn.addEventListener('click',()=>{state.subcategory=btn.dataset.subcategory;state.step='products';render()}));
+    grid.querySelectorAll('[data-subcategory]').forEach(btn=>btn.addEventListener('click',()=>{state.subcategory=btn.dataset.subcategory;state.filtersOpen=false;state.step='products';render()}));
+    grid.querySelector('[data-more-filters]')?.addEventListener('click',e=>{e.stopPropagation();state.filtersOpen=!state.filtersOpen;render()});
     grid.querySelector('#hxExplorerColor')?.addEventListener('change',e=>{state.color=e.target.value;render()});
     grid.querySelector('#hxExplorerSort')?.addEventListener('change',e=>{state.sort=e.target.value;render()});
     grid.querySelector('.explore-back')?.addEventListener('click',()=>{if(state.query){state.query='';state.step=state.family?'products':state.category?'families':'categories'}else if(state.step==='products'&&state.subcategory){state.subcategory='';state.step='subcategories'}else if(state.step==='products'){state.family='';state.step='families'}else if(state.step==='subcategories'){state.family='';state.step='families'}else{state.category='';state.step='categories'}render()});
@@ -4603,7 +4616,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     }
     bindCommon(grid,mobile);bindProducts(grid);
   }
-  function openExplorer(){const modal=document.getElementById('familiasModal');if(!modal)return;state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories'};modal.classList.remove('hidden');document.body.classList.add('modal-open');render()}
+  function openExplorer(){const modal=document.getElementById('familiasModal');if(!modal)return;state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories',filtersOpen:false};modal.classList.remove('hidden');document.body.classList.add('modal-open');render()}
   document.addEventListener('DOMContentLoaded',()=>{const btn=document.getElementById('btnFamilias');if(btn)btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openExplorer()},true);window.addEventListener('resize',()=>{if(!document.getElementById('familiasModal')?.classList.contains('hidden'))render()})});
   window.renderFamilias=render;window.abrirFamilias=openExplorer;
 })();
