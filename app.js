@@ -2219,7 +2219,7 @@ function parseCSVRobusto175(txt){
   const hasHeader = headerNorm.some(h => ['name','nombre','producto','descripcion','referencia','codigo','brand','marca','fabricante','pvp','precio','price','importe'].includes(h));
 
   let start = hasHeader ? 1 : 0;
-  let idxName = 0, idxBrand = 1, idxPvp = 2, idxDescription = -1, idxShortDescription = -1, idxImage = -1, idxStock = -1, idxCost = -1, idxCategory = -1, idxFamily = -1, idxSubcategory = -1, idxColor = -1, idxOrder = -1;
+  let idxName = 0, idxBrand = 1, idxPvp = 2, idxDescription = -1, idxShortDescription = -1, idxImage = -1, idxStock = -1, idxCost = -1, idxCategory = -1, idxFamily = -1, idxSubcategory = -1, idxProductType = -1, idxSeries = -1, idxTechnology = -1, idxColor = -1, idxOrder = -1;
 
   if(hasHeader){
     idxName = headerNorm.findIndex(h => ['name','nombre','producto','referencia','codigo','ref'].includes(h));
@@ -2233,6 +2233,9 @@ function parseCSVRobusto175(txt){
     idxCategory = headerNorm.findIndex(h => ['category','categoria','categoryname','nombrecategoria','maincategory','categoria1','nivel1','department','departamento'].includes(h));
     idxFamily = headerNorm.findIndex(h => ['family','familia','subcategory','subcategoria','category2','categoria2','nivel2','productfamily'].includes(h));
     idxSubcategory = headerNorm.findIndex(h => ['subfamily','subfamilia','subcategory2','subcategoria2','category3','categoria3','nivel3','productsubfamily'].includes(h));
+    idxProductType = headerNorm.findIndex(h => ['producttype','tipoproducto','tipo','type','productgroup','grupoproducto'].includes(h));
+    idxSeries = headerNorm.findIndex(h => ['series','serie','productseries','seriefamilia'].includes(h));
+    idxTechnology = headerNorm.findIndex(h => ['technology','tecnologia','protocol','protocolo','range','gama'].includes(h));
     idxColor = headerNorm.findIndex(h => ['color','colour','finish','acabado'].includes(h));
     idxOrder = headerNorm.findIndex(h => ['order','orden','sortorder','priority','prioridad'].includes(h));
     if(idxName < 0) idxName = 0;
@@ -2272,6 +2275,9 @@ function parseCSVRobusto175(txt){
     const category = idxCategory >= 0 ? String(cols[idxCategory] || '').trim() : '';
     const family = idxFamily >= 0 ? String(cols[idxFamily] || '').trim() : '';
     const subcategory = idxSubcategory >= 0 ? String(cols[idxSubcategory] || '').trim() : '';
+    const product_type = idxProductType >= 0 ? String(cols[idxProductType] || '').trim() : '';
+    const series = idxSeries >= 0 ? String(cols[idxSeries] || '').trim() : '';
+    const technology = idxTechnology >= 0 ? String(cols[idxTechnology] || '').trim() : '';
     const color = idxColor >= 0 ? String(cols[idxColor] || '').trim() : '';
     const order = idxOrder >= 0 ? numero(cols[idxOrder]) : 0;
 
@@ -2287,6 +2293,9 @@ function parseCSVRobusto175(txt){
       category,
       family,
       subcategory,
+      product_type,
+      series,
+      technology,
       color,
       order,
       raw: cols
@@ -2401,6 +2410,9 @@ function hxUnirCatalogos(base, manual){
       category: p.category || anterior.category || '',
       family: p.family || anterior.family || '',
       subcategory: p.subcategory || anterior.subcategory || '',
+      product_type: p.product_type || anterior.product_type || '',
+      series: p.series || anterior.series || '',
+      technology: p.technology || anterior.technology || '',
       origen_catalogo: 'manual'
     });
   });
@@ -4483,7 +4495,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     const manual=String(product?.origen_catalogo||'').toLowerCase()==='manual';
     let cat=clean(product?.category || product?.categoria || product?.department);
     let fam=clean(product?.family || product?.familia);
-    let sub=clean(product?.subcategory || product?.subfamily || product?.subfamilia);
+    let sub=clean(product?.subcategory || product?.subfamily || product?.subfamilia || product?.product_type || product?.tipo || product?.series || product?.serie || product?.technology || product?.tecnologia || product?.protocol || product?.protocolo);
     const path=splitHierarchy(cat);
     if(path.length>1){cat=path[0];if(!fam)fam=path[1];if(!sub&&path[2])sub=path.slice(2).join(' › ')}
     if(!cat) cat=manual?'Productos añadidos':'Sin categoría';
@@ -4491,22 +4503,11 @@ pintarCatalogPanel = function(term=catalogTerm){
     return {category:cat,family:fam,subcategory:sub||'Todos'};
   }
   function productColor(p){return clean(p?.color || p?.colour || p?.finish || p?.acabado)}
-  function iconFor(label){
-    const n=normaliza(label);
-    if(/camara|camera|video|cctv/.test(n)) return '📷';
-    if(/alarma|intrusion|seguridad/.test(n)) return '🛡️';
-    if(/incendio|fuego|fire/.test(n)) return '🔥';
-    if(/domot|automat|confort|luz/.test(n)) return '💡';
-    if(/red|network|poe/.test(n)) return '🌐';
-    if(/accesor|soporte|repuesto/.test(n)) return '🧩';
-    if(/anadidos/.test(n)) return '＋';
-    return '◼';
-  }
   function buildTree(){
     const categories=new Map();
     (Array.isArray(productos)?productos:[]).forEach((p,index)=>{
       const c=classification(p), ck=slug(c.category), fk=slug(c.family), sk=slug(c.subcategory);
-      if(!categories.has(ck)) categories.set(ck,{id:ck,title:c.category,icon:iconFor(c.category),count:0,families:new Map()});
+      if(!categories.has(ck)) categories.set(ck,{id:ck,title:c.category,count:0,families:new Map()});
       const cat=categories.get(ck);cat.count++;
       if(!cat.families.has(fk))cat.families.set(fk,{id:fk,title:c.family,count:0,subcategories:new Map(),items:[]});
       const fam=cat.families.get(fk);fam.count++;
@@ -4515,7 +4516,7 @@ pintarCatalogPanel = function(term=catalogTerm){
       fam.subcategories.get(sk).count++;
     });
     return [...categories.values()].map(cat=>({...cat,families:[...cat.families.values()].map(f=>({...f,subcategories:[...f.subcategories.values()].sort((a,b)=>collator.compare(a.title,b.title))})).sort((a,b)=>collator.compare(a.title,b.title))}))
-      .sort((a,b)=>a.title==='Sin categoría'?1:b.title==='Sin categoría'?-1:collator.compare(a.title,b.title));
+      .sort((a,b)=>{const last=v=>v.title==='Productos añadidos'?2:v.title==='Sin categoría'?1:0;return last(a)-last(b)||collator.compare(a.title,b.title)});
   }
   function current(tree){const category=tree.find(x=>x.id===state.category)||null;const family=category?.families.find(x=>x.id===state.family)||null;return{category,family}}
   function searchItems(query){
@@ -4560,7 +4561,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     if(state.category&&!category){state.category='';state.family='';state.step='categories';category=null;family=null}
     if(state.family&&!family){state.family='';state.step='families';family=null}
     const allFamilyItems=(family?.items||[]).slice();const items=visibleItems(tree);
-    const categoryButtons=tree.map(c=>`<button type="button" class="explore-cat hx-explorer-nav ${c.id===state.category?'active':''}" data-category="${esc(c.id)}"><span><i>${c.icon}</i>${esc(c.title)}</span><em>${c.count}</em></button>`).join('');
+    const categoryButtons=tree.map(c=>`<button type="button" class="explore-cat hx-explorer-nav ${c.id===state.category?'active':''}" data-category="${esc(c.id)}"><span>${esc(c.title)}</span><em>${c.count}</em></button>`).join('');
     const familyButtons=(category?.families||[]).map(f=>`<button type="button" class="explore-sub hx-explorer-nav ${f.id===state.family?'active':''}" data-family="${esc(f.id)}"><span>${esc(f.title)}</span><em>${f.count}</em></button>`).join('');
     const subButtons=(family?.subcategories||[]).filter(s=>s.title!=='Todos').map(s=>`<button type="button" class="explore-sub hx-explorer-nav" data-subcategory="${esc(s.id)}"><span>${esc(s.title)}</span><em>${s.count}</em></button>`).join('');
     const products=items.map(productCard).join('')||'<div class="hx-explorer-empty">No hay productos en esta selección.</div>';

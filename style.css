@@ -9504,3 +9504,65 @@ body.light .hx-image-preview img,
 body.claro .hx-image-preview img{
   background:linear-gradient(145deg,#f3f5f6,#e5e9ec)!important;
 }
+
+
+/* =====================================================
+   EXPLORER 3.0.1 - subcategorías visibles, sin iconos negros
+   y fondo gris neutro para fotografías en toda la app.
+   ===================================================== */
+#familiasModal .hx-explorer-nav > span > i{display:none!important;}
+#familiasModal .hx-explorer-subchips{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:7px!important;
+  margin:0 0 10px!important;
+  padding:8px!important;
+  border:1px solid rgba(128,145,158,.24)!important;
+  border-radius:12px!important;
+  background:rgba(128,145,158,.07)!important;
+}
+#familiasModal .hx-explorer-chip{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  min-height:32px!important;
+  padding:6px 10px!important;
+  border-radius:999px!important;
+  background:#27313a!important;
+  background-image:none!important;
+  border:1px solid #4b5a66!important;
+  color:#edf2f5!important;
+  box-shadow:none!important;
+}
+#familiasModal .hx-explorer-chip.active{background:#465a6b!important;border-color:#7d94a6!important;color:#fff!important;}
+#familiasModal .hx-explorer-chip em{font-style:normal!important;opacity:.72!important;}
+body.light-mode #familiasModal .hx-explorer-subchips{background:#f2f5f7!important;border-color:#d2dbe1!important;}
+body.light-mode #familiasModal .hx-explorer-chip{background:#fff!important;border-color:#c4d0d8!important;color:#263746!important;}
+body.light-mode #familiasModal .hx-explorer-chip.active{background:#dbe6ee!important;border-color:#91a9bb!important;color:#17324a!important;}
+
+/* Fotos: gris neutro; nunca verde ni negro de botón. */
+.hx-product-thumb,
+button.hx-product-thumb,
+.catalog-row .hx-product-thumb,
+.explore-product .hx-product-thumb{
+  background:#2a3036!important;
+  background-image:none!important;
+  border-color:#515b64!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)!important;
+  color:inherit!important;
+}
+.hx-product-thumb:hover,button.hx-product-thumb:hover{background:#333a41!important;border-color:#69747e!important;transform:none!important;}
+.hx-product-thumb img{background:transparent!important;}
+.hx-image-preview img{background:#2a3036!important;background-image:none!important;border:1px solid #515b64!important;}
+body.light-mode .hx-product-thumb,
+body.light-mode button.hx-product-thumb,
+body.light .hx-product-thumb,
+body.claro .hx-product-thumb{background:#eef1f3!important;background-image:none!important;border-color:#c4ccd2!important;}
+body.light-mode .hx-product-thumb:hover,body.light-mode button.hx-product-thumb:hover{background:#e4e9ec!important;border-color:#aeb9c1!important;}
+body.light-mode .hx-image-preview img,body.light .hx-image-preview img,body.claro .hx-image-preview img{background:#eef1f3!important;background-image:none!important;border-color:#c4ccd2!important;}
+
+@media(max-width:760px){
+  #familiasModal .hx-explorer-subchips{overflow-x:auto!important;flex-wrap:nowrap!important;padding:7px!important;scrollbar-width:none!important;}
+  #familiasModal .hx-explorer-subchips::-webkit-scrollbar{display:none!important;}
+  #familiasModal .hx-explorer-chip{flex:0 0 auto!important;}
+}
