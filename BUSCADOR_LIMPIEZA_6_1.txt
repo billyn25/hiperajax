@@ -1,0 +1,29 @@
+HIPER AJAX - BUSCADOR ÚNICO 6.1
+
+Base: Buscador único 6.0
+
+LIMPIEZA REALIZADA
+- Eliminados scoreProducto183, scoreProducto186 y scoreProducto188.
+- Eliminados specialResults187 y ordenar188, sin llamadas activas.
+- Eliminadas constantes de encadenado de puntuadores antiguos.
+- Eliminados 28 comentarios/tumbas dejados por la limpieza anterior.
+- app.js: 6754 -> 6565 líneas (189 líneas menos).
+
+CONSERVADO
+- Normalización y metadatos todavía usados por Explorer y descripciones.
+- Búsqueda básica de arranque en app.js, sustituida al cargar search_engine.js.
+- Motor único search_engine.js para Inicio, Catálogo y Explorer.
+
+PRUEBAS CSV MANUAL
+- teclado -> AJ-KEYPADCOMBI-W/B
+- sirena integrada -> AJ-KEYPADCOMBI-W/B
+- keypadcombi -> AJ-KEYPADCOMBI-W/B
+- micro sd -> tarjetas manuales
+- rack mural -> racks manuales
+- disco duro -> discos manuales
+- switch poe -> switches / inyector relacionados
+- enchufes -> regleta manual
+
+VALIDACIÓN
+- Sintaxis app.js y search_engine.js correcta.
+- Sintaxis de todas las funciones Netlify correcta.
