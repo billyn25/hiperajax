@@ -2219,7 +2219,7 @@ function parseCSVRobusto175(txt){
   const hasHeader = headerNorm.some(h => ['name','nombre','producto','descripcion','referencia','codigo','brand','marca','fabricante','pvp','precio','price','importe'].includes(h));
 
   let start = hasHeader ? 1 : 0;
-  let idxName = 0, idxBrand = 1, idxPvp = 2, idxDescription = -1, idxShortDescription = -1, idxImage = -1, idxStock = -1, idxCost = -1;
+  let idxName = 0, idxBrand = 1, idxPvp = 2, idxDescription = -1, idxShortDescription = -1, idxImage = -1, idxStock = -1, idxCost = -1, idxCategory = -1, idxFamily = -1, idxSubcategory = -1;
 
   if(hasHeader){
     idxName = headerNorm.findIndex(h => ['name','nombre','producto','referencia','codigo','ref'].includes(h));
@@ -2230,6 +2230,9 @@ function parseCSVRobusto175(txt){
     idxImage = headerNorm.findIndex(h => ['image','imagen','foto','photourl','imageurl','urlimagen'].includes(h));
     idxStock = headerNorm.findIndex(h => ['stock','stocklabel','existencias','disponible','quantity','cantidadstock','availablestock'].includes(h));
     idxCost = headerNorm.findIndex(h => h === 'precionetocompra');
+    idxCategory = headerNorm.findIndex(h => ['category','categoria','categoryname','nombrecategoria','maincategory','categoria1','nivel1','department','departamento'].includes(h));
+    idxFamily = headerNorm.findIndex(h => ['family','familia','subcategory','subcategoria','category2','categoria2','nivel2','productfamily'].includes(h));
+    idxSubcategory = headerNorm.findIndex(h => ['subfamily','subfamilia','subcategory2','subcategoria2','category3','categoria3','nivel3','productsubfamily'].includes(h));
     if(idxName < 0) idxName = 0;
   }
 
@@ -2264,6 +2267,9 @@ function parseCSVRobusto175(txt){
     const image = idxImage >= 0 ? String(cols[idxImage] || '').trim() : '';
     const stock = idxStock >= 0 ? String(cols[idxStock] || '').trim() : '';
     const precio_neto_compra = idxCost >= 0 ? numero(cols[idxCost]) : 0;
+    const category = idxCategory >= 0 ? String(cols[idxCategory] || '').trim() : '';
+    const family = idxFamily >= 0 ? String(cols[idxFamily] || '').trim() : '';
+    const subcategory = idxSubcategory >= 0 ? String(cols[idxSubcategory] || '').trim() : '';
 
     rows.push({
       name,
@@ -2274,6 +2280,9 @@ function parseCSVRobusto175(txt){
       image,
       stock,
       precio_neto_compra,
+      category,
+      family,
+      subcategory,
       raw: cols
     });
   }
@@ -2383,6 +2392,9 @@ function hxUnirCatalogos(base, manual){
       image: p.image || anterior.image || '',
       stock: p.stock !== '' && p.stock != null ? p.stock : (anterior.stock || ''),
       precio_neto_compra: numero(p.precio_neto_compra) || numero(anterior.precio_neto_compra) || 0,
+      category: p.category || anterior.category || '',
+      family: p.family || anterior.family || '',
+      subcategory: p.subcategory || anterior.subcategory || '',
       origen_catalogo: 'manual'
     });
   });
@@ -4450,613 +4462,127 @@ pintarCatalogPanel = function(term=catalogTerm){
 })();
 
 /* =====================================================
-   v2.1.1 PRO - Explorar afinado
-   - Un solo scroll: productos.
-   - Reorganiza subfamilias para evitar listas enormes.
-   - HubKit/StarterKit separados como Kits.
-   - Videovigilancia sin brackets/covers/storage.
-   - Soportes/JunctionBox en Accesorios.
+   EXPLORER DINÁMICO 2.0
+   Se construye desde category / family / subcategory del CSV.
+   El catálogo manual sin clasificación entra en “Catálogo manual”.
    ===================================================== */
 (function(){
-  const VERSION_EXPLORE_211 = '4.0.8';
-  function n211(s){ return normaliza(String(s||'')).replace(/[^a-z0-9]+/g,''); }
-  function raw211(p){ return n211(p && p.name); }
-  function has211(name, parts){ return parts.some(k=>name.includes(k)); }
-  function not211(name, parts){ return !parts.some(k=>name.includes(k)); }
-  function countPred(pred){ try{return productos.filter(pred).length;}catch(e){return 0;} }
-  function isVideoAcc(s){ return has211(s,['bracket','mountcam','junctionbox','hood','cover','frame','storage','hstd','tf','psu','dc12','dc6','ac220','pcb']); }
+  const esc = value => escapeHtml(String(value == null ? '' : value));
+  const clean = value => String(value || '').replace(/\s+/g,' ').trim();
+  const slug = value => normaliza(clean(value)).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'otros';
+  const collator = new Intl.Collator('es',{numeric:true,sensitivity:'base'});
+  let state={category:'',family:'',query:'',step:'categories'};
 
-  const DEFAULT_EXPLORE_211 = [
-    {id:'intrusion', icon:'🏠', title:'Intrusión', subs:[
-      {icon:'🏠', title:'Hubs', pred:p=>{const s=raw211(p); return has211(s,['ajhub','hub2plus','hubbp']) && not211(s,['hubkit','hub2kit','starterkit','bracket','battery','hubbatt','psu','dummy','repairkit','minihub','brackethub']);}},
-      {icon:'📦', title:'Kits alarma', pred:p=>{const s=raw211(p); return (has211(s,['hubkit','hub2kit','starterkit']) && !has211(s,['repairkit'])) || has211(s,['starterkitplus']);}},
-      {icon:'📡', title:'ReX', pred:p=>{const s=raw211(p); return has211(s,['rex']) && !has211(s,['psu','bracket','battery']);}},
-      {icon:'🚶', title:'Motion / Outdoor', pred:p=>{const s=raw211(p); return has211(s,['motionprotect','outdoorprotect']) && !has211(s,['dummy','lens','curtain','bracket']);}},
-      {icon:'📷', title:'MotionCam / PhOD', pred:p=>{const s=raw211(p); return has211(s,['motioncam']) && !has211(s,['dummy','lens','hood','bracket']);}},
-      {icon:'🚪', title:'DoorProtect', pred:p=>{const s=raw211(p); return has211(s,['doorprotect']) && !has211(s,['dummy','bracket','magnet']);}},
-      {icon:'🪟', title:'GlassProtect', pred:p=>{const s=raw211(p); return has211(s,['glassprotect']) && !has211(s,['dummy','bracket']);}},
-      {icon:'🟢', title:'Curtain', pred:p=>{const s=raw211(p); return has211(s,['curtainprotect','curtainoutdoor','dualcurtain','curtaincam']) && !has211(s,['dummy','bracket']);}},
-      {icon:'⌨️', title:'Teclados', pred:p=>{const s=raw211(p); return has211(s,['keypad']) && !has211(s,['dummy','bracket']);}},
-      {icon:'📢', title:'Sirenas', pred:p=>{const s=raw211(p); return has211(s,['homesiren','streetsiren']) && !has211(s,['dummy','bracket','speakerss']);}},
-      {icon:'🎛️', title:'Mandos / botones', pred:p=>{const s=raw211(p); return has211(s,['spacecontrol','button','doublebutton']) && !has211(s,['centerbutton','sidebutton','solobutton','dummy']);}},
-      {icon:'🧠', title:'Transmisores', pred:p=>{const s=raw211(p); return has211(s,['transmitter','uartbridge','ocbridge','vhfbridge']) && !has211(s,['dummy','bracket','case']);}}
-    ]},
-    {id:'video', icon:'📷', title:'Videovigilancia', subs:[
-      {icon:'📷', title:'BulletCam', pred:p=>{const s=raw211(p); return has211(s,['bulletcam']) && !isVideoAcc(s);}},
-      {icon:'📷', title:'DomeCam', pred:p=>{const s=raw211(p); return has211(s,['domecam']) && !isVideoAcc(s);}},
-      {icon:'📷', title:'TurretCam', pred:p=>{const s=raw211(p); return has211(s,['turretcam']) && !isVideoAcc(s);}},
-      {icon:'🏠', title:'IndoorCam', pred:p=>{const s=raw211(p); return has211(s,['indoorcam']) && !isVideoAcc(s);}},
-      {icon:'🚪', title:'DoorBell', pred:p=>{const s=raw211(p); return has211(s,['doorbell']) && !isVideoAcc(s);}},
-      {icon:'🎥', title:'NVR', pred:p=>{const s=raw211(p); return has211(s,['nvr']) && !has211(s,['nvrkit','psu','storage']);}},
-      {icon:'📦', title:'Kits NVR', pred:p=>{const s=raw211(p); return has211(s,['nvrkit']);}},
-      {icon:'💽', title:'Discos HDD', pred:p=>/^hd\d+tb/i.test(p.name||'')}
-    ]},
-    {id:'domotica', icon:'💡', title:'Domótica', subs:[
-      {icon:'💡', title:'Interruptores de luz', pred:p=>{const s=raw211(p); return has211(s,['lightcore','lightswitch']) && !has211(s,['centerbutton','sidebutton','solobutton','frame','cover']);}},
-      {icon:'🔌', title:'Bases de enchufe', pred:p=>{const s=raw211(p); return has211(s,['outletcore','outletbasic','outletlan','outlet']) && !has211(s,['cover','socket']);}},
-      {icon:'⚡', title:'Enchufes inteligentes', pred:p=>{const s=raw211(p); return has211(s,['socket']) && !has211(s,['sim','cover','button']);}},
-      {icon:'🧩', title:'Tapas y acabados', pred:p=>{const s=raw211(p); return has211(s,['centercove','sidecove','solocove','coverplate','bypassdimmer']);}},
-      {icon:'🖼️', title:'Marcos', pred:p=>{const s=raw211(p); return has211(s,['frame']) && !has211(s,['case']);}},
-      {icon:'🎛️', title:'Botones LightSwitch', pred:p=>{const s=raw211(p); return has211(s,['centerbutton','sidebutton','solobutton']);}},
-      {icon:'📦', title:'SurfaceBox', pred:p=>{const s=raw211(p); return has211(s,['surfacebox']);}},
-      {icon:'⚙️', title:'Relés', pred:p=>{const s=raw211(p); return has211(s,['relay','wallswitch','multirelay']) && !has211(s,['dinholder']);}}
-    ]},
-    {id:'seguridad', icon:'🔥', title:'Incendio / seguridad', subs:[
-      {icon:'🔥', title:'FireProtect', pred:p=>{const s=raw211(p); return has211(s,['fireprotect']) && !has211(s,['dummy','bracket']);}},
-      {icon:'🚨', title:'ManualCallPoint', pred:p=>{const s=raw211(p); return has211(s,['manualcallpoint','keymcp']);}},
-      {icon:'💧', title:'LeaksProtect', pred:p=>{const s=raw211(p); return has211(s,['leaksprotect']);}},
-      {icon:'🚰', title:'WaterStop', pred:p=>{const s=raw211(p); return has211(s,['waterstop']);}},
-      {icon:'🌡️', title:'LifeQuality', pred:p=>{const s=raw211(p); return has211(s,['lifequality']);}}
-    ]},
-    {id:'accesorios', icon:'🧩', title:'Accesorios', subs:[
-      {icon:'🧰', title:'JunctionBox', pred:p=>{const s=raw211(p); return has211(s,['junctionbox']);}},
-      {icon:'🛠️', title:'Bracket / soportes', pred:p=>{const s=raw211(p); return has211(s,['bracket','mountcam','hood','dinholder']) && !has211(s,['junctionbox']);}},
-      {icon:'📦', title:'Carcasas / Dummy', pred:p=>{const s=raw211(p); return has211(s,['dummy','case','democase','suitcase','totem']);}},
-      {icon:'🧩', title:'Tapas / covers', pred:p=>{const s=raw211(p); return has211(s,['cover','coverplate','frame','surfacebox']) && !has211(s,['coverholder']);}},
-      {icon:'🔋', title:'Fuentes / baterías', pred:p=>{const s=raw211(p); return has211(s,['psu','battery','batt','pcb','ac220','dc12','dc6','dc1224','internalbattery']);}},
-      {icon:'🔐', title:'Pass / Tag', pred:p=>{const s=raw211(p); return has211(s,['pass','tag']);}},
-      {icon:'📶', title:'SIM / antenas', pred:p=>{const s=raw211(p); return (has211(s,['simslot','sim','m2m','externalantenna']) || /(^|-)SIM($|-)/i.test(p.name||'')) && !has211(s,['homesiren','streetsiren','bracket','dummy']);}},
-      {icon:'🧲', title:'Recambios', pred:p=>{const s=raw211(p); return has211(s,['magnet','reedswitch','lens','repairkit']) && !has211(s,['bracket','storage']);}},
-      {icon:'💾', title:'Storage / memoria', pred:p=>{const s=raw211(p); const raw=String((p&&p.name)||''); return (has211(s,['storage','hstd','hdd']) || /^HS[-_ ]?TF/i.test(raw) || /^HD\d+TB/i.test(raw)) && !has211(s,['bracket','mountcam','junctionbox','hood','cover','frame']);}},
-      {icon:'👕', title:'Marketing / demo', pred:p=>{const s=raw211(p); return has211(s,['polo','tshirt','baseball','brandplate','cup']);}}
-    ]}
-  ];
-
-  /*
-     EXPLORADOR EDITABLE
-     Si existe window.EXPLORAR_CATEGORIAS en explorar_config.js, el explorador se pinta desde ahí.
-     Si no existe, usa DEFAULT_EXPLORE_211 para que la app nunca se rompa.
-  */
-  function arr211(v){ return Array.isArray(v) ? v : (v ? [v] : []); }
-  function rulePred211(rule){
-    const incluye = arr211(rule.incluye || rule.filtros || rule.palabras).map(n211).filter(Boolean);
-    const excluye = arr211(rule.excluye || rule.excluir).map(n211).filter(Boolean);
-    const empieza = arr211(rule.empieza || rule.empiezaPor).map(n211).filter(Boolean);
-    const regex = arr211(rule.regex).map(r=>{ try{return new RegExp(r,'i');}catch(e){return null;} }).filter(Boolean);
-    const exactos = arr211(rule.exactos || rule.referencias).map(n211).filter(Boolean);
-    return function(p){
-      const rawName = String((p && p.name) || '');
-      const rawBrand = String((p && p.brand) || '');
-      let rawDesc = '';
-      try{
-        const d = (typeof descripcionProducto === 'function') ? descripcionProducto(p) : null;
-        rawDesc = d && d.desc ? String(d.desc) : '';
-      }catch(e){}
-      // Las categorías se clasifican por referencia y marca.
-      // La descripción real se mantiene para la búsqueda libre, pero no debe
-      // arrastrar productos a familias incorrectas por palabras comerciales.
-      const rawSearch = [rawName, rawBrand].filter(Boolean).join(' ');
-      const s = n211(rawSearch);
-      // OJO: aquí cada bloque solo cuenta si existe en la regla.
-      // Antes, si una subcategoría solo tenía regex, incluye vacío daba TRUE y entraba todo.
-      const ref = n211(rawName);
-      const okIncluye = incluye.length ? incluye.some(k=>s.includes(k)) : false;
-      // Las reglas estructurales se validan contra la referencia, no contra
-      // la descripción. Evita que una categoría capture otra familia porque
-      // su texto comercial menciona Hub, Motion, Sirena, etc.
-      const okEmpieza = empieza.length ? empieza.some(k=>ref.startsWith(k)) : false;
-      const okRegex = regex.length ? regex.some(r=>r.test(rawName)) : false;
-      const okExactos = exactos.length ? exactos.includes(ref) : false;
-      const hayCondiciones = incluye.length || empieza.length || regex.length || exactos.length;
-      // Fácil de editar: incluye / empieza / regex / exactos funcionan como OR.
-      // Ejemplo: incluye:['storage'] + regex:['^HD\\d+TB'] mete Storage O discos HD1TB/HD2TB.
-      const okBase = hayCondiciones ? (okIncluye || okEmpieza || okRegex || okExactos) : false;
-      const okExcluye = !excluye.length || !excluye.some(k=>s.includes(k));
-      return okBase && okExcluye;
-    };
+  function splitHierarchy(value){
+    return clean(value).split(/\s*(?:>|\/|\\|\||»|→)\s*/).map(clean).filter(Boolean);
   }
-  function buildExternalExplore211(){
-    const cfg = window.EXPLORAR_CATEGORIAS || window.EXPLORAR_CONFIG || null;
-    const cats = Array.isArray(cfg) ? cfg : (cfg && Array.isArray(cfg.categorias) ? cfg.categorias : null);
-    if(!cats || !cats.length) return null;
-    return cats.filter(c=>c && c.visible !== false).map((c,ci)=>({
-      id: c.id || ('cat_'+ci),
-      icon: c.icono || c.icon || '📁',
-      title: c.titulo || c.nombre || c.title || ('Categoría '+(ci+1)),
-      subs: arr211(c.subcategorias || c.subs || c.familias).filter(s=>s && s.visible !== false).map((sub,si)=>({
-        icon: sub.icono || sub.icon || c.icono || c.icon || '•',
-        title: sub.titulo || sub.nombre || sub.title || ('Subfamilia '+(si+1)),
-        pred: rulePred211(sub)
-      }))
-    })).filter(c=>c.subs && c.subs.length);
+  function classification(product){
+    const manual=String(product?.origen_catalogo||'').toLowerCase()==='manual';
+    let cat=clean(product?.category || product?.categoria || product?.department);
+    let fam=clean(product?.family || product?.familia || product?.subcategory);
+    let sub=clean(product?.subcategory || product?.subfamily || product?.subfamilia);
+    const path=splitHierarchy(cat);
+    if(path.length>1){ cat=path[0]; if(!fam) fam=path[1]; if(!sub && path[2]) sub=path[2]; }
+    if(!cat) cat=manual ? 'Catálogo manual' : 'Sin categoría';
+    if(!fam) fam=manual ? 'Productos manuales' : (sub || 'General');
+    return {category:cat,family:fam,subcategory:sub};
   }
-  const EXPLORE_211 = buildExternalExplore211() || DEFAULT_EXPLORE_211;
-
-
-  let expCat = null;
-  let expSub = null;
-  let expQuery = '';
-  let expCatsScroll211 = 0;
-  let expSubsScroll211 = 0;
-  let expMobileStep = 'cats';
-
-  function currentCat(){ return expCat ? (EXPLORE_211.find(c=>c.id===expCat) || null) : null; }
-  function currentSub(){ const c=currentCat(); return c && expSub ? ((c.subs||[]).find(s=>s.title===expSub) || null) : null; }
-  /* Búsqueda global inteligente del Explorador.
-     Sin texto: respeta la categoría/subfamilia elegida.
-     Con texto: busca en TODO el catálogo, con sinónimos, intención y errores leves. */
-  const EXPLORE_ALIASES_300 = {
-    wifi:['wi fi','inalambrico','wireless','wlan'],
-    lte:['4g','sim','movil','datos'],
-    '4g':['lte','sim','movil'],
-    inundacion:['fuga','agua','leaksprotect','leak'],
-    fuga:['inundacion','agua','leaksprotect'],
-    humo:['incendio','fireprotect','fuego'],
-    incendio:['humo','fireprotect','fuego'],
-    llavero:['mando','spacecontrol','control remoto'],
-    mando:['llavero','spacecontrol','control remoto'],
-    enchufe:['socket','toma'],
-    rele:['relay','automatizacion'],
-    interruptor:['lightswitch','luz'],
-    teclado:['keypad'],
-    sirena:['homesiren','streetsiren'],
-    exterior:['outdoor','calle','jardin'],
-    interior:['indoor'],
-    domo:['dome','domecam'],
-    torreta:['turret','turretcam'],
-    bala:['bullet','bulletcam'],
-    grabador:['nvr','videograbador'],
-    disco:['hdd','storage','memoria'],
-    fotosensor:['photo on demand','photoondemand','foto bajo demanda'],
-    cortina:['curtain','curtainprotect'],
-    movimiento:['motion','motionprotect'],
-    puerta:['doorprotect','contacto magnetico'],
-    ventana:['doorprotect','contacto magnetico'],
-    cristal:['glassprotect','rotura'],
-    co:['monoxido','carbon monoxide'],
-    poe:['power over ethernet','ethernet'],
-    fibra:['fiber','fibra optica']
-  };
-
-  function lev300(a,b){
-    a=String(a||''); b=String(b||'');
-    if(a===b) return 0;
-    if(!a.length) return b.length;
-    if(!b.length) return a.length;
-    const prev=Array.from({length:b.length+1},(_,i)=>i), cur=new Array(b.length+1);
-    for(let i=1;i<=a.length;i++){
-      cur[0]=i;
-      let rowMin=cur[0];
-      for(let j=1;j<=b.length;j++){
-        cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
-        rowMin=Math.min(rowMin,cur[j]);
-      }
-      if(rowMin>2 && Math.abs(a.length-b.length)>2) return rowMin;
-      for(let j=0;j<=b.length;j++) prev[j]=cur[j];
-    }
-    return prev[b.length];
+  function iconFor(label){
+    const n=normaliza(label);
+    if(/camara|camera|video|cctv/.test(n)) return '📷';
+    if(/alarma|intrusion|seguridad/.test(n)) return '🛡️';
+    if(/incendio|fuego|fire/.test(n)) return '🔥';
+    if(/domot|automat|confort|luz/.test(n)) return '💡';
+    if(/red|network|poe/.test(n)) return '🌐';
+    if(/accesor|soporte|repuesto/.test(n)) return '🧩';
+    if(/manual/.test(n)) return '✍️';
+    return '◼';
   }
-
-  function expand300(query){
-    const base=n211(query).split(/\s+/).filter(Boolean);
-    const out=[];
-    base.forEach(t=>{
-      out.push(t);
-      (EXPLORE_ALIASES_300[t]||[]).forEach(x=>n211(x).split(/\s+/).forEach(y=>y&&out.push(y)));
+  function buildTree(){
+    const categories=new Map();
+    (Array.isArray(productos)?productos:[]).forEach((p,index)=>{
+      const c=classification(p), ck=slug(c.category), fk=slug(c.family);
+      if(!categories.has(ck)) categories.set(ck,{id:ck,title:c.category,icon:iconFor(c.category),count:0,families:new Map()});
+      const cat=categories.get(ck); cat.count++;
+      if(!cat.families.has(fk)) cat.families.set(fk,{id:fk,title:c.family,count:0,items:[]});
+      const fam=cat.families.get(fk); fam.count++; fam.items.push({p,index,sub:c.subcategory});
     });
-    return [...new Set(out)];
+    return [...categories.values()].map(cat=>({...cat,families:[...cat.families.values()].sort((a,b)=>collator.compare(a.title,b.title))}))
+      .sort((a,b)=>a.title==='Sin categoría'?1:b.title==='Sin categoría'?-1:collator.compare(a.title,b.title));
   }
-
-  function searchText300(p){
-    let d={};
-    try{ d=descripcionProducto(p)||{}; }catch(e){}
-    const meta=p&&p.meta?p.meta:{};
-    return n211([
-      p&&p.name,p&&p.brand,p&&p.ref,p&&p.reference,p&&p.sku,
-      d.desc,d.family,d.official,d.icon,
-      meta.family,meta.sub,meta.desc,meta.official,
-      Array.isArray(meta.tags)?meta.tags.join(' '):meta.tags,
-      p&&p._search175,p&&p._search183,p&&p._search186
-    ].filter(Boolean).join(' '));
+  function current(tree){
+    const category=tree.find(x=>x.id===state.category)||null;
+    const family=category?.families.find(x=>x.id===state.family)||null;
+    return {category,family};
   }
-
-  let EXPLORE_INDEX_300 = [];
-  let EXPLORE_INDEX_LEN_300 = -1;
-  function getExploreIndex300(){
-    if(EXPLORE_INDEX_LEN_300 === productos.length && EXPLORE_INDEX_300.length) return EXPLORE_INDEX_300;
-    EXPLORE_INDEX_LEN_300 = productos.length;
-    EXPLORE_INDEX_300 = productos.map((p,i)=>{
-      let d={};
-      try{ d=descripcionProducto(p)||{}; }catch(e){}
-      return {
-        ...p,
-        name:p.name,
-        description:[d.desc,d.family,d.official,p._search175,p._search183,p._search186].filter(Boolean).join(' '),
-        _hxaIndex:i
-      };
-    });
-    return EXPLORE_INDEX_300;
-  }
-  const EXPLORE_SEARCH_CACHE_300 = new Map();
-
-  function smartExplore300(query){
-    const q=n211(query).trim();
+  function searchItems(query){
+    const q=clean(query);
     if(!q) return [];
-    /* Motor compartido: CSV completo + conocimiento opcional.
-       Si el módulo no carga, conserva el buscador anterior como fallback. */
     try{
-      if(window.HXA_KNOWLEDGE_ENGINE && typeof window.HXA_KNOWLEDGE_ENGINE.rank === 'function'){
-        const cacheKey=q+'|'+productos.length;
-        if(EXPLORE_SEARCH_CACHE_300.has(cacheKey)) return EXPLORE_SEARCH_CACHE_300.get(cacheKey);
-        const ranked = window.HXA_KNOWLEDGE_ENGINE.rank(getExploreIndex300(), query, 300)
-          .map(x=>({p:productos[x._hxaIndex],i:x._hxaIndex,score:x._score,reasons:x._reasons||[]}))
-          .filter(x=>x.p);
-        if(EXPLORE_SEARCH_CACHE_300.size>120) EXPLORE_SEARCH_CACHE_300.clear();
-        const ordenados=sortFamilyResults300(ranked,q);
-        EXPLORE_SEARCH_CACHE_300.set(cacheKey,ordenados);
-        return ordenados;
+      if(window.HXA_KNOWLEDGE_ENGINE?.rank){
+        const indexed=productos.map((p,i)=>({...p,description:[p.description,p.short_description,p.category,p.family,p.subcategory].filter(Boolean).join(' '),_hxaIndex:i}));
+        return window.HXA_KNOWLEDGE_ENGINE.rank(indexed,q,350).map(x=>({p:productos[x._hxaIndex],index:x._hxaIndex})).filter(x=>x.p);
       }
-    }catch(e){ console.warn('Knowledge Engine Explorer fallback',e); }
-
-    const rawTokens=q.split(/\s+/).filter(Boolean);
-    const expanded=expand300(q);
-    const resultados=productos.map((p,i)=>{
-      const name=n211((p&&p.name)||'');
-      const text=searchText300(p);
-      const words=[...new Set(text.split(/[^a-z0-9]+/).filter(Boolean))];
-      let score=0, matched=0;
-      if(name===q) score+=150000;
-      if(name.startsWith(q)) score+=90000;
-      if(name.includes(q)) score+=65000;
-      if(text.includes(q)) score+=30000;
-      rawTokens.forEach(token=>{
-        let ok=false;
-        if(name.split(/[^a-z0-9]+/).includes(token)){score+=30000;ok=true;}
-        else if(name.includes(token)){score+=22000;ok=true;}
-        else if(text.includes(token)){score+=9000;ok=true;}
-        if(!ok && token.length>=4){
-          const near=words.some(w=>Math.abs(w.length-token.length)<=1 && lev300(token,w)<=1);
-          if(near){score+=4500;ok=true;}
-        }
-        if(ok) matched++;
-      });
-      expanded.forEach(token=>{
-        if(!rawTokens.includes(token) && text.includes(token)) score+=3500;
-      });
-      if(matched===rawTokens.length) score+=18000;
-      const accessory=/cover|bracket|mount|holder|box|dummy|case|tapa|soporte|carcasa/.test(name);
-      const accessoryAsked=rawTokens.some(t=>['cover','bracket','mount','holder','box','tapa','soporte','carcasa','accesorio'].includes(t));
-      if(accessory && !accessoryAsked) score-=7000;
-      return {p,i,score};
-    }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.p.name.localeCompare(b.p.name,'es')).slice(0,300);
-    return sortFamilyResults300(resultados,q);
+    }catch(e){ console.warn('Explorer search fallback',e); }
+    const nq=normaliza(q);
+    return productos.map((p,index)=>({p,index,text:normaliza([p.name,p.brand,p.description,p.short_description,p.category,p.family,p.subcategory].join(' '))}))
+      .filter(x=>x.text.includes(nq)).map(({p,index})=>({p,index}));
   }
-
-  // Agrupación automática de variantes del Explorer.
-  // No necesita reglas por familia: elimina únicamente el token de color W/B
-  // de la referencia y mantiene juntas todas las variantes del mismo producto.
-  function exploreFamilyKey300(product){
-    return String((product && product.name) || '')
-      .toUpperCase()
-      .replace(/-(?:W|B)(?=-|$)/g, '')
-      .replace(/--+/g, '-')
-      .replace(/-$/,'')
-      .trim();
+  function visibleItems(tree){
+    if(clean(state.query)) return searchItems(state.query);
+    const {family}=current(tree);
+    return (family?.items||[]).slice().sort((a,b)=>collator.compare(a.p.name,b.p.name));
   }
-  function exploreColorOrder300(product){
-    const ref=String((product && product.name) || '').toUpperCase();
-    if(/-W(?:-|$)/.test(ref)) return 0;
-    if(/-B(?:-|$)/.test(ref)) return 1;
-    return 2;
+  function productCard(x){
+    const d=descripcionProducto(x.p);
+    return `<article class="explore-product hx-explorer-product" data-index="${x.index}" data-ref="${esc(x.p.name)}" data-pvp="${Number(x.p.pvp)||0}">
+      ${hxProductVisualHtml(x.p,d,'explorer')}
+      <b class="hx-explorer-price">${fmt.format(Number(x.p.pvp)||0)}</b>
+      ${hxQtyControlHtml('explorer',x.index)}
+      <button type="button" class="catalog-add explore-add" data-index="${x.index}">Añadir</button>
+    </article>`;
   }
-  function sortFamilyResults300(items,query=''){
-    const lista=Array.isArray(items)?items.slice():[];
-    const grupos=new Map();
-    lista.forEach((item,pos)=>{
-      const key=exploreFamilyKey300(item.p);
-      if(!grupos.has(key)) grupos.set(key,{key,items:[],bestScore:-Infinity,first:pos});
-      const g=grupos.get(key);
-      g.items.push({...item,__hxPos:pos});
-      g.bestScore=Math.max(g.bestScore,Number(item.score)||0);
-      g.first=Math.min(g.first,pos);
-    });
-    const buscaNegro=/\b(?:negro|black|\-b)\b/i.test(String(query||''));
-    const buscaBlanco=/\b(?:blanco|white|\-w)\b/i.test(String(query||''));
-    return [...grupos.values()]
-      .sort((a,b)=>(b.bestScore-a.bestScore)||(a.first-b.first)||a.key.localeCompare(b.key,'es',{numeric:true,sensitivity:'base'}))
-      .flatMap(g=>g.items.sort((a,b)=>{
-        let ca=exploreColorOrder300(a.p), cb=exploreColorOrder300(b.p);
-        if(buscaNegro){ ca=ca===1?0:ca===0?1:ca; cb=cb===1?0:cb===0?1:cb; }
-        else if(buscaBlanco){ ca=ca===0?0:ca===1?1:ca; cb=cb===0?0:cb===1?1:cb; }
-        return ca-cb || (Number(b.score)||0)-(Number(a.score)||0) || String(a.p.name||'').localeCompare(String(b.p.name||''),'es',{numeric:true,sensitivity:'base'});
-      }).map(({__hxPos,...item})=>item));
+  function bindProducts(root){
+    hxBindQtyControls(root,'explorer'); hxBindProductImages(root);
+    root.querySelectorAll('.explore-add').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();addExplorePersistent(Number(btn.dataset.index),btn);}));
   }
-  function filteredProducts(){
-    const q=String(expQuery||'').trim();
-    if(q) return smartExplore300(q);
-    const sub=currentSub();
-    if(!sub) return [];
-
-    const lista=productos.map((p,i)=>({p,i})).filter(x=>sub.pred(x.p));
-    // El precio mínimo de cada familia se usa para ordenar familias completas,
-    // nunca productos sueltos. Así W y B permanecen contiguos automáticamente.
-    const familyMinPrice=new Map();
-    lista.forEach(x=>{
-      const key=exploreFamilyKey300(x.p);
-      const price=Number(x.p.pvp)||0;
-      if(!familyMinPrice.has(key) || price<familyMinPrice.get(key)) familyMinPrice.set(key,price);
-    });
-
-    return lista.sort((a,b)=>{
-      const familyA=exploreFamilyKey300(a.p);
-      const familyB=exploreFamilyKey300(b.p);
-      if(familyA!==familyB){
-        const byFamilyPrice=(familyMinPrice.get(familyA)||0)-(familyMinPrice.get(familyB)||0);
-        if(byFamilyPrice) return byFamilyPrice;
-        return familyA.localeCompare(familyB,'es',{numeric:true,sensitivity:'base'});
-      }
-      const byColor=exploreColorOrder300(a.p)-exploreColorOrder300(b.p);
-      if(byColor) return byColor;
-      const byPrice=(Number(a.p.pvp)||0)-(Number(b.p.pvp)||0);
-      if(byPrice) return byPrice;
-      return String(a.p.name||'').localeCompare(String(b.p.name||''),'es',{numeric:true,sensitivity:'base'});
-    });
-  }
-
-  function productRow(x){
-    const d = descripcionProducto(x.p);
-    return `<div class="explore-product" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}">
-      ${hxProductVisualHtml(x.p, d, 'explorer')}
-      <b>${fmt.format(x.p.pvp)}</b>
-      ${hxQtyControlHtml('explorer', x.i)}
-      <button type="button" class="catalog-add explore-add" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}">Añadir</button>
-    </div>`;
-  }
-
-  function isMobileExplore(){
-    return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
-  }
-
-  function firstValidSub(cat){
-    return cat.subs?.find(s=>countPred(s.pred)>0)?.title || cat.subs?.[0]?.title || null;
-  }
-
-  function renderExplore(){
-    const grid = document.getElementById('familiasGrid');
-    if(!grid) return;
-    const mobile = isMobileExplore();
-    const c = currentCat();
-    const sub = currentSub();
-    const list = filteredProducts();
-
-    function bindProductEvents(root){
-      function addExplorePersistent(idx, trigger){
-        const scrollHost = root.querySelector('.explore-products, .explore-mobile-panel');
-        const scrollTop = scrollHost ? scrollHost.scrollTop : 0;
-        const qty = hxModalQtyGet('explorer', idx);
-        const productEl = trigger?.closest('.explore-product') || root.querySelector(`.explore-product[data-index="${Number(idx)}"]`);
-        hxAddProductoModal('explorer', Number(idx), qty, productEl?.dataset.ref, productEl?.dataset.pvp);
-        if(trigger){
-          const original = trigger.textContent;
-          trigger.textContent = '✓ Añadido';
-          trigger.classList.add('added-ok');
-          setTimeout(()=>{ trigger.textContent = original || 'Añadir'; trigger.classList.remove('added-ok'); }, 750);
-        }
-        /* No volver a renderizar todo el Explorador: conserva DOM,
-           categoría, filtro y scroll para que el siguiente producto sea inmediato. */
-        if(scrollHost) scrollHost.scrollTop = scrollTop;
-        const input = document.getElementById('exploreFilter210');
-        if(input){ setTimeout(()=>{ input.focus(); input.select(); }, 0); }
-      }
-      hxBindQtyControls(root, 'explorer');
-      hxBindProductImages(root);
-      const touchUi = !!(window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches);
-      if(!touchUi){
-        root.querySelectorAll('.explore-product').forEach(el=>el.addEventListener('dblclick',()=>{ addExplorePersistent(Number(el.dataset.index), null); }));
-        root.querySelectorAll('.explore-product').forEach(el=>el.addEventListener('click',()=>{ seleccionarProductoSeguro(el.dataset.ref, el.dataset.pvp, true); }));
-      }
-      root.querySelectorAll('.explore-add').forEach(btn=>btn.addEventListener('click',e=>{ e.stopPropagation(); addExplorePersistent(Number(btn.dataset.index), btn); }));
-      if(touchUi){
-        root.querySelectorAll('button,.explore-product').forEach(el=>{
-          const clearTouchState=()=>{
-            try{ el.blur(); }catch(_){}
-            try{
-              const active=document.activeElement;
-              if(active && root.contains(active) && typeof active.blur==='function') active.blur();
-            }catch(_){}
-          };
-          el.addEventListener('touchstart',clearTouchState,{passive:true});
-          el.addEventListener('touchend',()=>{
-            clearTouchState();
-            requestAnimationFrame(clearTouchState);
-            setTimeout(clearTouchState,40);
-          },{passive:true});
-          el.addEventListener('pointerup',()=>setTimeout(clearTouchState,0),{passive:true});
-        });
-      }
-    }
-
+  function render(){
+    const grid=document.getElementById('familiasGrid'); if(!grid) return;
+    const tree=buildTree(), {category,family}=current(tree), items=visibleItems(tree);
+    const mobile=window.matchMedia('(max-width:760px)').matches;
+    if(state.category && !category){state.category='';state.family='';state.step='categories';}
+    if(state.family && !family){state.family='';state.step='families';}
+    const categoryButtons=tree.map(c=>`<button type="button" class="explore-cat hx-explorer-nav ${c.id===state.category?'active':''}" data-category="${esc(c.id)}"><span><i>${c.icon}</i>${esc(c.title)}</span><em>${c.count}</em></button>`).join('');
+    const familyButtons=(category?.families||[]).map(f=>`<button type="button" class="explore-sub hx-explorer-nav ${f.id===state.family?'active':''}" data-family="${esc(f.id)}"><span>${esc(f.title)}</span><em>${f.count}</em></button>`).join('');
+    const products=items.map(productCard).join('')||'<div class="hx-explorer-empty">No hay productos en esta selección.</div>';
+    const crumb=[category?.title,family?.title].filter(Boolean).join(' › ');
+    const search=`<div class="explore-search hx-explorer-search"><input id="exploreFilter210" autocomplete="off" placeholder="Buscar en todo el catálogo…" value="${esc(state.query)}"><span>${items.length} productos</span></div>`;
     if(mobile){
-      const catsHtml = EXPLORE_211.map(cat=>{
-        const fams = (cat.subs||[]).length;
-        return `<button type="button" class="explore-cat ${cat.id===expCat?'active':''}" data-cat="${cat.id}"><span>${cat.icon} ${cat.title}</span><em>${fams}</em></button>`;
-      }).join('');
-      const subsHtml = ((c&&c.subs)||[]).map(s=>{
-        const total = countPred(s.pred);
-        return `<button type="button" class="explore-sub ${s.title===expSub?'active':''}" data-sub="${escapeHtml(s.title)}"><span>${s.icon} ${escapeHtml(s.title)}</span><em>${total}</em></button>`;
-      }).join('');
-      let body='';
-      let title='Categorías';
-      if(expMobileStep === 'subs'){
-        title = c ? `${c.icon} ${c.title}` : 'Subcategorías';
-        body = `<div class="explore-mobile-list explore-mobile-subs">${subsHtml}</div>`;
-      }else if(expMobileStep === 'products'){
-        title = `${sub ? sub.icon+' '+sub.title : (c ? c.icon+' '+c.title : 'Resultados')}`;
-        body = `<div class="explore-products explore-mobile-products">${list.map(productRow).join('') || '<div class="catalog-empty">No hay productos en esta subfamilia.</div>'}</div>`;
-      }else{
-        expMobileStep = 'cats';
-        title = 'Categorías';
-        body = `<div class="explore-mobile-list explore-mobile-cats">${catsHtml}</div>`;
-      }
-      grid.innerHTML = `
-        <div class="explore-wrap explore-mobile-wrap">
-          <div class="explore-search"><input id="exploreFilter210" autocomplete="off" placeholder="Buscar por referencia o descripción…" value="${escapeHtml(expQuery)}"><span>${list.length} productos</span></div>
-          <div class="explore-mobile-head">
-            ${expMobileStep==='cats' ? '' : '<button type="button" class="explore-back">← Atrás</button>'}
-            <div class="explore-breadcrumb">🧭 Explorar ${expMobileStep!=='cats' && c ? '<b>›</b> '+escapeHtml(c.icon)+' '+escapeHtml(c.title) : ''} ${expMobileStep==='products' && sub ? '<b>›</b> '+escapeHtml(sub.icon)+' '+escapeHtml(sub.title) : ''}</div>
-          </div>
-          <div class="explore-mobile-title">${escapeHtml(title)}</div>
-          <div class="explore-mobile-panel">${body}</div>
-        </div>`;
-      const input = document.getElementById('exploreFilter210');
-      if(input){
-        let timer; input.addEventListener('input',e=>{
-          /* La escritura manda: solo guardamos el valor aquí. El render pesado
-             se ejecuta cuando el usuario lleva un instante sin pulsar. */
-          expQuery=e.target.value;
-          clearTimeout(timer);
-          timer=setTimeout(()=>{
-            const latest=String(expQuery||'');
-            requestAnimationFrame(()=>{
-              if(latest.trim()) expMobileStep='products';
-              renderExplore();
-              requestAnimationFrame(()=>{
-                const i=document.getElementById('exploreFilter210');
-                if(i){ i.focus({preventScroll:true}); i.setSelectionRange(i.value.length,i.value.length); }
-              });
-            });
-          },360);
-        });
-      }
-      grid.querySelector('.explore-back')?.addEventListener('click',()=>{
-        if(expMobileStep === 'products') expMobileStep = 'subs';
-        else expMobileStep = 'cats';
-        expQuery='';
-        renderExplore();
-      });
-      grid.querySelectorAll('.explore-cat').forEach(btn=>btn.addEventListener('click',()=>{
-        expCat=btn.dataset.cat;
-        const cc=currentCat();
-        expSub=cc ? firstValidSub(cc) : null;
-        expQuery='';
-        expMobileStep='subs';
-        renderExplore();
-      }));
-      grid.querySelectorAll('.explore-sub').forEach(btn=>btn.addEventListener('click',()=>{
-        expSub=btn.dataset.sub;
-        expQuery='';
-        expMobileStep='products';
-        renderExplore();
-      }));
-      bindProductEvents(grid);
-      return;
+      let panel,title='Categorías';
+      if(clean(state.query)){ panel=`<div class="explore-products explore-mobile-products">${products}</div>`; title='Resultados'; }
+      else if(state.step==='products'){panel=`<div class="explore-products explore-mobile-products">${products}</div>`;title=family?.title||'Productos';}
+      else if(state.step==='families'){panel=`<div class="explore-mobile-list">${familyButtons||'<div class="hx-explorer-empty">Sin familias.</div>'}</div>`;title=category?.title||'Familias';}
+      else panel=`<div class="explore-mobile-list">${categoryButtons}</div>`;
+      grid.innerHTML=`<div class="explore-wrap explore-mobile-wrap hx-explorer-v2">${search}<div class="explore-mobile-head">${state.step!=='categories'||state.query?'<button type="button" class="explore-back">← Atrás</button>':''}<div class="explore-breadcrumb">${esc(crumb||'Explorar catálogo')}</div></div><div class="explore-mobile-title">${esc(title)}</div><div class="explore-mobile-panel">${panel}</div></div>`;
+    }else{
+      grid.innerHTML=`<div class="explore-wrap hx-explorer-v2">${search}<div class="explore-breadcrumb">${esc(crumb||'Selecciona una categoría o busca cualquier producto')}</div><div class="explore-layout"><nav class="explore-col explore-cats">${categoryButtons}</nav><nav class="explore-col explore-subs">${familyButtons||'<div class="hx-explorer-empty">Selecciona una categoría.</div>'}</nav><section class="explore-products">${family||state.query?products:'<div class="hx-explorer-empty hx-explorer-welcome"><strong>Explora el catálogo automáticamente</strong><span>Las categorías y familias proceden de los CSV cargados.</span></div>'}</section></div></div>`;
     }
-
-    const catsHtml = EXPLORE_211.map(cat=>{
-      const fams = (cat.subs||[]).length;
-      return `<button type="button" class="explore-cat ${cat.id===expCat?'active':''}" data-cat="${cat.id}"><span>${cat.icon} ${cat.title}</span><em>${fams}</em></button>`;
-    }).join('');
-    const subsHtml = ((c&&c.subs)||[]).map(s=>{
-      const total = countPred(s.pred);
-      return `<button type="button" class="explore-sub ${s.title===expSub?'active':''}" data-sub="${escapeHtml(s.title)}"><span>${s.icon} ${escapeHtml(s.title)}</span><em>${total}</em></button>`;
-    }).join('');
-    const initialHelp = !expQuery.trim() && !c;
-    grid.innerHTML = `
-      <div class="explore-wrap">
-        <div class="explore-search"><input id="exploreFilter210" autocomplete="off" placeholder="Buscar por referencia o descripción…" value="${escapeHtml(expQuery)}"><span>${list.length} productos</span></div>
-        <div class="explore-breadcrumb">🧭 ${c ? 'Explorar <b>›</b> '+escapeHtml(c.icon)+' '+escapeHtml(c.title)+(sub ? ' <b>›</b> '+escapeHtml(sub.icon)+' '+escapeHtml(sub.title) : '') : 'Selecciona una categoría o escribe en el buscador'}</div>
-        <div class="explore-layout">
-          <div class="explore-col explore-cats">${catsHtml}</div>
-          <div class="explore-col explore-subs">${subsHtml || '<div class="catalog-empty">Selecciona una categoría.</div>'}</div>
-          <div class="explore-products">${initialHelp ? '<div class="catalog-empty">Selecciona una categoría o escribe en el buscador para encontrar cualquier producto.</div>' : (list.map(productRow).join('') || '<div class="catalog-empty">No hay resultados.</div>')}</div>
-        </div>
-      </div>`;
-    const catsPanel211 = grid.querySelector('.explore-cats');
-    const subsPanel211 = grid.querySelector('.explore-subs');
-    if(catsPanel211) catsPanel211.scrollTop = expCatsScroll211;
-    if(subsPanel211) subsPanel211.scrollTop = expSubsScroll211;
-
-    const input = document.getElementById('exploreFilter210');
-    if(input){
-      let timer; input.addEventListener('input',e=>{
-        /* No reconstruir el modal entre pulsaciones: evita perder letras como
-           'home' -> 'hmo' en equipos lentos. */
-        expQuery=e.target.value;
-        clearTimeout(timer);
-        timer=setTimeout(()=>{
-          requestAnimationFrame(()=>{
-            renderExplore();
-            requestAnimationFrame(()=>{
-              const i=document.getElementById('exploreFilter210');
-              if(i){ i.focus({preventScroll:true}); i.setSelectionRange(i.value.length,i.value.length); }
-            });
-          });
-        },360);
-      });
-    }
-    grid.querySelectorAll('.explore-cat').forEach(btn=>btn.addEventListener('click',()=>{
-      const catsHost=grid.querySelector('.explore-cats');
-      expCatsScroll211=catsHost ? catsHost.scrollTop : expCatsScroll211;
-      expCat=btn.dataset.cat;
-      const cc=currentCat();
-      expSub=firstValidSub(cc);
-      expQuery='';
-      expSubsScroll211=0;
-      renderExplore();
-    }));
-    grid.querySelectorAll('.explore-sub').forEach(btn=>btn.addEventListener('click',()=>{
-      const catsHost=grid.querySelector('.explore-cats');
-      const subsHost=grid.querySelector('.explore-subs');
-      expCatsScroll211=catsHost ? catsHost.scrollTop : expCatsScroll211;
-      expSubsScroll211=subsHost ? subsHost.scrollTop : expSubsScroll211;
-      expSub=btn.dataset.sub;
-      expQuery='';
-      renderExplore();
-      requestAnimationFrame(()=>{
-        const restored=grid.querySelector('.explore-subs');
-        if(restored) restored.scrollTop=expSubsScroll211;
-        const products=grid.querySelector('.explore-products');
-        if(products) products.scrollTop=0;
-      });
-    }));
-    bindProductEvents(grid);
+    const input=grid.querySelector('#exploreFilter210'); if(input){let timer;input.addEventListener('input',e=>{state.query=e.target.value;clearTimeout(timer);timer=setTimeout(()=>{if(state.query)state.step='products';render();requestAnimationFrame(()=>{const n=document.getElementById('exploreFilter210');n?.focus({preventScroll:true});n?.setSelectionRange(n.value.length,n.value.length);});},220);});}
+    grid.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click',()=>{state.category=btn.dataset.category;state.family='';state.query='';state.step=mobile?'families':'families';render();}));
+    grid.querySelectorAll('[data-family]').forEach(btn=>btn.addEventListener('click',()=>{state.family=btn.dataset.family;state.query='';state.step='products';render();}));
+    grid.querySelector('.explore-back')?.addEventListener('click',()=>{if(state.query){state.query='';state.step=state.family?'products':state.category?'families':'categories';}else if(state.step==='products'){state.step='families';state.family='';}else{state.step='categories';state.category='';}render();});
+    bindProducts(grid);
   }
-
-  function abrirExplorar211(){
-    const modal = document.getElementById('familiasModal');
-    if(!modal) return;
-    const title = document.getElementById('familiasTitle');
-    if(title) title.textContent = 'Explorar catálogo';
-    const p = modal.querySelector('.modal-head p');
-    if(p) p.textContent = 'Navega por categoría y subfamilia para encontrar productos sin escribir referencias.';
-    expCat = null;
-    expSub = null;
-    expQuery='';
-    expCatsScroll211=0;
-    expSubsScroll211=0;
-    expMobileStep='cats';
-    renderExplore();
-    modal.classList.remove('hidden');
-    modal.setAttribute('aria-hidden','false');
-    document.body.classList.add('modal-open');
+  function openExplorer(){
+    const modal=document.getElementById('familiasModal'); if(!modal)return;
+    state={category:'',family:'',query:'',step:'categories'};
+    document.getElementById('familiasTitle').textContent='Explorar catálogo';
+    const p=modal.querySelector('.modal-head p'); if(p)p.textContent='Categorías y familias generadas automáticamente desde el catálogo.';
+    render(); modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open');
   }
-
   document.addEventListener('DOMContentLoaded',()=>{
-    const btn = document.getElementById('btnFamilias');
-    if(btn){
-      btn.dataset.explorarPro='1';
-      btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); abrirExplorar211(); }, true);
-    }
+    const btn=document.getElementById('btnFamilias');
+    if(btn) btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openExplorer();},true);
   });
 })();
 
