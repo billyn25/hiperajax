@@ -950,14 +950,26 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
    No modifica tamaños de botones ni reglas móviles.
    ===================================================== */
 @media (min-width:761px){
+
   .budget-card .section-bar{
-    grid-template-columns:minmax(0,1fr) 92px!important;
+    box-sizing:border-box !important;
+    padding-right:12px !important;
   }
 
   .budget-card .section-bar .section-actions{
-    width:92px!important;
-    min-width:92px!important;
-    max-width:92px!important;
-    justify-content:center!important;
+    width:92px !important;
+    min-width:92px !important;
+    max-width:92px !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    gap:8px !important;
+    margin:0 !important;
+    padding:0 !important;
+
+    transform:translateX(12px);
   }
+
 }
