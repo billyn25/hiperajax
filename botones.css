@@ -943,3 +943,21 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
 @media(max-width:390px){
   .budget-card .budget-toolbar.header-toolbar{gap:7px!important}
 }
+
+/* =====================================================
+   AJUSTE FINAL SEPARADOR — SOLO PC
+   La pista de acciones replica el ancho de ORDEN.
+   No modifica tamaños de botones ni reglas móviles.
+   ===================================================== */
+@media (min-width:761px){
+  .budget-card .section-bar{
+    grid-template-columns:minmax(0,1fr) 92px!important;
+  }
+
+  .budget-card .section-bar .section-actions{
+    width:92px!important;
+    min-width:92px!important;
+    max-width:92px!important;
+    justify-content:center!important;
+  }
+}
