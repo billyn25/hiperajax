@@ -1,0 +1,8 @@
+EXPLORER 2.0.1 — CORRECCIÓN
+
+- Corrige el botón Añadir del Explorer (la función de enlace faltaba).
+- Detecta automáticamente columnas de clasificación del CSV remoto aunque cambien de nombre.
+- Admite rutas jerárquicas del tipo Categoría > Familia > Subfamilia.
+- Fuerza una nueva petición de catálogo para no reutilizar la respuesta anterior sin categorías.
+- Aplica un fondo gris azulado uniforme a las fotografías en Catálogo, Explorer y vista ampliada.
+- No modifica Inicio, Presupuesto ni tamaños de botones.

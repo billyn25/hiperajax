@@ -2440,7 +2440,7 @@ async function cargarCatalogo(){
   try{
     let baseTxt = '';
     try{
-      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto');
+      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v=201');
     }catch(errorRemoto){
       console.warn('Catálogo remoto no disponible; se usa la copia local.', errorRemoto);
       baseTxt = await hxLeerCSV(CSV_URL);
@@ -4542,9 +4542,24 @@ pintarCatalogPanel = function(term=catalogTerm){
       <button type="button" class="catalog-add explore-add" data-index="${x.index}">Añadir</button>
     </article>`;
   }
+  function addExplorePersistent(idx, trigger){
+    const qty = hxModalQtyGet('explorer', idx);
+    const row = trigger?.closest('.explore-product');
+    const ok = hxAddProductoModal('explorer', Number(idx), qty, row?.dataset.ref, row?.dataset.pvp);
+    if(ok && trigger){
+      const original = trigger.textContent || 'Añadir';
+      trigger.textContent = '✓ Añadido';
+      trigger.classList.add('added-ok');
+      setTimeout(()=>{ trigger.textContent = original; trigger.classList.remove('added-ok'); }, 750);
+    }
+  }
   function bindProducts(root){
     hxBindQtyControls(root,'explorer'); hxBindProductImages(root);
     root.querySelectorAll('.explore-add').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();addExplorePersistent(Number(btn.dataset.index),btn);}));
+    root.querySelectorAll('.explore-product').forEach(card=>card.addEventListener('dblclick',e=>{
+      if(e.target.closest('button')) return;
+      addExplorePersistent(Number(card.dataset.index), null);
+    }));
   }
   function render(){
     const grid=document.getElementById('familiasGrid'); if(!grid) return;
