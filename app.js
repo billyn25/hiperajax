@@ -4480,44 +4480,65 @@ pintarCatalogPanel = function(term=catalogTerm){
 })();
 
 /* =====================================================
-   EXPLORER 4.1 — ESTRUCTURA
-   Navegación compacta + Buscar / Filtros / Orden.
+   EXPLORER DINÁMICO 3.0
+   Árbol CSV + subcategorías + color + orden.
    ===================================================== */
 (function(){
-  const esc=value=>escapeHtml(String(value==null?'':value));
-  const clean=value=>String(value||'').replace(/\s+/g,' ').trim();
-  const slug=value=>normaliza(clean(value)).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'otros';
-  const collator=new Intl.Collator('es',{numeric:true,sensitivity:'base'});
-  let state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',filtersOpen:false};
+  const esc = value => escapeHtml(String(value == null ? '' : value));
+  const clean = value => String(value || '').replace(/\s+/g,' ').trim();
+  const slug = value => normaliza(clean(value)).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'otros';
+  const collator = new Intl.Collator('es',{numeric:true,sensitivity:'base'});
+  let state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories',filtersOpen:false};
 
   function splitHierarchy(value){return clean(value).split(/\s*(?:>|\/|\\|\||»|→)\s*/).map(clean).filter(Boolean)}
   function inferredSubcategory(product){
-    const source=clean(product?.short_description||product?.description);if(!source)return'';
-    const parts=source.split(/\s+(?:-|–|—|·|\|)\s+/).map(clean).filter(Boolean);if(parts.length<2)return'';
-    const value=parts[0].replace(/\bcolor\s+[a-záéíóúüñ]+.*$/i,'').replace(/\btalla\s+[a-z0-9+.-]+.*$/i,'').trim();
-    return !value||value.length<3||value.length>55?'':value;
+    const source=clean(product?.short_description || product?.description);
+    if(!source)return '';
+    const parts=source.split(/\s+(?:-|–|—|·|\|)\s+/).map(clean).filter(Boolean);
+    if(parts.length<2)return '';
+    let value=parts[0]
+      .replace(/\bcolor\s+[a-záéíóúüñ]+.*$/i,'')
+      .replace(/\btalla\s+[a-z0-9+.-]+.*$/i,'')
+      .replace(/\s+/g,' ')
+      .trim();
+    if(!value || value.length<3 || value.length>55)return '';
+    return value;
   }
   function classification(product){
     const manual=String(product?.origen_catalogo||'').toLowerCase()==='manual';
-    let cat=clean(product?.category||product?.categoria||product?.department);
-    let fam=clean(product?.family||product?.familia);
-    let sub=clean(product?.subcategory||product?.subfamily||product?.subfamilia||product?.product_type||product?.tipo||product?.series||product?.serie||product?.technology||product?.tecnologia||product?.protocol||product?.protocolo);
-    const path=splitHierarchy(cat);if(path.length>1){cat=path[0];if(!fam)fam=path[1];if(!sub&&path[2])sub=path.slice(2).join(' › ')}
-    if(!sub)sub=inferredSubcategory(product);if(!cat)cat=manual?'Productos añadidos':'Sin categoría';if(!fam)fam=manual?'Productos añadidos':'General';
-    return{category:cat,family:fam,subcategory:sub||'Todos'};
+    let cat=clean(product?.category || product?.categoria || product?.department);
+    let fam=clean(product?.family || product?.familia);
+    let sub=clean(product?.subcategory || product?.subfamily || product?.subfamilia || product?.product_type || product?.tipo || product?.series || product?.serie || product?.technology || product?.tecnologia || product?.protocol || product?.protocolo);
+    const path=splitHierarchy(cat);
+    if(path.length>1){cat=path[0];if(!fam)fam=path[1];if(!sub&&path[2])sub=path.slice(2).join(' › ')}
+    if(!sub)sub=inferredSubcategory(product);
+    if(!cat) cat=manual?'Productos añadidos':'Sin categoría';
+    if(!fam) fam=manual?'Productos añadidos':'General';
+    return {category:cat,family:fam,subcategory:sub||'Todos'};
   }
-  function productColor(p){return clean(p?.color||p?.colour||p?.finish||p?.acabado)}
+  function productColor(p){return clean(p?.color || p?.colour || p?.finish || p?.acabado)}
   function buildTree(){
     const categories=new Map();
     (Array.isArray(productos)?productos:[]).forEach((p,index)=>{
-      const c=classification(p),ck=slug(c.category),fk=slug(c.family),sk=slug(c.subcategory);
-      if(!categories.has(ck))categories.set(ck,{id:ck,title:c.category,count:0,families:new Map()});
+      const c=classification(p), ck=slug(c.category), fk=slug(c.family), sk=slug(c.subcategory);
+      if(!categories.has(ck)) categories.set(ck,{id:ck,title:c.category,count:0,families:new Map()});
       const cat=categories.get(ck);cat.count++;
       if(!cat.families.has(fk))cat.families.set(fk,{id:fk,title:c.family,count:0,subcategories:new Map(),items:[]});
-      const fam=cat.families.get(fk);fam.count++;fam.items.push({p,index,sub:c.subcategory,color:productColor(p)});
-      if(!fam.subcategories.has(sk))fam.subcategories.set(sk,{id:sk,title:c.subcategory,count:0});fam.subcategories.get(sk).count++;
+      const fam=cat.families.get(fk);fam.count++;
+      const item={p,index,sub:c.subcategory,color:productColor(p)};fam.items.push(item);
+      if(!fam.subcategories.has(sk))fam.subcategories.set(sk,{id:sk,title:c.subcategory,count:0});
+      fam.subcategories.get(sk).count++;
     });
-    return[...categories.values()].map(cat=>({...cat,families:[...cat.families.values()].map(f=>({...f,subcategories:[...f.subcategories.values()].sort((a,b)=>collator.compare(a.title,b.title))})).sort((a,b)=>collator.compare(a.title,b.title))})).sort((a,b)=>collator.compare(a.title,b.title));
+    const ordered=[...categories.values()].map(cat=>({...cat,families:[...cat.families.values()].map(f=>({...f,subcategories:[...f.subcategories.values()].sort((a,b)=>collator.compare(a.title,b.title))})).sort((a,b)=>collator.compare(a.title,b.title))}))
+      .sort((a,b)=>{const last=v=>v.title==='Productos añadidos'?2:v.title==='Sin categoría'?1:0;return last(a)-last(b)||collator.compare(a.title,b.title)});
+    const merchIndex=ordered.findIndex(item=>normaliza(item.title)==='merchandising');
+    const smartIndex=ordered.findIndex(item=>normaliza(item.title)==='smart home');
+    if(merchIndex>=0&&smartIndex>=0&&merchIndex!==smartIndex+1){
+      const [merch]=ordered.splice(merchIndex,1);
+      const newSmartIndex=ordered.findIndex(item=>normaliza(item.title)==='smart home');
+      ordered.splice(newSmartIndex+1,0,merch);
+    }
+    return ordered;
   }
   function current(tree){const category=tree.find(x=>x.id===state.category)||null;const family=category?.families.find(x=>x.id===state.family)||null;return{category,family}}
   function searchItems(query){
@@ -4525,39 +4546,68 @@ pintarCatalogPanel = function(term=catalogTerm){
     try{if(window.HXA_KNOWLEDGE_ENGINE?.rank){const indexed=productos.map((p,i)=>({...p,description:[p.description,p.short_description,p.category,p.family,p.subcategory,p.color].filter(Boolean).join(' '),_hxaIndex:i}));return window.HXA_KNOWLEDGE_ENGINE.rank(indexed,q,350).map(x=>({p:productos[x._hxaIndex],index:x._hxaIndex,color:productColor(productos[x._hxaIndex])})).filter(x=>x.p)}}catch(e){console.warn('Explorer search fallback',e)}
     const nq=normaliza(q);return productos.map((p,index)=>({p,index,color:productColor(p),text:normaliza([p.name,p.brand,p.description,p.short_description,p.category,p.family,p.subcategory,p.color].join(' '))})).filter(x=>x.text.includes(nq));
   }
-  function sortItems(items){const list=items.slice();if(state.sort==='price-desc')return list.sort((a,b)=>(Number(b.p.pvp)||0)-(Number(a.p.pvp)||0)||collator.compare(a.p.name,b.p.name));if(state.sort==='name')return list.sort((a,b)=>collator.compare(descripcionProducto(a.p),descripcionProducto(b.p)));if(state.sort==='ref')return list.sort((a,b)=>collator.compare(a.p.name,b.p.name));return list.sort((a,b)=>(Number(a.p.pvp)||0)-(Number(b.p.pvp)||0)||collator.compare(a.p.name,b.p.name))}
-  function visibleItems(tree){let items=clean(state.query)?searchItems(state.query):(current(tree).family?.items||[]).slice();if(!state.query&&state.subcategory)items=items.filter(x=>slug(x.sub)===state.subcategory);if(state.color)items=items.filter(x=>slug(x.color)===state.color);return sortItems(items)}
-  function productCard(x){const d=descripcionProducto(x.p);return`<article class="explore-product hx-explorer-product" data-index="${x.index}" data-ref="${esc(x.p.name)}" data-pvp="${Number(x.p.pvp)||0}">${hxProductVisualHtml(x.p,d,'explorer')}<b class="hx-explorer-price">${fmt.format(Number(x.p.pvp)||0)}</b>${hxQtyControlHtml('explorer',x.index)}<button type="button" class="catalog-add explore-add" data-index="${x.index}">Añadir</button></article>`}
-  function addExplorePersistent(idx,trigger){const qty=hxModalQtyGet('explorer',idx),row=trigger?.closest('.explore-product'),ok=hxAddProductoModal('explorer',Number(idx),qty,row?.dataset.ref,row?.dataset.pvp);if(ok&&trigger){const original=trigger.textContent||'Añadir';trigger.textContent='✓ Añadido';trigger.classList.add('added-ok');setTimeout(()=>{trigger.textContent=original;trigger.classList.remove('added-ok')},750)}}
-  function bindProducts(root){hxBindQtyControls(root,'explorer');hxBindProductImages(root);root.querySelectorAll('.explore-add').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();addExplorePersistent(Number(btn.dataset.index),btn)}));root.querySelectorAll('.explore-product').forEach(card=>card.addEventListener('dblclick',e=>{if(!e.target.closest('button'))addExplorePersistent(Number(card.dataset.index),null)}))}
-
-  function render(){
-    const grid=document.getElementById('familiasGrid');if(!grid)return;
-    const tree=buildTree();let{category,family}=current(tree);if(state.category&&!category){state.category='';state.family='';category=null;family=null}if(state.family&&!family){state.family='';family=null}
-    const baseItems=family?.items||[],items=visibleItems(tree),activeFilters=Number(Boolean(state.subcategory))+Number(Boolean(state.color));
-    const categories=tree.map(c=>`<option value="${esc(c.id)}" ${c.id===state.category?'selected':''}>${esc(c.title)} (${c.count})</option>`).join('');
-    const families=(category?.families||[]).map(f=>`<button type="button" class="hx41-family ${f.id===state.family?'active':''}" data-family="${esc(f.id)}"><span>${esc(f.title)}</span><em>${f.count}</em></button>`).join('');
-    const subs=(family?.subcategories||[]).filter(s=>s.title!=='Todos');
-    const colors=[...new Map(baseItems.map(x=>[slug(x.color),x.color]).filter(x=>x[1])).entries()].sort((a,b)=>collator.compare(a[1],b[1]));
-    const products=items.map(productCard).join('')||'<div class="hx-explorer-empty">No hay productos con estos filtros.</div>';
-    const context=clean(state.query)?`Resultados para “${esc(state.query)}”`:[category?.title,family?.title].filter(Boolean).join(' › ')||'Selecciona una categoría y una familia';
-    const drawer=state.filtersOpen?`<div class="hx41-filter-backdrop" data-close-filters></div><aside class="hx41-filter-panel" aria-label="Filtros del Explorer"><div class="hx41-filter-head"><div><strong>Filtros</strong><span>${activeFilters?activeFilters+' activos':'Opcionales'}</span></div><button type="button" data-close-filters aria-label="Cerrar">×</button></div><label>Tipo de producto<select id="hxExplorerSub"><option value="">Todos</option>${subs.map(s=>`<option value="${esc(s.id)}" ${state.subcategory===s.id?'selected':''}>${esc(s.title)} (${s.count})</option>`).join('')}</select></label><label>Color<select id="hxExplorerColor"><option value="">Todos</option>${colors.map(([id,title])=>`<option value="${esc(id)}" ${state.color===id?'selected':''}>${esc(title)}</option>`).join('')}</select></label><button type="button" class="hx41-clear" data-clear-filters>Limpiar filtros</button></aside>`:'';
-    grid.innerHTML=`<div class="hx41-shell"><header class="hx41-toolbar"><label class="hx41-search"><span>⌕</span><input id="exploreFilter210" autocomplete="off" placeholder="Buscar producto rápido…" value="${esc(state.query)}"></label><button type="button" class="hx41-filter-btn ${activeFilters?'active':''}" data-open-filters>Filtros${activeFilters?` <em>${activeFilters}</em>`:''}</button><select id="hxExplorerSort" aria-label="Ordenar productos"><option value="price-asc" ${state.sort==='price-asc'?'selected':''}>Precio ↑</option><option value="price-desc" ${state.sort==='price-desc'?'selected':''}>Precio ↓</option><option value="name" ${state.sort==='name'?'selected':''}>Nombre</option><option value="ref" ${state.sort==='ref'?'selected':''}>Referencia</option></select></header><div class="hx41-context"><span>${context}</span><strong>${items.length} productos</strong></div><div class="hx41-layout"><aside class="hx41-nav"><label>Categoría<select id="hxExplorerCategory"><option value="">Seleccionar…</option>${categories}</select></label><div class="hx41-family-title">Familias</div><div class="hx41-family-list">${families||'<div class="hx41-nav-empty">Elige una categoría</div>'}</div></aside><main class="hx41-products"><div class="explore-products">${family||state.query?products:'<div class="hx-explorer-empty hx-explorer-welcome"><strong>Encuentra el producto más rápido</strong><span>Elige categoría y familia, o usa el buscador superior.</span></div>'}</div></main></div>${drawer}</div>`;
-    bind(grid);bindProducts(grid);
+  function sortItems(items){
+    const list=items.slice();
+    if(state.sort==='price-desc')return list.sort((a,b)=>(Number(b.p.pvp)||0)-(Number(a.p.pvp)||0)||collator.compare(a.p.name,b.p.name));
+    if(state.sort==='name')return list.sort((a,b)=>collator.compare(descripcionProducto(a.p),descripcionProducto(b.p)));
+    if(state.sort==='ref')return list.sort((a,b)=>collator.compare(a.p.name,b.p.name));
+    return list.sort((a,b)=>{const ap=Number(a.p.pvp)||0,bp=Number(b.p.pvp)||0;if(!ap&&bp)return 1;if(ap&&!bp)return-1;return ap-bp||collator.compare(a.p.name,b.p.name)});
   }
-  function bind(grid){
+  function visibleItems(tree){
+    let items=clean(state.query)?searchItems(state.query):(current(tree).family?.items||[]).slice();
+    if(!state.query&&state.subcategory)items=items.filter(x=>slug(x.sub)===state.subcategory);
+    if(state.color)items=items.filter(x=>slug(x.color)===state.color);
+    return sortItems(items);
+  }
+  function productCard(x){const d=descripcionProducto(x.p);return `<article class="explore-product hx-explorer-product" data-index="${x.index}" data-ref="${esc(x.p.name)}" data-pvp="${Number(x.p.pvp)||0}">${hxProductVisualHtml(x.p,d,'explorer')}<b class="hx-explorer-price">${fmt.format(Number(x.p.pvp)||0)}</b>${hxQtyControlHtml('explorer',x.index)}<button type="button" class="catalog-add explore-add" data-index="${x.index}">Añadir</button></article>`}
+  function addExplorePersistent(idx,trigger){const qty=hxModalQtyGet('explorer',idx);const row=trigger?.closest('.explore-product');const ok=hxAddProductoModal('explorer',Number(idx),qty,row?.dataset.ref,row?.dataset.pvp);if(ok&&trigger){const original=trigger.textContent||'Añadir';trigger.textContent='✓ Añadido';trigger.classList.add('added-ok');setTimeout(()=>{trigger.textContent=original;trigger.classList.remove('added-ok')},750)}}
+  function bindProducts(root){hxBindQtyControls(root,'explorer');hxBindProductImages(root);root.querySelectorAll('.explore-add').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();addExplorePersistent(Number(btn.dataset.index),btn)}));root.querySelectorAll('.explore-product').forEach(card=>card.addEventListener('dblclick',e=>{if(e.target.closest('button'))return;addExplorePersistent(Number(card.dataset.index),null)}))}
+  function controls(family,items){
+    const subs=(family?.subcategories||[]).filter(s=>s.title!=='Todos');
+    const colors=[...new Map(items.map(x=>[slug(x.color),x.color]).filter(x=>x[1])).entries()].sort((a,b)=>collator.compare(a[1],b[1]));
+    const activeCount=(state.subcategory?1:0)+(state.color?1:0);
+    const subSelect=subs.length?`<label><span>Tipo</span><select id="hxExplorerSubcategory"><option value="">Todos los tipos</option>${subs.map(s=>`<option value="${esc(s.id)}" ${state.subcategory===s.id?'selected':''}>${esc(s.title)} (${s.count})</option>`).join('')}</select></label>`:'';
+    const colorSelect=colors.length>1?`<label><span>Color</span><select id="hxExplorerColor"><option value="">Todos los colores</option>${colors.map(([id,title])=>`<option value="${esc(id)}" ${state.color===id?'selected':''}>${esc(title)}</option>`).join('')}</select></label>`:'';
+    return `<div class="hx-explorer-toolbar"><button type="button" class="hx-explorer-filter-button ${state.filtersOpen?'active':''}" data-more-filters>Filtros${activeCount?` <em>${activeCount}</em>`:''}</button><select id="hxExplorerSort" aria-label="Ordenar productos"><option value="price-asc" ${state.sort==='price-asc'?'selected':''}>Precio ↑</option><option value="price-desc" ${state.sort==='price-desc'?'selected':''}>Precio ↓</option><option value="name" ${state.sort==='name'?'selected':''}>Nombre</option><option value="ref" ${state.sort==='ref'?'selected':''}>Referencia</option></select></div>${state.filtersOpen?`<div class="hx-explorer-filter-panel">${subSelect}${colorSelect}<button type="button" class="hx-explorer-clear" data-clear-filters>Limpiar filtros</button></div>`:''}`;
+  }
+  function bindCommon(grid,mobile){
     const input=grid.querySelector('#exploreFilter210');if(input){let timer;input.addEventListener('input',e=>{state.query=e.target.value;clearTimeout(timer);timer=setTimeout(()=>{render();requestAnimationFrame(()=>{const n=document.getElementById('exploreFilter210');n?.focus({preventScroll:true});n?.setSelectionRange(n.value.length,n.value.length)})},180)})}
-    grid.querySelector('#hxExplorerCategory')?.addEventListener('change',e=>{state.category=e.target.value;state.family='';state.subcategory='';state.color='';state.query='';render()});
+    grid.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click',()=>{state.category=btn.dataset.category;state.family='';state.subcategory='';state.color='';state.query='';render()}));
     grid.querySelectorAll('[data-family]').forEach(btn=>btn.addEventListener('click',()=>{state.family=btn.dataset.family;state.subcategory='';state.color='';state.query='';render()}));
-    grid.querySelector('[data-open-filters]')?.addEventListener('click',()=>{state.filtersOpen=true;render()});grid.querySelectorAll('[data-close-filters]').forEach(el=>el.addEventListener('click',()=>{state.filtersOpen=false;render()}));
-    grid.querySelector('#hxExplorerSub')?.addEventListener('change',e=>{state.subcategory=e.target.value;render()});grid.querySelector('#hxExplorerColor')?.addEventListener('change',e=>{state.color=e.target.value;render()});grid.querySelector('#hxExplorerSort')?.addEventListener('change',e=>{state.sort=e.target.value;render()});
+    grid.querySelector('#hxExplorerCategory')?.addEventListener('change',e=>{state.category=e.target.value;state.family='';state.subcategory='';state.color='';state.query='';render()});
+    grid.querySelector('#hxExplorerFamily')?.addEventListener('change',e=>{state.family=e.target.value;state.subcategory='';state.color='';state.query='';render()});
+    grid.querySelector('[data-more-filters]')?.addEventListener('click',()=>{state.filtersOpen=!state.filtersOpen;render()});
+    grid.querySelector('#hxExplorerSubcategory')?.addEventListener('change',e=>{state.subcategory=e.target.value;render()});
+    grid.querySelector('#hxExplorerColor')?.addEventListener('change',e=>{state.color=e.target.value;render()});
+    grid.querySelector('#hxExplorerSort')?.addEventListener('change',e=>{state.sort=e.target.value;render()});
     grid.querySelector('[data-clear-filters]')?.addEventListener('click',()=>{state.subcategory='';state.color='';render()});
   }
-  function openExplorer(){const modal=document.getElementById('familiasModal');if(!modal)return;state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',filtersOpen:false};modal.classList.remove('hidden');document.body.classList.add('modal-open');render()}
-  document.addEventListener('DOMContentLoaded',()=>{document.getElementById('btnFamilias')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openExplorer()},true)});
+  function render(){
+    const grid=document.getElementById('familiasGrid');if(!grid)return;
+    const tree=buildTree();let {category,family}=current(tree);const mobile=window.matchMedia('(max-width:760px)').matches;
+    if(state.category&&!category){state.category='';state.family='';category=null;family=null}
+    if(state.family&&!family){state.family='';family=null}
+    const allFamilyItems=(family?.items||[]).slice();const items=visibleItems(tree);
+    const categoryButtons=tree.map(c=>`<button type="button" class="hx-explorer-category ${c.id===state.category?'active':''}" data-category="${esc(c.id)}"><span>${esc(c.title)}</span><em>${c.count}</em></button>`).join('');
+    const familyButtons=(category?.families||[]).map(f=>`<button type="button" class="hx-explorer-family ${f.id===state.family?'active':''}" data-family="${esc(f.id)}"><span>${esc(f.title)}</span><em>${f.count}</em></button>`).join('');
+    const products=items.map(productCard).join('')||'<div class="hx-explorer-empty">No hay productos en esta selección.</div>';
+    const crumb=[category?.title,family?.title].filter(Boolean).join(' › ');
+    const search=`<div class="hx-explorer-searchline"><span class="hx-explorer-search-icon">⌕</span><input id="exploreFilter210" autocomplete="off" placeholder="Buscar por referencia o descripción…" value="${esc(state.query)}"><strong>${items.length}</strong></div>`;
+    const tools=(family||state.query)?controls(family,state.query?items:allFamilyItems):'';
+    const welcome='<div class="hx-explorer-empty hx-explorer-welcome"><strong>Selecciona una categoría y una familia</strong><span>También puedes buscar directamente por referencia o descripción.</span></div>';
+    if(mobile){
+      const categoryOptions=`<option value="">Categoría</option>${tree.map(c=>`<option value="${esc(c.id)}" ${state.category===c.id?'selected':''}>${esc(c.title)} (${c.count})</option>`).join('')}`;
+      const familyOptions=`<option value="">Familia</option>${(category?.families||[]).map(f=>`<option value="${esc(f.id)}" ${state.family===f.id?'selected':''}>${esc(f.title)} (${f.count})</option>`).join('')}`;
+      grid.innerHTML=`<div class="explore-wrap hx-explorer-v41">${search}<div class="hx-explorer-mobile-selects"><select id="hxExplorerCategory">${categoryOptions}</select><select id="hxExplorerFamily" ${category?'':'disabled'}>${familyOptions}</select></div><div class="hx-explorer-meta"><span>${esc(crumb||'Explorar catálogo')}</span>${tools}</div><div class="explore-products hx-explorer-products">${family||state.query?products:welcome}</div></div>`;
+    }else{
+      grid.innerHTML=`<div class="explore-wrap hx-explorer-v41">${search}<nav class="hx-explorer-categorybar" aria-label="Categorías">${categoryButtons}</nav><div class="hx-explorer-familyrow">${category?`<div class="hx-explorer-familybar">${familyButtons}</div>`:'<span class="hx-explorer-hint">Elige una categoría</span>'}</div><div class="hx-explorer-meta"><span>${esc(crumb||'Explorar catálogo')}</span>${tools}</div><div class="explore-products hx-explorer-products">${family||state.query?products:welcome}</div></div>`;
+    }
+    bindCommon(grid,mobile);bindProducts(grid);
+  }
+  function openExplorer(){const modal=document.getElementById('familiasModal');if(!modal)return;state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories',filtersOpen:false};modal.classList.remove('hidden');document.body.classList.add('modal-open');render()}
+  document.addEventListener('DOMContentLoaded',()=>{const btn=document.getElementById('btnFamilias');if(btn)btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openExplorer()},true);window.addEventListener('resize',()=>{if(!document.getElementById('familiasModal')?.classList.contains('hidden'))render()})});
   window.renderFamilias=render;window.abrirFamilias=openExplorer;
 })();
-
 
 /* =====================================================
    v4.1.5 - Recuperación robusta y gestor móvil espacioso
