@@ -9,7 +9,7 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Expose-Headers": "Age, Cache-Status, X-NF-Cache, X-HiperAjax-Products, X-HiperAjax-Source, X-HiperAjax-Time-Ms, X-HiperAjax-Generated-At, X-HiperAjax-Products-With-Cost, X-HiperAjax-Cost-Field",
+  "Access-Control-Expose-Headers": "Age, Cache-Status, X-NF-Cache, X-HiperAjax-Products, X-HiperAjax-Source, X-HiperAjax-Time-Ms, X-HiperAjax-Generated-At, X-HiperAjax-Products-With-Cost, X-HiperAjax-Cost-Field, X-HiperAjax-CSV-Headers, X-HiperAjax-Category-Fields, X-HiperAjax-Ajax-Classified",
 };
 
 function decodeHtmlEntities(value) {
@@ -73,6 +73,75 @@ function primerValor(row, aliases) {
 }
 
 
+
+function dividirRutaClasificacion(value) {
+  return limpiarDescripcion(value)
+    .split(/\s*(?:>|›|»|\/|\||::)\s*/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function detectarCamposClasificacion(headers = []) {
+  const normalized = headers.map((original) => ({ original, key: normalizarClave(original) }));
+  const exact = (aliases) => normalized.find((item) => aliases.includes(item.key))?.key || "";
+
+  const parent = exact([
+    "categoryparent", "parentcategory", "categoriapadre", "parentcategoria",
+    "categoryparentname", "parentcategoryname"
+  ]);
+  const category = exact([
+    "category", "categoria", "categoryname", "categorianame"
+  ]);
+  const family = exact([
+    "family", "familia", "productfamily", "familiaproducto"
+  ]);
+  const subcategory = exact([
+    "subcategory", "subcategoria", "subfamily", "subfamilia",
+    "subcategoryname", "subcategorianame"
+  ]);
+  const path = exact([
+    "categorypath", "categories", "categorias", "breadcrumb", "breadcrumbs",
+    "categorytree", "categoryroute", "ruta", "rutacategoria"
+  ]);
+
+  const candidates = normalized
+    .filter((item) => /(category|categoria|family|familia|breadcrumb|ruta)/.test(item.key))
+    .map((item) => item.original);
+
+  return { parent, category, family, subcategory, path, candidates };
+}
+
+function valoresClasificacion(row, fields = {}) {
+  const value = (field, aliases = []) => {
+    if (field && row[field] !== undefined && String(row[field]).trim() !== "") return row[field];
+    return primerValor(row, aliases);
+  };
+
+  const parent = limpiarDescripcion(value(fields.parent, [
+    "category_parent", "categoryparent", "parent_category", "categoria_padre", "categoriapadre"
+  ]));
+  const category = limpiarDescripcion(value(fields.category, [
+    "category", "categoria", "category_name", "categoria_nombre"
+  ]));
+  const family = limpiarDescripcion(value(fields.family, ["family", "familia"]));
+  const subcategory = limpiarDescripcion(value(fields.subcategory, ["subcategory", "subcategoria", "subfamily", "subfamilia"]));
+  const path = dividirRutaClasificacion(value(fields.path, [
+    "category_path", "categories", "categorias", "breadcrumb", "breadcrumbs", "category_tree"
+  ]));
+
+  if (path.length >= 3) return { category: path[0], family: path[1], subcategory: path.slice(2).join(" › ") };
+  if (path.length === 2) return { category: path[0], family: path[1], subcategory: subcategory || "" };
+  if (path.length === 1 && !category && !parent) return { category: path[0], family: family || "General", subcategory };
+
+  if (parent && category && parent.toLowerCase() !== category.toLowerCase()) {
+    return { category: parent, family: category, subcategory: subcategory || family || "" };
+  }
+  if (category) return { category, family: family || "General", subcategory };
+  if (parent) return { category: parent, family: family || "General", subcategory };
+  if (family) return { category: family, family: subcategory || "General", subcategory: "" };
+  return { category: "", family: "", subcategory: "" };
+}
+
 function numeroMonedaProveedor(value) {
   let text = decodeHtmlEntities(String(value ?? ""))
     .replace(/<[^>]*>/g, " ")
@@ -107,6 +176,10 @@ async function crearCatalogoAjax(response) {
   let totalRows = 0;
   let productsWithCost = 0;
   let detectedCostField = "";
+  let csvHeaders = [];
+  let classificationFields = null;
+  let ajaxClassified = 0;
+  const classificationSamples = [];
 
   const parser = Readable.fromWeb(response.body).pipe(parse({
     delimiter: ";",
@@ -120,6 +193,12 @@ async function crearCatalogoAjax(response) {
 
   for await (const originalRow of parser) {
     totalRows += 1;
+    if (!csvHeaders.length) {
+      csvHeaders = Object.keys(originalRow || {});
+      classificationFields = detectarCamposClasificacion(csvHeaders);
+      console.log("[catalogo-remoto] encabezados CSV:", csvHeaders);
+      console.log("[catalogo-remoto] campos de clasificación detectados:", classificationFields);
+    }
     const row = filaNormalizada(originalRow);
     const name = String(primerValor(row, ["name", "reference", "referencia", "codigo", "sku"])).trim();
     const brand = String(primerValor(row, ["brand", "marca", "manufacturer", "fabricante"])).trim();
@@ -134,6 +213,20 @@ async function crearCatalogoAjax(response) {
     if (cost > 0 && !detectedCostField) detectedCostField = "precio_neto_compra";
     if (cost > 0) productsWithCost += 1;
 
+    const classification = valoresClasificacion(row, classificationFields || {});
+    if (classification.category) ajaxClassified += 1;
+    if (classificationSamples.length < 5) {
+      classificationSamples.push({
+        name,
+        parent: classificationFields?.parent ? row[classificationFields.parent] : "",
+        category: classificationFields?.category ? row[classificationFields.category] : "",
+        family: classificationFields?.family ? row[classificationFields.family] : "",
+        subcategory: classificationFields?.subcategory ? row[classificationFields.subcategory] : "",
+        path: classificationFields?.path ? row[classificationFields.path] : "",
+        result: classification,
+      });
+    }
+
     products.set(key, {
       name,
       brand: "Ajax",
@@ -143,12 +236,15 @@ async function crearCatalogoAjax(response) {
       image: String(primerValor(row, ["image_path", "image", "imagen", "photo_url"])).trim(),
       stock: String(primerValor(row, ["stock_label", "stock", "quantity", "available_stock", "stock_available", "existencias"])).trim(),
       precio_neto_compra: cost,
+      category: classification.category,
+      family: classification.family,
+      subcategory: classification.subcategory,
     });
   }
 
   if (!products.size) throw new Error("No se encontraron productos AJAX en el CSV remoto");
 
-  const lines = ["name;brand;pvp;description;short_description;image;stock;precio_neto_compra"];
+  const lines = ["name;brand;pvp;description;short_description;image;stock;precio_neto_compra;category;family;subcategory"];
   const sorted = [...products.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
   for (const product of sorted) {
     lines.push([
@@ -160,10 +256,25 @@ async function crearCatalogoAjax(response) {
       product.image,
       product.stock,
       product.precio_neto_compra,
+      product.category,
+      product.family,
+      product.subcategory,
     ].map(escaparCSV).join(";"));
   }
 
-  return { csv: lines.join("\n"), products: sorted.length, totalRows, productsWithCost, detectedCostField };
+  console.log("[catalogo-remoto] muestras AJAX de clasificación:", classificationSamples);
+  console.log(`[catalogo-remoto] AJAX clasificados: ${ajaxClassified}/${sorted.length}`);
+
+  return {
+    csv: lines.join("\n"),
+    products: sorted.length,
+    totalRows,
+    productsWithCost,
+    detectedCostField,
+    ajaxClassified,
+    csvHeaders,
+    classificationFields: classificationFields || {},
+  };
 }
 
 export async function handler(event) {
@@ -192,6 +303,7 @@ export async function handler(event) {
     const elapsedMs = Date.now() - startedAt;
 
     console.log(`[catalogo-remoto] ${result.products} AJAX de ${result.totalRows} filas en ${elapsedMs} ms`);
+    console.log(`[catalogo-remoto] clasificación conservada antes/después del filtro: ${result.ajaxClassified}/${result.products}`);
 
     return {
       statusCode: 200,
@@ -206,6 +318,15 @@ export async function handler(event) {
         "X-HiperAjax-Generated-At": new Date().toISOString(),
         "X-HiperAjax-Products-With-Cost": String(result.productsWithCost),
         "X-HiperAjax-Cost-Field": result.detectedCostField || "none",
+        "X-HiperAjax-CSV-Headers": result.csvHeaders.join(",").slice(0, 1800),
+        "X-HiperAjax-Category-Fields": [
+          result.classificationFields.parent,
+          result.classificationFields.category,
+          result.classificationFields.family,
+          result.classificationFields.subcategory,
+          result.classificationFields.path,
+        ].filter(Boolean).join(",") || "none",
+        "X-HiperAjax-Ajax-Classified": `${result.ajaxClassified}/${result.products}`,
       },
       body: result.csv,
     };
