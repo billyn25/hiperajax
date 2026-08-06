@@ -4563,12 +4563,10 @@ pintarCatalogPanel = function(term=catalogTerm){
   function addExplorePersistent(idx,trigger){const qty=hxModalQtyGet('explorer',idx);const row=trigger?.closest('.explore-product');const ok=hxAddProductoModal('explorer',Number(idx),qty,row?.dataset.ref,row?.dataset.pvp);if(ok&&trigger){const original=trigger.textContent||'Añadir';trigger.textContent='✓ Añadido';trigger.classList.add('added-ok');setTimeout(()=>{trigger.textContent=original;trigger.classList.remove('added-ok')},750)}}
   function bindProducts(root){hxBindQtyControls(root,'explorer');hxBindProductImages(root);root.querySelectorAll('.explore-add').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();addExplorePersistent(Number(btn.dataset.index),btn)}));root.querySelectorAll('.explore-product').forEach(card=>card.addEventListener('dblclick',e=>{if(e.target.closest('button'))return;addExplorePersistent(Number(card.dataset.index),null)}))}
   function controls(family,items){
-    const subs=(family?.subcategories||[]).filter(s=>s.title!=='Todos');
     const colors=[...new Map(items.map(x=>[slug(x.color),x.color]).filter(x=>x[1])).entries()].sort((a,b)=>collator.compare(a[1],b[1]));
-    const activeCount=(state.subcategory?1:0)+(state.color?1:0);
-    const subSelect=subs.length?`<label><span>Tipo</span><select id="hxExplorerSubcategory"><option value="">Todos los tipos</option>${subs.map(s=>`<option value="${esc(s.id)}" ${state.subcategory===s.id?'selected':''}>${esc(s.title)} (${s.count})</option>`).join('')}</select></label>`:'';
+    const activeCount=state.color?1:0;
     const colorSelect=colors.length>1?`<label><span>Color</span><select id="hxExplorerColor"><option value="">Todos los colores</option>${colors.map(([id,title])=>`<option value="${esc(id)}" ${state.color===id?'selected':''}>${esc(title)}</option>`).join('')}</select></label>`:'';
-    return `<div class="hx-explorer-toolbar"><button type="button" class="hx-explorer-filter-button ${state.filtersOpen?'active':''}" data-more-filters>Filtros${activeCount?` <em>${activeCount}</em>`:''}</button><select id="hxExplorerSort" aria-label="Ordenar productos"><option value="price-asc" ${state.sort==='price-asc'?'selected':''}>Precio ↑</option><option value="price-desc" ${state.sort==='price-desc'?'selected':''}>Precio ↓</option><option value="name" ${state.sort==='name'?'selected':''}>Nombre</option><option value="ref" ${state.sort==='ref'?'selected':''}>Referencia</option></select></div>${state.filtersOpen?`<div class="hx-explorer-filter-panel">${subSelect}${colorSelect}<button type="button" class="hx-explorer-clear" data-clear-filters>Limpiar filtros</button></div>`:''}`;
+    return `<div class="hx-explorer-toolbar"><button type="button" class="hx-explorer-filter-button ${state.filtersOpen?'active':''}" data-more-filters>Filtros${activeCount?` <em>${activeCount}</em>`:''}</button><select id="hxExplorerSort" aria-label="Ordenar productos"><option value="price-asc" ${state.sort==='price-asc'?'selected':''}>Precio ↑</option><option value="price-desc" ${state.sort==='price-desc'?'selected':''}>Precio ↓</option><option value="name" ${state.sort==='name'?'selected':''}>Nombre</option><option value="ref" ${state.sort==='ref'?'selected':''}>Referencia</option></select></div>${state.filtersOpen?`<div class="hx-explorer-filter-panel">${colorSelect||'<span class="hx-explorer-no-filter">No hay filtros adicionales en esta familia.</span>'}<button type="button" class="hx-explorer-clear" data-clear-filters>Limpiar</button></div>`:''}`;
   }
   function bindCommon(grid,mobile){
     const input=grid.querySelector('#exploreFilter210');if(input){let timer;input.addEventListener('input',e=>{state.query=e.target.value;clearTimeout(timer);timer=setTimeout(()=>{render();requestAnimationFrame(()=>{const n=document.getElementById('exploreFilter210');n?.focus({preventScroll:true});n?.setSelectionRange(n.value.length,n.value.length)})},180)})}
@@ -4584,25 +4582,21 @@ pintarCatalogPanel = function(term=catalogTerm){
   }
   function render(){
     const grid=document.getElementById('familiasGrid');if(!grid)return;
-    const tree=buildTree();let {category,family}=current(tree);const mobile=window.matchMedia('(max-width:760px)').matches;
+    const tree=buildTree();let {category,family}=current(tree);
     if(state.category&&!category){state.category='';state.family='';category=null;family=null}
     if(state.family&&!family){state.family='';family=null}
     const allFamilyItems=(family?.items||[]).slice();const items=visibleItems(tree);
-    const categoryButtons=tree.map(c=>`<button type="button" class="hx-explorer-category ${c.id===state.category?'active':''}" data-category="${esc(c.id)}"><span>${esc(c.title)}</span><em>${c.count}</em></button>`).join('');
-    const familyButtons=(category?.families||[]).map(f=>`<button type="button" class="hx-explorer-family ${f.id===state.family?'active':''}" data-family="${esc(f.id)}"><span>${esc(f.title)}</span><em>${f.count}</em></button>`).join('');
+    const categoryOptions=`<option value="">Categoría</option>${tree.map(c=>`<option value="${esc(c.id)}" ${state.category===c.id?'selected':''}>${esc(c.title)} (${c.count})</option>`).join('')}`;
+    const familyOptions=`<option value="">Familia</option>${(category?.families||[]).map(f=>`<option value="${esc(f.id)}" ${state.family===f.id?'selected':''}>${esc(f.title)} (${f.count})</option>`).join('')}`;
+    const subs=(family?.subcategories||[]).filter(s=>s.title!=='Todos');
+    const subOptions=`<option value="">Todos los tipos</option>${subs.map(s=>`<option value="${esc(s.id)}" ${state.subcategory===s.id?'selected':''}>${esc(s.title)} (${s.count})</option>`).join('')}`;
     const products=items.map(productCard).join('')||'<div class="hx-explorer-empty">No hay productos en esta selección.</div>';
-    const crumb=[category?.title,family?.title].filter(Boolean).join(' › ');
     const search=`<div class="hx-explorer-searchline"><span class="hx-explorer-search-icon">⌕</span><input id="exploreFilter210" autocomplete="off" placeholder="Buscar por referencia o descripción…" value="${esc(state.query)}"><strong>${items.length}</strong></div>`;
     const tools=(family||state.query)?controls(family,state.query?items:allFamilyItems):'';
-    const welcome='<div class="hx-explorer-empty hx-explorer-welcome"><strong>Selecciona una categoría y una familia</strong><span>También puedes buscar directamente por referencia o descripción.</span></div>';
-    if(mobile){
-      const categoryOptions=`<option value="">Categoría</option>${tree.map(c=>`<option value="${esc(c.id)}" ${state.category===c.id?'selected':''}>${esc(c.title)} (${c.count})</option>`).join('')}`;
-      const familyOptions=`<option value="">Familia</option>${(category?.families||[]).map(f=>`<option value="${esc(f.id)}" ${state.family===f.id?'selected':''}>${esc(f.title)} (${f.count})</option>`).join('')}`;
-      grid.innerHTML=`<div class="explore-wrap hx-explorer-v41">${search}<div class="hx-explorer-mobile-selects"><select id="hxExplorerCategory">${categoryOptions}</select><select id="hxExplorerFamily" ${category?'':'disabled'}>${familyOptions}</select></div><div class="hx-explorer-meta"><span>${esc(crumb||'Explorar catálogo')}</span>${tools}</div><div class="explore-products hx-explorer-products">${family||state.query?products:welcome}</div></div>`;
-    }else{
-      grid.innerHTML=`<div class="explore-wrap hx-explorer-v41">${search}<nav class="hx-explorer-categorybar" aria-label="Categorías">${categoryButtons}</nav><div class="hx-explorer-familyrow">${category?`<div class="hx-explorer-familybar">${familyButtons}</div>`:'<span class="hx-explorer-hint">Elige una categoría</span>'}</div><div class="hx-explorer-meta"><span>${esc(crumb||'Explorar catálogo')}</span>${tools}</div><div class="explore-products hx-explorer-products">${family||state.query?products:welcome}</div></div>`;
-    }
-    bindCommon(grid,mobile);bindProducts(grid);
+    const welcome='<div class="hx-explorer-empty hx-explorer-welcome"><strong>Encuentra el producto rápido</strong><span>Elige categoría y familia, o escribe una referencia.</span></div>';
+    const navigator=`<div class="hx-explorer-quicknav"><label><span>Categoría</span><select id="hxExplorerCategory">${categoryOptions}</select></label><span class="hx-explorer-chevron">›</span><label><span>Familia</span><select id="hxExplorerFamily" ${category?'':'disabled'}>${familyOptions}</select></label>${subs.length?`<span class="hx-explorer-chevron">›</span><label class="hx-explorer-type"><span>Tipo</span><select id="hxExplorerSubcategory">${subOptions}</select></label>`:''}<div class="hx-explorer-actions">${tools}</div></div>`;
+    grid.innerHTML=`<div class="explore-wrap hx-explorer-v41 hx-explorer-final">${search}${navigator}<div class="explore-products hx-explorer-products">${family||state.query?products:welcome}</div></div>`;
+    bindCommon(grid,false);bindProducts(grid);
   }
   function openExplorer(){const modal=document.getElementById('familiasModal');if(!modal)return;state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories',filtersOpen:false};modal.classList.remove('hidden');document.body.classList.add('modal-open');render()}
   document.addEventListener('DOMContentLoaded',()=>{const btn=document.getElementById('btnFamilias');if(btn)btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openExplorer()},true);window.addEventListener('resize',()=>{if(!document.getElementById('familiasModal')?.classList.contains('hidden'))render()})});
