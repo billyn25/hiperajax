@@ -4491,6 +4491,19 @@ pintarCatalogPanel = function(term=catalogTerm){
   let state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories'};
 
   function splitHierarchy(value){return clean(value).split(/\s*(?:>|\/|\\|\||»|→)\s*/).map(clean).filter(Boolean)}
+  function inferredSubcategory(product){
+    const source=clean(product?.short_description || product?.description);
+    if(!source)return '';
+    const parts=source.split(/\s+(?:-|–|—|·|\|)\s+/).map(clean).filter(Boolean);
+    if(parts.length<2)return '';
+    let value=parts[0]
+      .replace(/\bcolor\s+[a-záéíóúüñ]+.*$/i,'')
+      .replace(/\btalla\s+[a-z0-9+.-]+.*$/i,'')
+      .replace(/\s+/g,' ')
+      .trim();
+    if(!value || value.length<3 || value.length>55)return '';
+    return value;
+  }
   function classification(product){
     const manual=String(product?.origen_catalogo||'').toLowerCase()==='manual';
     let cat=clean(product?.category || product?.categoria || product?.department);
@@ -4498,6 +4511,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     let sub=clean(product?.subcategory || product?.subfamily || product?.subfamilia || product?.product_type || product?.tipo || product?.series || product?.serie || product?.technology || product?.tecnologia || product?.protocol || product?.protocolo);
     const path=splitHierarchy(cat);
     if(path.length>1){cat=path[0];if(!fam)fam=path[1];if(!sub&&path[2])sub=path.slice(2).join(' › ')}
+    if(!sub)sub=inferredSubcategory(product);
     if(!cat) cat=manual?'Productos añadidos':'Sin categoría';
     if(!fam) fam=manual?'Productos añadidos':'General';
     return {category:cat,family:fam,subcategory:sub||'Todos'};
@@ -4515,8 +4529,16 @@ pintarCatalogPanel = function(term=catalogTerm){
       if(!fam.subcategories.has(sk))fam.subcategories.set(sk,{id:sk,title:c.subcategory,count:0});
       fam.subcategories.get(sk).count++;
     });
-    return [...categories.values()].map(cat=>({...cat,families:[...cat.families.values()].map(f=>({...f,subcategories:[...f.subcategories.values()].sort((a,b)=>collator.compare(a.title,b.title))})).sort((a,b)=>collator.compare(a.title,b.title))}))
+    const ordered=[...categories.values()].map(cat=>({...cat,families:[...cat.families.values()].map(f=>({...f,subcategories:[...f.subcategories.values()].sort((a,b)=>collator.compare(a.title,b.title))})).sort((a,b)=>collator.compare(a.title,b.title))}))
       .sort((a,b)=>{const last=v=>v.title==='Productos añadidos'?2:v.title==='Sin categoría'?1:0;return last(a)-last(b)||collator.compare(a.title,b.title)});
+    const merchIndex=ordered.findIndex(item=>normaliza(item.title)==='merchandising');
+    const smartIndex=ordered.findIndex(item=>normaliza(item.title)==='smart home');
+    if(merchIndex>=0&&smartIndex>=0&&merchIndex!==smartIndex+1){
+      const [merch]=ordered.splice(merchIndex,1);
+      const newSmartIndex=ordered.findIndex(item=>normaliza(item.title)==='smart home');
+      ordered.splice(newSmartIndex+1,0,merch);
+    }
+    return ordered;
   }
   function current(tree){const category=tree.find(x=>x.id===state.category)||null;const family=category?.families.find(x=>x.id===state.family)||null;return{category,family}}
   function searchItems(query){
