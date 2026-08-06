@@ -9678,3 +9678,21 @@ body.claro #familiasModal .hx-explorer-filter-popover{
     max-height:48vh!important;
   }
 }
+
+/* === EXPLORER 4.1 QUICK — una selección inicial === */
+#familiasModal .hx-explorer-quick{display:flex!important;flex-direction:column!important;min-height:0!important;height:100%!important}
+#familiasModal .hx-quick-nav{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(132px,1fr))!important;gap:8px!important;padding:10px 0!important;flex:0 0 auto!important}
+#familiasModal .hx-quick-nav .explore-cat{min-height:48px!important;height:48px!important;border-radius:11px!important;padding:0 12px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;text-align:left!important;background:#29333b!important;border:1px solid #46545f!important;color:#edf2f5!important;box-shadow:none!important}
+#familiasModal .hx-quick-nav .explore-cat span{font-size:14px!important;font-weight:700!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#familiasModal .hx-quick-nav .explore-cat em{font-style:normal!important;font-size:11px!important;opacity:.65!important;margin-left:7px!important}
+#familiasModal .hx-quick-nav .explore-cat.active{background:#176b48!important;border-color:#269466!important;color:#fff!important}
+#familiasModal .hx-explorer-quick>.explore-breadcrumb{margin:0 0 8px!important;min-height:30px!important;padding:6px 10px!important}
+#familiasModal .hx-explorer-quick>.hx-explorer-results{min-height:0!important;flex:1 1 auto!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+#familiasModal .hx-explorer-quick .explore-products{min-height:0!important;overflow:auto!important;flex:1 1 auto!important}
+body.light-mode #familiasModal .hx-quick-nav .explore-cat,body.light #familiasModal .hx-quick-nav .explore-cat,body.claro #familiasModal .hx-quick-nav .explore-cat{background:#fff!important;border-color:#cbd5db!important;color:#243540!important}
+body.light-mode #familiasModal .hx-quick-nav .explore-cat.active,body.light #familiasModal .hx-quick-nav .explore-cat.active,body.claro #familiasModal .hx-quick-nav .explore-cat.active{background:#dff2e9!important;border-color:#68ad8a!important;color:#14583d!important}
+@media(max-width:760px){
+ #familiasModal .hx-quick-nav{display:flex!important;overflow-x:auto!important;gap:7px!important;padding:7px 0!important;scrollbar-width:none!important}
+ #familiasModal .hx-quick-nav::-webkit-scrollbar{display:none!important}
+ #familiasModal .hx-quick-nav .explore-cat{flex:0 0 auto!important;width:auto!important;min-width:112px!important;height:42px!important;min-height:42px!important;padding:0 10px!important}
+}
