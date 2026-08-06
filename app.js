@@ -4519,34 +4519,125 @@ pintarCatalogPanel = function(term=catalogTerm){
   function productColor(p){return clean(p?.color || p?.colour || p?.finish || p?.acabado)}
   function buildTree(){
     const defs=[
-      ['mas-usados','Más usados',/hub2|doorprotect|motionprotect|motioncam|keypad|homesiren|streetsiren|combi|rex2|fireprotect|leaksprotect/i],
-      ['centrales','Centrales',/\bhub|central|repetidor|\brex\b/i],
-      ['detectores','Detectores',/motion|doorprotect|glassprotect|curtain|combiprotect|detector|leaksprotect|fireprotect|lifequality/i],
-      ['sirenas','Sirenas',/siren|speakerphone/i],
-      ['teclados','Teclados',/keypad/i],
-      ['camaras','Cámaras',/bulletcam|domecam|turretcam|indoorcam|doorbell|camera|camara/i],
-      ['nvr','NVR / Grabación',/\bnvr\b|hd\d+tb|microsd|hs-tf/i],
-      ['domotica','Domótica',/lightswitch|lightcore|outlet|socket|relay|wallswitch|waterstop/i],
-      ['incendio','Incendio',/fireprotect|manualcallpoint|keymcp|lifequality/i],
-      ['redes','Redes / PoE',/switch|router|access point|injector|inyector|poe|rack|patch panel/i],
-      ['accesorios','Accesorios',/dummy|bracket|mount|junction|hood|cover|frame|battery|bateria|psu|storage|sim|magnet|repair|surfacebox|brandplate|polo|tshirt|cap/i]
+      ['mas-usados','Más usados'],
+      ['centrales','Centrales'],
+      ['detectores','Detectores'],
+      ['sirenas','Sirenas'],
+      ['teclados','Teclados'],
+      ['camaras','Cámaras'],
+      ['nvr','NVR / Grabación'],
+      ['domotica','Domótica'],
+      ['incendio','Incendio'],
+      ['redes','Redes / PoE'],
+      ['accesorios','Accesorios']
     ];
     const groups=new Map(defs.map(([id,title])=>[id,{id,title,count:0,families:[]}]))
     const buckets=new Map(defs.map(([id])=>[id,[]]));
-    (Array.isArray(productos)?productos:[]).forEach((p,index)=>{
+
+    function info(p){
       let d={};try{d=descripcionProducto(p)||{}}catch(e){}
       const c=classification(p);
-      const text=normaliza([p?.name,p?.description,p?.short_description,p?.category,p?.family,p?.subcategory,d?.family,d?.desc,d?.official].filter(Boolean).join(' '));
-      let matched=[];
-      defs.forEach(([id,,rx])=>{if(rx.test(text))matched.push(id)});
-      if(!matched.length)matched=['accesorios'];
-      matched.forEach(id=>buckets.get(id).push({p,index,sub:c.subcategory,color:productColor(p)}));
+      const ref=normaliza(p?.name||'');
+      const raw=normaliza([p?.description,p?.short_description,p?.category,p?.family,p?.subcategory,d?.family,d?.desc,d?.official].filter(Boolean).join(' '));
+      return {p,d,c,ref,text:`${ref} ${raw}`};
+    }
+    function familyId(x){
+      const n=x.text, r=x.ref;
+      /* Clasificación exclusiva y por prioridad. Un producto sólo entra en una familia. */
+      if(/fireprotect|manualcallpoint|keymcp|detector humo|detector co|monoxido|incendio/.test(n)) return 'incendio';
+      if(/\baj-nvr|\bnvr\b|grabador|videograbador|disco duro|\bhdd\b|microsd|hs-tf/.test(n)) return 'nvr';
+      if(/bulletcam|domecam|turretcam|indoorcam|doorbell|camara|camera|cctv/.test(n) && !/mount|bracket|junction|hood|cover/.test(r)) return 'camaras';
+      if(/homesiren|streetsiren|speakerphone|\bsirena\b/.test(n)) return 'sirenas';
+      if(/keypad|teclado/.test(n)) return 'teclados';
+      if(/motionprotect|motioncam|doorprotect|glassprotect|combiprotect|curtain|leaksprotect|detector|dualcurtain|outdoorprotect/.test(n)) return 'detectores';
+      if(/\bhub\b|hub2|hubplus|hub 4g|central de alarma|repetidor|\brex\b|rex2/.test(n)) return 'centrales';
+      if(/lightswitch|lightcore|outletcore|outlet|socket|relay|wallswitch|waterstop|automatizacion|domotica/.test(n)) return 'domotica';
+      if(/switch poe|inyector poe|poe injector|router|access point|punto de acceso|patch panel|rack|ethernet switch|switch de red/.test(n)) return 'redes';
+      if(/dummy|bracket|mountcam|junctionbox|hood|holder|surfacebox|frame|cover|brandplate|soporte|caja de conexiones|bateria|battery|\bpsu\b|fuente alimentacion|sim slot|repair|polo|tshirt|gorra|cap/.test(n)) return 'accesorios';
+      /* La familia real del CSV manda para los casos restantes. */
+      const real=normaliza(`${x.c.category} ${x.c.family}`);
+      if(/central|hub/.test(real)) return 'centrales';
+      if(/detector|intrusion/.test(real)) return 'detectores';
+      if(/sirena/.test(real)) return 'sirenas';
+      if(/teclado|mando/.test(real)) return 'teclados';
+      if(/camara|videovigilancia|cctv/.test(real)) return 'camaras';
+      if(/nvr|grabacion|almacenamiento/.test(real)) return 'nvr';
+      if(/domotica|automatizacion|smart home/.test(real)) return 'domotica';
+      if(/incendio/.test(real)) return 'incendio';
+      if(/red|poe|rack/.test(real)) return 'redes';
+      return 'accesorios';
+    }
+    function subfamily(id,x){
+      const n=x.text;
+      if(id==='centrales'){
+        if(/rex2|\brex\b|repetidor/.test(n)) return 'Repetidores';
+        if(/4g|lte/.test(n)) return '4G / LTE';
+        if(/hub plus|hubplus|wifi/.test(n)) return 'Hub Plus / Wi‑Fi';
+        if(/hub2/.test(n)) return 'Hub 2';
+        return 'Hubs y centrales';
+      }
+      if(id==='detectores'){
+        if(/leaksprotect|fuga|inundacion/.test(n)) return 'Agua / fugas';
+        if(/curtain|cortina/.test(n)) return 'Cortina';
+        if(/glassprotect|cristal/.test(n)) return 'Cristal';
+        if(/doorprotect|apertura|magnetico/.test(n)) return 'Apertura';
+        if(/outdoor|exterior/.test(n)) return 'Exterior';
+        if(/motioncam|foto|phod/.test(n)) return 'Con foto';
+        return 'Movimiento';
+      }
+      if(id==='camaras'){
+        if(/turret/.test(n)) return 'Turret';
+        if(/dome/.test(n)) return 'Domo';
+        if(/bullet/.test(n)) return 'Bullet';
+        if(/indoor/.test(n)) return 'Interior';
+        if(/doorbell/.test(n)) return 'Videoportero';
+        return 'Otras cámaras';
+      }
+      if(id==='nvr'){
+        if(/disco duro|\bhdd\b/.test(n)) return 'Discos duros';
+        if(/microsd|hs-tf/.test(n)) return 'Tarjetas microSD';
+        if(/kit/.test(n)) return 'Kits de videovigilancia';
+        return 'Grabadores NVR';
+      }
+      if(id==='domotica'){
+        if(/lightswitch|lightcore/.test(n)) return 'Iluminación';
+        if(/outlet|socket/.test(n)) return 'Enchufes';
+        if(/relay|wallswitch/.test(n)) return 'Relés';
+        if(/waterstop/.test(n)) return 'Control de agua';
+        return 'Accesorios de domótica';
+      }
+      if(id==='redes'){
+        if(/rack/.test(n)) return 'Racks';
+        if(/patch panel/.test(n)) return 'Patch panel';
+        if(/inyector|injector/.test(n)) return 'Inyectores PoE';
+        if(/router|access point|punto de acceso/.test(n)) return 'Routers y Wi‑Fi';
+        return 'Switches PoE';
+      }
+      if(id==='accesorios'){
+        if(/mountcam|bracket|holder|soporte/.test(n)) return 'Soportes';
+        if(/junctionbox|surfacebox|caja/.test(n)) return 'Cajas de montaje';
+        if(/frame|cover|hood|brandplate/.test(n)) return 'Marcos y tapas';
+        if(/battery|bateria|\bpsu\b|fuente/.test(n)) return 'Alimentación';
+        if(/dummy/.test(n)) return 'Carcasas / Dummy';
+        if(/polo|tshirt|gorra|cap/.test(n)) return 'Merchandising';
+        return 'Otros accesorios';
+      }
+      return clean(x.c.subcategory)||clean(x.c.family)||'Todos';
+    }
+
+    const common=[];
+    (Array.isArray(productos)?productos:[]).forEach((p,index)=>{
+      const x=info(p); const id=familyId(x);
+      const item={p,index,sub:subfamily(id,x),color:productColor(p)};
+      buckets.get(id).push(item);
+      if(/hub2|doorprotect|motionprotect|motioncam|keypad|homesiren|streetsiren|rex2|fireprotect|leaksprotect/.test(x.text)) common.push(item);
     });
+    buckets.set('mas-usados',common.slice(0,48));
+
     defs.forEach(([id,title])=>{
-      let items=buckets.get(id);
-      if(id==='mas-usados') items=items.slice(0,36);
+      const items=buckets.get(id)||[];
       const submap=new Map();
-      items.forEach(x=>{const c=classification(x.p);let t=clean(c.subcategory);if(!t||t==='Todos'||t.length>34)t=clean(c.family);if(!t||t.length>34)t='Otros';const sid=slug(t);if(!submap.has(sid))submap.set(sid,{id:sid,title:t,count:0});submap.get(sid).count++});
+      items.forEach(x=>{const t=clean(x.sub)||'Otros';const sid=slug(t);if(!submap.has(sid))submap.set(sid,{id:sid,title:t,count:0});submap.get(sid).count++});
       const fam={id:id+'-all',title,count:items.length,items,subcategories:[...submap.values()].sort((a,b)=>b.count-a.count||collator.compare(a.title,b.title))};
       const g=groups.get(id);g.count=items.length;g.families=[fam];
     });

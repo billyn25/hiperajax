@@ -9696,3 +9696,226 @@ body.light-mode #familiasModal .hx-quick-nav .explore-cat.active,body.light #fam
  #familiasModal .hx-quick-nav::-webkit-scrollbar{display:none!important}
  #familiasModal .hx-quick-nav .explore-cat{flex:0 0 auto!important;width:auto!important;min-width:112px!important;height:42px!important;min-height:42px!important;padding:0 10px!important}
 }
+
+/* =====================================================
+   EXPLORER 4.1 FINAL — vista principal a pantalla completa
+   Estructura única, familias exclusivas y área amplia de producto.
+   ===================================================== */
+#familiasModal{padding:0!important}
+#familiasModal .modal-backdrop{background:rgba(16,27,23,.42)!important}
+#familiasModal>.modal-card{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  max-width:none!important;
+  height:100dvh!important;
+  max-height:none!important;
+  margin:0!important;
+  border-radius:0!important;
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr) auto!important;
+  overflow:hidden!important;
+}
+#familiasModal .modal-head{
+  min-height:70px!important;
+  padding:16px 24px!important;
+  border-bottom:1px solid rgba(128,145,158,.22)!important;
+}
+#familiasModal .modal-head p{display:none!important}
+#familiasModal .modal-head h2{font-size:24px!important;line-height:1.15!important}
+#familiasModal #familiasGrid{
+  min-height:0!important;
+  height:100%!important;
+  padding:14px 24px 0!important;
+  overflow:hidden!important;
+}
+#familiasModal .modal-foot{
+  min-height:54px!important;
+  padding:8px 24px!important;
+  border-top:1px solid rgba(128,145,158,.2)!important;
+}
+#familiasModal .hx-explorer-quick{
+  gap:12px!important;
+  height:100%!important;
+}
+#familiasModal .hx-explorer-search{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:12px!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+}
+#familiasModal .hx-explorer-search input{
+  min-height:50px!important;
+  font-size:16px!important;
+  padding:0 18px!important;
+  border-radius:13px!important;
+}
+#familiasModal .hx-explorer-search>span{
+  min-width:126px!important;
+  min-height:50px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:13px!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+#familiasModal .hx-quick-nav{
+  display:grid!important;
+  grid-template-columns:repeat(11,minmax(108px,1fr))!important;
+  gap:10px!important;
+  padding:0 0 2px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  flex:0 0 auto!important;
+  scrollbar-width:thin!important;
+}
+#familiasModal .hx-quick-nav .explore-cat{
+  height:68px!important;
+  min-height:68px!important;
+  min-width:108px!important;
+  padding:9px 10px!important;
+  border-radius:13px!important;
+  display:grid!important;
+  grid-template-columns:1fr auto!important;
+  grid-template-rows:1fr auto!important;
+  align-items:center!important;
+  gap:2px 7px!important;
+  white-space:normal!important;
+}
+#familiasModal .hx-quick-nav .explore-cat span{
+  grid-column:1/-1!important;
+  align-self:end!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:normal!important;
+  font-size:13px!important;
+  line-height:1.15!important;
+  text-align:center!important;
+}
+#familiasModal .hx-quick-nav .explore-cat em{
+  grid-column:1/-1!important;
+  justify-self:center!important;
+  margin:2px 0 0!important;
+  padding:1px 7px!important;
+  border-radius:999px!important;
+  font-size:10px!important;
+}
+#familiasModal .explore-breadcrumb{
+  min-height:30px!important;
+  margin:0!important;
+  padding:5px 9px!important;
+  flex:0 0 auto!important;
+  font-size:13px!important;
+}
+#familiasModal .hx-explorer-results{
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr)!important;
+  gap:8px!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  flex:1 1 auto!important;
+}
+#familiasModal .hx-explorer-controls{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:9px!important;
+  min-height:54px!important;
+  border:1px solid rgba(128,145,158,.22)!important;
+  border-radius:13px!important;
+  background:rgba(128,145,158,.055)!important;
+  flex:0 0 auto!important;
+}
+#familiasModal .hx-explorer-filterbar{min-width:0!important}
+#familiasModal .hx-explorer-subchips{
+  min-height:38px!important;
+  max-height:none!important;
+  height:auto!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scrollbar-width:thin!important;
+}
+#familiasModal .hx-explorer-chip,
+#familiasModal .hx-explorer-more{
+  flex:0 0 auto!important;
+  max-width:220px!important;
+  height:36px!important;
+  min-height:36px!important;
+  padding:0 12px!important;
+}
+#familiasModal .hx-explorer-selects{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  white-space:nowrap!important;
+}
+#familiasModal .hx-explorer-selects select{
+  min-height:40px!important;
+  width:auto!important;
+  min-width:190px!important;
+  border-radius:10px!important;
+  padding:0 34px 0 12px!important;
+}
+#familiasModal .explore-products{
+  min-height:0!important;
+  height:100%!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding:4px 8px 18px 0!important;
+  scrollbar-gutter:stable!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+}
+#familiasModal .hx-explorer-product{
+  flex:0 0 auto!important;
+  min-height:78px!important;
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 112px 118px 92px!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:8px 10px!important;
+  border-radius:13px!important;
+}
+#familiasModal .hx-explorer-product .hx-product-visual{min-width:0!important}
+#familiasModal .hx-explorer-price{font-size:16px!important;white-space:nowrap!important;text-align:right!important}
+#familiasModal .explore-add{min-height:40px!important;width:92px!important}
+#familiasModal .hx-explorer-welcome{min-height:220px!important}
+
+@media(max-width:1100px){
+  #familiasModal .hx-quick-nav{grid-template-columns:repeat(11,minmax(122px,1fr))!important}
+  #familiasModal .hx-explorer-product{grid-template-columns:minmax(0,1fr) 100px 112px 84px!important;gap:8px!important}
+}
+@media(max-width:760px){
+  #familiasModal>.modal-card{grid-template-rows:auto minmax(0,1fr)!important}
+  #familiasModal .modal-head{min-height:58px!important;padding:10px 12px!important}
+  #familiasModal .modal-head h2{font-size:20px!important}
+  #familiasModal #familiasGrid{padding:8px 10px 10px!important}
+  #familiasModal .modal-foot{display:none!important}
+  #familiasModal .hx-explorer-search{grid-template-columns:minmax(0,1fr)!important;gap:6px!important}
+  #familiasModal .hx-explorer-search input{min-height:46px!important}
+  #familiasModal .hx-explorer-search>span{display:none!important}
+  #familiasModal .explore-mobile-wrap{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important}
+  #familiasModal .explore-mobile-panel{min-height:0!important;flex:1 1 auto!important;overflow:hidden!important}
+  #familiasModal .explore-mobile-products{height:100%!important;overflow-y:auto!important;padding-bottom:24px!important}
+  #familiasModal .hx-explorer-controls{grid-template-columns:1fr!important;gap:7px!important;padding:7px!important}
+  #familiasModal .hx-explorer-selects{display:grid!important;grid-template-columns:1fr 1fr!important;width:100%!important}
+  #familiasModal .hx-explorer-selects select{min-width:0!important;width:100%!important}
+  #familiasModal .hx-explorer-product{
+    min-height:104px!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:'visual price' 'visual qty' 'visual add'!important;
+    gap:4px 8px!important;
+  }
+  #familiasModal .hx-explorer-product .hx-product-visual{grid-area:visual!important}
+  #familiasModal .hx-explorer-price{grid-area:price!important}
+  #familiasModal .hx-explorer-product .hx-qty-control{grid-area:qty!important}
+  #familiasModal .explore-add{grid-area:add!important;justify-self:end!important;min-height:34px!important}
+}
