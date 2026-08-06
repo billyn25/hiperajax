@@ -1030,3 +1030,21 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
   #familiasModal .hx-explorer-nav{min-height:48px!important;font-size:13px!important}
   #familiasModal .hx-explorer-product{grid-template-areas:'main price' 'qty add'!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px 10px!important}
 }
+
+/* =====================================================
+   EXPLORER PRO 3.0 — filtros CSV y orden
+   ===================================================== */
+#familiasModal .hx-explorer-results{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;gap:8px}
+#familiasModal .hx-explorer-results>.explore-products{flex:1 1 auto;min-height:0;height:auto!important;max-height:none!important}
+#familiasModal .hx-explorer-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px;border:1px solid rgba(126,154,174,.18);border-radius:13px;background:rgba(255,255,255,.025)}
+#familiasModal .hx-explorer-subchips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+#familiasModal .hx-explorer-chip{min-height:30px;padding:5px 9px;border-radius:999px;background:#1a2731!important;border:1px solid #3d5261!important;color:#dce7ed!important;box-shadow:none!important;font-size:11px!important;font-weight:800!important}
+#familiasModal .hx-explorer-chip em{font-style:normal;opacity:.72;margin-left:3px}
+#familiasModal .hx-explorer-chip:hover,#familiasModal .hx-explorer-chip.active{background:#34495e!important;border-color:#7894ad!important;color:#fff!important}
+#familiasModal .hx-explorer-selects{display:flex;gap:7px;margin-left:auto}
+#familiasModal .hx-explorer-selects select{width:auto;min-width:150px;height:34px;margin:0;padding:0 30px 0 9px;border-radius:10px;font-size:11px}
+body.light-mode #familiasModal .hx-explorer-controls{background:#f7fafc;border-color:#d5e0e8}
+body.light-mode #familiasModal .hx-explorer-chip{background:#fff!important;border-color:#cbd7df!important;color:#263746!important}
+body.light-mode #familiasModal .hx-explorer-chip:hover,body.light-mode #familiasModal .hx-explorer-chip.active{background:#d8e6f2!important;border-color:#7f9db7!important;color:#17324a!important}
+@media(min-width:761px){#familiasModal .hx-explorer-v2 .explore-layout{grid-template-columns:230px 280px minmax(0,1fr)!important}.hx-explorer-results .explore-products{overflow-y:auto!important}}
+@media(max-width:760px){#familiasModal .hx-explorer-controls{flex:0 0 auto;display:block;padding:6px;margin-bottom:7px}#familiasModal .hx-explorer-subchips{display:none}#familiasModal .hx-explorer-selects{display:grid;grid-template-columns:1fr 1fr;width:100%;margin:0;gap:6px}#familiasModal .hx-explorer-selects select{width:100%;min-width:0;height:36px;font-size:10.5px}#familiasModal .explore-mobile-panel{display:flex!important;flex-direction:column!important}#familiasModal .explore-mobile-panel>.explore-products{flex:1 1 auto!important;min-height:0!important}}

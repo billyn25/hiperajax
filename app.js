@@ -2219,7 +2219,7 @@ function parseCSVRobusto175(txt){
   const hasHeader = headerNorm.some(h => ['name','nombre','producto','descripcion','referencia','codigo','brand','marca','fabricante','pvp','precio','price','importe'].includes(h));
 
   let start = hasHeader ? 1 : 0;
-  let idxName = 0, idxBrand = 1, idxPvp = 2, idxDescription = -1, idxShortDescription = -1, idxImage = -1, idxStock = -1, idxCost = -1, idxCategory = -1, idxFamily = -1, idxSubcategory = -1;
+  let idxName = 0, idxBrand = 1, idxPvp = 2, idxDescription = -1, idxShortDescription = -1, idxImage = -1, idxStock = -1, idxCost = -1, idxCategory = -1, idxFamily = -1, idxSubcategory = -1, idxColor = -1, idxOrder = -1;
 
   if(hasHeader){
     idxName = headerNorm.findIndex(h => ['name','nombre','producto','referencia','codigo','ref'].includes(h));
@@ -2233,6 +2233,8 @@ function parseCSVRobusto175(txt){
     idxCategory = headerNorm.findIndex(h => ['category','categoria','categoryname','nombrecategoria','maincategory','categoria1','nivel1','department','departamento'].includes(h));
     idxFamily = headerNorm.findIndex(h => ['family','familia','subcategory','subcategoria','category2','categoria2','nivel2','productfamily'].includes(h));
     idxSubcategory = headerNorm.findIndex(h => ['subfamily','subfamilia','subcategory2','subcategoria2','category3','categoria3','nivel3','productsubfamily'].includes(h));
+    idxColor = headerNorm.findIndex(h => ['color','colour','finish','acabado'].includes(h));
+    idxOrder = headerNorm.findIndex(h => ['order','orden','sortorder','priority','prioridad'].includes(h));
     if(idxName < 0) idxName = 0;
   }
 
@@ -2270,6 +2272,8 @@ function parseCSVRobusto175(txt){
     const category = idxCategory >= 0 ? String(cols[idxCategory] || '').trim() : '';
     const family = idxFamily >= 0 ? String(cols[idxFamily] || '').trim() : '';
     const subcategory = idxSubcategory >= 0 ? String(cols[idxSubcategory] || '').trim() : '';
+    const color = idxColor >= 0 ? String(cols[idxColor] || '').trim() : '';
+    const order = idxOrder >= 0 ? numero(cols[idxOrder]) : 0;
 
     rows.push({
       name,
@@ -2283,6 +2287,8 @@ function parseCSVRobusto175(txt){
       category,
       family,
       subcategory,
+      color,
+      order,
       raw: cols
     });
   }
@@ -4462,31 +4468,29 @@ pintarCatalogPanel = function(term=catalogTerm){
 })();
 
 /* =====================================================
-   EXPLORER DINÁMICO 2.0
-   Se construye desde category / family / subcategory del CSV.
-   El catálogo manual sin clasificación entra en “Catálogo manual”.
+   EXPLORER DINÁMICO 3.0
+   Árbol CSV + subcategorías + color + orden.
    ===================================================== */
 (function(){
   const esc = value => escapeHtml(String(value == null ? '' : value));
   const clean = value => String(value || '').replace(/\s+/g,' ').trim();
   const slug = value => normaliza(clean(value)).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'otros';
   const collator = new Intl.Collator('es',{numeric:true,sensitivity:'base'});
-  let state={category:'',family:'',query:'',step:'categories'};
+  let state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories'};
 
-  function splitHierarchy(value){
-    return clean(value).split(/\s*(?:>|\/|\\|\||»|→)\s*/).map(clean).filter(Boolean);
-  }
+  function splitHierarchy(value){return clean(value).split(/\s*(?:>|\/|\\|\||»|→)\s*/).map(clean).filter(Boolean)}
   function classification(product){
     const manual=String(product?.origen_catalogo||'').toLowerCase()==='manual';
     let cat=clean(product?.category || product?.categoria || product?.department);
-    let fam=clean(product?.family || product?.familia || product?.subcategory);
+    let fam=clean(product?.family || product?.familia);
     let sub=clean(product?.subcategory || product?.subfamily || product?.subfamilia);
     const path=splitHierarchy(cat);
-    if(path.length>1){ cat=path[0]; if(!fam) fam=path[1]; if(!sub && path[2]) sub=path[2]; }
-    if(!cat) cat=manual ? 'Catálogo manual' : 'Sin categoría';
-    if(!fam) fam=manual ? 'Productos manuales' : (sub || 'General');
-    return {category:cat,family:fam,subcategory:sub};
+    if(path.length>1){cat=path[0];if(!fam)fam=path[1];if(!sub&&path[2])sub=path.slice(2).join(' › ')}
+    if(!cat) cat=manual?'Productos añadidos':'Sin categoría';
+    if(!fam) fam=manual?'Productos añadidos':'General';
+    return {category:cat,family:fam,subcategory:sub||'Todos'};
   }
+  function productColor(p){return clean(p?.color || p?.colour || p?.finish || p?.acabado)}
   function iconFor(label){
     const n=normaliza(label);
     if(/camara|camera|video|cctv/.test(n)) return '📷';
@@ -4495,220 +4499,91 @@ pintarCatalogPanel = function(term=catalogTerm){
     if(/domot|automat|confort|luz/.test(n)) return '💡';
     if(/red|network|poe/.test(n)) return '🌐';
     if(/accesor|soporte|repuesto/.test(n)) return '🧩';
-    if(/manual/.test(n)) return '✍️';
+    if(/anadidos/.test(n)) return '＋';
     return '◼';
   }
   function buildTree(){
     const categories=new Map();
     (Array.isArray(productos)?productos:[]).forEach((p,index)=>{
-      const c=classification(p), ck=slug(c.category), fk=slug(c.family);
+      const c=classification(p), ck=slug(c.category), fk=slug(c.family), sk=slug(c.subcategory);
       if(!categories.has(ck)) categories.set(ck,{id:ck,title:c.category,icon:iconFor(c.category),count:0,families:new Map()});
-      const cat=categories.get(ck); cat.count++;
-      if(!cat.families.has(fk)) cat.families.set(fk,{id:fk,title:c.family,count:0,items:[]});
-      const fam=cat.families.get(fk); fam.count++; fam.items.push({p,index,sub:c.subcategory});
+      const cat=categories.get(ck);cat.count++;
+      if(!cat.families.has(fk))cat.families.set(fk,{id:fk,title:c.family,count:0,subcategories:new Map(),items:[]});
+      const fam=cat.families.get(fk);fam.count++;
+      const item={p,index,sub:c.subcategory,color:productColor(p)};fam.items.push(item);
+      if(!fam.subcategories.has(sk))fam.subcategories.set(sk,{id:sk,title:c.subcategory,count:0});
+      fam.subcategories.get(sk).count++;
     });
-    return [...categories.values()].map(cat=>({...cat,families:[...cat.families.values()].sort((a,b)=>collator.compare(a.title,b.title))}))
+    return [...categories.values()].map(cat=>({...cat,families:[...cat.families.values()].map(f=>({...f,subcategories:[...f.subcategories.values()].sort((a,b)=>collator.compare(a.title,b.title))})).sort((a,b)=>collator.compare(a.title,b.title))}))
       .sort((a,b)=>a.title==='Sin categoría'?1:b.title==='Sin categoría'?-1:collator.compare(a.title,b.title));
   }
-  function current(tree){
-    const category=tree.find(x=>x.id===state.category)||null;
-    const family=category?.families.find(x=>x.id===state.family)||null;
-    return {category,family};
-  }
+  function current(tree){const category=tree.find(x=>x.id===state.category)||null;const family=category?.families.find(x=>x.id===state.family)||null;return{category,family}}
   function searchItems(query){
-    const q=clean(query);
-    if(!q) return [];
-    try{
-      if(window.HXA_KNOWLEDGE_ENGINE?.rank){
-        const indexed=productos.map((p,i)=>({...p,description:[p.description,p.short_description,p.category,p.family,p.subcategory].filter(Boolean).join(' '),_hxaIndex:i}));
-        return window.HXA_KNOWLEDGE_ENGINE.rank(indexed,q,350).map(x=>({p:productos[x._hxaIndex],index:x._hxaIndex})).filter(x=>x.p);
-      }
-    }catch(e){ console.warn('Explorer search fallback',e); }
-    const nq=normaliza(q);
-    return productos.map((p,index)=>({p,index,text:normaliza([p.name,p.brand,p.description,p.short_description,p.category,p.family,p.subcategory].join(' '))}))
-      .filter(x=>x.text.includes(nq)).map(({p,index})=>({p,index}));
+    const q=clean(query);if(!q)return[];
+    try{if(window.HXA_KNOWLEDGE_ENGINE?.rank){const indexed=productos.map((p,i)=>({...p,description:[p.description,p.short_description,p.category,p.family,p.subcategory,p.color].filter(Boolean).join(' '),_hxaIndex:i}));return window.HXA_KNOWLEDGE_ENGINE.rank(indexed,q,350).map(x=>({p:productos[x._hxaIndex],index:x._hxaIndex,color:productColor(productos[x._hxaIndex])})).filter(x=>x.p)}}catch(e){console.warn('Explorer search fallback',e)}
+    const nq=normaliza(q);return productos.map((p,index)=>({p,index,color:productColor(p),text:normaliza([p.name,p.brand,p.description,p.short_description,p.category,p.family,p.subcategory,p.color].join(' '))})).filter(x=>x.text.includes(nq));
+  }
+  function sortItems(items){
+    const list=items.slice();
+    if(state.sort==='price-desc')return list.sort((a,b)=>(Number(b.p.pvp)||0)-(Number(a.p.pvp)||0)||collator.compare(a.p.name,b.p.name));
+    if(state.sort==='name')return list.sort((a,b)=>collator.compare(descripcionProducto(a.p),descripcionProducto(b.p)));
+    if(state.sort==='ref')return list.sort((a,b)=>collator.compare(a.p.name,b.p.name));
+    return list.sort((a,b)=>{const ap=Number(a.p.pvp)||0,bp=Number(b.p.pvp)||0;if(!ap&&bp)return 1;if(ap&&!bp)return-1;return ap-bp||collator.compare(a.p.name,b.p.name)});
   }
   function visibleItems(tree){
-    if(clean(state.query)) return searchItems(state.query);
-    const {family}=current(tree);
-    return (family?.items||[]).slice().sort((a,b)=>collator.compare(a.p.name,b.p.name));
+    let items=clean(state.query)?searchItems(state.query):(current(tree).family?.items||[]).slice();
+    if(!state.query&&state.subcategory)items=items.filter(x=>slug(x.sub)===state.subcategory);
+    if(state.color)items=items.filter(x=>slug(x.color)===state.color);
+    return sortItems(items);
   }
-  function productCard(x){
-    const d=descripcionProducto(x.p);
-    return `<article class="explore-product hx-explorer-product" data-index="${x.index}" data-ref="${esc(x.p.name)}" data-pvp="${Number(x.p.pvp)||0}">
-      ${hxProductVisualHtml(x.p,d,'explorer')}
-      <b class="hx-explorer-price">${fmt.format(Number(x.p.pvp)||0)}</b>
-      ${hxQtyControlHtml('explorer',x.index)}
-      <button type="button" class="catalog-add explore-add" data-index="${x.index}">Añadir</button>
-    </article>`;
+  function productCard(x){const d=descripcionProducto(x.p);return `<article class="explore-product hx-explorer-product" data-index="${x.index}" data-ref="${esc(x.p.name)}" data-pvp="${Number(x.p.pvp)||0}">${hxProductVisualHtml(x.p,d,'explorer')}<b class="hx-explorer-price">${fmt.format(Number(x.p.pvp)||0)}</b>${hxQtyControlHtml('explorer',x.index)}<button type="button" class="catalog-add explore-add" data-index="${x.index}">Añadir</button></article>`}
+  function addExplorePersistent(idx,trigger){const qty=hxModalQtyGet('explorer',idx);const row=trigger?.closest('.explore-product');const ok=hxAddProductoModal('explorer',Number(idx),qty,row?.dataset.ref,row?.dataset.pvp);if(ok&&trigger){const original=trigger.textContent||'Añadir';trigger.textContent='✓ Añadido';trigger.classList.add('added-ok');setTimeout(()=>{trigger.textContent=original;trigger.classList.remove('added-ok')},750)}}
+  function bindProducts(root){hxBindQtyControls(root,'explorer');hxBindProductImages(root);root.querySelectorAll('.explore-add').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();addExplorePersistent(Number(btn.dataset.index),btn)}));root.querySelectorAll('.explore-product').forEach(card=>card.addEventListener('dblclick',e=>{if(e.target.closest('button'))return;addExplorePersistent(Number(card.dataset.index),null)}))}
+  function controls(family,items){
+    const subs=(family?.subcategories||[]).filter(s=>s.title!=='Todos');
+    const colors=[...new Map(items.map(x=>[slug(x.color),x.color]).filter(x=>x[1])).entries()].sort((a,b)=>collator.compare(a[1],b[1]));
+    const subHtml=subs.length?`<div class="hx-explorer-subchips"><button class="hx-explorer-chip ${!state.subcategory?'active':''}" data-subcategory="">Todos <em>${family.count}</em></button>${subs.map(s=>`<button class="hx-explorer-chip ${state.subcategory===s.id?'active':''}" data-subcategory="${esc(s.id)}">${esc(s.title)} <em>${s.count}</em></button>`).join('')}</div>`:'';
+    return `<div class="hx-explorer-controls">${subHtml}<div class="hx-explorer-selects">${colors.length>1?`<select id="hxExplorerColor"><option value="">Todos los colores</option>${colors.map(([id,title])=>`<option value="${esc(id)}" ${state.color===id?'selected':''}>${esc(title)}</option>`).join('')}</select>`:''}<select id="hxExplorerSort"><option value="price-asc" ${state.sort==='price-asc'?'selected':''}>Precio: menor a mayor</option><option value="price-desc" ${state.sort==='price-desc'?'selected':''}>Precio: mayor a menor</option><option value="name" ${state.sort==='name'?'selected':''}>Nombre</option><option value="ref" ${state.sort==='ref'?'selected':''}>Referencia</option></select></div></div>`;
   }
-  function addExplorePersistent(idx, trigger){
-    const qty = hxModalQtyGet('explorer', idx);
-    const row = trigger?.closest('.explore-product');
-    const ok = hxAddProductoModal('explorer', Number(idx), qty, row?.dataset.ref, row?.dataset.pvp);
-    if(ok && trigger){
-      const original = trigger.textContent || 'Añadir';
-      trigger.textContent = '✓ Añadido';
-      trigger.classList.add('added-ok');
-      setTimeout(()=>{ trigger.textContent = original; trigger.classList.remove('added-ok'); }, 750);
-    }
-  }
-  function bindProducts(root){
-    hxBindQtyControls(root,'explorer'); hxBindProductImages(root);
-    root.querySelectorAll('.explore-add').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();addExplorePersistent(Number(btn.dataset.index),btn);}));
-    root.querySelectorAll('.explore-product').forEach(card=>card.addEventListener('dblclick',e=>{
-      if(e.target.closest('button')) return;
-      addExplorePersistent(Number(card.dataset.index), null);
-    }));
+  function bindCommon(grid,mobile){
+    const input=grid.querySelector('#exploreFilter210');if(input){let timer;input.addEventListener('input',e=>{state.query=e.target.value;clearTimeout(timer);timer=setTimeout(()=>{if(state.query)state.step='products';render();requestAnimationFrame(()=>{const n=document.getElementById('exploreFilter210');n?.focus({preventScroll:true});n?.setSelectionRange(n.value.length,n.value.length)})},220)})}
+    grid.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click',()=>{state.category=btn.dataset.category;state.family='';state.subcategory='';state.color='';state.query='';state.step='families';render()}));
+    grid.querySelectorAll('[data-family]').forEach(btn=>btn.addEventListener('click',()=>{state.family=btn.dataset.family;state.subcategory='';state.color='';state.query='';const tree=buildTree(),family=current(tree).family;state.step=mobile&&family?.subcategories?.filter(s=>s.title!=='Todos').length?'subcategories':'products';render()}));
+    grid.querySelectorAll('[data-subcategory]').forEach(btn=>btn.addEventListener('click',()=>{state.subcategory=btn.dataset.subcategory;state.step='products';render()}));
+    grid.querySelector('#hxExplorerColor')?.addEventListener('change',e=>{state.color=e.target.value;render()});
+    grid.querySelector('#hxExplorerSort')?.addEventListener('change',e=>{state.sort=e.target.value;render()});
+    grid.querySelector('.explore-back')?.addEventListener('click',()=>{if(state.query){state.query='';state.step=state.family?'products':state.category?'families':'categories'}else if(state.step==='products'&&state.subcategory){state.subcategory='';state.step='subcategories'}else if(state.step==='products'){state.family='';state.step='families'}else if(state.step==='subcategories'){state.family='';state.step='families'}else{state.category='';state.step='categories'}render()});
   }
   function render(){
-    const grid=document.getElementById('familiasGrid'); if(!grid) return;
-    const tree=buildTree(), {category,family}=current(tree), items=visibleItems(tree);
-    const mobile=window.matchMedia('(max-width:760px)').matches;
-    if(state.category && !category){state.category='';state.family='';state.step='categories';}
-    if(state.family && !family){state.family='';state.step='families';}
+    const grid=document.getElementById('familiasGrid');if(!grid)return;
+    const tree=buildTree();let {category,family}=current(tree);const mobile=window.matchMedia('(max-width:760px)').matches;
+    if(state.category&&!category){state.category='';state.family='';state.step='categories';category=null;family=null}
+    if(state.family&&!family){state.family='';state.step='families';family=null}
+    const allFamilyItems=(family?.items||[]).slice();const items=visibleItems(tree);
     const categoryButtons=tree.map(c=>`<button type="button" class="explore-cat hx-explorer-nav ${c.id===state.category?'active':''}" data-category="${esc(c.id)}"><span><i>${c.icon}</i>${esc(c.title)}</span><em>${c.count}</em></button>`).join('');
     const familyButtons=(category?.families||[]).map(f=>`<button type="button" class="explore-sub hx-explorer-nav ${f.id===state.family?'active':''}" data-family="${esc(f.id)}"><span>${esc(f.title)}</span><em>${f.count}</em></button>`).join('');
+    const subButtons=(family?.subcategories||[]).filter(s=>s.title!=='Todos').map(s=>`<button type="button" class="explore-sub hx-explorer-nav" data-subcategory="${esc(s.id)}"><span>${esc(s.title)}</span><em>${s.count}</em></button>`).join('');
     const products=items.map(productCard).join('')||'<div class="hx-explorer-empty">No hay productos en esta selección.</div>';
-    const crumb=[category?.title,family?.title].filter(Boolean).join(' › ');
+    const crumb=[category?.title,family?.title,state.subcategory?(family?.subcategories||[]).find(s=>s.id===state.subcategory)?.title:''].filter(Boolean).join(' › ');
     const search=`<div class="explore-search hx-explorer-search"><input id="exploreFilter210" autocomplete="off" placeholder="Buscar en todo el catálogo…" value="${esc(state.query)}"><span>${items.length} productos</span></div>`;
     if(mobile){
       let panel,title='Categorías';
-      if(clean(state.query)){ panel=`<div class="explore-products explore-mobile-products">${products}</div>`; title='Resultados'; }
-      else if(state.step==='products'){panel=`<div class="explore-products explore-mobile-products">${products}</div>`;title=family?.title||'Productos';}
-      else if(state.step==='families'){panel=`<div class="explore-mobile-list">${familyButtons||'<div class="hx-explorer-empty">Sin familias.</div>'}</div>`;title=category?.title||'Familias';}
+      if(clean(state.query)){panel=`<div class="hx-explorer-mobile-tools">${controls(null,items)}</div><div class="explore-products explore-mobile-products">${products}</div>`;title='Resultados'}
+      else if(state.step==='products'){panel=`${controls(family,allFamilyItems)}<div class="explore-products explore-mobile-products">${products}</div>`;title=family?.title||'Productos'}
+      else if(state.step==='subcategories'){panel=`<div class="explore-mobile-list"><button type="button" class="explore-sub hx-explorer-nav" data-subcategory=""><span>Todos</span><em>${family?.count||0}</em></button>${subButtons}</div>`;title='Tipo de producto'}
+      else if(state.step==='families'){panel=`<div class="explore-mobile-list">${familyButtons||'<div class="hx-explorer-empty">Sin familias.</div>'}</div>`;title=category?.title||'Familias'}
       else panel=`<div class="explore-mobile-list">${categoryButtons}</div>`;
       grid.innerHTML=`<div class="explore-wrap explore-mobile-wrap hx-explorer-v2">${search}<div class="explore-mobile-head">${state.step!=='categories'||state.query?'<button type="button" class="explore-back">← Atrás</button>':''}<div class="explore-breadcrumb">${esc(crumb||'Explorar catálogo')}</div></div><div class="explore-mobile-title">${esc(title)}</div><div class="explore-mobile-panel">${panel}</div></div>`;
     }else{
-      grid.innerHTML=`<div class="explore-wrap hx-explorer-v2">${search}<div class="explore-breadcrumb">${esc(crumb||'Selecciona una categoría o busca cualquier producto')}</div><div class="explore-layout"><nav class="explore-col explore-cats">${categoryButtons}</nav><nav class="explore-col explore-subs">${familyButtons||'<div class="hx-explorer-empty">Selecciona una categoría.</div>'}</nav><section class="explore-products">${family||state.query?products:'<div class="hx-explorer-empty hx-explorer-welcome"><strong>Explora el catálogo automáticamente</strong><span>Las categorías y familias proceden de los CSV cargados.</span></div>'}</section></div></div>`;
+      const tools=(family||state.query)?controls(family,state.query?items:allFamilyItems):'';
+      grid.innerHTML=`<div class="explore-wrap hx-explorer-v2">${search}<div class="explore-breadcrumb">${esc(crumb||'Selecciona una categoría o busca cualquier producto')}</div><div class="explore-layout"><nav class="explore-col explore-cats">${categoryButtons}</nav><nav class="explore-col explore-subs">${familyButtons||'<div class="hx-explorer-empty">Selecciona una categoría.</div>'}</nav><section class="hx-explorer-results">${tools}<div class="explore-products">${family||state.query?products:'<div class="hx-explorer-empty hx-explorer-welcome"><strong>Explora el catálogo automáticamente</strong><span>Las categorías y familias proceden de los CSV cargados.</span></div>'}</div></section></div></div>`;
     }
-    const input=grid.querySelector('#exploreFilter210'); if(input){let timer;input.addEventListener('input',e=>{state.query=e.target.value;clearTimeout(timer);timer=setTimeout(()=>{if(state.query)state.step='products';render();requestAnimationFrame(()=>{const n=document.getElementById('exploreFilter210');n?.focus({preventScroll:true});n?.setSelectionRange(n.value.length,n.value.length);});},220);});}
-    grid.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click',()=>{state.category=btn.dataset.category;state.family='';state.query='';state.step=mobile?'families':'families';render();}));
-    grid.querySelectorAll('[data-family]').forEach(btn=>btn.addEventListener('click',()=>{state.family=btn.dataset.family;state.query='';state.step='products';render();}));
-    grid.querySelector('.explore-back')?.addEventListener('click',()=>{if(state.query){state.query='';state.step=state.family?'products':state.category?'families':'categories';}else if(state.step==='products'){state.step='families';state.family='';}else{state.step='categories';state.category='';}render();});
-    bindProducts(grid);
+    bindCommon(grid,mobile);bindProducts(grid);
   }
-  function openExplorer(){
-    const modal=document.getElementById('familiasModal'); if(!modal)return;
-    state={category:'',family:'',query:'',step:'categories'};
-    document.getElementById('familiasTitle').textContent='Explorar catálogo';
-    const p=modal.querySelector('.modal-head p'); if(p)p.textContent='Categorías y familias generadas automáticamente desde el catálogo.';
-    render(); modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open');
-  }
-  document.addEventListener('DOMContentLoaded',()=>{
-    const btn=document.getElementById('btnFamilias');
-    if(btn) btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openExplorer();},true);
-  });
+  function openExplorer(){const modal=document.getElementById('familiasModal');if(!modal)return;state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories'};modal.classList.remove('hidden');document.body.classList.add('modal-open');render()}
+  document.addEventListener('DOMContentLoaded',()=>{const btn=document.getElementById('btnFamilias');if(btn)btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openExplorer()},true);window.addEventListener('resize',()=>{if(!document.getElementById('familiasModal')?.classList.contains('hidden'))render()})});
+  window.renderFamilias=render;window.abrirFamilias=openExplorer;
 })();
-
-
-/* Descripción compacta usada por el PDF. */
-function descripcionPdfCorta(linea){
-  try{
-    const l = linea || {};
-    const refOriginal = String(l.name || '').trim();
-    const brandOriginal = String(l.brand || '').trim();
-    const brandEsAjax = normaliza(brandOriginal) === 'ajax';
-    // En el CSV, la columna brand contiene la descripción de los artículos no AJAX.
-    // El PDF debe conservarla en lugar de fabricar una descripción desde la referencia.
-    const descCortaCsv = String(l.short_description || '').trim();
-    if(descCortaCsv) return descCortaCsv.length > 58 ? descCortaCsv.slice(0,55).trim() + '…' : descCortaCsv;
-    const productoCatalogo = (Array.isArray(productos) ? productos : []).find(p=>hxRefProducto(p?.name)===hxRefProducto(refOriginal));
-    const esCatalogoManual = String(l.origen_catalogo || productoCatalogo?.origen_catalogo || '').toLowerCase() === 'manual';
-    if(esCatalogoManual){
-      const descManual = String(l.desc || productoCatalogo?.short_description || productoCatalogo?.description || refOriginal).trim();
-      return descManual.length > 58 ? descManual.slice(0,55).trim() + '…' : descManual;
-    }
-    const descCortaCatalogo = String(productoCatalogo?.short_description || '').trim();
-    if(descCortaCatalogo) return descCortaCatalogo.length > 58 ? descCortaCatalogo.slice(0,55).trim() + '…' : descCortaCatalogo;
-    const descOriginal = String(l.desc || (!brandEsAjax ? brandOriginal : '') || '').trim();
-    if(!refOriginal && descOriginal) return descOriginal.slice(0, 58);
-    if(l.manual){ return (descOriginal || refOriginal || 'Línea manual').slice(0, 58); }
-    if(descOriginal && !brandEsAjax){
-      return descOriginal.length > 58 ? descOriginal.slice(0,55).trim() + '…' : descOriginal;
-    }
-
-    const ref = refOriginal.toUpperCase();
-
-    function colorRef(r){
-      if(/(^|[-_])W($|[-_])/.test(r)) return 'Blanco';
-      if(/(^|[-_])B($|[-_])/.test(r)) return 'Negro';
-      if(/(^|[-_])GRA($|[-_])/.test(r)) return 'Grafito';
-      if(/(^|[-_])GRE($|[-_])/.test(r)) return 'Verde';
-      if(/(^|[-_])IVO($|[-_])/.test(r)) return 'Marfil';
-      if(/(^|[-_])OLI($|[-_])/.test(r)) return 'Oliva';
-      if(/(^|[-_])FOG($|[-_])/.test(r)) return 'Niebla';
-      if(/(^|[-_])OYS($|[-_])/.test(r)) return 'Ostra';
-      return '';
-    }
-
-    const color = colorRef(ref);
-    const refProducto = ref.replace(/^AJ-/, '');
-    let base = refProducto;
-
-    // Si el CSV no trae short_description, se conserva el respaldo automático.
-    // Las reglas comerciales trabajan sobre la referencia sin el prefijo AJ-.
-
-    const exactos = [
-      [/^HUB2PLUS/, 'Hub 2 Plus'], [/^HUB2-4G/, 'Hub 2 4G'], [/^HUB2/, 'Hub 2'], [/^HUBBP/, 'Hub BP'], [/^HUB($|-)/, 'Hub'],
-      [/^REX2/, 'ReX 2'], [/^REX($|-)/, 'ReX'],
-      [/^MOTIONCAM-HDR-PHOD/, 'MotionCam HDR PhOD'], [/^MOTIONCAM-HDR/, 'MotionCam HDR'], [/^MOTIONCAMOUTDOOR.*PHOD/, 'MotionCam Outdoor PhOD'], [/^MOTIONCAMOUTDOOR/, 'MotionCam Outdoor'], [/^MOTIONCAM/, 'MotionCam'],
-      [/^MOTIONPROTECTPLUS/, 'MotionProtect Plus'], [/^MOTIONPROTECT/, 'MotionProtect'], [/^OUTDOORPROTECT/, 'OutdoorProtect'],
-      [/^DOORPROTECTPLUS/, 'DoorProtect Plus'], [/^DOORPROTECT/, 'DoorProtect'], [/^GLASSPROTECT/, 'GlassProtect'],
-      [/^CURTAINCAM/, 'CurtainCam'], [/^DUALCURTAIN/, 'DualCurtain Outdoor'], [/^CURTAINOUTDOOR/, 'Curtain Outdoor'], [/^CURTAINPROTECT/, 'CurtainProtect'],
-      [/^KEYPADTOUCHSCREEN/, 'KeyPad TouchScreen'], [/^KEYPADCOMBI/, 'KeyPad Combi'], [/^KEYPADPLUS/, 'KeyPad Plus'], [/^KEYPADOUTDOOR/, 'KeyPad Outdoor'], [/^KEYPAD/, 'KeyPad'],
-      [/^HOMESIREN/, 'HomeSiren'], [/^STREETSIRENCUSTOM/, 'StreetSiren Custom'], [/^STREETSIREN/, 'StreetSiren'],
-      [/^FIREPROTECT2-HSC/, 'FireProtect 2 HSC'], [/^FIREPROTECT2-HS/, 'FireProtect 2 HS'], [/^FIREPROTECT2-HC/, 'FireProtect 2 HC'], [/^FIREPROTECT2-H/, 'FireProtect 2 H'], [/^FIREPROTECT2-C/, 'FireProtect 2 C'], [/^FIREPROTECTPLUS/, 'FireProtect Plus'], [/^FIREPROTECT/, 'FireProtect'],
-      [/^LEAKSPROTECT/, 'LeaksProtect'], [/^WATERSTOP/, 'WaterStop'], [/^LIFEQUALITY-LITE/, 'LifeQuality Lite'], [/^LIFEQUALITY/, 'LifeQuality'],
-      [/^BULLETCAM-(\d+)/, 'BulletCam $1 MP'], [/^DOMECAM-MINI-(\d+)/, 'DomeCam Mini $1 MP'], [/^DOMECAM-(\d+)/, 'DomeCam $1 MP'], [/^TURRETCAM-(\d+)/, 'TurretCam $1 MP'], [/^INDOORCAM-(\d+)/, 'IndoorCam $1 MP'], [/^DOORBELL-(\d+)/, 'DoorBell $1 MP'],
-      [/^NVRKIT/, 'Kit NVR'], [/^NVR(\d+)/, 'NVR $1'],
-      [/^LIGHTCORE-1G/, 'LightSwitch 1 tecla'], [/^LIGHTCORE-2G2W/, 'LightSwitch 2 teclas/2 vías'], [/^LIGHTCORE-2G/, 'LightSwitch 2 teclas'], [/^LIGHTCORE-2W/, 'LightSwitch 2 vías'], [/^LIGHTCORE-CROSS/, 'LightSwitch cruzamiento'], [/^LIGHTCORE-DIMMER/, 'Dimmer LightSwitch'],
-      [/^SOCKET/, 'Socket'], [/^OUTLETCORE-SMART/, 'Outlet Core Smart'], [/^OUTLETCORE-LAN/, 'Outlet Core LAN'], [/^OUTLETCORE-BASIC/, 'Outlet Core Basic'], [/^RELAY/, 'Relay'], [/^WALLSWITCH/, 'WallSwitch'],
-      [/^TRANSMITTER/, 'Transmitter'], [/^MULTITRANSMITTER/, 'MultiTransmitter'], [/^UARTBRIDGE/, 'uartBridge'], [/^OCBRIDGE/, 'ocBridge'], [/^VHFBRIDGE/, 'vhfBridge'],
-      [/^SPACECONTROL/, 'SpaceControl'], [/^DOUBLEBUTTON/, 'DoubleButton'], [/^BUTTON/, 'Button'], [/^TAG/, 'Tag'], [/^PASS/, 'Pass'],
-      [/^HD(\d+)TB/, 'Disco HDD $1 TB'], [/^HS[-_ ]?TF.*(128G)/, 'MicroSD 128 GB'], [/^HS[-_ ]?TF.*(64G)/, 'MicroSD 64 GB'], [/^HS[-_ ]?TF.*(32G)/, 'MicroSD 32 GB']
-    ];
-
-    let nombre = '';
-    for(const [rx, val] of exactos){
-      const m = refProducto.match(rx);
-      if(m){ nombre = val.replace('$1', m[1] || ''); break; }
-    }
-
-    if(!nombre){
-      nombre = base
-        .replace(/-(B|W|GRA|GRE|IVO|OLI|FOG|OYS)(-|$)/g, '-')
-        .replace(/-(DUMMY|BRACKET|LENS)$/g, '')
-        .replace(/[-_]+/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .toLowerCase()
-        .replace(/\b\w/g, c => c.toUpperCase());
-    }
-
-    const extras = [];
-    if(/PHOD/.test(ref) && !/PHOD/i.test(nombre)) extras.push('PhOD');
-    if(/HDR/.test(ref) && !/HDR/i.test(nombre)) extras.push('HDR');
-    if(/HLVF/.test(ref)) extras.push('HLVF');
-    if(/HL($|-)/.test(ref)) extras.push('HL');
-    if(/4G/.test(ref) && !/4G/.test(nombre)) extras.push('4G');
-    if(/POE/.test(ref)) extras.push('PoE');
-    if(/AC($|-)/.test(ref)) extras.push('AC');
-
-    let out = [nombre, ...extras, color].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
-    if(!out) out = descOriginal || refOriginal;
-
-    // Mantiene PDF compacto sin cortar referencias comerciales importantes.
-    if(out.length > 52){
-      out = out.replace(/\b(Jeweller|inalámbrico|inteligente|compatible|para sistemas Ajax)\b/gi,'').replace(/\s+/g,' ').trim();
-    }
-    if(out.length > 58) out = out.slice(0,55).trim() + '…';
-    return out;
-  }catch(e){
-    return String((linea && (linea.desc || linea.name)) || 'Producto').slice(0,58);
-  }
-}
-
 
 /* =====================================================
    v4.1.5 - Recuperación robusta y gestor móvil espacioso
