@@ -196,10 +196,11 @@
       {terms:['almacenamiento nube','almacenamiento en nube','cloud storage','cloud'], rank:910},
       {terms:['repuesto','repuestos','recambio','recambios'], rank:920},
       {terms:['merchandising','merchan'], rank:930},
-      {terms:['productos añadidos','productos anadidos'], rank:940}
+      {terms:['incendio','fuego','fire','fireprotect'], rank:940},
+      {terms:['productos añadidos','productos anadidos','otros productos'], rank:950}
     ];
-    const lateMatch = late.find(group => group.terms.some(term => text.includes(norm(term))));
-    if(lateMatch) return lateMatch.rank;
+    const special = late.find(g => g.terms.some(term => text.includes(norm(term))));
+    if(special) return special.rank;
     const found = FAMILY_PRIORITY.findIndex(group => group.some(term => text.includes(norm(term))));
     if(found >= 0) return found;
     if(norm(entry.categoryTitle).includes('sin categoria')) return 999;
@@ -216,33 +217,35 @@
   }
 
   function representativeProduct(family){
-    const withImage = family.items.filter(item => clean(item.p?.image));
-    if(!withImage.length) return family.items[0]?.p || null;
-    const familyText = norm(`${family.familyTitle} ${family.categoryTitle}`);
-    const score = item => {
-      const p = item.p || {};
-      const t = norm(`${p.name||''} ${p.short_description||''} ${p.description||''} ${p.subcategory||''} ${p.product_type||''}`);
-      let s = 0;
-      // Evitar que una familia se represente con un accesorio secundario.
-      if(/soporte|bracket|mount|cable|adaptador|adapter|fuente|power supply|bateria|battery|carcasa|dummy|tapa|cover/.test(t)) s -= 30;
-      if(/smart home|smarthome|domotica|domótica|confort/.test(familyText)){
-        if(/lightcore|lightswitch/.test(t)) s += 100;
-        if(/outletcore|outlet/.test(t)) s += 35;
-      }
-      if(/nvr|grabador|grabacion|grabación/.test(familyText)){
-        if(/\bnvr\b|grabador/.test(t)) s += 100;
-        if(/8ch|16ch|8 canales|16 canales/.test(t)) s += 15;
-      }
-      if(/repuesto|repuestos|recambio/.test(familyText)){
-        if(/repuesto|spare|replacement|bateria|battery/.test(t)) s += 60;
-        if(/kit|pack/.test(t)) s -= 15;
-      }
-      if(/merchandising|merchan/.test(familyText)){
-        if(/gorra|cap|camiseta|shirt|sudadera|hoodie|mochila|backpack/.test(t)) s += 80;
-      }
-      return s;
+    const items = family.items || [];
+    const pictured = items.filter(item => clean(item.p?.image));
+    if(!items.length) return null;
+    const ft = norm(`${family.familyTitle} ${family.categoryTitle}`);
+    const exact = ref => items.find(item => clean(item.p?.name).toUpperCase() === ref && clean(item.p?.image))?.p || null;
+
+    if(/kit/.test(ft) && /inalambr|inalámbr/.test(ft)){ const p=exact('AJ-HUBKIT-W'); if(p) return p; }
+    if(/detector|detectores|intrusion|intrusión/.test(ft)){ const p=exact('AJ-COMBIPROTECT-W'); if(p) return p; }
+    if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(ft)){
+      const p=exact('AJ-OUTLETCORE-BASIC'); if(p) return p;
+      const relay=items.find(x=>/\baj-relay\b/i.test(clean(x.p?.name)) && clean(x.p?.image))?.p; if(relay) return relay;
+    }
+    if(/productos anadidos|productos añadidos|otros productos/.test(ft)){
+      const disk=items.find(x=>{
+        const s=norm(`${x.p?.name||''} ${x.p?.short_description||''} ${x.p?.description||''}`);
+        return clean(x.p?.image) && /(western digital|\bwd\b|disco duro|hard drive|hdd)/.test(s);
+      })?.p; if(disk) return disk;
+    }
+    if(!pictured.length) return items[0]?.p || null;
+    const score=x=>{
+      const p=x.p||{}, s=norm(`${p.name||''} ${p.short_description||''} ${p.description||''}`);
+      let n=0;
+      if(/soporte|bracket|mount|cable|adaptador|fuente|carcasa|dummy|tapa|cover/.test(s)) n-=30;
+      if(/nvr|grabador|grabacion|grabación/.test(ft) && /\bnvr\b|grabador/.test(s)) n+=120;
+      if(/repuesto|repuestos|recambio/.test(ft) && /repuesto|spare|replacement|bateria|battery/.test(s)) n+=70;
+      if(/merchandising|merchan/.test(ft) && /gorra|cap|camiseta|shirt|sudadera|hoodie|mochila|backpack/.test(s)) n+=90;
+      return n;
     };
-    return withImage.slice().sort((a,b) => score(b)-score(a))[0]?.p || withImage[0].p;
+    return pictured.slice().sort((a,b)=>score(b)-score(a))[0]?.p || pictured[0].p;
   }
 
   function buildModel(){
@@ -306,8 +309,11 @@
         const candidate = family.items.map(item => cleanAjaxLabel(item.subcategory)).find(value => value && norm(value) !== 'todos');
         displayTitle = candidate || 'Otros productos';
       }
+      if(norm(displayTitle) === 'productos anadidos' || norm(cleanCategory) === 'productos anadidos') displayTitle = 'Otros productos';
       family.displayTitle = displayTitle;
-      family.context = cleanCategory && norm(cleanCategory) !== norm(displayTitle) ? cleanCategory : '';
+      family.context = displayTitle === 'Otros productos'
+        ? 'Productos añadidos manualmente'
+        : (cleanCategory && norm(cleanCategory) !== norm(displayTitle) ? cleanCategory : '');
       family.representative = representativeProduct(family);
     });
 
@@ -812,13 +818,21 @@
 
   function quickTypes(baseItems){
     const facets = buildFacets(baseItems);
-    const typeFacet = facets.find(group => group.key === 'subcategory');
+    const family = currentFamily();
+    const ft = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
+    let typeFacet = null;
+    if(/camara|cámara|camaras|cámaras|cctv/.test(ft)){
+      typeFacet = facets.find(group => ['product_type','subcategory','series'].includes(group.key)
+        && group.values.some(v => /domo|dome|turret|bullet|ptz/i.test(v.label)));
+    }
+    typeFacet ||= facets.find(group => group.key === 'subcategory')
+      || facets.find(group => group.key === 'product_type');
     if(!typeFacet || typeFacet.values.length < 2) return '';
     const selected = state.filters.subcategory || [];
     const top = typeFacet.values.slice(0, 6);
     const hidden = typeFacet.values.length - top.length;
     return `<div class="hxp-type-strip" aria-label="Tipos de producto">
-      <button type="button" class="hxp-type-tab ${selected.length===0?'is-active':''}" data-hxp-type="">Todos</button>
+      <button type="button" class="hxp-type-tab ${selected.length===0?'is-active':''}" data-hxp-type="" data-hxp-type-key="${esc(typeFacet.key)}">Todos</button>
       ${top.map(value => `<button type="button" class="hxp-type-tab ${selected.includes(value.id)?'is-active':''}" data-hxp-type="${esc(value.id)}"><span>${esc(value.title)}</span><em>${value.count}</em></button>`).join('')}
       ${hidden>0 ? `<button type="button" class="hxp-type-more" data-hxp-open-filters>Más tipos <b>+${hidden}</b></button>` : ''}
     </div>`;
@@ -1067,8 +1081,11 @@
 
     root.querySelectorAll('[data-hxp-type]').forEach(button => button.addEventListener('click', () => {
       const value = button.dataset.hxpType;
-      if(value) state.filters.subcategory = [value];
-      else delete state.filters.subcategory;
+      const key = button.dataset.hxpTypeKey || 'subcategory';
+      // Los filtros rápidos son exclusivos entre sí dentro de su familia.
+      ['subcategory','product_type','series'].forEach(k => { if(k !== key) delete state.filters[k]; });
+      if(value) state.filters[key] = [value];
+      else delete state.filters[key];
       render();
     }));
 
