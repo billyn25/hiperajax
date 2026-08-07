@@ -83,7 +83,7 @@
       view:'home',
       familyKey:'',
       query:'',
-      sort:'featured',
+      sort:'price-color',
       filters:{},
       drawerOpen:false,
       familyFilter:''
@@ -107,6 +107,59 @@
       .replace(/\s+/g,' ')
       .trim();
     return (!value || value.length < 3 || value.length > 55) ? '' : value;
+  }
+
+  function cleanAjaxLabel(value){
+    return clean(value)
+      .replace(/\bajax\b/gi,' ')
+      .replace(/\bproductos?\s+de\b/gi,' ')
+      .replace(/\s*[·|/\-]+\s*$/g,'')
+      .replace(/^\s*[·|/\-]+\s*/g,'')
+      .replace(/\s{2,}/g,' ')
+      .trim();
+  }
+
+  function isGenericFamilyLabel(value){
+    const v = norm(value);
+    return !v || ['ajax','general','producto','productos','catalogo','catalogo ajax','otros'].includes(v);
+  }
+
+  function colorFacet(product){
+    const explicit = getByAliases(product, ['color','colour','finish','acabado','color_producto']);
+    if(explicit) return explicit;
+    const attrs = normalizeAttributes(product);
+    for(const [key,value] of Object.entries(attrs)){
+      if(/color|colour|finish|acabado/.test(key) && clean(value)) return clean(value);
+    }
+    const text = norm(`${product?.name||''} ${product?.short_description||''} ${product?.description||''}`);
+    if(/(?:^|[-_\s])w(?:$|[-_\s])/.test(text) || /\b(blanco|white)\b/.test(text)) return 'Blanco';
+    if(/(?:^|[-_\s])b(?:$|[-_\s])/.test(text) || /\b(negro|black)\b/.test(text)) return 'Negro';
+    if(/\b(gris|grey|gray)\b/.test(text)) return 'Gris';
+    return '';
+  }
+
+  function technologyFacet(product){
+    const explicit = getByAliases(product, ['technology','tecnologia','radio_technology','radiotechnology']);
+    if(explicit) return explicit;
+    const text = norm(`${product?.short_description||''} ${product?.description||''} ${product?.protocol||''} ${Object.values(normalizeAttributes(product)).join(' ')}`);
+    const found = [];
+    if(text.includes('jeweller')) found.push('Jeweller');
+    if(text.includes('wings')) found.push('Wings');
+    if(text.includes('fibra')) found.push('Fibra');
+    return found.join(' | ');
+  }
+
+  function connectivityFacet(product){
+    const explicit = getByAliases(product, ['connectivity','conectividad','connection','conexion','communications','comunicaciones']);
+    if(explicit) return explicit;
+    const text = norm(`${product?.short_description||''} ${product?.description||''} ${product?.wifi||''} ${product?.lte_4g||''} ${product?.poe||''} ${Object.values(normalizeAttributes(product)).join(' ')}`);
+    const found = [];
+    if(/\bwi[ -]?fi\b/.test(text)) found.push('Wi‑Fi');
+    if(/\b4g\b|\blte\b/.test(text)) found.push('4G / LTE');
+    if(/\bpoe\b/.test(text)) found.push('PoE');
+    if(/\bethernet\b|\blan\b/.test(text)) found.push('Ethernet');
+    if(/\bgsm\b|\b2g\b/.test(text)) found.push('2G / GSM');
+    return [...new Set(found)].join(' | ');
   }
 
   // Copia deliberada de la clasificación funcional del primer Explorer.
@@ -204,9 +257,23 @@
       duplicateNames.set(key, (duplicateNames.get(key) || 0) + 1);
     });
     families.forEach(family => {
-      family.duplicateTitle = (duplicateNames.get(slug(family.familyTitle)) || 0) > 1;
-      family.displayTitle = family.familyTitle;
-      family.context = family.categoryTitle;
+      const cleanFamily = cleanAjaxLabel(family.familyTitle);
+      const cleanCategory = cleanAjaxLabel(family.categoryTitle);
+      let displayTitle = isGenericFamilyLabel(cleanFamily) ? cleanCategory : cleanFamily;
+      if(isGenericFamilyLabel(displayTitle)){
+        const candidate = family.items.map(item => cleanAjaxLabel(item.subcategory)).find(value => value && norm(value) !== 'todos');
+        displayTitle = candidate || 'Otros productos';
+      }
+      family.displayTitle = displayTitle;
+      family.context = cleanCategory && norm(cleanCategory) !== norm(displayTitle) ? cleanCategory : '';
+      family.representative = family.items.find(item => clean(item.p?.image))?.p || family.items[0]?.p || null;
+    });
+
+    const displayCounts = new Map();
+    families.forEach(family => displayCounts.set(slug(family.displayTitle), (displayCounts.get(slug(family.displayTitle)) || 0) + 1));
+    families.forEach(family => {
+      family.duplicateTitle = (displayCounts.get(slug(family.displayTitle)) || 0) > 1;
+      if(family.duplicateTitle && family.context) family.displayTitle = `${family.displayTitle} · ${family.context}`;
     });
 
     const byFamily = new Map(families.map(family => [family.key, family]));
@@ -405,11 +472,11 @@
     const product = item.p || {};
     const values = {
       subcategory:item.subcategory && norm(item.subcategory) !== 'todos' ? clean(item.subcategory) : '',
-      color:getByAliases(product, ['color','colour','finish','acabado']),
+      color:colorFacet(product),
       stock_state:stockFacet(product),
-      technology:getByAliases(product, ['technology','tecnologia']),
+      technology:technologyFacet(product),
       protocol:getByAliases(product, ['protocol','protocolo']),
-      connectivity:getByAliases(product, ['connectivity','conectividad','connection','conexion']),
+      connectivity:connectivityFacet(product),
       product_type:getByAliases(product, ['product_type','tipo','type']),
       series:getByAliases(product, ['series','serie']),
       resolution:getByAliases(product, ['resolution','resolucion','megapixels','megapixeles']),
@@ -507,6 +574,25 @@
 
   function sortItems(items){
     const list = items.slice();
+    if(state.sort === 'price-color'){
+      const colorOrder = value => {
+        const v = norm(value);
+        if(v.includes('blanco') || v.includes('white')) return 0;
+        if(v.includes('negro') || v.includes('black')) return 1;
+        if(v.includes('gris') || v.includes('grey') || v.includes('gray')) return 2;
+        return v ? 3 : 9;
+      };
+      return list.sort((a,b) => {
+        const ap = Number(a.p?.pvp) || 0;
+        const bp = Number(b.p?.pvp) || 0;
+        if(!ap && bp) return 1;
+        if(ap && !bp) return -1;
+        return ap - bp
+          || colorOrder(colorFacet(a.p)) - colorOrder(colorFacet(b.p))
+          || collator.compare(colorFacet(a.p), colorFacet(b.p))
+          || collator.compare(a.p?.name || '', b.p?.name || '');
+      });
+    }
     if(state.sort === 'price-asc'){
       return list.sort((a,b) => {
         const ap = Number(a.p?.pvp) || 0;
@@ -570,7 +656,8 @@
     return `<label class="hxp-sort">
       <span>Orden</span>
       <select id="hxpSort" aria-label="Ordenar productos">
-        <option value="featured" ${state.sort==='featured'?'selected':''}>Destacados</option>
+        <option value="price-color" ${state.sort==='price-color'?'selected':''}>Precio + color</option>
+        <option value="featured" ${state.sort==='featured'?'selected':''}>Más usados</option>
         <option value="price-asc" ${state.sort==='price-asc'?'selected':''}>Precio: menor</option>
         <option value="price-desc" ${state.sort==='price-desc'?'selected':''}>Precio: mayor</option>
         <option value="stock" ${state.sort==='stock'?'selected':''}>Stock</option>
@@ -594,15 +681,25 @@
     </div>`;
   }
 
+  function familyVisual(family){
+    const product = family?.representative || null;
+    const image = clean(product?.image);
+    if(image){
+      return `<span class="hxp-family-visual hxp-family-visual-image"><img src="${esc(image)}" alt="" loading="lazy" onerror="this.closest('.hxp-family-visual').classList.add('is-error')"><b>${esc((family.displayTitle||'?').slice(0,1).toUpperCase())}</b></span>`;
+    }
+    return `<span class="hxp-family-visual"><b>${esc((family?.displayTitle||'?').slice(0,1).toUpperCase())}</b></span>`;
+  }
+
   function homeView(){
     const model = buildModel();
     const families = availableFamilyList(model);
     const total = model.allItems.length;
     const familyCards = families.map(family => `
       <button type="button" class="hxp-family-card" data-hxp-family="${esc(family.key)}">
+        ${familyVisual(family)}
         <span class="hxp-family-copy">
           <strong>${esc(family.displayTitle)}</strong>
-          <small>${esc(family.context)}</small>
+          ${family.context ? `<small>${esc(family.context)}</small>` : '<small>Ver productos</small>'}
         </span>
         <em>${family.count}</em>
         <span class="hxp-family-arrow">${svgIcon('chevron')}</span>
@@ -619,11 +716,11 @@
         </div>
         <div class="hxp-family-grid">
           <button type="button" class="hxp-family-card hxp-family-card-popular" data-hxp-family="__popular__">
-            <span class="hxp-family-copy"><strong>Más usados</strong><small>Tus referencias habituales primero</small></span>
+            <span class="hxp-family-visual hxp-family-visual-special"><b>★</b></span><span class="hxp-family-copy"><strong>Más usados</strong><small>Tus referencias habituales primero</small></span>
             <em>${popularFamily(model).count}</em><span class="hxp-family-arrow">${svgIcon('chevron')}</span>
           </button>
           <button type="button" class="hxp-family-card hxp-family-card-all" data-hxp-family="__all__">
-            <span class="hxp-family-copy"><strong>Todos los productos</strong><small>Ver el catálogo completo</small></span>
+            <span class="hxp-family-visual hxp-family-visual-special"><b>∞</b></span><span class="hxp-family-copy"><strong>Todos los productos</strong><small>Ver el catálogo completo</small></span>
             <em>${total}</em><span class="hxp-family-arrow">${svgIcon('chevron')}</span>
           </button>
           ${familyCards || '<div class="hxp-empty">No hay familias con ese texto.</div>'}
@@ -655,8 +752,8 @@
 
   function productMeta(product){
     const values = [
-      getByAliases(product,['technology','tecnologia','protocol','protocolo']),
-      getByAliases(product,['color','colour','finish','acabado'])
+      technologyFacet(product) || getByAliases(product,['protocol','protocolo']),
+      colorFacet(product)
     ].filter(Boolean);
     return [...new Set(values)].slice(0,2).map(value => `<span>${esc(value)}</span>`).join('');
   }
@@ -810,7 +907,7 @@
     state.familyKey = key;
     state.query = '';
     state.filters = {};
-    state.sort = 'featured';
+    state.sort = 'price-color';
     state.drawerOpen = false;
     render();
     requestAnimationFrame(() => byId('hxpProductsScroll')?.scrollTo({top:0}));
@@ -821,7 +918,7 @@
     state.query = '';
     state.filters = {};
     state.drawerOpen = false;
-    state.sort = 'featured';
+    state.sort = 'price-color';
     render();
   }
 
