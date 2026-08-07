@@ -9,7 +9,7 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Expose-Headers": "Age, Cache-Status, X-NF-Cache, X-HiperAjax-Products, X-HiperAjax-Source, X-HiperAjax-Time-Ms, X-HiperAjax-Generated-At, X-HiperAjax-Products-With-Cost, X-HiperAjax-Cost-Field, X-HiperAjax-CSV-Headers, X-HiperAjax-Category-Fields, X-HiperAjax-Ajax-Classified",
+  "Access-Control-Expose-Headers": "Age, Cache-Status, X-NF-Cache, X-HiperAjax-Products, X-HiperAjax-Source, X-HiperAjax-Time-Ms, X-HiperAjax-Generated-At, X-HiperAjax-Products-With-Cost, X-HiperAjax-Cost-Field, X-HiperAjax-CSV-Headers, X-HiperAjax-Category-Fields, X-HiperAjax-Ajax-Classified, X-HiperAjax-Filter-Fields",
 };
 
 function decodeHtmlEntities(value) {
@@ -70,6 +70,77 @@ function primerValor(row, aliases) {
     if (value !== undefined && value !== null && String(value).trim() !== "") return value;
   }
   return "";
+}
+
+
+const FILTER_FIELDS = [
+  { key: "product_type", aliases: ["product_type", "producttype", "tipo_producto", "tipoproducto", "type", "tipo", "product_group", "grupoproducto"] },
+  { key: "series", aliases: ["series", "serie", "product_series", "productseries", "gama", "range"] },
+  { key: "technology", aliases: ["technology", "tecnologia", "tecnología", "radio_technology", "radiotechnology"] },
+  { key: "protocol", aliases: ["protocol", "protocolo", "communication_protocol", "communicationprotocol", "protocolo_comunicacion"] },
+  { key: "color", aliases: ["color", "colour", "finish", "acabado", "color_producto"] },
+  { key: "connectivity", aliases: ["connectivity", "conectividad", "connection", "conexion", "conexión", "communications", "comunicaciones"] },
+  { key: "resolution", aliases: ["resolution", "resolucion", "resolución", "megapixels", "megapixeles", "mp"] },
+  { key: "environment", aliases: ["environment", "entorno", "installation", "instalacion", "instalación", "indoor_outdoor", "indooroutdoor", "interior_exterior", "interiorexterior", "use_environment"] },
+  { key: "photo", aliases: ["photo", "foto", "image_capture", "imagecapture", "captura_imagen", "capturaimagen", "photosensor", "fotosensor"] },
+  { key: "poe", aliases: ["poe", "power_over_ethernet", "poweroverethernet"] },
+  { key: "wifi", aliases: ["wifi", "wi_fi", "wireless_lan", "wirelesslan", "wlan"] },
+  { key: "lte_4g", aliases: ["lte_4g", "lte4g", "4g_lte", "4glte", "lte", "4g", "gsm"] },
+  { key: "compatibility", aliases: ["compatibility", "compatibilidad", "compatible_with", "compatiblewith", "compatible_con"] },
+  { key: "channels", aliases: ["channels", "canales", "ports", "puertos", "number_of_channels", "numberofchannels"] },
+  { key: "lens", aliases: ["lens", "lente", "focal_length", "focallength", "distancia_focal", "optics", "optica", "óptica"] },
+  { key: "mounting", aliases: ["mounting", "montaje", "mount", "soporte", "installation_type", "installationtype", "tipo_instalacion"] },
+  { key: "power", aliases: ["power", "alimentacion", "alimentación", "voltage", "voltaje", "power_supply", "powersupply", "fuente_alimentacion"] },
+  { key: "order", aliases: ["order", "orden", "sort_order", "sortorder", "priority", "prioridad"] },
+];
+
+const OUTPUT_FIELDS = [
+  "name", "brand", "pvp", "description", "short_description", "image", "stock", "precio_neto_compra",
+  "category", "family", "subcategory", ...FILTER_FIELDS.map((field) => field.key), "attributes_json"
+];
+
+const NON_FILTER_HEADER = /(name|nombre|reference|referencia|codigo|code|sku|brand|marca|manufacturer|fabricante|description|descripcion|shortdesc|image|imagen|photo(url|path)?|url|link|document|manual|datasheet|ficha|price|precio|pvp|tarifa|cost|coste|neto|stock|quantity|cantidad|existencia|ean|upc|isbn|weight|peso|height|alto|width|ancho|depth|profundidad|dimension|package|embalaje|minimo|minimum|tax|iva)/;
+const FILTER_HEADER_HINT = /(color|colour|finish|acabado|technology|tecnologia|protocol|protocolo|connect|conect|wifi|wlan|wireless|lte|4g|gsm|poe|resolution|resolucion|megapixel|lens|lente|focal|indoor|outdoor|interior|exterior|environment|entorno|compat|channel|canal|port|puerto|mount|montaje|power|aliment|voltage|voltaje|battery|bateria|autonomia|audio|video|sensor|detector|format|formato|type|tipo|series|serie|range|gama|frequency|frecuencia|alcance|range|distancia|angle|angulo|tamper|mascota|pet|sensitivity|sensibilidad|protection|proteccion|iprating|grado|certification|certificacion|temperature|temperatura|humidity|humedad|wdr|onvif|ir|night|noche|radio|jeweller|wings|fibra|ethernet|sim|memory|memoria|storage|almacenamiento)/;
+
+function limpiarValorFiltro(value) {
+  const text = limpiarDescripcion(value).replace(/\s+/g, " ").trim();
+  if (!text || /^(?:-|--|n\/?a|none|null|undefined|no disponible|sin especificar)$/i.test(text)) return "";
+  return text.length <= 240 ? text : "";
+}
+
+function leerCamposFiltro(row) {
+  const result = {};
+  for (const field of FILTER_FIELDS) {
+    result[field.key] = limpiarValorFiltro(primerValor(row, field.aliases));
+  }
+  return result;
+}
+
+function cabecerasReservadas(classificationFields = {}) {
+  const keys = new Set([
+    ...OUTPUT_FIELDS.map(normalizarClave),
+    ...FILTER_FIELDS.flatMap((field) => field.aliases.map(normalizarClave)),
+    "name", "reference", "referencia", "codigo", "sku", "brand", "marca", "manufacturer", "fabricante",
+    "pvp", "recommendedretailprice", "retailprice", "precioventa", "tarifa", "description", "descripcion",
+    "shortdescription", "shortdesc", "descriptionshort", "descripcioncorta", "imagepath", "image", "imagen", "photourl",
+    "stocklabel", "stock", "quantity", "availablestock", "stockavailable", "existencias", "precionetocompra",
+  ]);
+  Object.values(classificationFields || {}).forEach((value) => {
+    if (typeof value === "string" && value) keys.add(normalizarClave(value));
+    if (Array.isArray(value)) value.forEach((item) => keys.add(normalizarClave(item)));
+  });
+  return keys;
+}
+
+function leerAtributosDinamicos(row, headers, reserved) {
+  const attributes = {};
+  for (const originalHeader of headers || []) {
+    const key = normalizarClave(originalHeader);
+    if (!key || reserved.has(key) || NON_FILTER_HEADER.test(key) || !FILTER_HEADER_HINT.test(key)) continue;
+    const value = limpiarValorFiltro(row[key]);
+    if (value) attributes[String(originalHeader).trim() || key] = value;
+  }
+  return attributes;
 }
 
 
@@ -179,6 +250,8 @@ async function crearCatalogoAjax(response) {
   let csvHeaders = [];
   let classificationFields = null;
   let ajaxClassified = 0;
+  let reservedFilterHeaders = new Set();
+  const filterFieldsFound = new Set();
   const classificationSamples = [];
 
   const parser = Readable.fromWeb(response.body).pipe(parse({
@@ -196,6 +269,7 @@ async function crearCatalogoAjax(response) {
     if (!csvHeaders.length) {
       csvHeaders = Object.keys(originalRow || {});
       classificationFields = detectarCamposClasificacion(csvHeaders);
+      reservedFilterHeaders = cabecerasReservadas(classificationFields);
       console.log("[catalogo-remoto] encabezados CSV:", csvHeaders);
       console.log("[catalogo-remoto] campos de clasificación detectados:", classificationFields);
     }
@@ -227,6 +301,11 @@ async function crearCatalogoAjax(response) {
       });
     }
 
+    const filterValues = leerCamposFiltro(row);
+    const dynamicAttributes = leerAtributosDinamicos(row, csvHeaders, reservedFilterHeaders);
+    Object.entries(filterValues).forEach(([field, value]) => { if (value) filterFieldsFound.add(field); });
+    Object.keys(dynamicAttributes).forEach((field) => filterFieldsFound.add(field));
+
     products.set(key, {
       name,
       brand: "Ajax",
@@ -239,27 +318,17 @@ async function crearCatalogoAjax(response) {
       category: classification.category,
       family: classification.family,
       subcategory: classification.subcategory,
+      ...filterValues,
+      attributes_json: Object.keys(dynamicAttributes).length ? JSON.stringify(dynamicAttributes) : "",
     });
   }
 
   if (!products.size) throw new Error("No se encontraron productos AJAX en el CSV remoto");
 
-  const lines = ["name;brand;pvp;description;short_description;image;stock;precio_neto_compra;category;family;subcategory"];
+  const lines = [OUTPUT_FIELDS.join(";")];
   const sorted = [...products.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
   for (const product of sorted) {
-    lines.push([
-      product.name,
-      product.brand,
-      product.pvp,
-      product.description,
-      product.short_description,
-      product.image,
-      product.stock,
-      product.precio_neto_compra,
-      product.category,
-      product.family,
-      product.subcategory,
-    ].map(escaparCSV).join(";"));
+    lines.push(OUTPUT_FIELDS.map((field) => product[field] ?? "").map(escaparCSV).join(";"));
   }
 
   console.log("[catalogo-remoto] muestras AJAX de clasificación:", classificationSamples);
@@ -274,6 +343,7 @@ async function crearCatalogoAjax(response) {
     ajaxClassified,
     csvHeaders,
     classificationFields: classificationFields || {},
+    filterFields: [...filterFieldsFound].sort((a, b) => a.localeCompare(b, "es")),
   };
 }
 
@@ -327,6 +397,7 @@ export async function handler(event) {
           result.classificationFields.path,
         ].filter(Boolean).join(",") || "none",
         "X-HiperAjax-Ajax-Classified": `${result.ajaxClassified}/${result.products}`,
+        "X-HiperAjax-Filter-Fields": result.filterFields.join(",").slice(0, 1800) || "none",
       },
       body: result.csv,
     };
