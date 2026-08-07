@@ -1492,3 +1492,15 @@ body:not(.light-mode) #familiasGrid .hxp-family-visual img{background:#2a342e}
 /* 5.3 · búsqueda y rápidos */
 #familiasGrid .hxp-search input{touch-action:manipulation}
 #familiasGrid .hxp-type-tab{min-width:auto!important}
+
+/* 5.4 · filtros rápidos multi-etiqueta */
+#familiasGrid .hxp-type-strip{scroll-behavior:smooth}
+#familiasGrid .hxp-type-tab.is-active{font-weight:950!important}
+
+/* 5.5 · velocidad y filtros cortos */
+#familiasGrid .hxp-type-tab{padding-inline:12px!important}
+#familiasGrid .hxp-type-tab span{white-space:nowrap}
+@media(max-width:760px){
+ #familiasGrid .hxp-type-tab{height:32px!important;padding-inline:10px!important;font-size:9.8px!important}
+ #familiasGrid .hxp-type-tab em{height:18px!important;min-width:18px!important;margin-left:5px!important;padding:0 5px!important}
+}

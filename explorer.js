@@ -240,6 +240,8 @@
       if(/detector|detectores|intrusion|intrusión/.test(familyText) && ref === 'AJ-COMBIPROTECT-W') s += 1000;
       if(/kit/.test(familyText) && /inalambr|inalámbr/.test(familyText) && ref === 'AJ-HUBKIT-W') s += 1000;
       if(/smart home|smarthome|domotica|domótica|confort/.test(familyText) && ref === 'AJ-OUTLETCORE-BASIC') s += 1000;
+      if(/accesorio|accesorios/.test(familyText) && /inalambr|inalámbr|wireless/.test(familyText) && /STREETSIREN/.test(ref)) s += 950;
+      if(/repuesto|repuestos|recambio/.test(familyText) && /BRACKET/.test(ref)) s += 950;
       // Evitar que una familia se represente con un accesorio secundario.
       if(/soporte|bracket|mount|cable|adaptador|adapter|fuente|power supply|bateria|battery|carcasa|dummy|tapa|cover/.test(t)) s -= 30;
       if(/smart home|smarthome|domotica|domótica|confort/.test(familyText)){
@@ -761,7 +763,7 @@
     if(clean(state.query)) items = rankedSearch(items, state.query);
     if(state.quickGroup){
       const family = currentFamily(model);
-      items = items.filter(item => quickGroupForItem(item, family) === state.quickGroup);
+      items = items.filter(item => quickGroupsForItem(item, family).includes(state.quickGroup));
     }
     items = applyFilters(items, filters);
     if(clean(state.query) && state.sort === 'featured') return items;
@@ -833,9 +835,7 @@
 
   function familyVisual(family){
     if(norm(family?.displayTitle) === 'otros productos'){
-      const wdPrimary = 'https://www.westerndigital.com/content/dam/store/en-us/assets/products/internal-storage/wd-purple-sata-hdd/featured/WD-Purple-feature1.jpg.wdthumb.319.319.jpg';
-      const wdFallback = 'https://thumb.pccomponentes.com/w-530-530/articles/1100/11000748/1772-disco-duro-western-digital-purple-1tb-35-hdd-5400rpm-sata-iii-vigilancia.jpg';
-      return `<span class="hxp-family-visual hxp-family-visual-image"><img src="${wdPrimary}" data-fallback="${wdFallback}" alt="Disco duro Western Digital Purple" loading="lazy" onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;this.dataset.fallback=''}else{this.closest('.hxp-family-visual').classList.add('is-error')}"><b>O</b></span>`;
+      return `<span class="hxp-family-visual hxp-family-visual-image"><img src="./assets/explorer/western-digital-purple.jpg" alt="Disco duro Western Digital Purple" loading="lazy"><b>O</b></span>`;
     }
     const product = family?.representative || null;
     const image = clean(product?.image);
@@ -884,74 +884,102 @@
   }
 
 
-  function quickGroupForItem(item, family){
+  function quickGroupsForItem(item, family){
     const p = item?.p || {};
     const familyText = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
-    const text = norm(`${item?.subcategory||''} ${p.name||''} ${p.short_description||''} ${p.description||''} ${p.product_type||''} ${p.series||''}`);
+    const text = norm(`${item?.subcategory||''} ${p.name||''} ${p.short_description||''} ${p.description||''} ${p.product_type||''} ${p.series||''} ${p.technology||''} ${p.environment||''} ${p.photo||''} ${p.lte_4g||''}`);
+    const tags = new Set();
+    const add = label => tags.add(label);
 
     if(/camara|cámara/.test(familyText)){
-      if(/\bptz\b/.test(text)) return 'PTZ';
-      if(/\bcube\b|\bcubo\b/.test(text)) return 'Cube';
-      if(/\bturret\b/.test(text)) return 'Turret';
-      if(/\bbullet\b/.test(text)) return 'Bullet';
-      if(/\bdome\b|\bdomo\b/.test(text)) return 'Domo';
-      return 'Otros';
+      if(/\bptz\b/.test(text)) add('PTZ');
+      if(/\bcube\b|\bcubo\b/.test(text)) add('Cube');
+      if(/\bturret\b/.test(text)) add('Turret');
+      if(/\bbullet\b/.test(text)) add('Bullet');
+      if(/\bdome\b|\bdomo\b/.test(text)) add('Domo');
     }
 
     if(/detector|detectores|intrusion|intrusión/.test(familyText)){
-      if(/fireprotect|incendio|humo|smoke|heat|temperatura|carbon monoxide|\bco\b/.test(text)) return 'Incendio';
-      if(/phod|foto bajo demanda|photo on demand|photo by demand/.test(text)) return 'PhOD';
-      if(/combi/.test(text)) return 'Combi';
-      if(/motioncam|motion cam|verificacion fotografica|verificación fotográfica/.test(text)) return 'MotionCam';
-      if(/curtain|cortina/.test(text)) return 'Cortina';
-      if(/outdoor|exterior/.test(text)) return 'Exterior';
-      if(/glass|cristal|rotura/.test(text)) return 'Cristal';
-      if(/door|apertura|contacto magnetico|contacto magnético/.test(text)) return 'Apertura';
-      if(/motion|movimiento/.test(text)) return 'Movimiento';
-      return 'Otros';
+      if(/fireprotect|incendio|humo|smoke|heat|temperatura|carbon monoxide|\bco\b/.test(text)) add('Incendio');
+      if(/motioncam|motion cam|verificacion fotografica|verificación fotográfica|phod|photo on demand|foto bajo demanda/.test(text)) add('MotionCam');
+      if(/phod|photo on demand|foto bajo demanda/.test(text)) add('PhOD');
+      if(/combi/.test(text)){ add('Combi'); add('Movimiento'); add('Cristal'); }
+      if(/motion|movimiento/.test(text)) add('Movimiento');
+      if(/glass|cristal|rotura/.test(text)) add('Cristal');
+      if(/door|apertura|contacto magnetico|contacto magnético/.test(text)) add('Apertura');
+      if(/curtain|cortina/.test(text)) add('Cortina');
+      if(/outdoor|exterior/.test(text)) add('Exterior');
     }
 
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(familyText)){
-      if(/doorbell|timbre|videoportero/.test(text)) return 'DoorBell';
-      if(/wallswitch|wall switch|\brelay\b|aj-relay|\brele\b|relé|reles|relés/.test(text)) return 'Relés';
-      if(/lightcore/.test(text)) return 'LightCore';
-      if(/lightswitch/.test(text)) return 'LightSwitch';
-      if(/outletcore/.test(text)) return 'OutletCore';
-      if(/socket|enchufe|outlet/.test(text)) return 'Enchufes';
-      return 'Otros';
+      if(/doorbell|timbre|videoportero/.test(text)) add('DoorBell');
+      if(/wallswitch|wall switch|\brelay\b|aj-relay|\brele\b|relé|reles|relés/.test(text)) add('Relés');
+      if(/lightcore/.test(text)) add('LightCore');
+      if(/lightswitch/.test(text)) add('LightSwitch');
+      if(/outletcore/.test(text)) add('OutletCore');
+      if(/socket|enchufe|outlet/.test(text)) add('Enchufes');
     }
 
     if(/\bnvr\b|grabador|grabacion|grabación/.test(familyText)){
-      const ch = text.match(/\b(4|8|16|32|64)\s*(?:ch|canales?)\b/);
-      if(ch) return `${ch[1]} canales`;
-      return 'Otros';
+      const channelValue = clean(p.channels || '');
+      const channelText = norm(`${channelValue} ${text}`);
+      const ch = channelText.match(/\b(4|8|16|32|64)\s*(?:ch|canales?)?\b/);
+      if(ch){
+        const n=Number(ch[1]);
+        add(n>=32 ? '32+ canales' : `${n} canales`);
+      }
     }
 
     if(/central|centrales|hub|hubs/.test(familyText)){
-      if(/\brex\b|\brex2\b|repetidor|repeater/.test(text)) return 'Repetidores';
-      if(/hybrid/.test(text)) return 'Hybrid';
-      if(/hub\s*2|hub2/.test(text) && /4g|lte/.test(text)) return '4G / LTE';
-      if(/hub plus|hubplus/.test(text)) return 'Hub Plus';
-      if(/hub\s*2|hub2/.test(text)) return 'Hub 2';
-      if(/\bhub\b/.test(text)) return 'Hub';
-      return 'Otros';
+      if(/\brex\b|\brex2\b|repetidor|repeater/.test(text)) add('Repetidores');
+      if(/hybrid/.test(text)) add('Hybrid');
+      if(/hub plus|hubplus/.test(text)) add('Hub Plus');
+      if(/hub\s*2|hub2/.test(text)) add('Hub 2');
+      else if(/\bhub\b/.test(text)) add('Hub');
+      if(/4g|lte/.test(text)) add('4G / LTE');
     }
 
-    return '';
+    if(/sirena|sirenas/.test(familyText)){
+      if(/street|exterior|outdoor/.test(text)) add('Exterior');
+      if(/home|interior|indoor/.test(text)) add('Interior');
+    }
+
+    if(/teclado|teclados|keypad/.test(familyText)){
+      if(/touchscreen|touch screen/.test(text)) add('TouchScreen');
+      if(/combi/.test(text)) add('Combi');
+      if(/plus/.test(text)) add('Plus');
+      if(/keypad|teclado/.test(text)) add('KeyPad');
+      if(/outdoor|exterior/.test(text)) add('Exterior');
+    }
+
+    if(/accesorio|accesorios/.test(familyText) && /inalambr|inalámbr|wireless/.test(familyText)){
+      if(/wallswitch|wall switch|\brelay\b|aj-relay|\brele\b|relé|reles|relés/.test(text)) add('Relés');
+      if(/button|doublebutton|spacecontrol|mando|boton|botón/.test(text)) add('Botones / Mandos');
+      if(/socket|enchufe|outlet/.test(text)) add('Enchufes');
+      if(/waterstop|valvula|válvula|valve/.test(text)) add('Válvulas');
+      if(/\brex\b|\brex2\b|repetidor|repeater/.test(text)) add('Repetidores');
+    }
+
+    return [...tags];
   }
 
   function quickGroups(baseItems){
     const family = currentFamily();
     const counts = new Map();
     baseItems.forEach(item => {
-      const label = quickGroupForItem(item, family);
-      if(label) counts.set(label, (counts.get(label) || 0) + 1);
+      quickGroupsForItem(item, family).forEach(label => {
+        counts.set(label, (counts.get(label) || 0) + 1);
+      });
     });
     const preferred = {
       'camaras ip':['Bullet','Turret','Domo','Cube','PTZ','Otros'],
       'detectores':['Movimiento','Apertura','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio','Otros'],
       'smart home':['LightSwitch','LightCore','OutletCore','Relés','Enchufes','DoorBell','Otros'],
-      'centrales':['Hub','Hub 2','4G / LTE','Hub Plus','Hybrid','Repetidores','Otros']
+      'centrales':['Hub','Hub 2','4G / LTE','Hub Plus','Hybrid','Repetidores','Otros'],
+      'sirenas':['Interior','Exterior','Otros'],
+      'teclados':['KeyPad','Plus','Combi','TouchScreen','Exterior','Otros'],
+      'nvr':['4 canales','8 canales','16 canales','32+ canales','Otros'],
+      'accesorios inalambricos':['Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','Otros']
     };
     const ft = norm(`${family?.displayTitle||''} ${family?.familyTitle||''}`);
     let order = [];
@@ -1186,23 +1214,62 @@
     }
   }
 
+  function refreshSearchResults(){
+    const model = buildModel();
+    const items = resultItems();
+    const scroller = byId('hxpProductsScroll');
+    if(scroller){
+      scroller.innerHTML = items.map(productCard).join('') || `<div class="hxp-empty hxp-empty-products"><strong>No hay productos con esta búsqueda.</strong><button type="button" data-hxp-clear-filters>Limpiar filtros</button></div>`;
+      scroller.scrollTop = 0;
+    }
+    const count = document.querySelector('#familiasGrid .hxp-result-count');
+    if(count) count.innerHTML = `<strong>${items.length}</strong> producto${items.length===1?'':'s'}`;
+
+    if(state.familyKey){
+      const strip = document.querySelector('#familiasGrid .hxp-type-strip');
+      const holder = strip?.parentNode;
+      if(strip && holder){
+        const temp = document.createElement('div');
+        temp.innerHTML = quickTypes(quickCounterItems());
+        const next = temp.firstElementChild;
+        if(next) strip.replaceWith(next);
+      }
+    }
+    bindDynamicResults(byId('familiasGrid'));
+  }
+
+  function bindDynamicResults(root){
+    if(!root) return;
+    root.querySelectorAll('[data-hxp-quick]').forEach(button => {
+      if(button.dataset.hxpBound) return;
+      button.dataset.hxpBound = '1';
+      button.addEventListener('click', () => {
+        const value = button.dataset.hxpQuick || '';
+        state.quickGroup = value && state.quickGroup === value ? '' : value;
+        refreshSearchResults();
+      });
+    });
+    root.querySelectorAll('[data-hxp-add]').forEach(button => {
+      if(button.dataset.hxpBound) return;
+      button.dataset.hxpBound='1';
+      button.addEventListener('click', () => addProduct(button.dataset.hxpAdd, button));
+    });
+    root.querySelectorAll('.hx-product-thumb').forEach(button => {
+      if(button.dataset.hxpBound) return;
+      button.dataset.hxpBound='1';
+      button.addEventListener('click', () => {
+        if(typeof abrirImagenProducto === 'function') abrirImagenProducto(button.dataset.image);
+      });
+    });
+  }
+
   function bind(root){
     const search = byId('hxpSearch');
     if(search){
       search.addEventListener('input', event => {
         state.query = event.target.value;
         clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => {
-          const value = state.query;
-          render();
-          requestAnimationFrame(() => {
-            const next = byId('hxpSearch');
-            if(next && document.activeElement !== next){
-              next.focus({preventScroll:true});
-              next.setSelectionRange(value.length,value.length);
-            }
-          });
-        }, 170);
+        searchTimer = setTimeout(() => refreshSearchResults(), 120);
       });
       search.addEventListener('keydown', event => {
         if(event.key === 'Escape' && state.query){
@@ -1241,7 +1308,11 @@
     });
 
     root.querySelectorAll('[data-hxp-quick]').forEach(button => button.addEventListener('click', () => {
-      state.quickGroup = button.dataset.hxpQuick || '';
+      const value = button.dataset.hxpQuick || '';
+      state.quickGroup = value && state.quickGroup === value ? '' : value;
+      root.querySelectorAll('[data-hxp-quick]').forEach(tab => {
+        tab.classList.toggle('is-active', (tab.dataset.hxpQuick || '') === state.quickGroup);
+      });
       render({preserveScroll:false});
       requestAnimationFrame(() => byId('hxpProductsScroll')?.scrollTo({top:0}));
     }));
