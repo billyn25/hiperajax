@@ -24,12 +24,16 @@
     ['teclado','teclados','mando','mandos'],
     ['camara','cámara','camaras','cámaras','videovigilancia'],
     ['nvr','grabador','grabadores','grabacion','grabación'],
-    ['domotica','domótica','automatizacion','automatización','confort','smart home'],
     ['incendio','fuego','fire'],
     ['red','poe','network'],
     ['accesorio','accesorios','soporte','soportes'],
     ['alimentacion','alimentación','bateria','batería'],
-    ['merchandising']
+    // Estas familias se fuerzan al final en este orden.
+    ['smart home','smarthome','domotica','domótica','automatizacion','automatización','confort'],
+    ['almacenamiento nube','almacenamiento en nube','cloud storage','cloud'],
+    ['repuesto','repuestos','recambio','recambios'],
+    ['merchandising','merchan'],
+    ['productos añadidos','productos anadidos']
   ];
 
   const KNOWN_FACETS = [
@@ -83,7 +87,7 @@
       view:'home',
       familyKey:'',
       query:'',
-      sort:'price-color',
+      sort:'price-ref',
       filters:{},
       drawerOpen:false,
       familyFilter:''
@@ -187,9 +191,17 @@
 
   function familyPriority(entry){
     const text = norm(`${entry.familyTitle} ${entry.categoryTitle}`);
+    const late = [
+      {terms:['smart home','smarthome','domotica','domótica','automatizacion','automatización','confort'], rank:900},
+      {terms:['almacenamiento nube','almacenamiento en nube','cloud storage','cloud'], rank:910},
+      {terms:['repuesto','repuestos','recambio','recambios'], rank:920},
+      {terms:['merchandising','merchan'], rank:930},
+      {terms:['productos añadidos','productos anadidos'], rank:940}
+    ];
+    const lateMatch = late.find(group => group.terms.some(term => text.includes(norm(term))));
+    if(lateMatch) return lateMatch.rank;
     const found = FAMILY_PRIORITY.findIndex(group => group.some(term => text.includes(norm(term))));
     if(found >= 0) return found;
-    if(norm(entry.categoryTitle).includes('productos anadidos')) return 998;
     if(norm(entry.categoryTitle).includes('sin categoria')) return 999;
     return 100;
   }
@@ -201,6 +213,36 @@
     const first = list[0]?.name || '';
     const last = list[list.length - 1]?.name || '';
     return `${list.length}|${first}|${last}`;
+  }
+
+  function representativeProduct(family){
+    const withImage = family.items.filter(item => clean(item.p?.image));
+    if(!withImage.length) return family.items[0]?.p || null;
+    const familyText = norm(`${family.familyTitle} ${family.categoryTitle}`);
+    const score = item => {
+      const p = item.p || {};
+      const t = norm(`${p.name||''} ${p.short_description||''} ${p.description||''} ${p.subcategory||''} ${p.product_type||''}`);
+      let s = 0;
+      // Evitar que una familia se represente con un accesorio secundario.
+      if(/soporte|bracket|mount|cable|adaptador|adapter|fuente|power supply|bateria|battery|carcasa|dummy|tapa|cover/.test(t)) s -= 30;
+      if(/smart home|smarthome|domotica|domótica|confort/.test(familyText)){
+        if(/lightcore|lightswitch/.test(t)) s += 100;
+        if(/outletcore|outlet/.test(t)) s += 35;
+      }
+      if(/nvr|grabador|grabacion|grabación/.test(familyText)){
+        if(/\bnvr\b|grabador/.test(t)) s += 100;
+        if(/8ch|16ch|8 canales|16 canales/.test(t)) s += 15;
+      }
+      if(/repuesto|repuestos|recambio/.test(familyText)){
+        if(/repuesto|spare|replacement|bateria|battery/.test(t)) s += 60;
+        if(/kit|pack/.test(t)) s -= 15;
+      }
+      if(/merchandising|merchan/.test(familyText)){
+        if(/gorra|cap|camiseta|shirt|sudadera|hoodie|mochila|backpack/.test(t)) s += 80;
+      }
+      return s;
+    };
+    return withImage.slice().sort((a,b) => score(b)-score(a))[0]?.p || withImage[0].p;
   }
 
   function buildModel(){
@@ -266,7 +308,7 @@
       }
       family.displayTitle = displayTitle;
       family.context = cleanCategory && norm(cleanCategory) !== norm(displayTitle) ? cleanCategory : '';
-      family.representative = family.items.find(item => clean(item.p?.image))?.p || family.items[0]?.p || null;
+      family.representative = representativeProduct(family);
     });
 
     const displayCounts = new Map();
@@ -572,8 +614,45 @@
     return popularIndex >= 0 ? 100 + popularIndex : 10000;
   }
 
+  function defaultSortForFamily(key){
+    if(!key || key === '__all__' || key === '__popular__') return 'price-ref';
+    const family = buildModel().byFamily.get(key);
+    const text = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
+    if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'type-ref-color';
+    if(/camara|cámara|camaras|cámaras|nvr|grabador|detect|central|hub|sirena|teclado/.test(text)) return 'ref-color';
+    return 'price-ref';
+  }
+
+  function compareColor(a,b){
+    const colorOrder = value => {
+      const v = norm(value);
+      if(v.includes('blanco') || v.includes('white')) return 0;
+      if(v.includes('negro') || v.includes('black')) return 1;
+      if(v.includes('gris') || v.includes('grey') || v.includes('gray')) return 2;
+      return v ? 3 : 9;
+    };
+    return colorOrder(colorFacet(a.p)) - colorOrder(colorFacet(b.p))
+      || collator.compare(colorFacet(a.p), colorFacet(b.p));
+  }
+
   function sortItems(items){
     const list = items.slice();
+    if(state.sort === 'type-ref-color'){
+      return list.sort((a,b) => collator.compare(a.subcategory || '', b.subcategory || '')
+        || collator.compare(a.p?.name || '', b.p?.name || '')
+        || compareColor(a,b));
+    }
+    if(state.sort === 'ref-color'){
+      return list.sort((a,b) => collator.compare(a.p?.name || '', b.p?.name || '') || compareColor(a,b));
+    }
+    if(state.sort === 'price-ref'){
+      return list.sort((a,b) => {
+        const ap = Number(a.p?.pvp) || 0, bp = Number(b.p?.pvp) || 0;
+        if(!ap && bp) return 1;
+        if(ap && !bp) return -1;
+        return ap - bp || collator.compare(a.p?.name || '', b.p?.name || '');
+      });
+    }
     if(state.sort === 'price-color'){
       const colorOrder = value => {
         const v = norm(value);
@@ -656,6 +735,9 @@
     return `<label class="hxp-sort">
       <span>Orden</span>
       <select id="hxpSort" aria-label="Ordenar productos">
+        <option value="price-ref" ${state.sort==='price-ref'?'selected':''}>Precio + referencia</option>
+        <option value="ref-color" ${state.sort==='ref-color'?'selected':''}>Referencia + color</option>
+        <option value="type-ref-color" ${state.sort==='type-ref-color'?'selected':''}>Tipo + referencia</option>
         <option value="price-color" ${state.sort==='price-color'?'selected':''}>Precio + color</option>
         <option value="featured" ${state.sort==='featured'?'selected':''}>Más usados</option>
         <option value="price-asc" ${state.sort==='price-asc'?'selected':''}>Precio: menor</option>
@@ -907,7 +989,7 @@
     state.familyKey = key;
     state.query = '';
     state.filters = {};
-    state.sort = 'price-color';
+    state.sort = defaultSortForFamily(key);
     state.drawerOpen = false;
     render();
     requestAnimationFrame(() => byId('hxpProductsScroll')?.scrollTo({top:0}));
@@ -918,7 +1000,7 @@
     state.query = '';
     state.filters = {};
     state.drawerOpen = false;
-    state.sort = 'price-color';
+    state.sort = 'price-ref';
     render();
   }
 

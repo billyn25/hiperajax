@@ -1215,3 +1215,54 @@ body:not(.light-mode) #familiasGrid .hxp-family-visual img{background:#2a342e}
   #familiasGrid .hxp-type-strip{flex-basis:36px;padding:3px 8px}
   #familiasGrid .hxp-products-scroll{padding-top:5px}
 }
+
+
+/* =====================================================
+   EXPLORER PRO 5.1.1 · Afinado final
+   ===================================================== */
+/* El contador queda centrado verticalmente y separado del borde superior. */
+#familiasGrid .hxp-family-card > em{
+  top:50%!important;
+  right:10px!important;
+  bottom:auto!important;
+  transform:translateY(-50%);
+  min-width:30px;
+  height:24px;
+  line-height:24px;
+  padding:0 7px;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--hxp-accent) 22%,transparent);
+}
+#familiasGrid .hxp-family-arrow{display:none}
+
+/* Selección de filtros inequívoca: fondo, borde, check y texto verdes. */
+#familiasGrid .hxp-filter-option:has(input:checked){
+  background:color-mix(in srgb,var(--hxp-accent) 18%,var(--hxp-panel));
+  color:var(--hxp-text);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--hxp-accent) 58%,transparent);
+}
+#familiasGrid .hxp-filter-option input:checked{
+  border:2px solid var(--hxp-accent-strong);
+  background:var(--hxp-accent-strong);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--hxp-accent) 18%,transparent);
+}
+#familiasGrid .hxp-filter-option input:checked::after{
+  content:"";
+  width:7px;
+  height:4px;
+  border-left:2px solid #fff;
+  border-bottom:2px solid #fff;
+  transform:rotate(-45deg) translate(1px,-1px);
+}
+#familiasGrid .hxp-filter-option:has(input:checked) span{font-weight:850}
+#familiasGrid .hxp-filter-option:has(input:checked) em{color:var(--hxp-accent);font-weight:850}
+
+@media(max-width:760px){
+  #familiasGrid .hxp-family-card > em{
+    top:50%!important;
+    right:7px!important;
+    transform:translateY(-50%);
+    min-width:25px;
+    height:21px;
+    line-height:21px;
+  }
+}
