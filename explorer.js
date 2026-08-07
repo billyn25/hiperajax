@@ -949,17 +949,34 @@
 
     if(/\bnvr\b|grabador|grabacion|grabación/.test(familyText)){
       const channelSource = norm(`${p.channels||''} ${structured}`);
+      let channelNumber = 0;
+
+      // 1. Campo estructurado o atributo explícito.
       let ch = channelSource.match(/(?:^|\D)(4|8|16|32|64)\s*(?:ch|canales?|channels?)(?:\D|$)/);
-      if(!ch){
+      if(ch) channelNumber = Number(ch[1]);
+
+      if(!channelNumber){
         const explicit = Object.entries(attrs).find(([k]) => /canal|channel|puerto|port/.test(norm(k)));
-        if(explicit) ch = norm(explicit[1]).match(/\b(4|8|16|32|64)\b/);
+        const match = explicit ? norm(explicit[1]).match(/\b(4|8|16|32|64)\b/) : null;
+        if(match) channelNumber = Number(match[1]);
       }
-      if(ch){
-        const n = Number(ch[1]);
-        add(n >= 32 ? '32+ canales' : `${n} canales`);
+
+      // 2. Fallback estable del modelo Ajax: NVR108/NVR208 = 8; NVR116/NVR216 = 16, etc.
+      // No es una lista de referencias: interpreta el código de capacidad del modelo.
+      if(!channelNumber){
+        const model = norm(p.name || '').replace(/[^a-z0-9]/g,'');
+        const match = model.match(/nvr\d*?(04|08|16|32|64)(?:[a-z]|$)/);
+        if(match) channelNumber = Number(match[1]);
       }
-      const hdmiAttr = Object.entries(attrs).some(([k,v]) => /hdmi/.test(norm(k)) && !/^(?:no|0|false)$/i.test(clean(v)));
-      if(hdmiAttr || /\bhdmi\b/.test(structured)) add('HDMI');
+
+      if(channelNumber){
+        add(channelNumber >= 32 ? '32+ canales' : `${channelNumber} canales`);
+      }
+
+      const hdmiAttr = Object.entries(attrs).some(([k,v]) =>
+        /hdmi/.test(norm(k)) && !/^(?:no|0|false|sin)$/i.test(clean(v))
+      );
+      if(hdmiAttr || /\bhdmi\b/.test(source)) add('HDMI');
     }
 
     if(/central|centrales|hub|hubs/.test(familyText)){
@@ -967,14 +984,21 @@
         && !/modulo|módulo|alimentacion|alimentación|power supply|fuente|bracket|soporte/.test(source);
       if(isRepeater) add('Repetidores');
       if(/hybrid/.test(source)) add('Hybrid');
-      if(/hub plus|hubplus/.test(source)) add('Hub Plus');
+
+      const isHubPlus = /hub\s*2\s*plus|hub2plus|hub plus|hubplus/.test(source);
+      if(isHubPlus) add('Hub Plus');
+
       if(/hub\s*2|hub2/.test(source)) add('Hub 2');
       else if(/\bhub\b/.test(source) && !/\bhubkit\b/.test(source)) add('Hub');
 
+      // Wi-Fi: atributo real primero. Hub Plus sirve de fallback de modelo cuando el proveedor no rellena el campo.
       const wifi = clean(p.wifi) || getByAliases(p,['wifi','wi_fi','wireless_lan','wlan']);
       const conn = norm(`${p.connectivity||''} ${wifi} ${structured}`);
-      if(/\bwi[ -]?fi\b|\bwlan\b/.test(conn)) add('Wi‑Fi');
-      if(/\b4g\b|\blte\b/.test(norm(`${p.lte_4g||''} ${structured}`))) add('4G / LTE');
+      if(/\bwi[ -]?fi\b|\bwlan\b/.test(conn) || isHubPlus) add('Wi‑Fi');
+
+      // 4G/LTE: atributo real primero + nombre corto/referencia como fallback.
+      const mobileConn = norm(`${p.lte_4g||''} ${structured} ${identity}`);
+      if(/\b4g\b|\blte\b/.test(mobileConn)) add('4G / LTE');
     }
 
     // Accesorios inalámbricos: no reclasifica productos, solo filtra la familia ya abierta.
@@ -1034,7 +1058,7 @@
 
   function quickTypes(baseItems){
     const groups = quickGroups(baseItems).filter(group => group.label !== 'Otros');
-    if(groups.length < 2) return '';
+    if(!groups.length) return '';
     const top = groups.slice(0, isMobile() ? 8 : 10);
     const hidden = groups.length - top.length;
     return `<div class="hxp-type-strip" aria-label="Filtros rápidos">
