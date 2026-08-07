@@ -349,6 +349,39 @@
       if(family.duplicateTitle && family.context) family.displayTitle = `${family.displayTitle} · ${family.context}`;
     });
 
+    // Accesos principales virtuales: no mueven ni duplican datos; solo facilitan llegar a productos importantes.
+    const addVirtualFamily = (key, title, matcher, priority) => {
+      const exists = families.some(f => norm(f.displayTitle) === norm(title));
+      if(exists) return;
+      const items = allItems.filter(item => matcher(item));
+      if(!items.length) return;
+      const family = {
+        key, categoryId:'virtual', categoryTitle:'Acceso rápido',
+        familyId:key, familyTitle:title, displayTitle:title, context:'Acceso directo',
+        items, count:items.length, virtual:true, _priority:priority
+      };
+      family.representative = representativeProduct(family);
+      families.push(family);
+    };
+
+    addVirtualFamily('__sirenas__','Sirenas', item => {
+      const p=item.p||{};
+      const s=norm(`${p.name||''} ${p.short_description||''} ${p.product_type||''} ${item.subcategory||''}`);
+      return /homesiren|streetsiren|sirena|siren/.test(s);
+    }, 25);
+
+    addVirtualFamily('__teclados__','Teclados', item => {
+      const p=item.p||{};
+      const s=norm(`${p.name||''} ${p.short_description||''} ${p.product_type||''} ${item.subcategory||''}`);
+      return /keypad|teclado/.test(s);
+    }, 26);
+
+    families.sort((a,b) => {
+      const ap = Number.isFinite(a._priority) ? a._priority : familyPriority(a);
+      const bp = Number.isFinite(b._priority) ? b._priority : familyPriority(b);
+      return ap-bp || collator.compare(a.displayTitle||a.familyTitle,b.displayTitle||b.familyTitle);
+    });
+
     const byFamily = new Map(families.map(family => [family.key, family]));
     modelCache = { allItems, families, byFamily };
     modelSignature = signature;
@@ -887,77 +920,112 @@
   function quickGroupsForItem(item, family){
     const p = item?.p || {};
     const familyText = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
-    const text = norm(`${item?.subcategory||''} ${p.name||''} ${p.short_description||''} ${p.description||''} ${p.product_type||''} ${p.series||''} ${p.technology||''} ${p.environment||''} ${p.photo||''} ${p.lte_4g||''}`);
+
+    // Jerarquía estricta: atributos estructurados -> referencia/nombre -> descripción como último respaldo.
+    const structured = norm([
+      item?.subcategory,
+      p.product_type, p.tipo, p.series, p.technology, p.protocol,
+      p.environment, p.photo, p.channels,
+      p.attributes && typeof p.attributes === 'object' ? Object.values(p.attributes).join(' ') : '',
+      p.attributes_json || ''
+    ].filter(Boolean).join(' '));
+    const identity = norm(`${p.name||''} ${p.short_description||''}`);
+    const fallback = norm(p.description || '');
+    const strong = `${structured} ${identity}`;
+    const all = `${strong} ${fallback}`;
+
     const tags = new Set();
     const add = label => tags.add(label);
 
+    // CÁMARAS: por formato real/nombre, nunca por menciones genéricas.
     if(/camara|cámara/.test(familyText)){
-      if(/\bptz\b/.test(text)) add('PTZ');
-      if(/\bcube\b|\bcubo\b/.test(text)) add('Cube');
-      if(/\bturret\b/.test(text)) add('Turret');
-      if(/\bbullet\b/.test(text)) add('Bullet');
-      if(/\bdome\b|\bdomo\b/.test(text)) add('Domo');
+      if(/\bptz\b/.test(strong)) add('PTZ');
+      if(/\bcube\b|\bcubo\b/.test(strong)) add('Cube');
+      if(/\bturret\b/.test(strong)) add('Turret');
+      if(/\bbullet\b/.test(strong)) add('Bullet');
+      if(/\bdome\b|\bdomo\b/.test(strong)) add('Domo');
     }
 
+    // DETECTORES: filtros cortos estrictos.
     if(/detector|detectores|intrusion|intrusión/.test(familyText)){
-      if(/fireprotect|incendio|humo|smoke|heat|temperatura|carbon monoxide|\bco\b/.test(text)) add('Incendio');
-      if(/motioncam|motion cam|verificacion fotografica|verificación fotográfica|phod|photo on demand|foto bajo demanda/.test(text)) add('MotionCam');
-      if(/phod|photo on demand|foto bajo demanda/.test(text)) add('PhOD');
-      if(/combi/.test(text)){ add('Combi'); add('Movimiento'); add('Cristal'); }
-      if(/motion|movimiento/.test(text)) add('Movimiento');
-      if(/glass|cristal|rotura/.test(text)) add('Cristal');
-      if(/door|apertura|contacto magnetico|contacto magnético/.test(text)) add('Apertura');
-      if(/curtain|cortina/.test(text)) add('Cortina');
-      if(/outdoor|exterior/.test(text)) add('Exterior');
+      const isFire = /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/.test(strong);
+      const isDoor = /doorprotect|door protect|contacto magn[eé]tico|magnetic contact|detector(?:\s+de)?\s+apertura/.test(strong);
+      const isGlass = /glassprotect|glass protect|rotura(?:\s+de)?\s+cristal|glass break/.test(strong);
+      const isCombi = /combiprotect|combi protect/.test(strong);
+      const isMotionCam = /motioncam|motion cam/.test(strong);
+      const isPhod = /\bphod\b|photo on demand|foto bajo demanda/.test(all);
+      const isCurtain = /doublecurtain|curtainprotect|curtain protect|\bcurtain\b|\bcortina\b/.test(strong);
+      const isOutdoor = /outdoor|exterior/.test(structured) || /outdoor/.test(identity);
+      const isMotion = /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b/.test(strong);
+
+      if(isFire) add('Incendio');
+      if(isMotionCam) add('MotionCam');
+      if(isPhod && isMotionCam) add('PhOD');
+      if(isCombi){ add('Combi'); add('Movimiento'); add('Cristal'); }
+      if(isDoor && !isFire) add('Apertura');
+      if(isGlass && !isFire) add('Cristal');
+      if(isMotion && !isFire) add('Movimiento');
+      if(isCurtain && !isFire) add('Cortina');
+      if(isOutdoor && !isFire) add('Exterior');
     }
 
+    // SMART HOME
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(familyText)){
-      if(/doorbell|timbre|videoportero/.test(text)) add('DoorBell');
-      if(/wallswitch|wall switch|\brelay\b|aj-relay|\brele\b|relé|reles|relés/.test(text)) add('Relés');
-      if(/lightcore/.test(text)) add('LightCore');
-      if(/lightswitch/.test(text)) add('LightSwitch');
-      if(/outletcore/.test(text)) add('OutletCore');
-      if(/socket|enchufe|outlet/.test(text)) add('Enchufes');
+      if(/doorbell|timbre|videoportero/.test(strong)) add('DoorBell');
+      if(/wallswitch|wall switch|\brelay\b|aj-relay|\brel[eé]s?\b/.test(strong)) add('Relés');
+      if(/lightcore/.test(strong)) add('LightCore');
+      if(/lightswitch/.test(strong)) add('LightSwitch');
+      if(/outletcore/.test(strong)) add('OutletCore');
+      if(/socket|enchufe|outlet/.test(strong) && !/outletcore/.test(strong)) add('Enchufes');
     }
 
+    // NVR: prioriza campo channels / atributos estructurados.
     if(/\bnvr\b|grabador|grabacion|grabación/.test(familyText)){
-      const channelValue = clean(p.channels || '');
-      const channelText = norm(`${channelValue} ${text}`);
-      const ch = channelText.match(/\b(4|8|16|32|64)\s*(?:ch|canales?)?\b/);
+      const chSource = norm(`${p.channels||''} ${structured} ${identity}`);
+      const ch = chSource.match(/(?:^|\D)(4|8|16|32|64)\s*(?:ch|canales?|channels?)(?:\D|$)/);
       if(ch){
         const n=Number(ch[1]);
         add(n>=32 ? '32+ canales' : `${n} canales`);
       }
     }
 
+    // CENTRALES
     if(/central|centrales|hub|hubs/.test(familyText)){
-      if(/\brex\b|\brex2\b|repetidor|repeater/.test(text)) add('Repetidores');
-      if(/hybrid/.test(text)) add('Hybrid');
-      if(/hub plus|hubplus/.test(text)) add('Hub Plus');
-      if(/hub\s*2|hub2/.test(text)) add('Hub 2');
-      else if(/\bhub\b/.test(text)) add('Hub');
-      if(/4g|lte/.test(text)) add('4G / LTE');
+      if(/\brex\s*2\b|\brex2\b|\brex\b|repetidor|repeater/.test(strong)) add('Repetidores');
+      if(/hybrid/.test(strong)) add('Hybrid');
+      if(/hub plus|hubplus/.test(strong)) add('Hub Plus');
+      if(/hub\s*2|hub2/.test(strong)) add('Hub 2');
+      else if(/\bhub\b/.test(strong) && !/\bhubkit\b/.test(strong)) add('Hub');
+      if(/\b4g\b|\blte\b/.test(strong)) add('4G / LTE');
     }
 
+    // SIRENAS
     if(/sirena|sirenas/.test(familyText)){
-      if(/street|exterior|outdoor/.test(text)) add('Exterior');
-      if(/home|interior|indoor/.test(text)) add('Interior');
+      if(/streetsiren|street siren|outdoor|exterior/.test(strong)) add('Exterior');
+      if(/homesiren|home siren|indoor|interior/.test(strong)) add('Interior');
     }
 
+    // TECLADOS
     if(/teclado|teclados|keypad/.test(familyText)){
-      if(/touchscreen|touch screen/.test(text)) add('TouchScreen');
-      if(/combi/.test(text)) add('Combi');
-      if(/plus/.test(text)) add('Plus');
-      if(/keypad|teclado/.test(text)) add('KeyPad');
-      if(/outdoor|exterior/.test(text)) add('Exterior');
+      if(/keypad.*touchscreen|touchscreen.*keypad|keypad touchscreen/.test(strong)) add('TouchScreen');
+      if(/keypad.*combi|keypadcombi/.test(strong)) add('Combi');
+      if(/keypad.*plus|keypadplus/.test(strong)) add('Plus');
+      if(/\bkeypad\b|teclado/.test(strong)) add('KeyPad');
+      if(/outdoor|exterior/.test(structured) || /outdoor/.test(identity)) add('Exterior');
     }
 
+    // ACCESORIOS INALÁMBRICOS: excluye explícitamente teclados, sirenas y detectores.
     if(/accesorio|accesorios/.test(familyText) && /inalambr|inalámbr|wireless/.test(familyText)){
-      if(/wallswitch|wall switch|\brelay\b|aj-relay|\brele\b|relé|reles|relés/.test(text)) add('Relés');
-      if(/button|doublebutton|spacecontrol|mando|boton|botón/.test(text)) add('Botones / Mandos');
-      if(/socket|enchufe|outlet/.test(text)) add('Enchufes');
-      if(/waterstop|valvula|válvula|valve/.test(text)) add('Válvulas');
-      if(/\brex\b|\brex2\b|repetidor|repeater/.test(text)) add('Repetidores');
+      const isKeypad = /\bkeypad\b|teclado/.test(strong);
+      const isSiren = /homesiren|streetsiren|\bsirena\b|\bsiren\b/.test(strong);
+      const isDetector = /motionprotect|motioncam|doorprotect|glassprotect|combiprotect|fireprotect|curtain/.test(strong);
+      if(!isKeypad && !isSiren && !isDetector){
+        if(/wallswitch|wall switch|\brelay\b|aj-relay|\brel[eé]s?\b/.test(strong)) add('Relés');
+        if(/\bbutton\b|doublebutton|spacecontrol|\bmando\b|bot[oó]n/.test(strong)) add('Botones / Mandos');
+        if(/socket|enchufe|outlet/.test(strong)) add('Enchufes');
+        if(/waterstop|v[aá]lvula|\bvalve\b/.test(strong)) add('Válvulas');
+        if(/\brex\s*2\b|\brex2\b|\brex\b|repetidor|repeater/.test(strong)) add('Repetidores');
+      }
     }
 
     return [...tags];

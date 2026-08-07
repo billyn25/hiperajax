@@ -1504,3 +1504,9 @@ body:not(.light-mode) #familiasGrid .hxp-family-visual img{background:#2a342e}
  #familiasGrid .hxp-type-tab{height:32px!important;padding-inline:10px!important;font-size:9.8px!important}
  #familiasGrid .hxp-type-tab em{height:18px!important;min-width:18px!important;margin-left:5px!important;padding:0 5px!important}
 }
+
+/* 5.6.1 strict audit */
+#familiasGrid .hxp-family-card[data-hxp-family="__sirenas__"],
+#familiasGrid .hxp-family-card[data-hxp-family="__teclados__"]{
+  border-color:color-mix(in srgb,var(--hxp-accent) 28%,var(--hxp-line));
+}
