@@ -1505,8 +1505,46 @@ body:not(.light-mode) #familiasGrid .hxp-family-visual img{background:#2a342e}
  #familiasGrid .hxp-type-tab em{height:18px!important;min-width:18px!important;margin-left:5px!important;padding:0 5px!important}
 }
 
-/* 5.6.1 strict audit */
-#familiasGrid .hxp-family-card[data-hxp-family="__sirenas__"],
-#familiasGrid .hxp-family-card[data-hxp-family="__teclados__"]{
-  border-color:color-mix(in srgb,var(--hxp-accent) 28%,var(--hxp-line));
+/* 5.5.1 · buscador móvil instantáneo */
+#familiasGrid .hxp-products-scroll{contain:layout paint}
+#familiasGrid .hxp-search input{will-change:auto}
+
+
+/* =====================================================
+   EXPLORER PRO 6.0 · stable global
+   ===================================================== */
+#familiasGrid .hxp-type-strip{
+  overflow-x:auto!important;
+  scrollbar-width:none!important;
+  scroll-behavior:smooth;
+}
+#familiasGrid .hxp-type-strip::-webkit-scrollbar{display:none}
+#familiasGrid .hxp-type-tab{
+  flex:0 0 auto!important;
+  min-width:auto!important;
+  white-space:nowrap!important;
+  padding-inline:11px!important;
+}
+#familiasGrid .hxp-type-tab.is-active{
+  background:var(--hxp-accent-strong)!important;
+  border-color:var(--hxp-accent-strong)!important;
+  color:#fff!important;
+}
+#familiasGrid .hxp-family-copy strong{
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  hyphens:none!important;
+}
+@media(max-width:760px){
+  #familiasGrid .hxp-type-tab{
+    height:32px!important;
+    font-size:9.8px!important;
+    padding-inline:9px!important;
+  }
+  #familiasGrid .hxp-type-tab em{
+    height:18px!important;
+    min-width:18px!important;
+    padding:0 5px!important;
+    margin-left:5px!important;
+  }
 }
