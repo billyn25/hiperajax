@@ -1862,56 +1862,8 @@ async function pdf(){
 }
 
 
-/* =====================================================
-   FAMILIAS RÁPIDAS PRO
-   Abre el catálogo filtrado por familias sin tocar CSV.
-   ===================================================== */
-const FAMILIAS_RAPIDAS = [
-  {icon:'📹', title:'Cámaras', desc:'Bullet, Dome, Turret, Indoor', term:'camara vigilancia video bullet dome turret'},
-  {icon:'💾', title:'Grabadores NVR', desc:'NVR, HDMI, canales, HDD', term:'nvr grabador videograbador camaras'},
-  {icon:'🏠', title:'Hubs / centrales', desc:'Hub, 2G, 4G, SIM, WiFi', term:'hub central alarma panel'},
-  {icon:'🚶', title:'Movimiento', desc:'Motion, PIR, cortina, exterior', term:'movimiento motion pir presencia'},
-  {icon:'🚪', title:'Puertas / ventanas', desc:'DoorProtect, magnético', term:'puerta ventana doorprotect magnetico'},
-  {icon:'🔥', title:'Incendio / CO', desc:'FireProtect, humo, calor, CO', term:'incendio humo fuego temperatura co'},
-  {icon:'💧', title:'Agua / fugas', desc:'LeakProtect, WaterStop', term:'inundacion agua fuga humedad'},
-  {icon:'🔔', title:'Sirenas', desc:'HomeSiren, StreetSiren', term:'sirena alarma sonora'},
-  {icon:'⌨️', title:'Teclados / mandos', desc:'KeyPad, Tag, Pass, Button', term:'teclado mando tag pass boton'},
-  {icon:'🔌', title:'Automatización', desc:'Relay, WallSwitch, Socket', term:'rele automatizacion enchufe domotica'},
-  {icon:'🔋', title:'Alimentación', desc:'PSU, 12V, baterías', term:'alimentador fuente 12v bateria psu'},
-  {icon:'🧩', title:'Soportes / accesorios', desc:'Mount, bracket, holder, cajas', term:'soporte bracket montaje holder junctionbox'},
-  {icon:'🌐', title:'Red / PoE', desc:'Switch PoE, inyector, LAN', term:'switch poe inyector ethernet red 48v'},
-  {icon:'🧱', title:'Barreras', desc:'Perimetral, solar, exterior', term:'barrera movimiento perimetral solar exterior'}
-];
-function renderFamiliasRapidas(){
-  const grid = $('#familiasGrid');
-  if(!grid) return;
-  grid.innerHTML = FAMILIAS_RAPIDAS.map((f,i)=>`<button type="button" class="family-chip" data-i="${i}"><strong>${escapeHtml(f.icon)} ${escapeHtml(f.title)}</strong><span>${escapeHtml(f.desc)}</span></button>`).join('');
-  grid.querySelectorAll('.family-chip').forEach(btn=>btn.addEventListener('click',()=>{
-    const f = FAMILIAS_RAPIDAS[Number(btn.dataset.i)];
-    cerrarFamiliasRapidas();
-    abrirCatalogo();
-    const filter = $('#catalogFilter');
-    if(filter){ filter.value = f.term; }
-    pintarCatalogPanel(f.term);
-  }));
-}
-function abrirFamiliasRapidas(){
-  const modal = $('#familiasModal');
-  if(!modal) return;
-  renderFamiliasRapidas();
-  modal.classList.remove('hidden');
-  modal.setAttribute('aria-hidden','false');
-  document.body.classList.add('modal-open');
-}
-function cerrarFamiliasRapidas(){
-  hxResetModalQty('explorer');
-  hxResetModalSession('explorer');
-  const modal = $('#familiasModal');
-  if(!modal) return;
-  modal.classList.add('hidden');
-  modal.setAttribute('aria-hidden','true');
-  document.body.classList.remove('modal-open');
-}
+/* Explorer Pro vive en explorer.js.
+   Se retiró el selector rápido histórico para no mantener dos navegaciones. */
 
 window.setLinea=setLinea; window.delLinea=delLinea; window.addLineaManual=addLineaManual; window.addSeparador=addSeparador; window.moverLinea=moverLinea;
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1932,10 +1884,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('#catalogCancel')?.addEventListener('click',cerrarCatalogo);
   $('#catalogBackdrop')?.addEventListener('click',cerrarCatalogo);
   $('#catalogFilter')?.addEventListener('input',e=>{ pintarCatalogPanel(e.target.value); });
-  $('#btnFamilias')?.addEventListener('click',abrirFamiliasRapidas);
-  $('#familiasClose')?.addEventListener('click',cerrarFamiliasRapidas);
-  $('#familiasCancel')?.addEventListener('click',cerrarFamiliasRapidas);
-  $('#familiasBackdrop')?.addEventListener('click',cerrarFamiliasRapidas);
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') cerrarCatalogo(); });
   $('#add').addEventListener('click',addLinea); $('#btnManual').addEventListener('click',addLineaManual); $('#btnSeparador')?.addEventListener('click',addSeparador);
   $('#btnPDF').addEventListener('click',pdf); $('#btnExcel')?.addEventListener('click',exportarExcel); $('#btnSave').addEventListener('click',guardar); $('#btnDuplicate').addEventListener('click',duplicarPresupuesto); $('#btnLoadSaved').addEventListener('click',cargarPresupuestoGuardado); $('#btnDeleteSaved').addEventListener('click',borrarPresupuestoGuardado); $('#btnClear').addEventListener('click',limpiar);
@@ -2137,15 +2085,6 @@ metaProducto164 = function(p){
   }
   return metaProductoAnterior_165 ? metaProductoAnterior_165(p) : null;
 };
-// Familias rápidas añadidas/corregidas sin tocar la UI existente.
-try{
-  const existeRed = FAMILIAS_RAPIDAS.some(f=>normaliza(f.title).includes('red'));
-  const existeAlm = FAMILIAS_RAPIDAS.some(f=>normaliza(f.title).includes('almacenamiento'));
-  const red = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('red'));
-  if(red){ red.term = 'poe'; red.desc = 'Switches PoE e inyector'; }
-  if(!existeRed) FAMILIAS_RAPIDAS.push({icon:'🌐', title:'Red / PoE', desc:'Switches PoE e inyector', term:'poe'});
-  if(!existeAlm) FAMILIAS_RAPIDAS.push({icon:'💾', title:'Almacenamiento', desc:'Discos duros y tarjetas SD', term:'almacenamiento'});
-}catch(e){}
 
 
 function esProductoIncendio166(p){
@@ -2177,14 +2116,6 @@ metaProducto164 = function(p){
   }
   return metaProductoAnterior_166 ? metaProductoAnterior_166(p) : null;
 };
-try{
-  const inc = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('incendio'));
-  if(inc){ inc.term = 'incendio'; inc.desc = 'FireProtect, humo, calor y CO'; }
-  const ali = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('alimentacion') || normaliza(f.title).includes('alimentación'));
-  if(ali){ ali.term = 'bateria'; ali.desc = 'Baterías, PSU y alimentación'; }
-  const existeBat = FAMILIAS_RAPIDAS.some(f=>normaliza(f.title).includes('bateria') || normaliza(f.title).includes('batería'));
-  if(!existeBat) FAMILIAS_RAPIDAS.push({icon:'🔋', title:'Baterías', desc:'BatteryBox, BatteryKit e internas', term:'bateria'});
-}catch(e){}
 
 
 /* =====================================================
@@ -2210,51 +2141,111 @@ function parseCSVRobusto175(txt){
     // Fallback para líneas pegadas tipo: "RACK-WALL        168.00"
     const m = line.match(/^(.+?)\s+([0-9]+(?:[.,][0-9]+)?)$/);
     if(m) return [m[1].trim(), '', m[2].trim()];
-
     return [line.trim(), '', '0'];
   };
 
   const first = splitLine(rawLines[0]);
-  const headerNorm = first.map(h => normaliza(h).replace(/[^a-z0-9]/g,''));
+  const headers = first.map(h => String(h || '').trim());
+  const headerNorm = headers.map(h => normaliza(h).replace(/[^a-z0-9]/g,''));
   const hasHeader = headerNorm.some(h => ['name','nombre','producto','descripcion','referencia','codigo','brand','marca','fabricante','pvp','precio','price','importe'].includes(h));
+  const start = hasHeader ? 1 : 0;
+  const find = aliases => headerNorm.findIndex(h => aliases.includes(h));
 
-  let start = hasHeader ? 1 : 0;
-  let idxName = 0, idxBrand = 1, idxPvp = 2, idxDescription = -1, idxShortDescription = -1, idxImage = -1, idxStock = -1, idxCost = -1, idxCategory = -1, idxFamily = -1, idxSubcategory = -1, idxProductType = -1, idxSeries = -1, idxTechnology = -1, idxColor = -1, idxOrder = -1;
+  let idxName = 0;
+  let idxBrand = 1;
+  let idxPvp = 2;
+  let idxDescription = -1;
+  let idxShortDescription = -1;
+  let idxImage = -1;
+  let idxStock = -1;
+  let idxCost = -1;
+  let idxCategory = -1;
+  let idxFamily = -1;
+  let idxSubcategory = -1;
+  let idxProductType = -1;
+  let idxSeries = -1;
+  let idxTechnology = -1;
+  let idxProtocol = -1;
+  let idxColor = -1;
+  let idxConnectivity = -1;
+  let idxResolution = -1;
+  let idxEnvironment = -1;
+  let idxPhoto = -1;
+  let idxPoe = -1;
+  let idxWifi = -1;
+  let idxLte4g = -1;
+  let idxCompatibility = -1;
+  let idxChannels = -1;
+  let idxLens = -1;
+  let idxMounting = -1;
+  let idxPower = -1;
+  let idxAttributes = -1;
+  let idxOrder = -1;
 
   if(hasHeader){
-    idxName = headerNorm.findIndex(h => ['name','nombre','producto','referencia','codigo','ref'].includes(h));
-    idxBrand = headerNorm.findIndex(h => ['brand','marca','fabricante'].includes(h));
-    idxPvp = headerNorm.findIndex(h => ['pvp','precio','price','importe'].includes(h));
-    idxDescription = headerNorm.findIndex(h => ['description','descripcion','detalle','texto'].includes(h));
-    idxShortDescription = headerNorm.findIndex(h => ['shortdescription','descripcioncorta','shortdesc','desccorta'].includes(h));
-    idxImage = headerNorm.findIndex(h => ['image','imagen','foto','photourl','imageurl','urlimagen'].includes(h));
-    idxStock = headerNorm.findIndex(h => ['stock','stocklabel','existencias','disponible','quantity','cantidadstock','availablestock'].includes(h));
-    idxCost = headerNorm.findIndex(h => h === 'precionetocompra');
-    idxCategory = headerNorm.findIndex(h => ['category','categoria','categoryname','nombrecategoria','maincategory','categoria1','nivel1','department','departamento'].includes(h));
-    idxFamily = headerNorm.findIndex(h => ['family','familia','subcategory','subcategoria','category2','categoria2','nivel2','productfamily'].includes(h));
-    idxSubcategory = headerNorm.findIndex(h => ['subfamily','subfamilia','subcategory2','subcategoria2','category3','categoria3','nivel3','productsubfamily'].includes(h));
-    idxProductType = headerNorm.findIndex(h => ['producttype','tipoproducto','tipo','type','productgroup','grupoproducto'].includes(h));
-    idxSeries = headerNorm.findIndex(h => ['series','serie','productseries','seriefamilia'].includes(h));
-    idxTechnology = headerNorm.findIndex(h => ['technology','tecnologia','protocol','protocolo','range','gama'].includes(h));
-    idxColor = headerNorm.findIndex(h => ['color','colour','finish','acabado'].includes(h));
-    idxOrder = headerNorm.findIndex(h => ['order','orden','sortorder','priority','prioridad'].includes(h));
+    idxName = find(['name','nombre','producto','referencia','codigo','ref','sku']);
+    idxBrand = find(['brand','marca','fabricante','manufacturer']);
+    idxPvp = find(['pvp','precio','price','importe','tarifa','retailprice']);
+    idxDescription = find(['description','descripcion','detalle','texto']);
+    idxShortDescription = find(['shortdescription','descripcioncorta','shortdesc','desccorta','descriptionshort']);
+    idxImage = find(['image','imagen','foto','photourl','imageurl','urlimagen','imagepath']);
+    idxStock = find(['stock','stocklabel','existencias','disponible','quantity','cantidadstock','availablestock','stockavailable']);
+    idxCost = find(['precionetocompra']);
+    idxCategory = find(['category','categoria','categoryname','nombrecategoria','maincategory','categoria1','nivel1','department','departamento']);
+
+    // "family" y "subcategory" son niveles distintos en la salida de Netlify.
+    // Si un CSV antiguo solo trae category + subcategory, esa subcategory actúa como familia.
+    const idxExplicitFamily = find(['family','familia','category2','categoria2','nivel2','productfamily']);
+    const idxGenericSubcategory = find(['subcategory','subcategoria','subcategoryname','subcategorianame']);
+    const idxExplicitSubfamily = find(['subfamily','subfamilia','subcategory2','subcategoria2','category3','categoria3','nivel3','productsubfamily']);
+    idxFamily = idxExplicitFamily >= 0 ? idxExplicitFamily : idxGenericSubcategory;
+    idxSubcategory = idxExplicitSubfamily >= 0
+      ? idxExplicitSubfamily
+      : (idxExplicitFamily >= 0 ? idxGenericSubcategory : -1);
+    idxProductType = find(['producttype','tipoproducto','tipo','type','productgroup','grupoproducto']);
+    idxSeries = find(['series','serie','productseries','seriefamilia']);
+    idxTechnology = find(['technology','tecnologia','range','gama']);
+    idxProtocol = find(['protocol','protocolo','communicationprotocol','protocolocomunicacion']);
+    idxColor = find(['color','colour','finish','acabado']);
+    idxConnectivity = find(['connectivity','conectividad','connection','conexion','communications','comunicaciones']);
+    idxResolution = find(['resolution','resolucion','megapixels','megapixeles','mp']);
+    idxEnvironment = find(['environment','entorno','installation','instalacion','indooroutdoor','interiorexterior','useenvironment']);
+    idxPhoto = find(['photo','foto','imagecapture','capturaimagen','photosensor','fotosensor']);
+    idxPoe = find(['poe','poweroverethernet']);
+    idxWifi = find(['wifi','wirelesslan','wlan']);
+    idxLte4g = find(['lte4g','4glte','lte','4g','gsm']);
+    idxCompatibility = find(['compatibility','compatibilidad','compatiblewith','compatiblecon']);
+    idxChannels = find(['channels','canales','ports','puertos']);
+    idxLens = find(['lens','lente','focallength','distanciafocal','optics','optica']);
+    idxMounting = find(['mounting','montaje','mount','soporte','installationtype','tipoinstalacion']);
+    idxPower = find(['power','alimentacion','voltage','voltaje','powersupply','fuentealimentacion']);
+    idxAttributes = find(['attributes','attributesjson','filterattributes','atributos','atributosjson']);
+    idxOrder = find(['order','orden','sortorder','priority','prioridad']);
     if(idxName < 0) idxName = 0;
   }
+
+  const reservedIndexes = new Set([
+    idxName,idxBrand,idxPvp,idxDescription,idxShortDescription,idxImage,idxStock,idxCost,
+    idxCategory,idxFamily,idxSubcategory,idxProductType,idxSeries,idxTechnology,idxProtocol,
+    idxColor,idxConnectivity,idxResolution,idxEnvironment,idxPhoto,idxPoe,idxWifi,idxLte4g,
+    idxCompatibility,idxChannels,idxLens,idxMounting,idxPower,idxAttributes,idxOrder
+  ].filter(i => i >= 0));
+
+  const isUsefulDynamicHeader = key => {
+    if(!key || ['ean','upc','isbn','weight','peso','height','alto','width','ancho','depth','profundidad'].includes(key)) return false;
+    return /(color|colour|finish|acabado|technology|tecnologia|protocol|protocolo|connect|conect|wifi|wlan|wireless|lte|4g|gsm|poe|resolution|resolucion|megapixel|lens|lente|focal|indoor|outdoor|interior|exterior|environment|entorno|compat|channel|canal|port|puerto|mount|montaje|power|alimentacion|voltage|voltaje|battery|bateria|autonomia|audio|video|iprating|proteccionip|protection|proteccion|grado|sensor|detector|format|formato|type|tipo|series|serie|range|gama|frequency|frecuencia|alcance|distancia|angle|angulo|tamper|mascota|pet|sensitivity|sensibilidad|certification|certificacion|temperature|temperatura|humidity|humedad|wdr|onvif|infrared|night|noche|radio|jeweller|wings|fibra|ethernet|sim|memory|memoria|storage|almacenamiento)/.test(key);
+  };
 
   const rows = [];
   for(const line of rawLines.slice(start)){
     const cols = splitLine(line).map(c => String(c || '').trim());
     if(!cols.length) continue;
 
-    let name = (cols[idxName] || cols[0] || '').trim();
+    const name = (cols[idxName] || cols[0] || '').trim();
     if(!name) continue;
 
-    let brand = idxBrand >= 0 ? (cols[idxBrand] || '') : '';
-    brand = String(brand || '').trim();
-
+    const brand = idxBrand >= 0 ? String(cols[idxBrand] || '').trim() : '';
     let pvpRaw = idxPvp >= 0 ? cols[idxPvp] : '';
-
-    // Si el PVP no está donde debería, buscar el último valor numérico de la línea.
     if(!pvpRaw || !String(pvpRaw).match(/[0-9]/)){
       for(let i=cols.length-1; i>=0; i--){
         if(String(cols[i]).match(/^[€\s]*[0-9]+(?:[.,][0-9]+)?\s*€?$/)){
@@ -2263,46 +2254,61 @@ function parseCSVRobusto175(txt){
         }
       }
     }
-
     let pvp = numero(pvpRaw);
     if(!Number.isFinite(pvp)) pvp = 0;
 
-    const description = idxDescription >= 0 ? String(cols[idxDescription] || '').trim() : '';
-    const short_description = idxShortDescription >= 0 ? String(cols[idxShortDescription] || '').trim() : '';
-    const image = idxImage >= 0 ? String(cols[idxImage] || '').trim() : '';
-    const stock = idxStock >= 0 ? String(cols[idxStock] || '').trim() : '';
-    const precio_neto_compra = idxCost >= 0 ? numero(cols[idxCost]) : 0;
-    const category = idxCategory >= 0 ? String(cols[idxCategory] || '').trim() : '';
-    const family = idxFamily >= 0 ? String(cols[idxFamily] || '').trim() : '';
-    const subcategory = idxSubcategory >= 0 ? String(cols[idxSubcategory] || '').trim() : '';
-    const product_type = idxProductType >= 0 ? String(cols[idxProductType] || '').trim() : '';
-    const series = idxSeries >= 0 ? String(cols[idxSeries] || '').trim() : '';
-    const technology = idxTechnology >= 0 ? String(cols[idxTechnology] || '').trim() : '';
-    const color = idxColor >= 0 ? String(cols[idxColor] || '').trim() : '';
-    const order = idxOrder >= 0 ? numero(cols[idxOrder]) : 0;
+    const read = index => index >= 0 ? String(cols[index] || '').trim() : '';
+    let attributes = {};
+    const attributesRaw = read(idxAttributes);
+    if(attributesRaw){
+      try{
+        const parsed = JSON.parse(attributesRaw);
+        if(parsed && typeof parsed === 'object' && !Array.isArray(parsed)) attributes = parsed;
+      }catch(_error){}
+    }
+    if(hasHeader){
+      headerNorm.forEach((key,index) => {
+        if(reservedIndexes.has(index) || !isUsefulDynamicHeader(key)) return;
+        const value = String(cols[index] || '').trim();
+        if(value && value.length <= 180) attributes[key] = value;
+      });
+    }
 
     rows.push({
       name,
       brand,
       pvp,
-      description,
-      short_description,
-      image,
-      stock,
-      precio_neto_compra,
-      category,
-      family,
-      subcategory,
-      product_type,
-      series,
-      technology,
-      color,
-      order,
-      raw: cols
+      description:read(idxDescription),
+      short_description:read(idxShortDescription),
+      image:read(idxImage),
+      stock:read(idxStock),
+      precio_neto_compra:idxCost >= 0 ? numero(cols[idxCost]) : 0,
+      category:read(idxCategory),
+      family:read(idxFamily),
+      subcategory:read(idxSubcategory),
+      product_type:read(idxProductType),
+      series:read(idxSeries),
+      technology:read(idxTechnology),
+      protocol:read(idxProtocol),
+      color:read(idxColor),
+      connectivity:read(idxConnectivity),
+      resolution:read(idxResolution),
+      environment:read(idxEnvironment),
+      photo:read(idxPhoto),
+      poe:read(idxPoe),
+      wifi:read(idxWifi),
+      lte_4g:read(idxLte4g),
+      compatibility:read(idxCompatibility),
+      channels:read(idxChannels),
+      lens:read(idxLens),
+      mounting:read(idxMounting),
+      power:read(idxPower),
+      attributes,
+      order:idxOrder >= 0 ? numero(cols[idxOrder]) : 0,
+      raw:cols
     });
   }
 
-  // Dejar orden estable por nombre, como venía haciendo el proyecto.
   return rows
     .filter(p => p.name)
     .sort((a,b)=>a.name.localeCompare(b.name,'es'));
@@ -2363,20 +2369,32 @@ function extraTagsCSV175(p){
 }
 
 function prepararIndiceBusqueda175(){
+  const camposFiltro = [
+    'category','family','subcategory','product_type','series','technology','protocol','color',
+    'connectivity','resolution','environment','photo','poe','wifi','lte_4g','compatibility',
+    'channels','lens','mounting','power'
+  ];
   productos.forEach((p)=>{
     let d = {desc:'', family:'', official:''};
     try{ d = descripcionProducto(p) || d; }catch(e){}
     p._desc = d.desc || '';
     p._family = d.family || '';
     p._official = d.official || '';
+    const atributos = p?.attributes && typeof p.attributes === 'object' && !Array.isArray(p.attributes)
+      ? Object.values(p.attributes)
+      : [];
     p._search175 = normaliza([
       p.name,
       p.brand,
+      p.description,
+      p.short_description,
       p._desc,
       p._family,
       p._official,
+      ...camposFiltro.map(campo => p?.[campo]),
+      ...atributos,
       extraTagsCSV175(p)
-    ].join(' '));
+    ].filter(Boolean).join(' '));
   });
 }
 
@@ -2388,33 +2406,44 @@ function hxEsProductoAjax(p){
 
 function hxUnirCatalogos(base, manual){
   const mapa = new Map();
+  const tieneValor = valor => valor !== undefined && valor !== null && (typeof valor !== 'string' || valor.trim() !== '');
+  const atributosValidos = atributos => {
+    if(!atributos || typeof atributos !== 'object' || Array.isArray(atributos)) return {};
+    return Object.fromEntries(Object.entries(atributos).filter(([,valor]) => tieneValor(valor)));
+  };
+
   (Array.isArray(base) ? base : []).filter(hxEsProductoAjax).forEach(p=>{
     const ref = String(p?.name || '').trim().toUpperCase();
-    if(ref) mapa.set(ref, {...p, origen_catalogo:'visio'});
+    if(ref) mapa.set(ref, {...p, attributes:atributosValidos(p?.attributes), origen_catalogo:'visio'});
   });
-  // El CSV manual manda cuando una referencia existe también en el proveedor.
+
+  // El CSV manual manda únicamente en los campos que realmente trae informados.
+  // Los campos vacíos nunca borran clasificación, stock ni atributos recibidos desde Netlify.
   (Array.isArray(manual) ? manual : []).forEach(p=>{
     const ref = String(p?.name || '').trim().toUpperCase();
     if(!ref) return;
     const anterior = mapa.get(ref) || {};
-    mapa.set(ref, {
+    const informados = Object.fromEntries(
+      Object.entries(p || {}).filter(([clave,valor]) => clave !== 'attributes' && clave !== 'raw' && tieneValor(valor))
+    );
+    const pvpManual = numero(p?.pvp);
+    const costeManual = numero(p?.precio_neto_compra);
+    const ordenManual = numero(p?.order);
+    const merged = {
       ...anterior,
-      ...p,
+      ...informados,
       name: p.name || anterior.name,
-      brand: p.brand || anterior.brand,
-      description: p.description || anterior.description || '',
-      short_description: p.short_description || anterior.short_description || '',
-      image: p.image || anterior.image || '',
-      stock: p.stock !== '' && p.stock != null ? p.stock : (anterior.stock || ''),
-      precio_neto_compra: numero(p.precio_neto_compra) || numero(anterior.precio_neto_compra) || 0,
-      category: p.category || anterior.category || '',
-      family: p.family || anterior.family || '',
-      subcategory: p.subcategory || anterior.subcategory || '',
-      product_type: p.product_type || anterior.product_type || '',
-      series: p.series || anterior.series || '',
-      technology: p.technology || anterior.technology || '',
-      origen_catalogo: 'manual'
-    });
+      brand: p.brand || anterior.brand || 'Ajax',
+      pvp: pvpManual > 0 ? pvpManual : (numero(anterior.pvp) || 0),
+      precio_neto_compra: costeManual > 0 ? costeManual : (numero(anterior.precio_neto_compra) || 0),
+      order: ordenManual > 0 ? ordenManual : (numero(anterior.order) || 0),
+      attributes: {
+        ...atributosValidos(anterior.attributes),
+        ...atributosValidos(p.attributes)
+      },
+      origen_catalogo:'manual'
+    };
+    mapa.set(ref, merged);
   });
   return [...mapa.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
 }
@@ -2473,6 +2502,10 @@ async function cargarCatalogo(){
     const manual = manualTxt ? parseCSVRobusto175(manualTxt) : [];
     productos = hxUnirCatalogos(base, manual);
     if(!productos.length) throw new Error('Catálogo vacío o columnas no reconocidas');
+    try{
+      window.HX_EXPLORER_PRO?.resetCache?.();
+      window.dispatchEvent(new CustomEvent('hx:catalogo-cargado', {detail:{count:productos.length}}));
+    }catch(_error){}
   }catch(e){
     productos = [];
     const msg = 'No se pudo cargar el catálogo remoto ni la copia local.';
@@ -2920,15 +2953,6 @@ cargarCatalogo = async function(){
   construirIndice183();
   return r;
 };
-// Ajustar familias rápidas sin cambiar diseño.
-try{
-  const ali = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('alimentacion') || normaliza(f.title).includes('alimentación'));
-  if(ali){ ali.term = 'fuente dc bateria psu alimentacion'; ali.desc = 'Fuentes DC, PSU y baterías'; }
-  const red = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('red'));
-  if(red){ red.term = 'switch poe inyector red ethernet'; red.desc = 'Switches PoE e inyectores'; }
-  const acc = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('soportes') || normaliza(f.title).includes('accesorios'));
-  if(acc){ acc.term = 'soporte bracket holder mount junctionbox ip66 caja'; acc.desc = 'Soportes, cajas y montaje'; }
-}catch(e){}
 
 
 function brandInfo186(p){
@@ -3043,15 +3067,6 @@ cargarCatalogo = async function(){
   construirIndice186();
   return r;
 };
-// Familias rápidas: ampliar términos sin tocar las existentes.
-try{
-  if(typeof FAMILIAS_RAPIDAS !== 'undefined'){
-    const ali = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('alimentacion') || normaliza(f.title).includes('alimentación') || normaliza(f.title).includes('bateria'));
-    if(ali){ ali.term = 'fuente dc dc12v psu ac220 bateria battery alimentacion 12v'; ali.desc = 'Fuentes DC, PSU y baterías'; }
-    const red = FAMILIAS_RAPIDAS.find(f=>normaliza(f.title).includes('red') || normaliza(f.title).includes('poe'));
-    if(red){ red.term = 'switch poe inyector poe injector poe red ethernet'; red.desc = 'Switches PoE e inyectores'; }
-  }
-}catch(e){}
 
 
 function q187(term){
@@ -4271,8 +4286,6 @@ pintarCatalogPanel = function(term=catalogTerm){
 
 
 (function(){
-  let catalogOpenedFromFamily208 = false;
-
   function ensureCatalogHosts208(){
     const modal = document.getElementById('catalogModal');
     const row = modal ? modal.querySelector('.modal-search-row') : null;
@@ -4310,27 +4323,13 @@ pintarCatalogPanel = function(term=catalogTerm){
       azHost.appendChild(az);
     }
 
-    // Si vienes desde Familias, las acciones rápidas no aportan nada.
-    if(quickHost){
-      quickHost.style.display = catalogOpenedFromFamily208 ? 'none' : '';
-    }
+    if(quickHost) quickHost.style.display = '';
   }
 
-  // Click normal en Catálogo: mostrar acciones rápidas.
   document.addEventListener('click', (e)=>{
     if(e.target.closest('#btnCatalogo')){
-      catalogOpenedFromFamily208 = false;
       setTimeout(placeCatalogFilters208, 0);
       setTimeout(placeCatalogFilters208, 40);
-    }
-  }, true);
-
-  // Click desde Familias: ocultar acciones rápidas en el catálogo que se abre después.
-  document.addEventListener('click', (e)=>{
-    if(e.target.closest('#familiasGrid .family-chip')){
-      catalogOpenedFromFamily208 = true;
-      setTimeout(placeCatalogFilters208, 0);
-      setTimeout(placeCatalogFilters208, 80);
     }
   }, true);
 
@@ -4378,8 +4377,6 @@ pintarCatalogPanel = function(term=catalogTerm){
 
 
 (function(){
-  let openedFromFamilies2016 = false;
-
   function ensureTopFilterHost2016(){
     const modal = document.getElementById('catalogModal');
     const row = modal ? modal.querySelector('.modal-search-row') : null;
@@ -4426,9 +4423,7 @@ pintarCatalogPanel = function(term=catalogTerm){
       azHost.appendChild(az);
     }
 
-    if(quickHost){
-      quickHost.style.display = openedFromFamilies2016 ? 'none' : '';
-    }
+    if(quickHost) quickHost.style.display = '';
   }
 
   function placeFiltersSoon2016(){
@@ -4439,14 +4434,7 @@ pintarCatalogPanel = function(term=catalogTerm){
   }
 
   document.addEventListener('click', (e)=>{
-    if(e.target.closest('#btnCatalogo')){
-      openedFromFamilies2016 = false;
-      placeFiltersSoon2016();
-    }
-    if(e.target.closest('#btnFamilias') || e.target.closest('#familiasGrid .family-chip')){
-      openedFromFamilies2016 = true;
-      placeFiltersSoon2016();
-    }
+    if(e.target.closest('#btnCatalogo')) placeFiltersSoon2016();
     if(e.target.closest('.quick-cat-chip') || e.target.closest('.az-chip')){
       placeFiltersSoon2016();
     }
@@ -4480,146 +4468,9 @@ pintarCatalogPanel = function(term=catalogTerm){
 })();
 
 /* =====================================================
-   EXPLORER DINÁMICO 3.0
-   Árbol CSV + subcategorías + color + orden.
+   EXPLORER PRO
+   La interfaz y navegación viven en explorer.js.
    ===================================================== */
-(function(){
-  const esc = value => escapeHtml(String(value == null ? '' : value));
-  const clean = value => String(value || '').replace(/\s+/g,' ').trim();
-  const slug = value => normaliza(clean(value)).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'otros';
-  const collator = new Intl.Collator('es',{numeric:true,sensitivity:'base'});
-  let state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories',filtersOpen:false};
-
-  function splitHierarchy(value){return clean(value).split(/\s*(?:>|\/|\\|\||»|→)\s*/).map(clean).filter(Boolean)}
-  function inferredSubcategory(product){
-    const source=clean(product?.short_description || product?.description);
-    if(!source)return '';
-    const parts=source.split(/\s+(?:-|–|—|·|\|)\s+/).map(clean).filter(Boolean);
-    if(parts.length<2)return '';
-    let value=parts[0]
-      .replace(/\bcolor\s+[a-záéíóúüñ]+.*$/i,'')
-      .replace(/\btalla\s+[a-z0-9+.-]+.*$/i,'')
-      .replace(/\s+/g,' ')
-      .trim();
-    if(!value || value.length<3 || value.length>55)return '';
-    return value;
-  }
-  function classification(product){
-    const manual=String(product?.origen_catalogo||'').toLowerCase()==='manual';
-    let cat=clean(product?.category || product?.categoria || product?.department);
-    let fam=clean(product?.family || product?.familia);
-    let sub=clean(product?.subcategory || product?.subfamily || product?.subfamilia || product?.product_type || product?.tipo || product?.series || product?.serie || product?.technology || product?.tecnologia || product?.protocol || product?.protocolo);
-    const path=splitHierarchy(cat);
-    if(path.length>1){cat=path[0];if(!fam)fam=path[1];if(!sub&&path[2])sub=path.slice(2).join(' › ')}
-    if(!sub)sub=inferredSubcategory(product);
-    if(!cat) cat=manual?'Productos añadidos':'Sin categoría';
-    if(!fam) fam=manual?'Productos añadidos':'General';
-    return {category:cat,family:fam,subcategory:sub||'Todos'};
-  }
-  function productColor(p){return clean(p?.color || p?.colour || p?.finish || p?.acabado)}
-  function buildTree(){
-    const categories=new Map();
-    (Array.isArray(productos)?productos:[]).forEach((p,index)=>{
-      const c=classification(p), ck=slug(c.category), fk=slug(c.family), sk=slug(c.subcategory);
-      if(!categories.has(ck)) categories.set(ck,{id:ck,title:c.category,count:0,families:new Map()});
-      const cat=categories.get(ck);cat.count++;
-      if(!cat.families.has(fk))cat.families.set(fk,{id:fk,title:c.family,count:0,subcategories:new Map(),items:[]});
-      const fam=cat.families.get(fk);fam.count++;
-      const item={p,index,sub:c.subcategory,color:productColor(p)};fam.items.push(item);
-      if(!fam.subcategories.has(sk))fam.subcategories.set(sk,{id:sk,title:c.subcategory,count:0});
-      fam.subcategories.get(sk).count++;
-    });
-    const ordered=[...categories.values()].map(cat=>({...cat,families:[...cat.families.values()].map(f=>({...f,subcategories:[...f.subcategories.values()].sort((a,b)=>collator.compare(a.title,b.title))})).sort((a,b)=>collator.compare(a.title,b.title))}))
-      .sort((a,b)=>{const last=v=>v.title==='Productos añadidos'?2:v.title==='Sin categoría'?1:0;return last(a)-last(b)||collator.compare(a.title,b.title)});
-    const merchIndex=ordered.findIndex(item=>normaliza(item.title)==='merchandising');
-    const smartIndex=ordered.findIndex(item=>normaliza(item.title)==='smart home');
-    if(merchIndex>=0&&smartIndex>=0&&merchIndex!==smartIndex+1){
-      const [merch]=ordered.splice(merchIndex,1);
-      const newSmartIndex=ordered.findIndex(item=>normaliza(item.title)==='smart home');
-      ordered.splice(newSmartIndex+1,0,merch);
-    }
-    return ordered;
-  }
-  function current(tree){const category=tree.find(x=>x.id===state.category)||null;const family=category?.families.find(x=>x.id===state.family)||null;return{category,family}}
-  function searchItems(query){
-    const q=clean(query);if(!q)return[];
-    try{if(window.HXA_KNOWLEDGE_ENGINE?.rank){const indexed=productos.map((p,i)=>({...p,description:[p.description,p.short_description,p.category,p.family,p.subcategory,p.color].filter(Boolean).join(' '),_hxaIndex:i}));return window.HXA_KNOWLEDGE_ENGINE.rank(indexed,q,350).map(x=>({p:productos[x._hxaIndex],index:x._hxaIndex,color:productColor(productos[x._hxaIndex])})).filter(x=>x.p)}}catch(e){console.warn('Explorer search fallback',e)}
-    const nq=normaliza(q);return productos.map((p,index)=>({p,index,color:productColor(p),text:normaliza([p.name,p.brand,p.description,p.short_description,p.category,p.family,p.subcategory,p.color].join(' '))})).filter(x=>x.text.includes(nq));
-  }
-  function sortItems(items){
-    const list=items.slice();
-    if(state.sort==='price-desc')return list.sort((a,b)=>(Number(b.p.pvp)||0)-(Number(a.p.pvp)||0)||collator.compare(a.p.name,b.p.name));
-    if(state.sort==='name')return list.sort((a,b)=>collator.compare(descripcionProducto(a.p),descripcionProducto(b.p)));
-    if(state.sort==='ref')return list.sort((a,b)=>collator.compare(a.p.name,b.p.name));
-    return list.sort((a,b)=>{const ap=Number(a.p.pvp)||0,bp=Number(b.p.pvp)||0;if(!ap&&bp)return 1;if(ap&&!bp)return-1;return ap-bp||collator.compare(a.p.name,b.p.name)});
-  }
-  function visibleItems(tree){
-    let items=clean(state.query)?searchItems(state.query):(current(tree).family?.items||[]).slice();
-    if(!state.query&&state.subcategory)items=items.filter(x=>slug(x.sub)===state.subcategory);
-    if(state.color)items=items.filter(x=>slug(x.color)===state.color);
-    return sortItems(items);
-  }
-  function productCard(x){const d=descripcionProducto(x.p);return `<article class="explore-product hx-explorer-product" data-index="${x.index}" data-ref="${esc(x.p.name)}" data-pvp="${Number(x.p.pvp)||0}">${hxProductVisualHtml(x.p,d,'explorer')}<b class="hx-explorer-price">${fmt.format(Number(x.p.pvp)||0)}</b>${hxQtyControlHtml('explorer',x.index)}<button type="button" class="catalog-add explore-add" data-index="${x.index}">Añadir</button></article>`}
-  function addExplorePersistent(idx,trigger){const qty=hxModalQtyGet('explorer',idx);const row=trigger?.closest('.explore-product');const ok=hxAddProductoModal('explorer',Number(idx),qty,row?.dataset.ref,row?.dataset.pvp);if(ok&&trigger){const original=trigger.textContent||'Añadir';trigger.textContent='✓ Añadido';trigger.classList.add('added-ok');setTimeout(()=>{trigger.textContent=original;trigger.classList.remove('added-ok')},750)}}
-  function bindProducts(root){hxBindQtyControls(root,'explorer');hxBindProductImages(root);root.querySelectorAll('.explore-add').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();addExplorePersistent(Number(btn.dataset.index),btn)}));root.querySelectorAll('.explore-product').forEach(card=>card.addEventListener('dblclick',e=>{if(e.target.closest('button'))return;addExplorePersistent(Number(card.dataset.index),null)}))}
-  function controls(family,items){
-    const subs=(family?.subcategories||[]).filter(s=>s.title!=='Todos');
-    const colors=[...new Map(items.map(x=>[slug(x.color),x.color]).filter(x=>x[1])).entries()].sort((a,b)=>collator.compare(a[1],b[1]));
-    let subHtml='';
-    if(subs.length){
-      const limit=6;
-      let visible=subs.slice(0,limit);
-      if(state.subcategory&&!visible.some(s=>s.id===state.subcategory)){
-        const active=subs.find(s=>s.id===state.subcategory);
-        if(active)visible=[...visible.slice(0,limit-1),active];
-      }
-      const visibleIds=new Set(visible.map(s=>s.id));
-      const extra=subs.filter(s=>!visibleIds.has(s.id));
-      const chip=s=>`<button class="hx-explorer-chip ${state.subcategory===s.id?'active':''}" data-subcategory="${esc(s.id)}" title="${esc(s.title)}"><span>${esc(s.title)}</span><em>${s.count}</em></button>`;
-      subHtml=`<div class="hx-explorer-filterbar"><div class="hx-explorer-subchips"><button class="hx-explorer-chip ${!state.subcategory?'active':''}" data-subcategory=""><span>Todos</span><em>${family.count}</em></button>${visible.map(chip).join('')}${extra.length?`<button type="button" class="hx-explorer-more ${state.filtersOpen?'active':''}" data-more-filters aria-expanded="${state.filtersOpen?'true':'false'}">Más filtros <em>+${extra.length}</em></button>`:''}</div>${extra.length&&state.filtersOpen?`<div class="hx-explorer-filter-popover">${extra.map(chip).join('')}</div>`:''}</div>`;
-    }
-    return `<div class="hx-explorer-controls">${subHtml}<div class="hx-explorer-selects">${colors.length>1?`<select id="hxExplorerColor"><option value="">Todos los colores</option>${colors.map(([id,title])=>`<option value="${esc(id)}" ${state.color===id?'selected':''}>${esc(title)}</option>`).join('')}</select>`:''}<select id="hxExplorerSort"><option value="price-asc" ${state.sort==='price-asc'?'selected':''}>Precio: menor a mayor</option><option value="price-desc" ${state.sort==='price-desc'?'selected':''}>Precio: mayor a menor</option><option value="name" ${state.sort==='name'?'selected':''}>Nombre</option><option value="ref" ${state.sort==='ref'?'selected':''}>Referencia</option></select></div></div>`;
-  }
-  function bindCommon(grid,mobile){
-    const input=grid.querySelector('#exploreFilter210');if(input){let timer;input.addEventListener('input',e=>{state.query=e.target.value;clearTimeout(timer);timer=setTimeout(()=>{if(state.query)state.step='products';render();requestAnimationFrame(()=>{const n=document.getElementById('exploreFilter210');n?.focus({preventScroll:true});n?.setSelectionRange(n.value.length,n.value.length)})},220)})}
-    grid.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click',()=>{state.category=btn.dataset.category;state.family='';state.subcategory='';state.color='';state.query='';state.step='families';render()}));
-    grid.querySelectorAll('[data-family]').forEach(btn=>btn.addEventListener('click',()=>{state.family=btn.dataset.family;state.subcategory='';state.color='';state.query='';const tree=buildTree(),family=current(tree).family;state.step=mobile&&family?.subcategories?.filter(s=>s.title!=='Todos').length?'subcategories':'products';render()}));
-    grid.querySelectorAll('[data-subcategory]').forEach(btn=>btn.addEventListener('click',()=>{state.subcategory=btn.dataset.subcategory;state.filtersOpen=false;state.step='products';render()}));
-    grid.querySelector('[data-more-filters]')?.addEventListener('click',e=>{e.stopPropagation();state.filtersOpen=!state.filtersOpen;render()});
-    grid.querySelector('#hxExplorerColor')?.addEventListener('change',e=>{state.color=e.target.value;render()});
-    grid.querySelector('#hxExplorerSort')?.addEventListener('change',e=>{state.sort=e.target.value;render()});
-    grid.querySelector('.explore-back')?.addEventListener('click',()=>{if(state.query){state.query='';state.step=state.family?'products':state.category?'families':'categories'}else if(state.step==='products'&&state.subcategory){state.subcategory='';state.step='subcategories'}else if(state.step==='products'){state.family='';state.step='families'}else if(state.step==='subcategories'){state.family='';state.step='families'}else{state.category='';state.step='categories'}render()});
-  }
-  function render(){
-    const grid=document.getElementById('familiasGrid');if(!grid)return;
-    const tree=buildTree();let {category,family}=current(tree);const mobile=window.matchMedia('(max-width:760px)').matches;
-    if(state.category&&!category){state.category='';state.family='';state.step='categories';category=null;family=null}
-    if(state.family&&!family){state.family='';state.step='families';family=null}
-    const allFamilyItems=(family?.items||[]).slice();const items=visibleItems(tree);
-    const categoryButtons=tree.map(c=>`<button type="button" class="explore-cat hx-explorer-nav ${c.id===state.category?'active':''}" data-category="${esc(c.id)}"><span>${esc(c.title)}</span><em>${c.count}</em></button>`).join('');
-    const familyButtons=(category?.families||[]).map(f=>`<button type="button" class="explore-sub hx-explorer-nav ${f.id===state.family?'active':''}" data-family="${esc(f.id)}"><span>${esc(f.title)}</span><em>${f.count}</em></button>`).join('');
-    const subButtons=(family?.subcategories||[]).filter(s=>s.title!=='Todos').map(s=>`<button type="button" class="explore-sub hx-explorer-nav" data-subcategory="${esc(s.id)}"><span>${esc(s.title)}</span><em>${s.count}</em></button>`).join('');
-    const products=items.map(productCard).join('')||'<div class="hx-explorer-empty">No hay productos en esta selección.</div>';
-    const crumb=[category?.title,family?.title,state.subcategory?(family?.subcategories||[]).find(s=>s.id===state.subcategory)?.title:''].filter(Boolean).join(' › ');
-    const search=`<div class="explore-search hx-explorer-search"><input id="exploreFilter210" autocomplete="off" placeholder="Buscar en todo el catálogo…" value="${esc(state.query)}"><span>${items.length} productos</span></div>`;
-    if(mobile){
-      let panel,title='Categorías';
-      if(clean(state.query)){panel=`<div class="hx-explorer-mobile-tools">${controls(null,items)}</div><div class="explore-products explore-mobile-products">${products}</div>`;title='Resultados'}
-      else if(state.step==='products'){panel=`${controls(family,allFamilyItems)}<div class="explore-products explore-mobile-products">${products}</div>`;title=family?.title||'Productos'}
-      else if(state.step==='subcategories'){panel=`<div class="explore-mobile-list"><button type="button" class="explore-sub hx-explorer-nav" data-subcategory=""><span>Todos</span><em>${family?.count||0}</em></button>${subButtons}</div>`;title='Tipo de producto'}
-      else if(state.step==='families'){panel=`<div class="explore-mobile-list">${familyButtons||'<div class="hx-explorer-empty">Sin familias.</div>'}</div>`;title=category?.title||'Familias'}
-      else panel=`<div class="explore-mobile-list">${categoryButtons}</div>`;
-      grid.innerHTML=`<div class="explore-wrap explore-mobile-wrap hx-explorer-v2">${search}<div class="explore-mobile-head">${state.step!=='categories'||state.query?'<button type="button" class="explore-back">← Atrás</button>':''}<div class="explore-breadcrumb">${esc(crumb||'Explorar catálogo')}</div></div><div class="explore-mobile-title">${esc(title)}</div><div class="explore-mobile-panel">${panel}</div></div>`;
-    }else{
-      const tools=(family||state.query)?controls(family,state.query?items:allFamilyItems):'';
-      grid.innerHTML=`<div class="explore-wrap hx-explorer-v2">${search}<div class="explore-breadcrumb">${esc(crumb||'Selecciona una categoría o busca cualquier producto')}</div><div class="explore-layout"><nav class="explore-col explore-cats">${categoryButtons}</nav><nav class="explore-col explore-subs">${familyButtons||'<div class="hx-explorer-empty">Selecciona una categoría.</div>'}</nav><section class="hx-explorer-results">${tools}<div class="explore-products">${family||state.query?products:'<div class="hx-explorer-empty hx-explorer-welcome"><strong>Explora el catálogo automáticamente</strong><span>Las categorías y familias proceden de los CSV cargados.</span></div>'}</div></section></div></div>`;
-    }
-    bindCommon(grid,mobile);bindProducts(grid);
-  }
-  function openExplorer(){const modal=document.getElementById('familiasModal');if(!modal)return;state={category:'',family:'',subcategory:'',color:'',sort:'price-asc',query:'',step:'categories',filtersOpen:false};modal.classList.remove('hidden');document.body.classList.add('modal-open');render()}
-  document.addEventListener('DOMContentLoaded',()=>{const btn=document.getElementById('btnFamilias');if(btn)btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openExplorer()},true);window.addEventListener('resize',()=>{if(!document.getElementById('familiasModal')?.classList.contains('hidden'))render()})});
-  window.renderFamilias=render;window.abrirFamilias=openExplorer;
-})();
 
 /* =====================================================
    v4.1.5 - Recuperación robusta y gestor móvil espacioso

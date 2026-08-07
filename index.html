@@ -4,11 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Presupuestador de AJAX · Hiper Antena</title>
-  <link rel="stylesheet" href="style.css?v=303">
+  <link rel="stylesheet" href="style.css?v=5.0.1">
+  <link rel="stylesheet" href="explorer.css?v=5.0.1">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="botones.css?v=explorer-3-0-2">
+  <link rel="stylesheet" href="botones.css?v=5.0.1">
 </head>
 <body>
   <header class="header">
@@ -158,18 +159,15 @@
 
   <div id="familiasModal" class="modal hidden" aria-hidden="true">
     <div class="modal-backdrop" id="familiasBackdrop"></div>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="familiasTitle">
+    <div class="modal-card hxp-shell" role="dialog" aria-modal="true" aria-labelledby="familiasTitle">
       <div class="modal-head">
         <div>
-          <h2 id="familiasTitle">Explorar catálogo</h2>
-          <p>Navega por categoría y subfamilia para encontrar productos sin escribir referencias.</p>
+          <h2 id="familiasTitle">Explorer de productos</h2>
+          <p>Busca directamente o abre una familia con un solo toque.</p>
         </div>
         <button type="button" id="familiasClose" class="modal-close" aria-label="Cerrar"><span class="ui-icon ui-icon-only" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></span></button>
       </div>
-      <div id="familiasGrid" class="family-grid"></div>
-      <div class="modal-foot">
-        <button type="button" id="familiasCancel" class="secondary">Cerrar</button>
-      </div>
+      <div id="familiasGrid" class="hxp-root"></div>
     </div>
   </div>
 
@@ -244,7 +242,8 @@
     </div>
   </div>
 
-  <script src="app.js?v=303"></script>
+  <script src="app.js?v=5.0.1"></script>
   <script src="search_engine.js?v=6.0.0"></script>
+  <script src="explorer.js?v=5.0.1"></script>
 </body>
 </html>

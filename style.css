@@ -422,42 +422,11 @@ html body.light-mode .table-scroll table tbody tr td button.trash:hover{
   font-weight:800;
 }
 .family-btn:hover{background:rgba(31,143,95,.22)!important;}
-.family-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:8px;
-  max-height:58vh;
-  overflow:auto;
-  padding-right:4px;
-}
-.family-chip{
-  min-height:54px;
-  text-align:left;
-  background:rgba(31,143,95,.12)!important;
-  color:#eafff3!important;
-  border:1px solid rgba(31,143,95,.32)!important;
-  box-shadow:none!important;
-  border-radius:14px;
-  padding:10px 11px;
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-}
-.family-chip strong{font-size:13px;color:inherit;line-height:1.1;}
-.family-chip span{font-size:11px;color:#9cb3a8;font-weight:700;line-height:1.2;}
-.family-chip:hover{background:rgba(31,143,95,.22)!important;border-color:rgba(134,239,172,.48)!important;}
 body.light-mode .family-btn{
   background:#f1f7f4!important;
   color:#14532d!important;
   border-color:#cbded4!important;
 }
-body.light-mode .family-chip{
-  background:#f4faf7!important;
-  color:#14532d!important;
-  border-color:#b8d7c6!important;
-}
-body.light-mode .family-chip span{color:#5f7168!important;}
-body.light-mode .family-chip:hover{background:#dcfce7!important;border-color:#86efac!important;}
 
 /* BOTÓN X/BASURA: rojo sólido siempre, sin heredar el verde general */
 button.trash,
@@ -501,7 +470,6 @@ body.light-mode .row-actions button.trash:hover{
 }
 @media(max-width:760px){
   .catalog-actions{grid-template-columns:1fr;}
-  .family-grid{grid-template-columns:1fr;max-height:62vh;}
 }
 
 
@@ -558,20 +526,6 @@ body.light-mode button.trash:hover{
 }
 
 /* Modal familias: modo claro legible, sin gris encima del verde */
-body.light-mode .family-chip{
-  background:#dcfce7!important;
-  color:#14532d!important;
-  border:1px solid #86efac!important;
-  box-shadow:none!important;
-}
-body.light-mode .family-chip strong,
-body.light-mode .family-chip span{
-  color:#14532d!important;
-}
-body.light-mode .family-chip:hover{
-  background:#bbf7d0!important;
-  border-color:#22c55e!important;
-}
 body.light-mode .modal .catalog-count{
   color:#14532d!important;
   background:#dcfce7!important;
@@ -585,7 +539,6 @@ body.light-mode .modal .catalog-count{
 }
 
 
-body.light-mode .family-chip,
 body.light-mode .familia-card,
 body.light-mode .family-card,
 body.light-mode .family-item{
@@ -596,8 +549,6 @@ body.light-mode .family-item{
   box-shadow:0 8px 22px rgba(20,83,45,.18) !important;
 }
 
-body.light-mode .family-chip strong,
-body.light-mode .family-chip b,
 body.light-mode .familia-card strong,
 body.light-mode .familia-card b,
 body.light-mode .family-card strong,
@@ -607,8 +558,6 @@ body.light-mode .family-item b{
   color:#ffffff !important;
 }
 
-body.light-mode .family-chip span,
-body.light-mode .family-chip small,
 body.light-mode .familia-card span,
 body.light-mode .familia-card small,
 body.light-mode .family-card span,
@@ -618,7 +567,6 @@ body.light-mode .family-item small{
   color:#e5e7eb !important;
 }
 
-body.light-mode .family-chip:hover,
 body.light-mode .familia-card:hover,
 body.light-mode .family-card:hover,
 body.light-mode .family-item:hover{
@@ -1050,14 +998,6 @@ body.light-mode .catalog-top-filters{
 body.light-mode .section-title-under-actions h2{
   color:#145b37;
 }
-@media(max-width:1180px){
-  
-  
-}
-@media(max-width:760px){
-  
-  
-}
 
 
 /* v2.0.13 PRO - cabecera en una fila, sin buscador duplicado */
@@ -1071,15 +1011,6 @@ body.light-mode .section-title-under-actions h2{
 
 .section-title-under-actions{
   margin:16px 0 10px!important;
-}
-@media(max-width:1180px){
-  
-  
-  
-}
-@media(max-width:760px){
-  
-  
 }
 
 /* v2.0.14 PRO - ajuste CSS: área más ancha + botonera ordenada */
@@ -1143,11 +1074,6 @@ th,td{
 
 
 /* Responsive: si no cabe, permite saltar manteniendo orden limpio */
-@media(max-width:1280px){
-  
-  
-  
-}
 @media(max-width:760px){
   .wrap{width:100%!important;padding-left:12px!important;padding-right:12px!important;}
   
@@ -1200,11 +1126,6 @@ th,td{
   margin-right:0!important;
 }
 .catalog-actions .catalog-btn:after{content:""!important;display:none!important;}
-@media(max-width:1280px){
-  
-  
-  
-}
 @media(max-width:760px){
   .wrap{width:100%!important;padding-left:12px!important;padding-right:12px!important;}
   
@@ -1221,410 +1142,25 @@ th,td{
 /* =====================================================
    v2.1 PRO - Explorador de familias
    ===================================================== */
-#familiasModal .modal-card{max-width:1180px;width:min(96vw,1180px)}
-#familiasGrid{display:block;margin-top:10px}
-.explore-wrap{display:flex;flex-direction:column;gap:10px}
-.explore-search{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:2px}
-.explore-search input{height:38px;margin:0}
-.explore-search span{color:var(--muted);font-size:12px;white-space:nowrap;border:1px solid rgba(31,143,95,.20);background:rgba(31,143,95,.08);border-radius:999px;padding:8px 11px}
-.explore-breadcrumb{font-size:12px;color:#d7f5e6;background:rgba(31,143,95,.10);border:1px solid rgba(31,143,95,.18);border-radius:12px;padding:8px 10px}
-.explore-breadcrumb b{color:var(--green);margin:0 6px}
-.explore-layout{display:grid;grid-template-columns:190px 220px minmax(0,1fr);gap:10px;min-height:420px}
-.explore-col{display:flex;flex-direction:column;gap:6px;border:1px solid rgba(31,143,95,.16);border-radius:14px;background:rgba(0,0,0,.08);padding:8px;max-height:58vh;overflow:auto}
-.explore-cat,.explore-sub{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;min-height:37px;border-radius:10px;padding:8px 10px;background:rgba(255,255,255,.035);border:1px solid rgba(31,143,95,.12);box-shadow:none;color:#f5fff8;font-size:12px;font-weight:800}
-.explore-cat em,.explore-sub em{font-style:normal;font-size:11px;color:var(--muted);font-weight:800;background:rgba(255,255,255,.05);border-radius:999px;padding:2px 7px}
-.explore-cat:hover,.explore-sub:hover{background:rgba(31,143,95,.12)}
-.explore-cat.active,.explore-sub.active{background:linear-gradient(135deg,var(--green),var(--green2));border-color:rgba(31,143,95,.8);color:#fff}
-.explore-cat.active em,.explore-sub.active em{color:#fff;background:rgba(255,255,255,.18)}
-.explore-products{border:1px solid rgba(31,143,95,.16);border-radius:14px;background:rgba(0,0,0,.08);padding:8px;max-height:58vh;overflow:auto;display:flex;flex-direction:column;gap:6px}
-.explore-product{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(31,143,95,.10);cursor:pointer}
-.explore-product:hover{background:rgba(31,143,95,.10);border-color:rgba(31,143,95,.25)}
-.explore-product-main{min-width:0;display:flex;flex-direction:column;gap:2px}
-.explore-product-main strong{font-size:12px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.explore-product-main span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.explore-product>b{font-size:12px;color:#c5ffe0;white-space:nowrap}.explore-add{height:30px;padding:6px 9px;font-size:11px;border-radius:9px}
-body.light .explore-cat,body.light .explore-sub{background:#fff;color:#183026;border-color:#d6e5dd}
-body.light .explore-cat em,body.light .explore-sub em{color:#567064;background:#eef5f1}
-body.light .explore-cat:hover,body.light .explore-sub:hover{background:#ecf7f1}
-body.light .explore-cat.active,body.light .explore-sub.active{background:#1f8f5f!important;color:#fff!important;border-color:#146c43!important}
-body.light .explore-cat.active em,body.light .explore-sub.active em{color:#fff;background:rgba(255,255,255,.22)}
-body.light .explore-col,body.light .explore-products{background:#f7faf8;border-color:#dce9e2}
-body.light .explore-product{background:#fff;border-color:#dce9e2}
-body.light .explore-product:hover{background:#edf8f2;border-color:#b9dccb}
-body.light .explore-product-main strong{color:#16251f}body.light .explore-product-main span{color:#667a70}body.light .explore-breadcrumb{background:#edf8f2;color:#1b3f2e;border-color:#cfe6da}
-@media(max-width:900px){.explore-layout{grid-template-columns:1fr}.explore-col,.explore-products{max-height:none}.explore-search{grid-template-columns:1fr}.explore-search span{width:max-content}}
+.explore-wrap{display:flex;flex-direction:column;gap:10px}.explore-add{height:30px;padding:6px 9px;font-size:11px;border-radius:9px}
 
 /* v2.1.1 PRO - Explorar afinado: un solo scroll y columnas más limpias */
 .explore-wrap{gap:8px!important;}
-.explore-search{margin-bottom:0!important;}
-.explore-breadcrumb{padding:7px 10px!important;font-size:12px!important;}
-.explore-layout{grid-template-columns:180px 220px minmax(0,1fr)!important;gap:10px!important;min-height:0!important;height:min(58vh,560px)!important;}
-.explore-col{max-height:none!important;overflow:visible!important;gap:6px!important;padding:8px!important;}
-.explore-products{max-height:none!important;height:100%!important;overflow:auto!important;gap:5px!important;padding:7px!important;}
-.explore-cat,.explore-sub{min-height:33px!important;padding:6px 9px!important;font-size:11.5px!important;border-radius:10px!important;}
-.explore-cat em,.explore-sub em{font-size:10.5px!important;padding:1px 6px!important;}
-.explore-product{padding:7px 9px!important;border-radius:10px!important;grid-template-columns:minmax(0,1fr) auto auto!important;gap:8px!important;}
-.explore-product-main strong{font-size:11.5px!important;}
-.explore-product-main span{font-size:10.5px!important;}
 .explore-add{height:28px!important;padding:5px 8px!important;font-size:10.5px!important;}
-@media(max-width:900px){.explore-layout{height:auto!important;grid-template-columns:1fr!important}.explore-col{overflow:visible!important}.explore-products{height:auto!important;max-height:55vh!important}}
-
-
-body.light-mode #familiasModal .explore-cat,
-body.light-mode #familiasModal .explore-sub{
-  background:#ffffff!important;
-  color:#163228!important;
-  border:1px solid #cfded6!important;
-  box-shadow:none!important;
-}
-body.light-mode #familiasModal .explore-cat span,
-body.light-mode #familiasModal .explore-sub span{
-  color:#163228!important;
-}
-body.light-mode #familiasModal .explore-cat em,
-body.light-mode #familiasModal .explore-sub em{
-  background:#edf3ef!important;
-  color:#476558!important;
-  border:1px solid #dbe8e1!important;
-}
-body.light-mode #familiasModal .explore-cat:hover,
-body.light-mode #familiasModal .explore-sub:hover{
-  background:#f2f8f5!important;
-  border-color:#9fcdb7!important;
-}
-body.light-mode #familiasModal .explore-cat.active,
-body.light-mode #familiasModal .explore-sub.active{
-  background:#146c43!important;
-  color:#ffffff!important;
-  border-color:#0d4d31!important;
-  box-shadow:0 0 0 2px rgba(20,108,67,.18)!important;
-}
-body.light-mode #familiasModal .explore-cat.active span,
-body.light-mode #familiasModal .explore-sub.active span{
-  color:#ffffff!important;
-}
-body.light-mode #familiasModal .explore-cat.active em,
-body.light-mode #familiasModal .explore-sub.active em{
-  background:rgba(255,255,255,.22)!important;
-  color:#ffffff!important;
-  border-color:rgba(255,255,255,.35)!important;
-}
-body.light-mode #familiasModal .explore-col,
-body.light-mode #familiasModal .explore-products{
-  background:#f8fbf9!important;
-  border-color:#d9e8e0!important;
-}
-body.light-mode #familiasModal .explore-product{
-  background:#ffffff!important;
-  color:#172019!important;
-  border-color:#d9e8e0!important;
-}
-body.light-mode #familiasModal .explore-product:hover{
-  background:#f0f8f4!important;
-  border-color:#b3d9c6!important;
-}
-body.light-mode #familiasModal .explore-product-main strong{
-  color:#172019!important;
-}
-body.light-mode #familiasModal .explore-product-main span{
-  color:#5f7168!important;
-}
-body.light-mode #familiasModal .explore-product>b{
-  color:#14532d!important;
-}
-body.light-mode #familiasModal .explore-breadcrumb{
-  background:#f2f8f5!important;
-  color:#173c2b!important;
-  border-color:#cfe2d7!important;
-}
-body.light-mode #familiasModal .explore-breadcrumb b{
-  color:#146c43!important;
-}
-body.light-mode #familiasModal .explore-search span{
-  background:#f2f8f5!important;
-  color:#173c2b!important;
-  border-color:#cfe2d7!important;
-}
 /* Evita que la regla global de botones verdes del modo claro pise el Explorador */
-body.light-mode #familiasModal .explore-cat:not(.active),
-body.light-mode #familiasModal .explore-sub:not(.active){
-  background:#ffffff!important;
-  color:#163228!important;
-}
 
 /* =====================================================
    v2.1.3 PRO - Contraste modo claro explorador final
    ===================================================== */
-body.light #familiasModal .explore-cat:not(.active),
-body.light #familiasModal .explore-sub:not(.active),
-body.light-mode #familiasModal .explore-cat:not(.active),
-body.light-mode #familiasModal .explore-sub:not(.active){
-  background:#ffffff!important;
-  color:#1b2b24!important;
-  border-color:#cfded6!important;
-  box-shadow:none!important;
-}
-body.light #familiasModal .explore-cat:not(.active) span,
-body.light #familiasModal .explore-sub:not(.active) span,
-body.light-mode #familiasModal .explore-cat:not(.active) span,
-body.light-mode #familiasModal .explore-sub:not(.active) span{
-  color:#1b2b24!important;
-}
-body.light #familiasModal .explore-cat:not(.active) em,
-body.light #familiasModal .explore-sub:not(.active) em,
-body.light-mode #familiasModal .explore-cat:not(.active) em,
-body.light-mode #familiasModal .explore-sub:not(.active) em{
-  background:#eef3f0!important;
-  color:#4e6258!important;
-}
-body.light #familiasModal .explore-cat:hover:not(.active),
-body.light #familiasModal .explore-sub:hover:not(.active),
-body.light-mode #familiasModal .explore-cat:hover:not(.active),
-body.light-mode #familiasModal .explore-sub:hover:not(.active){
-  background:#f3f8f5!important;
-  border-color:#9fcfba!important;
-}
-body.light #familiasModal .explore-cat.active,
-body.light #familiasModal .explore-sub.active,
-body.light-mode #familiasModal .explore-cat.active,
-body.light-mode #familiasModal .explore-sub.active{
-  background:#1f8f5f!important;
-  color:#ffffff!important;
-  border-color:#146c43!important;
-  box-shadow:0 0 0 2px rgba(31,143,95,.14)!important;
-}
-body.light #familiasModal .explore-cat.active span,
-body.light #familiasModal .explore-sub.active span,
-body.light-mode #familiasModal .explore-cat.active span,
-body.light-mode #familiasModal .explore-sub.active span,
-body.light #familiasModal .explore-cat.active em,
-body.light #familiasModal .explore-sub.active em,
-body.light-mode #familiasModal .explore-cat.active em,
-body.light-mode #familiasModal .explore-sub.active em{
-  color:#ffffff!important;
-}
-body.light #familiasModal .explore-cat.active em,
-body.light #familiasModal .explore-sub.active em,
-body.light-mode #familiasModal .explore-cat.active em,
-body.light-mode #familiasModal .explore-sub.active em{
-  background:rgba(255,255,255,.22)!important;
-}
-body.light #familiasModal .explore-col,
-body.light #familiasModal .explore-products,
-body.light-mode #familiasModal .explore-col,
-body.light-mode #familiasModal .explore-products{
-  background:#f7faf8!important;
-  border-color:#d7e6de!important;
-}
-body.light #familiasModal .explore-product,
-body.light-mode #familiasModal .explore-product{
-  background:#ffffff!important;
-  color:#1b2b24!important;
-  border-color:#d7e6de!important;
-}
-body.light #familiasModal .explore-product-main strong,
-body.light-mode #familiasModal .explore-product-main strong{
-  color:#1b2b24!important;
-}
-body.light #familiasModal .explore-product-main span,
-body.light-mode #familiasModal .explore-product-main span{
-  color:#5e7168!important;
-}
 
 /* v2.1.5 PRO - Explorador: un solo scroll real */
-#familiasModal .explore-layout{
-  grid-template-columns:180px 220px minmax(0,1fr)!important;
-  gap:10px!important;
-  height:auto!important;
-  min-height:0!important;
-  align-items:start!important;
-}
-#familiasModal .explore-col{
-  max-height:none!important;
-  height:auto!important;
-  overflow:visible!important;
-  gap:5px!important;
-  padding:7px!important;
-}
-#familiasModal .explore-products{
-  height:auto!important;
-  max-height:58vh!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  gap:5px!important;
-  padding:7px!important;
-}
-#familiasModal .explore-cat,
-#familiasModal .explore-sub{
-  min-height:31px!important;
-  padding:6px 8px!important;
-  font-size:11.5px!important;
-  line-height:1.15!important;
-}
-#familiasModal .explore-cat em,
-#familiasModal .explore-sub em{
-  font-size:10px!important;
-  padding:1px 6px!important;
-}
-#familiasModal .explore-product{
-  padding:7px 9px!important;
-}
-@media(max-width:900px){
-  #familiasModal .explore-layout{grid-template-columns:1fr!important;}
-  #familiasModal .explore-col{overflow:visible!important;max-height:none!important;}
-  #familiasModal .explore-products{max-height:55vh!important;}
-}
 
 /* =====================================================
    v2.1.6 PRO - Explorador: un único scroll + soporte fino
    ===================================================== */
-#familiasModal .modal-card{
-  width:min(96vw,1220px)!important;
-  height:min(90vh,760px)!important;
-  max-height:90vh!important;
-  overflow:hidden!important;
-  display:flex!important;
-  flex-direction:column!important;
-}
-#familiasModal .modal-head,
-#familiasModal .modal-foot{
-  flex:0 0 auto!important;
-}
-#familiasModal #familiasGrid{
-  flex:1 1 auto!important;
-  min-height:0!important;
-  overflow:hidden!important;
-  display:block!important;
-  margin-top:0!important;
-}
-#familiasModal .explore-wrap{
-  height:100%!important;
-  min-height:0!important;
-  display:flex!important;
-  flex-direction:column!important;
-  gap:8px!important;
-  overflow:hidden!important;
-}
-#familiasModal .explore-search,
-#familiasModal .explore-breadcrumb{
-  flex:0 0 auto!important;
-}
-#familiasModal .explore-layout{
-  flex:1 1 auto!important;
-  min-height:0!important;
-  height:auto!important;
-  overflow:hidden!important;
-  display:grid!important;
-  grid-template-columns:172px 205px minmax(0,1fr)!important;
-  gap:10px!important;
-  align-items:stretch!important;
-}
-#familiasModal .explore-col{
-  overflow:visible!important;
-  max-height:none!important;
-  height:auto!important;
-  min-height:0!important;
-  align-self:start!important;
-  padding:7px!important;
-  gap:5px!important;
-}
-#familiasModal .explore-products{
-  min-height:0!important;
-  height:100%!important;
-  max-height:none!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  padding:7px!important;
-  gap:5px!important;
-  scrollbar-width:thin;
-}
-#familiasModal .explore-products::-webkit-scrollbar{width:8px!important;display:block!important;}
-#familiasModal .explore-products::-webkit-scrollbar-thumb{background:rgba(31,143,95,.45)!important;border-radius:999px!important;}
-#familiasModal .explore-cat,
-#familiasModal .explore-sub{
-  min-height:30px!important;
-  padding:6px 8px!important;
-  font-size:11.3px!important;
-  line-height:1.1!important;
-}
-#familiasModal .explore-product{
-  padding:7px 9px!important;
-  min-height:48px!important;
-}
-#familiasModal .explore-product-main strong{font-size:11.5px!important;}
-#familiasModal .explore-product-main span{font-size:10.5px!important;}
-#familiasModal .explore-add{height:28px!important;padding:5px 8px!important;font-size:10.5px!important;}
-
-body.light #familiasModal .explore-cat:not(.active),
-body.light #familiasModal .explore-sub:not(.active),
-body.light-mode #familiasModal .explore-cat:not(.active),
-body.light-mode #familiasModal .explore-sub:not(.active){
-  background:#ffffff!important;
-  color:#193227!important;
-  border-color:#d8e8df!important;
-}
-body.light #familiasModal .explore-cat.active,
-body.light #familiasModal .explore-sub.active,
-body.light-mode #familiasModal .explore-cat.active,
-body.light-mode #familiasModal .explore-sub.active{
-  background:#146c43!important;
-  color:#ffffff!important;
-  border-color:#0f5635!important;
-}
-
-@media(max-width:900px){
-  #familiasModal .modal-card{height:92vh!important;}
-  #familiasModal .explore-layout{grid-template-columns:1fr!important;overflow:auto!important;}
-  #familiasModal .explore-col{overflow:visible!important;}
-  #familiasModal .explore-products{height:auto!important;max-height:55vh!important;}
-}
 
 /* v2.1.7 PRO - móvil + explorador: compacto y usable */
 /* Explorador escritorio: evita scrolls anidados y textos fuera */
-#familiasModal .modal-card{
-  width:min(1200px,96vw)!important;
-  max-height:92vh!important;
-}
-#familiasModal .modal-card,
-#familiasModal .explore-wrap{
-  overflow:hidden!important;
-}
-#familiasModal .explore-layout{
-  grid-template-columns:170px 215px minmax(0,1fr)!important;
-  height:min(62vh,620px)!important;
-  min-height:0!important;
-  overflow:hidden!important;
-}
-#familiasModal .explore-col{
-  overflow:visible!important;
-  max-height:none!important;
-  min-height:0!important;
-}
-#familiasModal .explore-products{
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  min-height:0!important;
-  height:100%!important;
-  max-height:none!important;
-}
-#familiasModal .explore-cat,
-#familiasModal .explore-sub{
-  min-width:0!important;
-  white-space:normal!important;
-  line-height:1.14!important;
-}
-#familiasModal .explore-cat span,
-#familiasModal .explore-sub span{
-  min-width:0!important;
-  overflow:hidden!important;
-  display:-webkit-box!important;
-  -webkit-line-clamp:2!important;
-  -webkit-box-orient:vertical!important;
-}
-#familiasModal .explore-cat em,
-#familiasModal .explore-sub em{
-  flex:0 0 auto!important;
-}
 
 /* Responsive general real para móvil */
 @media(max-width:760px){
@@ -1707,70 +1243,9 @@ body.light-mode #familiasModal .explore-sub.active{
   .catalog-add{grid-column:1 / -1!important;width:100%!important;height:32px!important;}
 
   /* Explorador en móvil: navegación por bloques, productos con único scroll */
-  #familiasModal .modal-card{
-    width:100%!important;
-    max-height:96vh!important;
-    overflow:hidden!important;
-  }
-  #familiasModal .explore-wrap{
-    overflow:hidden!important;
-    min-height:0!important;
-    gap:7px!important;
-  }
-  #familiasModal .explore-search{grid-template-columns:1fr!important;gap:7px!important;}
-  #familiasModal .explore-breadcrumb{font-size:11px!important;padding:7px 8px!important;}
-  #familiasModal .explore-layout{
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    height:auto!important;
-    max-height:calc(96vh - 185px)!important;
-    overflow:hidden!important;
-    gap:7px!important;
-  }
-  #familiasModal .explore-col{
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:6px!important;
-    padding:6px!important;
-    max-height:none!important;
-    overflow:visible!important;
-  }
-  #familiasModal .explore-cat,
-  #familiasModal .explore-sub{
-    min-height:31px!important;
-    padding:6px 7px!important;
-    font-size:10.5px!important;
-    border-radius:9px!important;
-    gap:4px!important;
-  }
-  #familiasModal .explore-cat em,
-  #familiasModal .explore-sub em{
-    font-size:9.5px!important;
-    padding:1px 5px!important;
-  }
-  #familiasModal .explore-products{
-    height:auto!important;
-    max-height:34vh!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    padding:6px!important;
-  }
-  #familiasModal .explore-product{
-    grid-template-columns:minmax(0,1fr) auto!important;
-    gap:6px!important;
-    padding:7px!important;
-  }
-  #familiasModal .explore-product>b{font-size:11px!important;}
-  #familiasModal .explore-add{
-    grid-column:1 / -1!important;
-    width:100%!important;
-    height:28px!important;
-  }
 }
 
 @media(max-width:420px){
-  #familiasModal .explore-col{grid-template-columns:1fr!important;}
-  #familiasModal .explore-products{max-height:38vh!important;}
   .totals,.totals.totals-v3{grid-template-columns:1fr!important;}
 }
 
@@ -1781,86 +1256,6 @@ body.light-mode #familiasModal .explore-sub.active{
    - Evita textos salidos en categorías
    - Intrusión incorpora Socket B/W por JS
    ===================================================== */
-#familiasModal .modal-card{
-  width: min(98vw, 1760px) !important;
-  max-width: 1760px !important;
-  height: min(92vh, 920px) !important;
-}
-#familiasModal .explore-layout{
-  grid-template-columns: 170px 215px minmax(0,1fr) !important;
-  gap: 10px !important;
-  overflow: hidden !important;
-}
-#familiasModal .explore-col{
-  overflow: visible !important;
-  max-height: none !important;
-  min-width: 0 !important;
-}
-#familiasModal .explore-products{
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  height: calc(92vh - 245px) !important;
-  max-height: 650px !important;
-  min-height: 300px !important;
-}
-#familiasModal .explore-cat,
-#familiasModal .explore-sub{
-  min-height: 32px !important;
-  padding: 6px 8px !important;
-  font-size: 11.5px !important;
-  line-height: 1.1 !important;
-  gap: 6px !important;
-  align-items: center !important;
-  white-space: normal !important;
-  overflow: hidden !important;
-}
-#familiasModal .explore-cat span,
-#familiasModal .explore-sub span{
-  min-width: 0 !important;
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-#familiasModal .explore-cat em,
-#familiasModal .explore-sub em{
-  flex: 0 0 auto !important;
-  min-width: 28px !important;
-  max-width: 36px !important;
-  padding: 2px 6px !important;
-  font-size: 10.5px !important;
-}
-#familiasModal .explore-product{
-  min-height: 42px !important;
-  padding: 6px 8px !important;
-  gap: 8px !important;
-  grid-template-columns: minmax(0,1fr) auto auto !important;
-}
-#familiasModal .explore-product-main strong{
-  font-size: 11px !important;
-  line-height: 1.1 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-#familiasModal .explore-product-main span{
-  font-size: 10px !important;
-  line-height: 1.15 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-#familiasModal .explore-product>b{
-  font-size: 11px !important;
-  white-space: nowrap !important;
-}
-#familiasModal .explore-add{
-  height: 28px !important;
-  padding: 5px 8px !important;
-  font-size: 10.5px !important;
-  border-radius: 9px !important;
-}
 
 /* Móvil/tablet: que no comprima cabecera ni logo, y modal en una columna usable */
 @media(max-width: 760px){
@@ -1869,175 +1264,11 @@ body.light-mode #familiasModal .explore-sub.active{
   .logo{height: 34px !important; width: 68px !important; flex: 0 0 auto !important;}
   h1{font-size: 15px !important;}
   .subtitle{font-size: 10px !important;}
-  #familiasModal .modal-card{
-    width: 98vw !important;
-    max-width: 98vw !important;
-    height: 92vh !important;
-    margin: 4vh auto !important;
-  }
-  #familiasModal .modal-head{padding: 12px 12px 8px !important;}
-  #familiasModal .modal-head h2{font-size: 18px !important;}
-  #familiasModal .explore-wrap{padding: 8px !important;}
-  #familiasModal .explore-layout{
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-    overflow: hidden !important;
-  }
-  #familiasModal .explore-col{
-    display: grid !important;
-    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
-    gap: 6px !important;
-  }
-  #familiasModal .explore-cat,
-  #familiasModal .explore-sub{
-    min-height: 30px !important;
-    padding: 5px 7px !important;
-    font-size: 10.5px !important;
-  }
-  #familiasModal .explore-products{
-    height: 34vh !important;
-    max-height: 34vh !important;
-    min-height: 180px !important;
-  }
-  #familiasModal .explore-product{
-    grid-template-columns: minmax(0,1fr) auto !important;
-    min-height: 40px !important;
-  }
-  #familiasModal .explore-product>b{grid-column: 2; grid-row: 1;}
-  #familiasModal .explore-add{grid-column: 2; grid-row: 2;}
 }
 
 /* =====================================================
    v2.1.9 PRO - Explorar móvil por pasos
    ===================================================== */
-@media(max-width:760px){
-  #familiasModal .modal-card{
-    width:100vw!important;
-    max-width:100vw!important;
-    height:96vh!important;
-    max-height:96vh!important;
-    margin:0!important;
-    border-radius:14px!important;
-    overflow:hidden!important;
-  }
-  #familiasModal #familiasGrid{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    overflow:hidden!important;
-  }
-  #familiasModal .explore-mobile-wrap{
-    height:100%!important;
-    min-height:0!important;
-    display:flex!important;
-    flex-direction:column!important;
-    gap:8px!important;
-    overflow:hidden!important;
-  }
-  #familiasModal .explore-search{
-    flex:0 0 auto!important;
-    grid-template-columns:1fr!important;
-  }
-  #familiasModal .explore-search span{
-    width:max-content!important;
-  }
-  #familiasModal .explore-mobile-head{
-    flex:0 0 auto!important;
-    display:grid!important;
-    grid-template-columns:auto 1fr!important;
-    gap:8px!important;
-    align-items:center!important;
-  }
-  #familiasModal .explore-back{
-    height:34px!important;
-    padding:7px 10px!important;
-    border-radius:10px!important;
-    background:#14231c!important;
-    border:1px solid rgba(31,143,95,.30)!important;
-    box-shadow:none!important;
-    color:#fff!important;
-    font-size:12px!important;
-  }
-  #familiasModal .explore-mobile-title{
-    flex:0 0 auto!important;
-    font-size:13px!important;
-    font-weight:900!important;
-    color:#d7f5e6!important;
-    padding:2px 2px 0!important;
-  }
-  #familiasModal .explore-mobile-panel{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    overflow:hidden!important;
-    display:flex!important;
-    flex-direction:column!important;
-  }
-  #familiasModal .explore-mobile-list{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    align-content:start!important;
-    gap:7px!important;
-    padding:7px!important;
-    border:1px solid rgba(31,143,95,.16)!important;
-    border-radius:14px!important;
-    background:rgba(0,0,0,.08)!important;
-  }
-  #familiasModal .explore-mobile-list .explore-cat,
-  #familiasModal .explore-mobile-list .explore-sub{
-    width:100%!important;
-    min-height:42px!important;
-    padding:9px 10px!important;
-    font-size:12px!important;
-    line-height:1.16!important;
-  }
-  #familiasModal .explore-mobile-products{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    height:auto!important;
-    max-height:none!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    padding:7px!important;
-    border:1px solid rgba(31,143,95,.16)!important;
-    border-radius:14px!important;
-    background:rgba(0,0,0,.08)!important;
-  }
-  #familiasModal .explore-mobile-products .explore-product{
-    grid-template-columns:minmax(0,1fr) auto!important;
-    gap:7px!important;
-    padding:8px!important;
-    min-height:54px!important;
-  }
-  #familiasModal .explore-mobile-products .explore-add{
-    grid-column:1 / -1!important;
-    width:100%!important;
-    height:30px!important;
-  }
-  #familiasModal .modal-foot{
-    flex:0 0 auto!important;
-  }
-  body.light #familiasModal .explore-mobile-title,
-  body.light-mode #familiasModal .explore-mobile-title{
-    color:#183026!important;
-  }
-  body.light #familiasModal .explore-mobile-list,
-  body.light-mode #familiasModal .explore-mobile-list,
-  body.light #familiasModal .explore-mobile-products,
-  body.light-mode #familiasModal .explore-mobile-products{
-    background:#f7faf8!important;
-    border-color:#dce9e2!important;
-  }
-  body.light #familiasModal .explore-back,
-  body.light-mode #familiasModal .explore-back{
-    background:#ffffff!important;
-    color:#183026!important;
-    border-color:#d6e5dd!important;
-  }
-}
 
 /* =====================================================
    v2.2.0 PRO - Explorador: fuente legible
@@ -2045,140 +1276,13 @@ body.light-mode #familiasModal .explore-sub.active{
    - Quita contadores de categorías/subcategorías
    - Mantiene filas compactas sin sacrificar lectura
    ===================================================== */
-#familiasModal .explore-cat,
-#familiasModal .explore-sub{
-  font-size:14px!important;
-  line-height:1.18!important;
-  min-height:34px!important;
-  padding:7px 9px!important;
-  gap:7px!important;
-}
-#familiasModal .explore-cat span,
-#familiasModal .explore-sub span{
-  font-size:14px!important;
-  line-height:1.18!important;
-}
-#familiasModal .explore-cat em,
-#familiasModal .explore-sub em{
-  display:none!important;
-}
-#familiasModal .explore-product-main strong{
-  font-size:12.5px!important;
-  line-height:1.2!important;
-}
-#familiasModal .explore-product-main span{
-  font-size:11px!important;
-  line-height:1.2!important;
-}
-#familiasModal .explore-product>b{
-  font-size:12px!important;
-}
-
-@media(max-width:760px){
-  #familiasModal .explore-mobile-list .explore-cat,
-  #familiasModal .explore-mobile-list .explore-sub{
-    font-size:13px!important;
-    min-height:42px!important;
-    padding:9px 10px!important;
-  }
-  #familiasModal .explore-mobile-list .explore-cat span,
-  #familiasModal .explore-mobile-list .explore-sub span{
-    font-size:13px!important;
-  }
-  #familiasModal .explore-mobile-list .explore-cat em,
-  #familiasModal .explore-mobile-list .explore-sub em{
-    display:none!important;
-  }
-}
 
 /* =====================================================
    v2.2.1 PRO - ajustes finales Explorar/Catálogo móvil
    ===================================================== */
 /* Escritorio: más altura útil y columnas más cómodas */
-#familiasModal .modal-card{
-  height:92vh!important;
-  max-height:92vh!important;
-  display:flex!important;
-  flex-direction:column!important;
-}
-#familiasModal .modal-head,
-#familiasModal .modal-foot{
-  flex:0 0 auto!important;
-}
-#familiasModal #familiasGrid{
-  flex:1 1 auto!important;
-  min-height:0!important;
-  overflow:hidden!important;
-}
-#familiasModal .explore-wrap{
-  height:100%!important;
-  min-height:0!important;
-  display:flex!important;
-  flex-direction:column!important;
-  overflow:hidden!important;
-}
-#familiasModal .explore-search,
-#familiasModal .explore-breadcrumb{
-  flex:0 0 auto!important;
-}
-#familiasModal .explore-layout{
-  flex:1 1 auto!important;
-  min-height:0!important;
-  display:grid!important;
-  grid-template-columns:170px 230px minmax(0,1fr)!important;
-  gap:10px!important;
-  overflow:hidden!important;
-}
-#familiasModal .explore-cats,
-#familiasModal .explore-subs{
-  min-height:0!important;
-  max-height:none!important;
-  overflow:visible!important;
-  align-content:start!important;
-}
-#familiasModal .explore-products{
-  min-height:0!important;
-  height:auto!important;
-  max-height:none!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-}
-#familiasModal .explore-cat,
-#familiasModal .explore-sub{
-  white-space:normal!important;
-}
-#familiasModal .explore-cat span,
-#familiasModal .explore-sub span{
-  min-width:0!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-  white-space:nowrap!important;
-}
 
 /* Modo claro: contraste fuerte y solo el seleccionado en verde */
-body.light-mode #familiasModal .explore-cat:not(.active),
-body.light-mode #familiasModal .explore-sub:not(.active),
-body.light #familiasModal .explore-cat:not(.active),
-body.light #familiasModal .explore-sub:not(.active){
-  background:#ffffff!important;
-  color:#183026!important;
-  border-color:#d8e7df!important;
-  box-shadow:none!important;
-}
-body.light-mode #familiasModal .explore-cat.active,
-body.light-mode #familiasModal .explore-sub.active,
-body.light #familiasModal .explore-cat.active,
-body.light #familiasModal .explore-sub.active{
-  background:linear-gradient(135deg,var(--green),var(--green2))!important;
-  color:#ffffff!important;
-  border-color:var(--green2)!important;
-}
-body.light-mode #familiasModal .explore-cat.active span,
-body.light-mode #familiasModal .explore-sub.active span,
-body.light #familiasModal .explore-cat.active span,
-body.light #familiasModal .explore-sub.active span{
-  color:#ffffff!important;
-}
 
 /* Catálogo móvil: filtros más compactos para dejar sitio a productos */
 @media(max-width:760px){
@@ -2228,37 +1332,6 @@ body.light #familiasModal .explore-sub.active span{
   }
 
   /* Explorar móvil: producto y botón Añadir siempre visibles dentro de cada tarjeta */
-  #familiasModal .modal-card{
-    height:96vh!important;
-    max-height:96vh!important;
-  }
-  #familiasModal .explore-mobile-products .explore-product{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    gap:7px!important;
-    padding:8px!important;
-    min-height:auto!important;
-    align-items:center!important;
-  }
-  #familiasModal .explore-mobile-products .explore-product-main{
-    min-width:0!important;
-  }
-  #familiasModal .explore-mobile-products .explore-product-main strong,
-  #familiasModal .explore-mobile-products .explore-product-main span{
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    white-space:nowrap!important;
-  }
-  #familiasModal .explore-mobile-products .explore-add{
-    display:block!important;
-    grid-column:1 / -1!important;
-    width:100%!important;
-    height:34px!important;
-    margin-top:2px!important;
-    position:static!important;
-    opacity:1!important;
-    visibility:visible!important;
-  }
 }
 
 /* =====================================================
@@ -2268,58 +1341,6 @@ body.light #familiasModal .explore-sub.active span{
    - Subcategorías permiten hasta 2 líneas
    - Móvil se mantiene como en v2.2.1
    ===================================================== */
-@media(min-width:761px){
-  #familiasModal .explore-layout{
-    grid-template-columns: 176px 280px minmax(0,1fr) !important;
-    gap: 10px !important;
-  }
-
-  #familiasModal .explore-cat{
-    min-height: 36px !important;
-    padding: 7px 9px !important;
-    font-size: 14px !important;
-    line-height: 1.18 !important;
-  }
-
-  #familiasModal .explore-sub{
-    min-height: 38px !important;
-    padding: 7px 10px !important;
-    font-size: 14px !important;
-    line-height: 1.16 !important;
-    align-items: center !important;
-  }
-
-  #familiasModal .explore-cat span{
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    display: block !important;
-  }
-
-  #familiasModal .explore-sub span{
-    white-space: normal !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    word-break: normal !important;
-  }
-
-  #familiasModal .explore-products{
-    min-width: 0 !important;
-  }
-
-  #familiasModal .explore-product{
-    min-height: 44px !important;
-    padding: 7px 9px !important;
-  }
-
-  #familiasModal .modal-foot{
-    padding-top: 8px !important;
-    margin-top: 8px !important;
-  }
-}
 
 /* =====================================================
    v2.2.3 PRO - Explorar PC: columnas más equilibradas
@@ -2328,56 +1349,6 @@ body.light #familiasModal .explore-sub.active span{
    - Categorías/subcategorías hasta 2 líneas sin cortar
    - Sin tocar móvil ni motor
    ===================================================== */
-@media(min-width:761px){
-  #familiasModal .modal-card{
-    width:96vw!important;
-    max-width:1680px!important;
-  }
-
-  #familiasModal .explore-layout{
-    grid-template-columns: 210px 340px minmax(360px,1fr) !important;
-    gap:10px!important;
-  }
-
-  #familiasModal .explore-cat,
-  #familiasModal .explore-sub{
-    font-size:14px!important;
-    line-height:1.16!important;
-    min-height:39px!important;
-    padding:7px 10px!important;
-    align-items:center!important;
-  }
-
-  #familiasModal .explore-cat span,
-  #familiasModal .explore-sub span{
-    white-space:normal!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    display:-webkit-box!important;
-    -webkit-line-clamp:2!important;
-    -webkit-box-orient:vertical!important;
-    word-break:normal!important;
-  }
-
-  #familiasModal .explore-products{
-    min-width:0!important;
-    max-width:100%!important;
-  }
-
-  #familiasModal .explore-product{
-    grid-template-columns:minmax(0,1fr) auto auto!important;
-    gap:7px!important;
-    padding:7px 8px!important;
-    min-height:42px!important;
-  }
-
-  #familiasModal .explore-product-main strong,
-  #familiasModal .explore-product-main span{
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-}
 
 /* =====================================================
    v2.2.4 PRO - móvil parte principal + subcategorías con scroll
@@ -2386,30 +1357,6 @@ body.light #familiasModal .explore-sub.active span{
    ===================================================== */
 
 /* PC: mantenemos columnas anchas, pero si hay muchas subcategorías solo scrollea esa columna */
-@media(min-width:761px){
-  #familiasModal .explore-layout{
-    align-items:stretch!important;
-  }
-  #familiasModal .explore-cats{
-    overflow:visible!important;
-    max-height:none!important;
-  }
-  #familiasModal .explore-subs{
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    max-height:100%!important;
-    scrollbar-width:thin!important;
-    padding-right:6px!important;
-  }
-  #familiasModal .explore-subs::-webkit-scrollbar{
-    width:7px!important;
-    display:block!important;
-  }
-  #familiasModal .explore-subs::-webkit-scrollbar-thumb{
-    background:rgba(31,143,95,.45)!important;
-    border-radius:999px!important;
-  }
-}
 
 /* Móvil: parte principal de la app */
 @media(max-width:760px){
@@ -2572,434 +1519,12 @@ body.light #familiasModal .explore-sub.active span{
   .totals,.totals.totals-v3{grid-template-columns:1fr!important;}
 }
 
-
-#familiasModal .modal-card{
-  gap:6px!important;
-}
-#familiasModal .modal-head{
-  padding:8px 10px 6px!important;
-  margin:0!important;
-  align-items:center!important;
-}
-#familiasModal .modal-head p{
-  display:none!important;
-}
-#familiasModal #familiasGrid{
-  margin:0!important;
-  padding:0!important;
-}
-#familiasModal .explore-wrap,
-#familiasModal .explore-mobile-wrap{
-  margin:0!important;
-  padding-top:0!important;
-  gap:6px!important;
-}
-#familiasModal .explore-search{
-  margin:0!important;
-}
-#familiasModal .explore-breadcrumb{
-  margin:0!important;
-  padding:6px 8px!important;
-}
-#familiasModal .explore-layout{
-  margin-top:0!important;
-}
-#familiasModal .modal-foot{
-  margin-top:4px!important;
-  padding-top:4px!important;
-}
-
-@media(min-width:761px){
-  #familiasModal .modal-card{
-    height:92vh!important;
-    max-height:92vh!important;
-    padding:12px!important;
-  }
-  #familiasModal .modal-head h2{
-    font-size:20px!important;
-    line-height:1.1!important;
-  }
-}
-
-@media(max-width:760px){
-  #familiasModal .modal-card{
-    padding:8px!important;
-    gap:5px!important;
-  }
-  #familiasModal .modal-head{
-    padding:6px 8px 4px!important;
-  }
-  #familiasModal .modal-head h2{
-    font-size:17px!important;
-    line-height:1.1!important;
-  }
-  #familiasModal .explore-mobile-title{
-    margin:0!important;
-    padding:5px 7px!important;
-  }
-}
-
-
-#familiasModal.modal{
-  align-items:center!important;
-  justify-items:center!important;
-}
-#familiasModal .modal-card{
-  width:min(1220px,96vw)!important;
-  height:min(92vh,820px)!important;
-  max-height:92vh!important;
-  display:grid!important;
-  grid-template-rows:auto minmax(0,1fr) auto!important;
-  align-content:start!important;
-  gap:6px!important;
-  padding:10px!important;
-  overflow:hidden!important;
-}
-#familiasModal .modal-head{
-  min-height:0!important;
-  height:auto!important;
-  margin:0!important;
-  padding:6px 8px!important;
-  border-bottom:1px solid rgba(31,143,95,.16)!important;
-  align-items:center!important;
-}
-#familiasModal .modal-head > div{
-  min-height:0!important;
-  margin:0!important;
-  padding:0!important;
-}
-#familiasModal .modal-head h2{
-  margin:0!important;
-  padding:0!important;
-  line-height:1.05!important;
-  font-size:19px!important;
-}
-#familiasModal .modal-head p{
-  display:none!important;
-  height:0!important;
-  margin:0!important;
-  padding:0!important;
-}
-#familiasModal .modal-close{
-  flex:0 0 auto!important;
-  margin:0!important;
-}
-#familiasModal #familiasGrid{
-  min-height:0!important;
-  height:100%!important;
-  max-height:none!important;
-  margin:0!important;
-  padding:0!important;
-  overflow:hidden!important;
-  display:flex!important;
-  flex-direction:column!important;
-  align-self:start!important;
-}
-#familiasModal .explore-wrap,
-#familiasModal .explore-mobile-wrap{
-  flex:1 1 auto!important;
-  min-height:0!important;
-  height:100%!important;
-  margin:0!important;
-  padding:0!important;
-  display:flex!important;
-  flex-direction:column!important;
-  gap:6px!important;
-  overflow:hidden!important;
-}
-#familiasModal .explore-search{
-  flex:0 0 auto!important;
-  margin:0!important;
-  padding:0!important;
-}
-#familiasModal .explore-breadcrumb,
-#familiasModal .explore-mobile-head,
-#familiasModal .explore-mobile-title{
-  flex:0 0 auto!important;
-  margin:0!important;
-}
-#familiasModal .explore-breadcrumb{
-  padding:5px 8px!important;
-}
-#familiasModal .explore-layout,
-#familiasModal .explore-mobile-panel{
-  flex:1 1 auto!important;
-  min-height:0!important;
-  height:auto!important;
-  margin:0!important;
-  overflow:hidden!important;
-}
-#familiasModal .explore-products,
-#familiasModal .explore-mobile-products{
-  min-height:0!important;
-  overflow-y:auto!important;
-}
-#familiasModal .modal-foot{
-  margin:0!important;
-  padding:4px 0 0!important;
-}
-
-@media(max-width:760px){
-  #familiasModal.modal{
-    padding:6px!important;
-    align-items:stretch!important;
-    justify-items:stretch!important;
-  }
-  #familiasModal .modal-card{
-    width:100%!important;
-    max-width:100%!important;
-    height:calc(100vh - 12px)!important;
-    max-height:calc(100vh - 12px)!important;
-    border-radius:12px!important;
-    padding:8px!important;
-    gap:5px!important;
-  }
-  #familiasModal .modal-head{
-    padding:5px 6px!important;
-  }
-  #familiasModal .modal-head h2{
-    font-size:16px!important;
-  }
-  #familiasModal .explore-search input{
-    height:34px!important;
-  }
-  #familiasModal .explore-breadcrumb{
-    padding:5px 7px!important;
-  }
-}
-
-
-@media(min-width:761px){
-  #familiasModal .modal-card{
-    width:min(1280px,97vw)!important;
-    max-width:1280px!important;
-  }
-  #familiasModal .explore-layout{
-    grid-template-columns:200px 245px minmax(0,1fr)!important;
-    gap:12px!important;
-  }
-}
-
-#familiasModal .explore-search span,
-#familiasModal .explore-mobile-head span{
-  font-size:12px!important;
-  color:#c5ffe0!important;
-  font-weight:900!important;
-  border:1px solid rgba(31,143,95,.28)!important;
-  background:rgba(31,143,95,.10)!important;
-  padding:10px 12px!important;
-  border-radius:999px!important;
-  white-space:nowrap!important;
-  line-height:1!important;
-  width:max-content!important;
-  max-width:100%!important;
-}
-body.light #familiasModal .explore-search span,
-body.light-mode #familiasModal .explore-search span,
-body.light #familiasModal .explore-mobile-head span,
-body.light-mode #familiasModal .explore-mobile-head span{
-  color:#0f5d3d!important;
-  border-color:rgba(31,143,95,.28)!important;
-  background:rgba(31,143,95,.10)!important;
-}
-
-@media(max-width:760px){
-  #familiasModal .modal-head{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    align-items:start!important;
-    gap:8px!important;
-    padding:6px 6px 4px!important;
-  }
-  #familiasModal .modal-head > div{
-    min-width:0!important;
-  }
-  #familiasModal .modal-head p{
-    display:none!important;
-  }
-  #familiasModal .modal-close{
-    align-self:start!important;
-    justify-self:end!important;
-    margin:0!important;
-    transform:none!important;
-    position:relative!important;
-    top:0!important;
-    right:0!important;
-    width:32px!important;
-    height:32px!important;
-    line-height:1!important;
-  }
-  #familiasModal .modal-head h2{
-    line-height:1.05!important;
-    margin:0!important;
-    padding:0!important;
-  }
-  #familiasModal .explore-search span,
-  #familiasModal .explore-mobile-head span{
-    padding:7px 10px!important;
-    font-size:11px!important;
-  }
-}
-
-
-@media (max-width:760px){
-  #familiasModal.modal,
-  #familiasModal{
-    padding:0!important;
-    padding-bottom:env(safe-area-inset-bottom)!important;
-    place-items:stretch!important;
-    align-items:stretch!important;
-    justify-items:stretch!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal .modal-card{
-    width:100vw!important;
-    max-width:100vw!important;
-    height:100dvh!important;
-    max-height:100dvh!important;
-    min-height:0!important;
-    margin:0!important;
-    border-radius:14px 14px 0 0!important;
-    padding:8px 10px 0!important;
-    gap:6px!important;
-    overflow:hidden!important;
-    display:flex!important;
-    flex-direction:column!important;
-  }
-
-  #familiasModal .modal-head{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    align-items:start!important;
-    gap:8px!important;
-    padding:6px 4px 4px!important;
-    margin:0!important;
-    flex:0 0 auto!important;
-  }
-
-  #familiasModal .modal-head > div{
-    min-width:0!important;
-  }
-
-  #familiasModal .modal-head h2{
-    margin:0!important;
-    padding:0!important;
-    line-height:1.05!important;
-    font-size:17px!important;
-  }
-
-  #familiasModal .modal-head p{
-    display:none!important;
-  }
-
-  #familiasModal .modal-close{
-    align-self:start!important;
-    justify-self:end!important;
-    margin:0!important;
-    transform:none!important;
-    position:relative!important;
-    top:0!important;
-    right:0!important;
-    width:32px!important;
-    height:32px!important;
-    min-width:32px!important;
-    min-height:32px!important;
-    line-height:1!important;
-    padding:0!important;
-  }
-
-  #familiasModal #familiasGrid{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    height:auto!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal .explore-wrap,
-  #familiasModal .explore-mobile-wrap{
-    height:100%!important;
-    min-height:0!important;
-    display:flex!important;
-    flex-direction:column!important;
-    gap:6px!important;
-    margin:0!important;
-    padding:0!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal .explore-search{
-    flex:0 0 auto!important;
-    margin:0!important;
-    padding:0!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    gap:7px!important;
-  }
-
-  #familiasModal .explore-search input{
-    height:34px!important;
-    min-width:0!important;
-  }
-
-  #familiasModal .explore-search span,
-  #familiasModal .explore-mobile-head span{
-    padding:7px 10px!important;
-    font-size:11px!important;
-    line-height:1!important;
-  }
-
-  #familiasModal .explore-breadcrumb,
-  #familiasModal .explore-mobile-head,
-  #familiasModal .explore-mobile-title{
-    flex:0 0 auto!important;
-    margin:0!important;
-  }
-
-  #familiasModal .explore-breadcrumb{
-    padding:5px 7px!important;
-  }
-
-  #familiasModal .explore-layout,
-  #familiasModal .explore-mobile-panel{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    max-height:none!important;
-    height:auto!important;
-    overflow:hidden!important;
-    margin:0!important;
-  }
-
-  #familiasModal .explore-col{
-    min-height:0!important;
-    overflow:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-  }
-
-  #familiasModal .explore-products,
-  #familiasModal .explore-mobile-products{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    max-height:none!important;
-    overflow:auto!important;
-    padding-bottom:calc(env(safe-area-inset-bottom) + 22px)!important;
-    -webkit-overflow-scrolling:touch!important;
-  }
-
-  #familiasModal .modal-foot{
-    flex:0 0 auto!important;
-    margin:0!important;
-    padding:6px 4px calc(env(safe-area-inset-bottom) + 8px)!important;
-  }
-}
-
 /* =====================================================
    v2.3.2 PRO - Arreglo final Explorar + iPhone + contador
    ===================================================== */
 
 /* Contador Catálogo y Explorar idénticos */
-.modal .catalog-count,
-#familiasModal .explore-search span,
-#familiasModal .explore-mobile-head span{
+.modal .catalog-count{
   font-size:12px!important;
   color:#eafff3!important;
   font-weight:900!important;
@@ -3013,181 +1538,18 @@ body.light-mode #familiasModal .explore-mobile-head span{
   max-width:100%!important;
 }
 
-body.light-mode .modal .catalog-count,
-body.light-mode #familiasModal .explore-search span,
-body.light-mode #familiasModal .explore-mobile-head span{
+body.light-mode .modal .catalog-count{
   color:#14532d!important;
   background:#dcfce7!important;
   border:1px solid #86efac!important;
 }
 
 /* Explorador PC: un poco más ancho y compacto */
-@media (min-width:761px){
-  #familiasModal .modal-card{
-    width:min(1320px,98vw)!important;
-    max-width:1320px!important;
-    gap:6px!important;
-  }
-  #familiasModal .modal-head{
-    padding-bottom:6px!important;
-    margin-bottom:0!important;
-  }
-  #familiasModal .explore-wrap{
-    margin-top:0!important;
-    padding-top:0!important;
-  }
-  #familiasModal .explore-layout{
-    grid-template-columns:205px 255px minmax(0,1fr)!important;
-    gap:12px!important;
-  }
-}
 
 /* iPhone / móvil: sin esconderse con la barra inferior Safari */
 @media (max-width:760px){
-  #familiasModal.modal,
-  #familiasModal{
-    padding:0!important;
-    margin:0!important;
-    place-items:stretch!important;
-    align-items:stretch!important;
-    justify-items:stretch!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal .modal-card{
-    width:100vw!important;
-    max-width:100vw!important;
-    height:100dvh!important;
-    max-height:100dvh!important;
-    min-height:0!important;
-    margin:0!important;
-    border-radius:14px 14px 0 0!important;
-    padding:8px 10px 0!important;
-    gap:6px!important;
-    overflow:hidden!important;
-    display:flex!important;
-    flex-direction:column!important;
-  }
 
   /* fallback para navegadores sin dvh */
-  @supports not (height:100dvh){
-    #familiasModal .modal-card{
-      height:100vh!important;
-      max-height:100vh!important;
-    }
-  }
-
-  #familiasModal .modal-head{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    align-items:start!important;
-    gap:8px!important;
-    padding:6px 4px 4px!important;
-    margin:0!important;
-    flex:0 0 auto!important;
-  }
-
-  #familiasModal .modal-head > div{min-width:0!important;}
-  #familiasModal .modal-head p{display:none!important;}
-  #familiasModal .modal-head h2{
-    margin:0!important;
-    padding:0!important;
-    line-height:1.05!important;
-    font-size:17px!important;
-  }
-
-  #familiasModal .modal-close{
-    align-self:start!important;
-    justify-self:end!important;
-    margin:0!important;
-    transform:none!important;
-    position:relative!important;
-    top:0!important;
-    right:0!important;
-    width:32px!important;
-    height:32px!important;
-    min-width:32px!important;
-    min-height:32px!important;
-    line-height:1!important;
-    padding:0!important;
-  }
-
-  #familiasModal #familiasGrid{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    height:auto!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal .explore-wrap,
-  #familiasModal .explore-mobile-wrap{
-    height:100%!important;
-    min-height:0!important;
-    display:flex!important;
-    flex-direction:column!important;
-    gap:6px!important;
-    margin:0!important;
-    padding:0!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal .explore-search{
-    flex:0 0 auto!important;
-    margin:0!important;
-    padding:0!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    gap:7px!important;
-  }
-  #familiasModal .explore-search input{
-    height:34px!important;
-    min-width:0!important;
-  }
-  #familiasModal .explore-search span,
-  #familiasModal .explore-mobile-head span{
-    padding:7px 10px!important;
-    font-size:11px!important;
-  }
-
-  #familiasModal .explore-breadcrumb,
-  #familiasModal .explore-mobile-head,
-  #familiasModal .explore-mobile-title{
-    flex:0 0 auto!important;
-    margin:0!important;
-  }
-  #familiasModal .explore-breadcrumb{padding:5px 7px!important;}
-
-  #familiasModal .explore-layout,
-  #familiasModal .explore-mobile-panel{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    max-height:none!important;
-    height:auto!important;
-    overflow:hidden!important;
-    margin:0!important;
-  }
-
-  #familiasModal .explore-col{
-    min-height:0!important;
-    overflow:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-  }
-
-  #familiasModal .explore-products,
-  #familiasModal .explore-mobile-products{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    max-height:none!important;
-    overflow:auto!important;
-    padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 26px)!important;
-    -webkit-overflow-scrolling:touch!important;
-  }
-
-  #familiasModal .modal-foot{
-    flex:0 0 auto!important;
-    margin:0!important;
-    padding:6px 4px calc(env(safe-area-inset-bottom, 0px) + 10px)!important;
-    background:inherit!important;
-  }
 }
 
 /* =====================================================
@@ -3197,116 +1559,9 @@ body.light-mode #familiasModal .explore-mobile-head span{
    ===================================================== */
 @media (max-width:760px){
 
-  #familiasModal .modal-card{
-    width:100vw!important;
-    max-width:100vw!important;
-    box-sizing:border-box!important;
-  }
-
-  #familiasModal #familiasGrid,
-  #familiasModal .explore-wrap,
-  #familiasModal .explore-mobile-wrap,
-  #familiasModal .explore-mobile-panel,
-  #familiasModal .explore-layout{
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    margin-left:0!important;
-    margin-right:0!important;
-    box-sizing:border-box!important;
-  }
-
   /* Panel de categorías/subcategorías en móvil */
-  #familiasModal .explore-mobile-list,
-  #familiasModal .explore-mobile-cats,
-  #familiasModal .explore-mobile-subs{
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    margin:0!important;
-    padding:6px!important;
-    box-sizing:border-box!important;
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:6px!important;
-    align-items:stretch!important;
-    justify-items:stretch!important;
-    overflow:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-  }
 
   /* Por si entra en layout de columnas antiguo */
-  #familiasModal .explore-col,
-  #familiasModal .explore-cats,
-  #familiasModal .explore-subs{
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    margin:0!important;
-    padding:6px!important;
-    box-sizing:border-box!important;
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:6px!important;
-    align-items:stretch!important;
-    justify-items:stretch!important;
-  }
-
-  #familiasModal .explore-cat,
-  #familiasModal .explore-sub{
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    margin:0!important;
-    box-sizing:border-box!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:space-between!important;
-    text-align:left!important;
-  }
-
-  #familiasModal .explore-cat span,
-  #familiasModal .explore-sub span{
-    min-width:0!important;
-    max-width:100%!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-
-  #familiasModal .explore-cat em,
-  #familiasModal .explore-sub em{
-    flex:0 0 auto!important;
-    margin-left:6px!important;
-  }
-
-  #familiasModal .explore-products,
-  #familiasModal .explore-mobile-products{
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    margin:0!important;
-    box-sizing:border-box!important;
-  }
-}
-
-@media (max-width:380px){
-  #familiasModal .explore-mobile-list,
-  #familiasModal .explore-mobile-cats,
-  #familiasModal .explore-mobile-subs,
-  #familiasModal .explore-col,
-  #familiasModal .explore-cats,
-  #familiasModal .explore-subs{
-    grid-template-columns:1fr 1fr!important;
-    gap:5px!important;
-    padding:5px!important;
-  }
-
-  #familiasModal .explore-cat,
-  #familiasModal .explore-sub{
-    min-height:34px!important;
-    padding:6px 7px!important;
-    font-size:10.5px!important;
-  }
 }
 
 /* =====================================================
@@ -3319,8 +1574,7 @@ body.light-mode #familiasModal .explore-mobile-head span{
 
 /* PC: ambos modales con el mismo ancho real */
 @media (min-width:761px){
-  #catalogModal .modal-card,
-  #familiasModal .modal-card{
+  #catalogModal .modal-card{
     width:min(1320px,98vw)!important;
     max-width:1320px!important;
   }
@@ -3335,9 +1589,7 @@ body.light-mode #familiasModal .explore-mobile-head span{
 }
 
 /* Badge contador: verde legible y uniforme en Catálogo y Explorar */
-#catalogModal .catalog-count,
-#familiasModal .explore-search span,
-#familiasModal .explore-mobile-head span{
+#catalogModal .catalog-count{
   font-size:12px!important;
   color:#c5ffe0!important;
   font-weight:900!important;
@@ -3352,14 +1604,8 @@ body.light-mode #familiasModal .explore-mobile-head span{
 }
 
 body.light-mode #catalogModal .catalog-count,
-body.light-mode #familiasModal .explore-search span,
-body.light-mode #familiasModal .explore-mobile-head span,
 body.light #catalogModal .catalog-count,
-body.light #familiasModal .explore-search span,
-body.light #familiasModal .explore-mobile-head span,
-body.claro #catalogModal .catalog-count,
-body.claro #familiasModal .explore-search span,
-body.claro #familiasModal .explore-mobile-head span{
+body.claro #catalogModal .catalog-count{
   color:#167c3d!important;
   background:#dff8e8!important;
   border:1px solid #6ecf92!important;
@@ -3542,22 +1788,18 @@ body.claro #familiasModal .explore-mobile-head span{
 
 /* PC: ambos modales con el mismo ancho real */
 @media (min-width:761px){
-  #catalogModal .modal-card,
-  #familiasModal .modal-card{
+  #catalogModal .modal-card{
     width:min(1320px,98vw)!important;
     max-width:1320px!important;
   }
 
-  #catalogModal .catalog-items,
-  #familiasModal .explore-products{
+  #catalogModal .catalog-items{
     max-height:62vh!important;
   }
 }
 
 /* Contador de productos: verde visible, uniforme en oscuro y claro */
-#catalogModal .catalog-count,
-#familiasModal .explore-search span,
-#familiasModal .explore-mobile-head span{
+#catalogModal .catalog-count{
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
@@ -3578,13 +1820,7 @@ body.claro #familiasModal .explore-mobile-head span{
 
 body.light #catalogModal .catalog-count,
 body.light-mode #catalogModal .catalog-count,
-body.claro #catalogModal .catalog-count,
-body.light #familiasModal .explore-search span,
-body.light-mode #familiasModal .explore-search span,
-body.claro #familiasModal .explore-search span,
-body.light #familiasModal .explore-mobile-head span,
-body.light-mode #familiasModal .explore-mobile-head span,
-body.claro #familiasModal .explore-mobile-head span{
+body.claro #catalogModal .catalog-count{
   background:#dff8e8!important;
   border-color:#55bd7d!important;
   color:#13743a!important;
@@ -4317,126 +2553,26 @@ body.claro .line-qty-btn,
    No cambia lógica ni estructura móvil.
    ===================================================== */
 @media (min-width:761px){
-  #catalogModal .modal-card,
-  #familiasModal .modal-card{
+  #catalogModal .modal-card{
     width:min(1320px,98vw)!important;
     max-width:1320px!important;
     padding:18px!important;
     gap:12px!important;
   }
 
-  #catalogModal .modal-head,
-  #familiasModal .modal-head{
+  #catalogModal .modal-head{
     padding-bottom:12px!important;
     margin-bottom:0!important;
     gap:18px!important;
     border-bottom:1px solid rgba(31,143,95,.18)!important;
   }
 
-  #familiasModal #familiasGrid{
-    min-height:0!important;
-    display:flex!important;
-    flex-direction:column!important;
-  }
-
-  #familiasModal .explore-wrap{
-    display:flex!important;
-    flex-direction:column!important;
-    gap:12px!important;
-    padding:0!important;
-    margin:0!important;
-    min-height:0!important;
-  }
-
-  #familiasModal .explore-search{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    align-items:center!important;
-    gap:12px!important;
-    margin:0!important;
-    padding:0!important;
-  }
-
-  #familiasModal .explore-search input,
   #catalogModal .catalog-filter{
     height:42px!important;
     margin:0!important;
   }
 
-  #familiasModal .explore-breadcrumb{
-    margin:0!important;
-    padding:10px 12px!important;
-    border-radius:13px!important;
-  }
-
-  #familiasModal .explore-layout{
-    display:grid!important;
-    grid-template-columns:220px 260px minmax(0,1fr)!important;
-    gap:12px!important;
-    min-height:0!important;
-    height:min(62vh,640px)!important;
-    margin:0!important;
-    padding:0!important;
-  }
-
-  #familiasModal .explore-col,
-  #familiasModal .explore-products{
-    padding:10px!important;
-    gap:8px!important;
-    border-radius:14px!important;
-  }
-
-  #familiasModal .explore-col{
-    display:flex!important;
-    flex-direction:column!important;
-    overflow:auto!important;
-  }
-
-  #familiasModal .explore-products{
-    max-height:none!important;
-    height:100%!important;
-    overflow:auto!important;
-  }
-
-  #familiasModal .explore-cat,
-  #familiasModal .explore-sub{
-    min-height:40px!important;
-    padding:9px 11px!important;
-    border-radius:12px!important;
-    font-size:12px!important;
-  }
-
-  #familiasModal .explore-cat em,
-  #familiasModal .explore-sub em{
-    padding:3px 8px!important;
-    font-size:11px!important;
-  }
-
-  #familiasModal .explore-product{
-    padding:10px 11px!important;
-    gap:12px!important;
-    border-radius:13px!important;
-    min-height:62px!important;
-  }
-
-  #familiasModal .explore-product-main strong{
-    font-size:12.5px!important;
-  }
-
-  #familiasModal .explore-product-main span{
-    font-size:11px!important;
-  }
-
-  #familiasModal .explore-add{
-    height:31px!important;
-    min-width:72px!important;
-    padding:6px 10px!important;
-    border-radius:9px!important;
-  }
-
-  #catalogModal .catalog-count,
-  #familiasModal .explore-search span,
-  #familiasModal .explore-mobile-head span{
+  #catalogModal .catalog-count{
     min-height:34px!important;
     padding:8px 12px!important;
   }
@@ -4446,97 +2582,11 @@ body.claro .line-qty-btn,
 /* =====================================================
    2.7.0 - Explorar móvil: evitar recorte derecho sin tocar JS
    ===================================================== */
-@media (max-width:760px){
-  #familiasModal,
-  #familiasModal *{
-    box-sizing:border-box!important;
-  }
-
-  #familiasModal{
-    padding-left:8px!important;
-    padding-right:8px!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal .modal-card{
-    width:calc(100vw - 16px)!important;
-    max-width:calc(100vw - 16px)!important;
-    margin:0 auto!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal #familiasGrid,
-  #familiasModal .explore-wrap,
-  #familiasModal .explore-mobile-wrap,
-  #familiasModal .explore-layout,
-  #familiasModal .explore-col,
-  #familiasModal .explore-products,
-  #familiasModal .explore-mobile-panel,
-  #familiasModal .explore-mobile-list,
-  #familiasModal .explore-mobile-cats,
-  #familiasModal .explore-mobile-subs{
-    max-width:100%!important;
-    min-width:0!important;
-    overflow-x:hidden!important;
-  }
-
-  #familiasModal .explore-search,
-  #familiasModal .explore-mobile-head{
-    max-width:100%!important;
-    min-width:0!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal .explore-search input,
-  #familiasModal .explore-cat,
-  #familiasModal .explore-sub,
-  #familiasModal .explore-product{
-    min-width:0!important;
-    max-width:100%!important;
-  }
-}
 
 
 /* =====================================================
    2.7.1 - Ajuste fino Explorar móvil: sin recorte derecho
    ===================================================== */
-@media (max-width:760px){
-  #familiasModal{
-    padding-left:10px!important;
-    padding-right:10px!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal .modal-card{
-    width:calc(100svw - 0px)!important;
-    max-width:calc(100svw - 0px)!important;
-    margin:0 auto!important;
-    overflow:hidden!important;
-  }
-
-  #familiasModal #familiasGrid,
-  #familiasModal .explore-wrap,
-  #familiasModal .explore-mobile-wrap,
-  #familiasModal .explore-layout,
-  #familiasModal .explore-col,
-  #familiasModal .explore-products,
-  #familiasModal .explore-mobile-panel,
-  #familiasModal .explore-mobile-list,
-  #familiasModal .explore-mobile-cats,
-  #familiasModal .explore-mobile-subs{
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    overflow-x:hidden!important;
-  }
-
-  #familiasModal .explore-cat,
-  #familiasModal .explore-sub,
-  #familiasModal .explore-product{
-    width:100%!important;
-    max-width:100%!important;
-  }
-}
 
 /* =====================================================
    2.7.3 - Orden por arrastre en PC + cantidad más ancha
@@ -6151,35 +4201,19 @@ body.light-mode #pmModal .pmx-row-side strong{
    3.0.0 ESTABLE - Catálogo y Explorador
    Estados visuales aislados, sin gradientes verdes.
    ===================================================== */
-#catalogModal .catalog-row,
-#familiasModal .explore-product,
-#familiasModal .explore-cat,
-#familiasModal .explore-sub{
+#catalogModal .catalog-row{
   transition:background-color .14s ease,border-color .14s ease,color .14s ease,box-shadow .14s ease!important;
 }
 
 /* Modo oscuro */
-body:not(.light-mode) #catalogModal .catalog-row:hover,
-body:not(.light-mode) #familiasModal .explore-product:hover,
-body:not(.light-mode) #familiasModal .explore-cat:hover:not(.active),
-body:not(.light-mode) #familiasModal .explore-sub:hover:not(.active){
+body:not(.light-mode) #catalogModal .catalog-row:hover{
   background:#263442!important;
   background-image:none!important;
   border-color:#526b80!important;
   color:#f7fafc!important;
 }
-body:not(.light-mode) #catalogModal .catalog-row:hover *,
-body:not(.light-mode) #familiasModal .explore-product:hover *,
-body:not(.light-mode) #familiasModal .explore-cat:hover:not(.active) *,
-body:not(.light-mode) #familiasModal .explore-sub:hover:not(.active) *{
+body:not(.light-mode) #catalogModal .catalog-row:hover *{
   color:#f7fafc!important;
-}
-body:not(.light-mode) #familiasModal .explore-cat.active,
-body:not(.light-mode) #familiasModal .explore-sub.active{
-  background:#34495e!important;
-  background-image:none!important;
-  border-color:#7894ad!important;
-  color:#fff!important;
 }
 
 /* Modo claro */
@@ -6189,120 +4223,61 @@ body.light-mode #catalogModal .catalog-row{
   border-color:#d7e0e8!important;
   color:#1f2937!important;
 }
-body.light-mode #catalogModal .catalog-row:hover,
-body.light-mode #familiasModal .explore-product:hover,
-body.light-mode #familiasModal .explore-cat:hover:not(.active),
-body.light-mode #familiasModal .explore-sub:hover:not(.active){
+body.light-mode #catalogModal .catalog-row:hover{
   background:#e9f0f6!important;
   background-image:none!important;
   border-color:#9fb3c5!important;
   color:#1f2937!important;
   box-shadow:none!important;
 }
-body.light-mode #catalogModal .catalog-row:hover *,
-body.light-mode #familiasModal .explore-product:hover *,
-body.light-mode #familiasModal .explore-cat:hover:not(.active) *,
-body.light-mode #familiasModal .explore-sub:hover:not(.active) *{
+body.light-mode #catalogModal .catalog-row:hover *{
   color:#1f2937!important;
 }
-body.light-mode #familiasModal .explore-cat.active,
-body.light-mode #familiasModal .explore-sub.active{
-  background:#d8e6f2!important;
-  background-image:none!important;
-  border-color:#7f9db7!important;
-  color:#17324a!important;
-  box-shadow:none!important;
-}
-body.light-mode #familiasModal .explore-cat.active *,
-body.light-mode #familiasModal .explore-sub.active *{
-  color:#17324a!important;
-}
-body.light-mode #catalogModal .catalog-main strong,
-body.light-mode #familiasModal .explore-product-main strong{
+body.light-mode #catalogModal .catalog-main strong{
   color:#17202a!important;
 }
-body.light-mode #catalogModal .catalog-main span,
-body.light-mode #familiasModal .explore-product-main span{
+body.light-mode #catalogModal .catalog-main span{
   color:#526373!important;
 }
-body.light-mode #catalogModal .catalog-row>b,
-body.light-mode #familiasModal .explore-product>b{
+body.light-mode #catalogModal .catalog-row>b{
   color:#274c67!important;
 }
 
 /* Botones Añadir / Añadido */
-#catalogModal .catalog-add,
-#familiasModal .explore-add{
+#catalogModal .catalog-add{
   background:#3d4b57!important;
   background-image:none!important;
   border:1px solid #657686!important;
   color:#ffffff!important;
   box-shadow:none!important;
 }
-#catalogModal .catalog-add:hover,
-#familiasModal .explore-add:hover{
+#catalogModal .catalog-add:hover{
   background:#4a5b69!important;
   border-color:#8395a5!important;
   color:#ffffff!important;
 }
-#catalogModal .catalog-add.added-ok,
-#familiasModal .explore-add.added-ok{
+#catalogModal .catalog-add.added-ok{
   background:#355a78!important;
   background-image:none!important;
   border-color:#6f96b6!important;
   color:#ffffff!important;
 }
-body.light-mode #catalogModal .catalog-add,
-body.light-mode #familiasModal .explore-add{
+body.light-mode #catalogModal .catalog-add{
   background:#e2e8ee!important;
   background-image:none!important;
   border-color:#aab9c6!important;
   color:#263746!important;
 }
-body.light-mode #catalogModal .catalog-add:hover,
-body.light-mode #familiasModal .explore-add:hover{
+body.light-mode #catalogModal .catalog-add:hover{
   background:#d2dde6!important;
   border-color:#8fa5b7!important;
   color:#1d2d3b!important;
 }
-body.light-mode #catalogModal .catalog-add.added-ok,
-body.light-mode #familiasModal .explore-add.added-ok{
+body.light-mode #catalogModal .catalog-add.added-ok{
   background:#cfe0ee!important;
   background-image:none!important;
   border-color:#7e9fba!important;
   color:#17324a!important;
-}
-
-
-body.light-mode #familiasModal .explore-cat.active,
-body.light-mode #familiasModal .explore-sub.active,
-body.light #familiasModal .explore-cat.active,
-body.light #familiasModal .explore-sub.active,
-body.claro #familiasModal .explore-cat.active,
-body.claro #familiasModal .explore-sub.active{
-  background:#d8e6f2 !important;
-  background-image:none !important;
-  border-color:#7f9db7 !important;
-  color:#17324a !important;
-  box-shadow:none !important;
-}
-body.light-mode #familiasModal .explore-cat.active *,
-body.light-mode #familiasModal .explore-sub.active *,
-body.light #familiasModal .explore-cat.active *,
-body.light #familiasModal .explore-sub.active *,
-body.claro #familiasModal .explore-cat.active *,
-body.claro #familiasModal .explore-sub.active *{
-  color:#17324a !important;
-  -webkit-text-fill-color:#17324a !important;
-}
-body.light-mode #familiasModal .explore-cat.active em,
-body.light-mode #familiasModal .explore-sub.active em,
-body.light #familiasModal .explore-cat.active em,
-body.light #familiasModal .explore-sub.active em,
-body.claro #familiasModal .explore-cat.active em,
-body.claro #familiasModal .explore-sub.active em{
-  color:#496579 !important;
-  -webkit-text-fill-color:#496579 !important;
 }
 
 /* 3.0.0 - efecto único al añadir al final */
@@ -6674,9 +4649,6 @@ body.light-mode .hx-global-toast.is-error{background:#f7e8ea;border-color:#d8aeb
 #catalogModal .catalog-row{
   grid-template-columns:minmax(0,1fr) auto auto auto;
 }
-#familiasModal .explore-product{
-  grid-template-columns:minmax(0,1fr) auto auto auto!important;
-}
 body.light-mode .hx-modal-qty,
 body.light .hx-modal-qty{
   background:#f4f8f6;
@@ -6694,18 +4666,6 @@ body.light .hx-modal-qty-value{color:#173126;}
   }
   #catalogModal .catalog-add{
     grid-column:2!important;
-    width:auto!important;
-    min-width:92px;
-  }
-  #familiasModal .explore-mobile-products .explore-product{
-    grid-template-columns:minmax(0,1fr) auto!important;
-  }
-  #familiasModal .explore-mobile-products .hx-modal-qty{
-    grid-column:1;
-    width:max-content;
-  }
-  #familiasModal .explore-mobile-products .explore-add{
-    grid-column:2;
     width:auto!important;
     min-width:92px;
   }
@@ -6763,164 +4723,13 @@ body.light .hx-modal-qty-value{color:#173126;}
 }
 
 
-@media (hover:none), (pointer:coarse){
-  #familiasModal .explore-cat:hover:not(.active),
-  #familiasModal .explore-sub:hover:not(.active),
-  #familiasModal .explore-product:hover{
-    background:inherit!important;
-    border-color:inherit!important;
-  }
-  #familiasModal .explore-cat,
-  #familiasModal .explore-sub,
-  #familiasModal .explore-product,
-  #familiasModal button{
-    -webkit-tap-highlight-color:transparent!important;
-  }
-  #familiasModal .explore-cat:focus:not(:focus-visible),
-  #familiasModal .explore-sub:focus:not(:focus-visible),
-  #familiasModal .explore-product:focus:not(:focus-visible),
-  #familiasModal button:focus:not(:focus-visible){
-    outline:none!important;
-    box-shadow:none!important;
-  }
-  #familiasModal .explore-product{cursor:default!important;}
-}
-
-@media(max-width:760px){
-  #familiasModal .explore-mobile-products .explore-product{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    grid-template-areas:
-      "main price"
-      "qty add"!important;
-    align-items:center!important;
-    gap:8px 10px!important;
-  }
-  #familiasModal .explore-mobile-products .explore-product-main{
-    grid-area:main!important;
-    min-width:0!important;
-  }
-  #familiasModal .explore-mobile-products .explore-product>b{
-    grid-area:price!important;
-    justify-self:end!important;
-  }
-  #familiasModal .explore-mobile-products .hx-modal-qty{
-    grid-area:qty!important;
-    grid-column:auto!important;
-    width:96px!important;
-    min-width:96px!important;
-    max-width:96px!important;
-    justify-self:start!important;
-    margin:0!important;
-  }
-  #familiasModal .explore-mobile-products .explore-add{
-    grid-area:add!important;
-    grid-column:auto!important;
-    justify-self:end!important;
-    width:auto!important;
-    min-width:92px!important;
-    max-width:120px!important;
-    margin:0!important;
-  }
-}
-
-
 /* PC/tablet: las dos columnas laterales deben ser scrollers reales.
    Así scrollTop pertenece a la columna y puede restaurarse tras renderizar. */
-@media (min-width:901px){
-  #familiasModal .explore-cats,
-  #familiasModal .explore-subs{
-    height:100%!important;
-    max-height:none!important;
-    min-height:0!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    align-self:stretch!important;
-    scrollbar-width:thin;
-    overscroll-behavior:contain;
-  }
-  #familiasModal .explore-cats::-webkit-scrollbar,
-  #familiasModal .explore-subs::-webkit-scrollbar{width:7px!important;display:block!important;}
-  #familiasModal .explore-cats::-webkit-scrollbar-thumb,
-  #familiasModal .explore-subs::-webkit-scrollbar-thumb{
-    background:rgba(31,143,95,.38)!important;
-    border-radius:999px!important;
-  }
-}
 
 /* Táctil: anula todos los estados visuales transitorios del navegador.
    Solo .active representa una selección real. */
-@media (hover:none), (pointer:coarse){
-  #familiasModal .explore-cat:not(.active),
-  #familiasModal .explore-cat:not(.active):hover,
-  #familiasModal .explore-cat:not(.active):active,
-  #familiasModal .explore-cat:not(.active):focus,
-  #familiasModal .explore-cat:not(.active):focus-visible,
-  #familiasModal .explore-sub:not(.active),
-  #familiasModal .explore-sub:not(.active):hover,
-  #familiasModal .explore-sub:not(.active):active,
-  #familiasModal .explore-sub:not(.active):focus,
-  #familiasModal .explore-sub:not(.active):focus-visible{
-    background:rgba(255,255,255,.035)!important;
-    border-color:rgba(31,143,95,.12)!important;
-    color:#f5fff8!important;
-    box-shadow:none!important;
-    outline:none!important;
-    filter:none!important;
-    transform:none!important;
-  }
-  #familiasModal .explore-product,
-  #familiasModal .explore-product:hover,
-  #familiasModal .explore-product:active,
-  #familiasModal .explore-product:focus,
-  #familiasModal .explore-product:focus-within{
-    background:rgba(255,255,255,.03)!important;
-    border-color:rgba(31,143,95,.10)!important;
-    box-shadow:none!important;
-    outline:none!important;
-    filter:none!important;
-    transform:none!important;
-  }
-  body.light #familiasModal .explore-cat:not(.active),
-  body.light #familiasModal .explore-cat:not(.active):hover,
-  body.light #familiasModal .explore-cat:not(.active):active,
-  body.light #familiasModal .explore-cat:not(.active):focus,
-  body.light #familiasModal .explore-sub:not(.active),
-  body.light #familiasModal .explore-sub:not(.active):hover,
-  body.light #familiasModal .explore-sub:not(.active):active,
-  body.light #familiasModal .explore-sub:not(.active):focus,
-  body.light-mode #familiasModal .explore-cat:not(.active),
-  body.light-mode #familiasModal .explore-cat:not(.active):hover,
-  body.light-mode #familiasModal .explore-cat:not(.active):active,
-  body.light-mode #familiasModal .explore-cat:not(.active):focus,
-  body.light-mode #familiasModal .explore-sub:not(.active),
-  body.light-mode #familiasModal .explore-sub:not(.active):hover,
-  body.light-mode #familiasModal .explore-sub:not(.active):active,
-  body.light-mode #familiasModal .explore-sub:not(.active):focus{
-    background:#fff!important;
-    border-color:#d8e8df!important;
-    color:#193227!important;
-  }
-  body.light #familiasModal .explore-product,
-  body.light #familiasModal .explore-product:hover,
-  body.light #familiasModal .explore-product:active,
-  body.light #familiasModal .explore-product:focus-within,
-  body.light-mode #familiasModal .explore-product,
-  body.light-mode #familiasModal .explore-product:hover,
-  body.light-mode #familiasModal .explore-product:active,
-  body.light-mode #familiasModal .explore-product:focus-within{
-    background:#fff!important;
-    border-color:#d7e6de!important;
-  }
-}
 
 /* Móvil: botonera superior compacta, dos parejas en dos filas. */
-@media(max-width:760px){
-  
-  
-  
-  
-}
 
 /* =====================================================
    v3.5.0 - PULIDO UI CONSOLIDADO
@@ -6930,15 +4739,13 @@ body.light .hx-modal-qty-value{color:#173126;}
    ===================================================== */
 
 /* Cabeceras y cierre: misma geometría en ambos modales. */
-#catalogModal .modal-head,
-#familiasModal .modal-head{
+#catalogModal .modal-head{
   display:grid!important;
   grid-template-columns:minmax(0,1fr) 38px!important;
   align-items:start!important;
   gap:10px!important;
 }
-#catalogModal .modal-close,
-#familiasModal .modal-close{
+#catalogModal .modal-close{
   position:relative!important;
   inset:auto!important;
   justify-self:end!important;
@@ -7004,19 +4811,16 @@ body.light .hx-modal-qty-value{color:#173126;}
   }
 
   /* En móvil el cierre es siempre la X superior; sin segundo botón ancho. */
-  #catalogModal .modal-foot,
-  #familiasModal .modal-foot{
+  #catalogModal .modal-foot{
     display:none!important;
   }
-  #catalogModal .modal-head,
-  #familiasModal .modal-head{
+  #catalogModal .modal-head{
     grid-template-columns:minmax(0,1fr) 36px!important;
     align-items:center!important;
     padding:7px 4px!important;
     min-height:48px!important;
   }
-  #catalogModal .modal-close,
-  #familiasModal .modal-close{
+  #catalogModal .modal-close{
     width:36px!important;
     min-width:36px!important;
     max-width:36px!important;
@@ -8339,30 +6143,6 @@ body.light #pmModal .pmx-row.is-selected *,body.light-mode #pmModal .pmx-row.is-
   padding:0!important;
   flex:0 0 auto!important;
 }
-#pmModal .pmx-filter-notice.explore-breadcrumb{
-  margin:0!important;
-  padding:8px 10px!important;
-  min-height:36px!important;
-  box-sizing:border-box!important;
-  flex:0 0 auto!important;
-}
-#pmModal .pmx-workspace.explore-layout{
-  grid-template-columns:250px minmax(420px,1.15fr) minmax(330px,.85fr)!important;
-  gap:10px!important;
-  min-height:0!important;
-  height:auto!important;
-  flex:1 1 auto!important;
-  align-items:stretch!important;
-  overflow:hidden!important;
-  padding:0!important;
-}
-#pmModal .pmx-folders.explore-col{
-  width:auto!important;min-width:0!important;max-width:none!important;
-  height:100%!important;max-height:none!important;
-  overflow-y:auto!important;overflow-x:hidden!important;
-  padding:7px!important;gap:5px!important;
-  box-sizing:border-box!important;
-}
 #pmModal .pmx-folder-group,
 #pmModal .pmx-folder-group>div{width:100%!important;min-width:0!important;overflow:visible!important}
 #pmModal .pmx-folder{
@@ -8390,11 +6170,6 @@ body.light #pmModal .pmx-row.is-selected *,body.light-mode #pmModal .pmx-row.is-
   box-shadow:0 0 0 2px rgba(31,143,95,.18)!important;
 }
 #pmModal .pmx-folder.is-active *,#pmModal .pmx-folder[data-pm-active="true"] *{color:#fff!important;opacity:1!important}
-#pmModal .pmx-browser.explore-products{
-  display:flex!important;flex-direction:column!important;
-  min-height:0!important;height:100%!important;max-height:none!important;
-  overflow:hidden!important;padding:0!important;gap:0!important;
-}
 #pmModal .pmx-browser-head{flex:0 0 auto!important}
 #pmModal .pmx-list{
   flex:1 1 auto!important;min-height:0!important;
@@ -8451,14 +6226,7 @@ body.light #pmModal .pmx-row.is-selected,body.light-mode #pmModal .pmx-row.is-se
   #pmModal .pmx-head{padding-bottom:8px!important}
   #pmModal .pmx-toolbar{grid-template-columns:1fr!important;padding:0!important}
   #pmModal .pmx-toolbar select{display:none!important}
-  #pmModal .pmx-workspace.explore-layout{display:block!important;overflow:hidden!important}
-  #pmModal:not(.pm-mobile-list) .pmx-workspace.explore-layout{overflow-y:auto!important}
-  #pmModal:not(.pm-mobile-list) .pmx-folders.explore-col{
-    display:flex!important;flex-direction:column!important;width:100%!important;height:auto!important;
-    max-height:none!important;overflow:visible!important;padding:8px!important;
-  }
   #pmModal:not(.pm-mobile-list) .pmx-folder{min-height:46px!important;padding:10px 12px!important;font-size:14px!important}
-  #pmModal.pm-mobile-list .pmx-browser.explore-products{display:flex!important;height:100%!important;min-height:0!important}
   #pmModal.pm-mobile-list .pmx-list{padding:7px!important;gap:8px!important}
   #pmModal.pm-mobile-list .pmx-row{min-height:100px!important;padding:11px!important}
   #pmModal .pmx-mobile-back-filters{min-height:46px!important;margin:10px 0 14px!important;padding:10px 15px!important}
@@ -9092,16 +6860,14 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
 
 
 /* v4.2.20 · fotos y descripciones, integración mínima */
-.catalog-row .hx-product-info,
-.explore-product .hx-product-info{
+.catalog-row .hx-product-info{
   min-width:0;
   display:flex;
   align-items:center;
   gap:10px;
   overflow:hidden;
 }
-.catalog-row .hx-product-copy,
-.explore-product .hx-product-copy{
+.catalog-row .hx-product-copy{
   min-width:0;
   display:flex;
   flex-direction:column;
@@ -9109,17 +6875,13 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
   overflow:hidden;
 }
 .catalog-row .hx-product-copy strong,
-.explore-product .hx-product-copy strong,
-.catalog-row .hx-product-copy span,
-.explore-product .hx-product-copy span{
+.catalog-row .hx-product-copy span{
   min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.catalog-row .hx-product-copy strong,
-.explore-product .hx-product-copy strong{white-space:nowrap}
-.catalog-row .hx-product-copy span,
-.explore-product .hx-product-copy span{
+.catalog-row .hx-product-copy strong{white-space:nowrap}
+.catalog-row .hx-product-copy span{
   white-space:nowrap;
   opacity:.82;
 }
@@ -9182,16 +6944,14 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
   cursor:pointer;
 }
 @media(max-width:760px){
-  .catalog-row .hx-product-info,
-  .explore-product .hx-product-info{gap:8px}
+  .catalog-row .hx-product-info{gap:8px}
   .hx-product-thumb{
     flex-basis:38px;
     width:38px;
     height:38px;
     border-radius:7px;
   }
-  .catalog-row .hx-product-copy span,
-  .explore-product .hx-product-copy span{
+  .catalog-row .hx-product-copy span{
     white-space:normal;
     display:-webkit-box;
     -webkit-line-clamp:2;
@@ -9202,24 +6962,20 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
 
 
 /* v4.2.20b · conservar orden estable y ajustar solo legibilidad */
-.catalog-row .hx-product-copy strong,
-.explore-product .hx-product-copy strong{
+.catalog-row .hx-product-copy strong{
   font-size:12px!important;
   line-height:1.2!important;
   font-weight:700!important;
 }
-.catalog-row .hx-product-copy span,
-.explore-product .hx-product-copy span{
+.catalog-row .hx-product-copy span{
   font-size:10.5px!important;
   line-height:1.25!important;
 }
 @media(max-width:760px){
-  .catalog-row .hx-product-copy strong,
-  .explore-product .hx-product-copy strong{
+  .catalog-row .hx-product-copy strong{
     font-size:11.5px!important;
   }
-  .catalog-row .hx-product-copy span,
-  .explore-product .hx-product-copy span{
+  .catalog-row .hx-product-copy span{
     font-size:10px!important;
   }
 }
@@ -9315,35 +7071,6 @@ body.dark .hx-cost-warning{color:#fecaca;background:rgba(220,38,38,.24);border-c
 /* =====================================================
    CABECERA PRINCIPAL — TOOLBAR ÚNICA PC / MÓVIL
    ===================================================== */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@media(max-width:760px){
-  
-  
-  
-  
-  
-  
-  
-}
-@media(max-width:370px){
-  
-  
-  
-  
-}
 
 /* CABECERA PRINCIPAL: una única implementación para PC y móvil */
 .header{
@@ -9510,41 +7237,11 @@ body.claro .hx-image-preview img{
    EXPLORER 3.0.1 - subcategorías visibles, sin iconos negros
    y fondo gris neutro para fotografías en toda la app.
    ===================================================== */
-#familiasModal .hx-explorer-nav > span > i{display:none!important;}
-#familiasModal .hx-explorer-subchips{
-  display:flex!important;
-  flex-wrap:wrap!important;
-  gap:7px!important;
-  margin:0 0 10px!important;
-  padding:8px!important;
-  border:1px solid rgba(128,145,158,.24)!important;
-  border-radius:12px!important;
-  background:rgba(128,145,158,.07)!important;
-}
-#familiasModal .hx-explorer-chip{
-  display:inline-flex!important;
-  align-items:center!important;
-  gap:6px!important;
-  min-height:32px!important;
-  padding:6px 10px!important;
-  border-radius:999px!important;
-  background:#27313a!important;
-  background-image:none!important;
-  border:1px solid #4b5a66!important;
-  color:#edf2f5!important;
-  box-shadow:none!important;
-}
-#familiasModal .hx-explorer-chip.active{background:#465a6b!important;border-color:#7d94a6!important;color:#fff!important;}
-#familiasModal .hx-explorer-chip em{font-style:normal!important;opacity:.72!important;}
-body.light-mode #familiasModal .hx-explorer-subchips{background:#f2f5f7!important;border-color:#d2dbe1!important;}
-body.light-mode #familiasModal .hx-explorer-chip{background:#fff!important;border-color:#c4d0d8!important;color:#263746!important;}
-body.light-mode #familiasModal .hx-explorer-chip.active{background:#dbe6ee!important;border-color:#91a9bb!important;color:#17324a!important;}
 
 /* Fotos: gris neutro; nunca verde ni negro de botón. */
 .hx-product-thumb,
 button.hx-product-thumb,
-.catalog-row .hx-product-thumb,
-.explore-product .hx-product-thumb{
+.catalog-row .hx-product-thumb{
   background:#2a3036!important;
   background-image:none!important;
   border-color:#515b64!important;
@@ -9561,241 +7258,11 @@ body.claro .hx-product-thumb{background:#eef1f3!important;background-image:none!
 body.light-mode .hx-product-thumb:hover,body.light-mode button.hx-product-thumb:hover{background:#e4e9ec!important;border-color:#aeb9c1!important;}
 body.light-mode .hx-image-preview img,body.light .hx-image-preview img,body.claro .hx-image-preview img{background:#eef1f3!important;background-image:none!important;border-color:#c4ccd2!important;}
 
-@media(max-width:760px){
-  #familiasModal .hx-explorer-subchips{overflow-x:auto!important;flex-wrap:nowrap!important;padding:7px!important;scrollbar-width:none!important;}
-  #familiasModal .hx-explorer-subchips::-webkit-scrollbar{display:none!important;}
-  #familiasModal .hx-explorer-chip{flex:0 0 auto!important;}
-}
-
 /* =====================================================
    EXPLORER 3.0.3 — tercer nivel compacto
    ===================================================== */
-#familiasModal .hx-explorer-filterbar{
-  position:relative!important;
-  min-width:0!important;
-  z-index:12!important;
-}
-#familiasModal .hx-explorer-subchips{
-  display:flex!important;
-  flex-wrap:nowrap!important;
-  align-items:center!important;
-  gap:7px!important;
-  min-height:48px!important;
-  max-height:48px!important;
-  margin:0!important;
-  padding:7px!important;
-  overflow:hidden!important;
-}
-#familiasModal .hx-explorer-chip{
-  flex:0 1 auto!important;
-  min-width:0!important;
-  max-width:190px!important;
-  height:34px!important;
-  min-height:34px!important;
-  padding:0 10px!important;
-  white-space:nowrap!important;
-}
-#familiasModal .hx-explorer-chip span{
-  min-width:0!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-  white-space:nowrap!important;
-}
-#familiasModal .hx-explorer-more{
-  flex:0 0 auto!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:6px!important;
-  height:34px!important;
-  min-height:34px!important;
-  padding:0 11px!important;
-  border-radius:999px!important;
-  background:#313b44!important;
-  border:1px solid #596874!important;
-  color:#eef3f6!important;
-  box-shadow:none!important;
-}
-#familiasModal .hx-explorer-more em{font-style:normal!important;opacity:.75!important}
-#familiasModal .hx-explorer-more.active{background:#465a6b!important;border-color:#7d94a6!important}
-#familiasModal .hx-explorer-filter-popover{
-  position:absolute!important;
-  top:calc(100% + 6px)!important;
-  left:0!important;
-  right:0!important;
-  z-index:40!important;
-  display:grid!important;
-  grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important;
-  gap:7px!important;
-  max-height:220px!important;
-  padding:10px!important;
-  overflow:auto!important;
-  border:1px solid #596874!important;
-  border-radius:12px!important;
-  background:#20272d!important;
-  box-shadow:0 16px 36px rgba(0,0,0,.28)!important;
-}
-#familiasModal .hx-explorer-filter-popover .hx-explorer-chip{
-  width:100%!important;
-  max-width:none!important;
-  justify-content:space-between!important;
-}
-body.light-mode #familiasModal .hx-explorer-more,
-body.light #familiasModal .hx-explorer-more,
-body.claro #familiasModal .hx-explorer-more{
-  background:#fff!important;
-  border-color:#c4d0d8!important;
-  color:#263746!important;
-}
-body.light-mode #familiasModal .hx-explorer-more.active,
-body.light #familiasModal .hx-explorer-more.active,
-body.claro #familiasModal .hx-explorer-more.active{
-  background:#dbe6ee!important;
-  border-color:#91a9bb!important;
-}
-body.light-mode #familiasModal .hx-explorer-filter-popover,
-body.light #familiasModal .hx-explorer-filter-popover,
-body.claro #familiasModal .hx-explorer-filter-popover{
-  background:#fff!important;
-  border-color:#c4d0d8!important;
-  box-shadow:0 16px 36px rgba(44,61,73,.18)!important;
-}
-@media(max-width:760px){
-  #familiasModal .hx-explorer-subchips{
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    scrollbar-width:none!important;
-  }
-  #familiasModal .hx-explorer-subchips::-webkit-scrollbar{display:none!important}
-  #familiasModal .hx-explorer-chip{flex:0 0 auto!important;max-width:210px!important}
-  #familiasModal .hx-explorer-filter-popover{
-    position:fixed!important;
-    left:12px!important;
-    right:12px!important;
-    top:auto!important;
-    bottom:18px!important;
-    grid-template-columns:1fr!important;
-    max-height:48vh!important;
-  }
-}
 
 /* =====================================================
    EXPLORER 4.1 — BASE ORIGINAL + VISTA AMPLIA COMPACTA
    Mantiene íntegra la clasificación CSV original.
    ===================================================== */
-#familiasModal{padding:8px!important}
-#familiasModal>.modal-card{
-  width:calc(100vw - 16px)!important;
-  max-width:none!important;
-  height:calc(100dvh - 16px)!important;
-  max-height:none!important;
-  margin:0!important;
-  border-radius:18px!important;
-  display:grid!important;
-  grid-template-rows:auto minmax(0,1fr) auto!important;
-  overflow:hidden!important;
-}
-#familiasModal .modal-head{
-  min-height:54px!important;
-  padding:10px 16px!important;
-}
-#familiasModal .modal-head h2{font-size:20px!important;line-height:1.1!important;margin:0!important}
-#familiasModal .modal-head p{display:none!important}
-#familiasModal #familiasGrid{
-  min-height:0!important;
-  height:100%!important;
-  overflow:hidden!important;
-  padding:8px 14px 0!important;
-}
-#familiasModal .modal-foot{min-height:44px!important;padding:6px 14px!important}
-#familiasModal .explore-wrap{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;gap:7px!important}
-#familiasModal .explore-search{flex:0 0 auto!important;margin:0!important;min-height:42px!important}
-#familiasModal .explore-search input{min-height:42px!important;padding:0 14px!important}
-#familiasModal .explore-search>span{min-height:32px!important;align-self:center!important;white-space:nowrap!important}
-#familiasModal .explore-breadcrumb{flex:0 0 auto!important;min-height:26px!important;margin:0!important;padding:4px 9px!important}
-#familiasModal .explore-layout{
-  min-height:0!important;
-  flex:1 1 auto!important;
-  display:grid!important;
-  grid-template-columns:210px 230px minmax(0,1fr)!important;
-  gap:9px!important;
-  overflow:hidden!important;
-}
-#familiasModal .explore-col{
-  min-height:0!important;
-  height:100%!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  padding:7px!important;
-}
-#familiasModal .explore-cat,
-#familiasModal .explore-sub{
-  width:100%!important;
-  min-height:40px!important;
-  height:auto!important;
-  padding:7px 9px!important;
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) auto!important;
-  align-items:center!important;
-  gap:8px!important;
-  text-align:left!important;
-}
-#familiasModal .explore-cat span,
-#familiasModal .explore-sub span{
-  min-width:0!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-  white-space:nowrap!important;
-}
-#familiasModal .explore-cat em,
-#familiasModal .explore-sub em{
-  position:static!important;
-  transform:none!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  min-width:25px!important;
-  height:22px!important;
-  margin:0!important;
-  padding:0 6px!important;
-  line-height:1!important;
-  font-style:normal!important;
-  border-radius:999px!important;
-  white-space:nowrap!important;
-}
-#familiasModal .hx-explorer-results{
-  min-width:0!important;
-  min-height:0!important;
-  height:100%!important;
-  overflow:hidden!important;
-  display:flex!important;
-  flex-direction:column!important;
-  gap:7px!important;
-}
-#familiasModal .hx-explorer-controls{flex:0 0 auto!important;margin:0!important;padding:7px!important;min-height:46px!important}
-#familiasModal .hx-explorer-subchips{max-height:42px!important;min-height:38px!important;overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important}
-#familiasModal .hx-explorer-chip{flex:0 0 auto!important;max-width:200px!important}
-#familiasModal .explore-products{
-  flex:1 1 auto!important;
-  min-height:0!important;
-  height:auto!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  padding:1px 5px 14px 0!important;
-  scrollbar-gutter:stable!important;
-}
-#familiasModal .hx-explorer-product{min-height:70px!important;margin-bottom:7px!important}
-
-@media(max-width:1000px){
-  #familiasModal .explore-layout{grid-template-columns:175px 195px minmax(0,1fr)!important}
-}
-@media(max-width:760px){
-  #familiasModal{padding:0!important}
-  #familiasModal>.modal-card{width:100vw!important;height:100dvh!important;border-radius:0!important}
-  #familiasModal .modal-head{min-height:52px!important;padding:9px 11px!important}
-  #familiasModal #familiasGrid{padding:7px 9px 9px!important}
-  #familiasModal .modal-foot{display:none!important}
-  #familiasModal .explore-mobile-wrap{height:100%!important;min-height:0!important}
-  #familiasModal .explore-mobile-panel{flex:1 1 auto!important;min-height:0!important;overflow:hidden!important}
-  #familiasModal .explore-mobile-products{height:100%!important;min-height:0!important;overflow-y:auto!important}
-}
