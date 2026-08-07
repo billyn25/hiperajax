@@ -37,13 +37,13 @@
   ];
 
   const KNOWN_FACETS = [
-    { key:'subcategory', label:'Tipo de producto', order:10 },
+    { key:'subcategory', label:'Subfamilia', order:10 },
     { key:'color', label:'Color', order:20 },
     { key:'stock_state', label:'Stock', order:30 },
     { key:'technology', label:'Tecnología', order:40 },
     { key:'protocol', label:'Protocolo', order:45 },
     { key:'connectivity', label:'Conectividad', order:50 },
-    { key:'product_type', label:'Formato / tipo', order:55 },
+    { key:'product_type', label:'Tipo', order:55 },
     { key:'series', label:'Serie', order:60 },
     { key:'resolution', label:'Resolución máxima', order:70 },
     { key:'environment', label:'Uso / instalación', order:80 },
@@ -75,6 +75,49 @@
     'sku','ean','upc','manufacturer','fabricante','attributes','attributes_json','raw'
   ]);
 
+
+  // Perfiles rápidos mantenibles. Solo existen en familias donde reducen pasos.
+  // Los productos se asignan dinámicamente desde Tipo/atributos/nombre; nunca por listas de referencias.
+  const QUICK_FILTER_ORDER = Object.freeze({
+    cameras:['Bullet','Turret','Domo','Cube','PTZ','Soportes'],
+    detectors:['Movimiento','Apertura','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio'],
+    smart_home:['Interruptores','Enchufes','Relés','Timbre','Válvulas','Clima / Aire','Accesorios'],
+    centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
+    nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
+    wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality']
+  });
+
+  const FACET_EQUIVALENT_GROUPS = Object.freeze([
+    ['product_type','subcategory'],
+    ['resolution','resolucion_maxima'],
+    ['environment','uso'],
+    ['lens','tipo_lente'],
+    ['technology','tecnologia_deteccion'],
+    ['alcance_de_deteccion','alcance_deteccion'],
+    ['deteccion_de_incendio','deteccion_incendio']
+  ]);
+
+  const SEARCH_ALIAS_RULES = Object.freeze([
+    {rx:/\b(rele|reles|relé|relés|relay|wallswitch|wall switch)\b/, add:'relay wallswitch rele relés domotica smart home'},
+    {rx:/\b(keypadcombi|keypad combi|teclado combi)\b/, add:'keypad combi keypadcombi teclado teclados'},
+    {rx:/\b(doorbell|timbre|videoportero)\b/, add:'doorbell timbre videoportero smart home'},
+    {rx:/\b(phod|foto bajo demanda|fotosensor)\b/, add:'phod photo on demand foto bajo demanda motioncam fotosensor'},
+    {rx:/\b(rex|rex2|repetidor|repetidores)\b/, add:'rex rex2 rex 2 repetidor repetidores'},
+    {rx:/\b(4g|lte)\b/, add:'4g lte gsm hub central'},
+    {rx:/\b(domo|dome)\b/, add:'domo dome camara'},
+    {rx:/\b(turret)\b/, add:'turret camara'},
+    {rx:/\b(soporte|soportes|mountcam|bracket)\b/, add:'soporte soportes mountcam bracket camara cctv'},
+    {rx:/\b(bullet)\b/, add:'bullet camara'},
+    {rx:/\b(combi|combiprotect)\b/, add:'combi combiprotect movimiento cristal'},
+    {rx:/\b(cortina|curtain)\b/, add:'cortina curtain'},
+    {rx:/\b(incendio|fire|humo)\b/, add:'incendio fire fireprotect humo smoke heat co'},
+    {rx:/\b(lightcore|lightswitch|interruptor|interruptores)\b/, add:'lightcore lightswitch interruptor interruptores smart home domotica'},
+    {rx:/\b(outletcore|socket|enchufe|enchufes)\b/, add:'outletcore socket outlet enchufe enchufes smart home domotica'},
+    {rx:/\b(waterstop|valvula|válvula)\b/, add:'waterstop valvula válvula electroválvula'},
+    {rx:/\b(button|doublebutton|spacecontrol|mando|mandos|boton|botón)\b/, add:'button doublebutton spacecontrol mando mandos boton botón'},
+    {rx:/\b(lifequality|co2|calidad aire)\b/, add:'lifequality co2 temperatura humedad calidad aire'}
+  ]);
+
   const collator = new Intl.Collator('es', { numeric:true, sensitivity:'base' });
   const esc = value => typeof escapeHtml === 'function'
     ? escapeHtml(String(value == null ? '' : value))
@@ -91,6 +134,7 @@
   let searchIndexCache = new Map();
   let searchTimer = null;
   let drawerDraft = {};
+  let drawerQuickDraft = '';
   let lastFocused = null;
 
   function freshState(){
@@ -440,21 +484,12 @@
 
   function searchAliases(query){
     const q = norm(query);
-    const map = [
-      {rx:/\b(rele|reles|relé|relés|relay|wallswitch|wall switch)\b/, add:' relay wallswitch wall switch rele reles relé relés domotica smart home '},
-      {rx:/\b(doorbell|timbre|videoportero)\b/, add:' doorbell timbre videoportero smart home '},
-      {rx:/\b(phod|foto bajo demanda|fotosensor)\b/, add:' phod photo on demand foto bajo demanda motioncam fotosensor '},
-      {rx:/\b(rex|repetidor|repetidores)\b/, add:' rex rex2 rex 2 repetidor repetidores '},
-      {rx:/\b(4g|lte)\b/, add:' 4g lte gsm hub '},
-      {rx:/\b(domo|dome)\b/, add:' domo dome camara '},
-      {rx:/\b(turret)\b/, add:' turret camara '},
-      {rx:/\b(bullet)\b/, add:' bullet camara '},
-      {rx:/\b(combi|combiprotect)\b/, add:' combi combiprotect movimiento cristal '},
-      {rx:/\b(cortina|curtain)\b/, add:' cortina curtain '},
-      {rx:/\b(incendio|fire|humo)\b/, add:' incendio fire fireprotect humo smoke heat co '},
-      {rx:/\b(lightcore|lightswitch|outletcore)\b/, add:' lightcore lightswitch outletcore smart home domotica '}
-    ];
-    return map.filter(entry => entry.rx.test(q)).map(entry => entry.add).join(' ');
+    return SEARCH_ALIAS_RULES.filter(entry => entry.rx.test(q)).map(entry => entry.add).join(' ');
+  }
+
+  function productQuickText(item){
+    const family = buildModel().byFamily.get(item.familyKey);
+    return family ? quickGroupsForItem(item, family).join(' ') : '';
   }
 
   function productSearchText(item){
@@ -467,8 +502,7 @@
       item.category, item.family, item.subcategory,
       product.product_type, product.series, product.technology, product.protocol,
       product.color, product.connectivity, product.resolution, product.environment,
-      product.compatibility, attributes,
-      searchAliases(`${product.name||''} ${product.short_description||''} ${product.description||''}`)
+      product.compatibility, attributes, productQuickText(item)
     ].filter(Boolean).join(' '));
   }
 
@@ -483,6 +517,7 @@
       searchIndexCache.set(item.index, {
         haystack,
         compact:haystack.replace(/[^a-z0-9]/g,''),
+        quick:norm(productQuickText(item)),
         ref,
         compactRef:ref.replace(/[^a-z0-9]/g,'')
       });
@@ -515,12 +550,15 @@
         // Texto precalculado: no vuelve a normalizar el catálogo en cada tecla.
         if(entry.haystack.includes(needle)) score += 900;
         if(compactNeedle && entry.compact.includes(compactNeedle)) score += 650;
+        if(entry.quick && entry.quick.includes(needle)) score += 1600;
 
         let tokenHits = 0;
+        let quickHits = 0;
         for(const token of tokens){
           if(entry.haystack.includes(token)) tokenHits += 1;
+          if(entry.quick && entry.quick.includes(token)) quickHits += 1;
         }
-        score += tokenHits * 110;
+        score += tokenHits * 110 + quickHits * 260;
 
         return {item,score};
       })
@@ -624,7 +662,7 @@
     return clean(key.replace(/[_-]+/g,' ')).replace(/\b\w/g, char => char.toUpperCase());
   }
 
-  function buildFacets(items){
+  function buildFacets(items, options = {}){
     const maps = new Map();
     items.forEach(item => {
       const values = facetValues(item);
@@ -644,7 +682,8 @@
       const values = [...valueMap.values()]
         .sort((a,b) => b.count - a.count || collator.compare(a.title,b.title));
       const isCore = CORE_FACETS.has(key);
-      if(values.length < 2) return;
+      const includeSingle = options.includeSingleKeys instanceof Set && options.includeSingleKeys.has(key);
+      if(values.length < 2 && !includeSingle) return;
       if(!isCore && values.length > 30) return;
       groups.push({
         key,
@@ -653,7 +692,21 @@
         values
       });
     });
-    return groups.sort((a,b) => a.order - b.order || collator.compare(a.label,b.label));
+    const sorted = groups.sort((a,b) => a.order - b.order || collator.compare(a.label,b.label));
+    const byKey = new Map(sorted.map(group => [group.key,group]));
+    const hidden = new Set();
+
+    FACET_EQUIVALENT_GROUPS.forEach(keys => {
+      const available = keys.map(key => byKey.get(key)).filter(Boolean);
+      if(available.length < 2) return;
+      const signature = group => group.values.map(value => value.id).sort().join('|');
+      const primary = available[0];
+      available.slice(1).forEach(group => {
+        if(signature(group) === signature(primary)) hidden.add(group.key);
+      });
+    });
+
+    return sorted.filter(group => !hidden.has(group.key));
   }
 
   function filterHasValue(filters,key,valueId){
@@ -762,14 +815,64 @@
     return list.sort((a,b) => featuredRank(a)-featuredRank(b) || collator.compare(a.p?.name || '', b.p?.name || ''));
   }
 
-  function resultItems(filters = state.filters){
+  function familyQueryItems(){
     const model = buildModel();
     let items = state.familyKey ? familyItems(model) : model.allItems.slice();
     if(clean(state.query)) items = rankedSearch(items, state.query);
-    if(state.quickGroup){
-      const family = currentFamily(model);
-      items = items.filter(item => quickGroupsForItem(item, family).includes(state.quickGroup));
+    return items;
+  }
+
+  function definitionItemsForQuick(quickGroup = state.quickGroup, family = currentFamily(), model = buildModel()){
+    let items = isRelatedQuickGroup(quickGroup, family)
+      ? cameraSupportItems(model)
+      : (family ? family.items.slice() : model.allItems.slice());
+    if(clean(state.query)) items = rankedSearch(items, state.query);
+    return items;
+  }
+
+  function filterBaseItems(quickGroup = state.quickGroup){
+    const family = currentFamily();
+    let items = definitionItemsForQuick(quickGroup, family);
+    if(quickGroup && !isRelatedQuickGroup(quickGroup, family)){
+      items = items.filter(item => quickGroupsForItem(item, family).includes(quickGroup));
     }
+    return items;
+  }
+
+  function buildContextualFacets(definitionItems, filters = {}, quickGroup = state.quickGroup, familyOverride = null){
+    const selectedKeys = new Set(Object.entries(filters).filter(([,values]) => Array.isArray(values) && values.length).map(([key]) => key));
+    const definitions = buildFacets(definitionItems, {includeSingleKeys:selectedKeys});
+    const family = familyOverride || currentFamily();
+    const quickItems = quickGroup
+      ? (isRelatedQuickGroup(quickGroup, family)
+          ? definitionItems
+          : definitionItems.filter(item => quickGroupsForItem(item, family).includes(quickGroup)))
+      : definitionItems;
+
+    return definitions.map(group => {
+      const otherFilters = {...filters};
+      delete otherFilters[group.key];
+      const contextItems = applyFilters(quickItems, otherFilters);
+      const counts = new Map();
+
+      contextItems.forEach(item => {
+        const values = facetValues(item);
+        splitFacetValues(values[group.key]).forEach(value => {
+          const id = slug(value);
+          counts.set(id, (counts.get(id) || 0) + 1);
+        });
+      });
+
+      const selected = filters[group.key] || [];
+      return {
+        ...group,
+        values:group.values.map(value => ({...value,count:counts.get(value.id)||0}))
+      };
+    }).filter(group => group.values.length >= 2 || (filters[group.key] || []).length);
+  }
+
+  function resultItems(filters = state.filters, quickGroup = state.quickGroup){
+    let items = filterBaseItems(quickGroup);
     items = applyFilters(items, filters);
     if(clean(state.query) && state.sort === 'featured') return items;
     return sortItems(items);
@@ -889,43 +992,83 @@
   }
 
 
-  function quickGroupsForItem(item, family){
-    const p = item?.p || {};
-    const familyText = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
+  function familyQuickProfile(family){
+    const text = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
+    if(/accesorio|accesorios/.test(text) && /inalambr|inalámbr|wireless/.test(text)) return 'wireless_accessories';
+    if(/camara|cámara/.test(text)) return 'cameras';
+    if(/detector|detectores|intrusion|intrusión/.test(text)) return 'detectors';
+    if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'smart_home';
+    if(/\bnvrs?\b|grabador|grabacion|grabación/.test(text)) return 'nvr';
+    if(/central|centrales|\bhub\b|hubs/.test(text)) return 'centrals';
+    return '';
+  }
 
+  function quickContext(item){
+    const p = item?.p || {};
     const attrs = normalizeAttributes(p);
-    const structured = norm([
-      item?.subcategory,
-      p.product_type, p.tipo, p.series, p.technology, p.protocol,
+    const identity = norm(`${p.name||''} ${p.short_description||''}`);
+    const typeText = norm([
+      item?.subcategory, p.product_type, p.tipo, p.series, p.technology, p.protocol,
+      p.name, p.short_description
+    ].filter(Boolean).join(' '));
+    const featureText = norm([
       p.environment, p.photo, p.channels, p.connectivity, p.wifi, p.lte_4g,
       ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
     ].filter(Boolean).join(' '));
+    return {p, attrs, identity, typeText, featureText, source:`${typeText} ${featureText}`};
+  }
 
-    // Nombre/referencia y descripción corta solo como respaldo.
-    // La descripción larga NO clasifica filtros rápidos.
-    const identity = norm(`${p.name||''} ${p.short_description||''}`);
-    const source = `${structured} ${identity}`;
+  function isCameraSupportItem(item){
+    const p = item?.p || {};
+    const attrs = normalizeAttributes(p);
+    const familyText = norm(`${item?.family||''} ${item?.category||''} ${p.family||''} ${p.category||''}`);
+    const typeText = norm([
+      item?.subcategory, p.product_type, p.tipo, p.series,
+      p.name, p.short_description,
+      ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
+    ].filter(Boolean).join(' '));
+
+    // Solo soportes reales de CCTV/cámara. Nunca cajas, cables, fuentes o kits.
+    const cameraAccessoryFamily = /accesorio|accesorios/.test(familyText) && /cctv|camara|cámara|video/.test(familyText);
+    const supportType = /mountcam|soporte(?:\s+(?:de|para))?\s+c[aá]mara|camera\s+(?:wall\s+)?mount|camera\s+bracket|bracket.*c[aá]mara|\bsoporte\b|\bbracket\b|\bmount\b/.test(typeText);
+    const excluded = /junctionbox|caja|box|cable|fuente|power supply|alimentacion|alimentación|adaptador|adapter|inyector|switch|\bkit\b|dummy|carcasa|tapa|cover|disco|hdd/.test(typeText);
+    return !excluded && (/(?:^|[-_])mountcam(?:[-_]|$)/.test(norm(p.name||'')) || (cameraAccessoryFamily && supportType));
+  }
+
+  function cameraSupportItems(model = buildModel()){
+    return model.allItems.filter(isCameraSupportItem);
+  }
+
+  function isRelatedQuickGroup(quickGroup, family = currentFamily()){
+    return quickGroup === 'Soportes' && familyQuickProfile(family) === 'cameras';
+  }
+
+  function quickGroupsForItem(item, family){
+    const profile = familyQuickProfile(family);
+    if(!profile) return [];
+
+    const {p, attrs, identity, typeText, featureText, source} = quickContext(item);
     const tags = new Set();
     const add = label => tags.add(label);
 
-    if(/camara|cámara/.test(familyText)){
-      if(/\bptz\b/.test(source)) add('PTZ');
-      if(/\bcube\b|\bcubo\b/.test(source)) add('Cube');
-      if(/\bturret\b/.test(source)) add('Turret');
-      if(/\bbullet\b/.test(source)) add('Bullet');
-      if(/\bdome\b|\bdomo\b/.test(source)) add('Domo');
+    if(profile === 'cameras'){
+      if(/\bptz\b/.test(typeText)) add('PTZ');
+      if(/\bcube\b|\bcubo\b/.test(typeText)) add('Cube');
+      if(/\bturret\b/.test(typeText)) add('Turret');
+      if(/\bbullet\b/.test(typeText)) add('Bullet');
+      if(/\bdome\b|\bdomo\b/.test(typeText)) add('Domo');
     }
 
-    if(/detector|detectores|intrusion|intrusión/.test(familyText)){
-      const fire = /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/.test(source);
-      const door = /doorprotect|door protect|contacto magn[eé]tico|magnetic contact|detector(?:\s+de)?\s+apertura/.test(source);
-      const glass = /glassprotect|glass protect|rotura(?:\s+de)?\s+cristal|glass break/.test(source);
-      const combi = /combiprotect|combi protect/.test(source);
-      const motioncam = /motioncam|motion cam/.test(source);
+    if(profile === 'detectors'){
+      const fire = /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/.test(typeText);
+      const door = /doorprotect|door protect|contacto magn[eé]tico|magnetic contact|detector(?:\s+de)?\s+apertura/.test(typeText);
+      const glass = /glassprotect|glass protect|rotura(?:\s+de)?\s+cristal|glass break/.test(typeText);
+      const combi = /combiprotect|combi protect/.test(typeText);
+      const motioncam = /motioncam|motion cam/.test(typeText);
       const phod = /\bphod\b|photo on demand|foto bajo demanda/.test(source);
-      const curtain = /doublecurtain|curtainprotect|curtain protect|\bcurtain\b|\bcortina\b/.test(source);
-      const outdoor = /outdoor|exterior/.test(source);
-      const motion = /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b/.test(source);
+      const curtain = /doublecurtain|curtainprotect|curtain protect|\bcurtain\b|\bcortina\b/.test(typeText);
+      const outdoor = /outdoor|exterior/.test(`${typeText} ${featureText}`);
+      const motion = /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b/.test(typeText);
 
       if(fire) add('Incendio');
       if(motioncam) add('MotionCam');
@@ -938,133 +1081,112 @@
       if(outdoor && !fire) add('Exterior');
     }
 
-    if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(familyText)){
-      if(/doorbell|timbre|videoportero/.test(source)) add('DoorBell');
-      if(/wallswitch|wall switch|\brelay\b|aj-relay|\brel[eé]s?\b/.test(source)) add('Relés');
-      if(/lightcore/.test(source)) add('LightCore');
-      if(/lightswitch/.test(source)) add('LightSwitch');
-      if(/outletcore/.test(source)) add('OutletCore');
-      if(/socket|enchufe/.test(source) || (/\boutlet\b/.test(source) && !/outletcore/.test(source))) add('Enchufes');
+    if(profile === 'smart_home'){
+      if(/doorbell|timbre|videoportero/.test(typeText)) add('Timbre');
+      if(/wallswitch|wall switch|\brelay\b|aj-relay|rel[eé]\s+(?:contacto|tension|tensión)|\brel[eé]s?\b/.test(typeText)) add('Relés');
+      if(/lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(typeText)) add('Interruptores');
+      if(/outletcore|outlet core|socket|enchufe(?: ethernet| inteligente)?|\boutlet\b/.test(typeText)) add('Enchufes');
+      if(/waterstop|electrov[aá]lvula|\bvalve\b/.test(typeText)) add('Válvulas');
+      if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(typeText)) add('Clima / Aire');
+      if(/soporte rel[eé]|tapa.*caja|marco|frame|surfacebox|surface box|faceplate|panel/.test(typeText)) add('Accesorios');
     }
 
-    if(/\bnvr\b|grabador|grabacion|grabación/.test(familyText)){
-      const channelSource = norm(`${p.channels||''} ${structured}`);
+    if(profile === 'nvr'){
       let channelNumber = 0;
-
-      // 1. Campo estructurado o atributo explícito.
-      let ch = channelSource.match(/(?:^|\D)(4|8|16|32|64)\s*(?:ch|canales?|channels?)(?:\D|$)/);
-      if(ch) channelNumber = Number(ch[1]);
+      const channelText = norm(`${p.channels||''} ${featureText}`);
+      const explicitChannel = channelText.match(/(?:^|\D)(4|8|16|32|64)\s*(?:ch|canales?|channels?)(?:\D|$)/);
+      if(explicitChannel) channelNumber = Number(explicitChannel[1]);
 
       if(!channelNumber){
-        const explicit = Object.entries(attrs).find(([k]) => /canal|channel|puerto|port/.test(norm(k)));
-        const match = explicit ? norm(explicit[1]).match(/\b(4|8|16|32|64)\b/) : null;
+        const channelAttr = Object.entries(attrs).find(([key]) => /canal|channel|numero.*canal|number.*channel/.test(norm(key)));
+        const match = channelAttr ? norm(channelAttr[1]).match(/\b(4|8|16|32|64)\b/) : null;
         if(match) channelNumber = Number(match[1]);
       }
 
-      // 2. Fallback estable del modelo Ajax: NVR108/NVR208 = 8; NVR116/NVR216 = 16, etc.
-      // No es una lista de referencias: interpreta el código de capacidad del modelo.
       if(!channelNumber){
         const model = norm(p.name || '').replace(/[^a-z0-9]/g,'');
         const match = model.match(/nvr\d*?(04|08|16|32|64)(?:[a-z]|$)/);
         if(match) channelNumber = Number(match[1]);
       }
 
-      if(channelNumber){
-        add(channelNumber >= 32 ? '32+ canales' : `${channelNumber} canales`);
-      }
-
-      const hdmiAttr = Object.entries(attrs).some(([k,v]) =>
-        /hdmi/.test(norm(k)) && !/^(?:no|0|false|sin)$/i.test(clean(v))
+      if(channelNumber) add(channelNumber >= 32 ? '32+ canales' : `${channelNumber} canales`);
+      const hdmi = Object.entries(attrs).some(([key,value]) =>
+        /hdmi/.test(norm(key)) && !/^(?:no|0|false|sin|n\/a)$/i.test(clean(value))
       );
-      if(hdmiAttr || /\bhdmi\b/.test(source)) add('HDMI');
+      if(hdmi || /\bhdmi\b/.test(featureText)) add('HDMI');
     }
 
-    if(/central|centrales|hub|hubs/.test(familyText)){
-      const isRepeater = /(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(source)
-        && !/modulo|módulo|alimentacion|alimentación|power supply|fuente|bracket|soporte/.test(source);
-      if(isRepeater) add('Repetidores');
-      if(/hybrid/.test(source)) add('Hybrid');
-
-      const isHubPlus = /hub\s*2\s*plus|hub2plus|hub plus|hubplus/.test(source);
-      if(isHubPlus) add('Hub Plus');
-
-      if(/hub\s*2|hub2/.test(source)) add('Hub 2');
-      else if(/\bhub\b/.test(source) && !/\bhubkit\b/.test(source)) add('Hub');
-
-      // Wi-Fi: atributo real primero. Hub Plus sirve de fallback de modelo cuando el proveedor no rellena el campo.
-      const wifi = clean(p.wifi) || getByAliases(p,['wifi','wi_fi','wireless_lan','wlan']);
-      const conn = norm(`${p.connectivity||''} ${wifi} ${structured}`);
-      if(/\bwi[ -]?fi\b|\bwlan\b/.test(conn) || isHubPlus) add('Wi‑Fi');
-
-      // 4G/LTE: atributo real primero + nombre corto/referencia como fallback.
-      const mobileConn = norm(`${p.lte_4g||''} ${structured} ${identity}`);
-      if(/\b4g\b|\blte\b/.test(mobileConn)) add('4G / LTE');
+    if(profile === 'centrals'){
+      const secondaryRex = /modulo|módulo|alimentacion|alimentación|power supply|fuente|bracket|soporte|tapa|cover/.test(typeText);
+      const repeater = /(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(typeText) && !secondaryRex;
+      const hubPlus = /hub\s*2\s*plus|hub2plus|hub plus|hubplus/.test(typeText);
+      if(repeater) add('Repetidores');
+      if(/hybrid/.test(typeText)) add('Hybrid');
+      if(hubPlus) add('Hub Plus');
+      if(/hub\s*2|hub2/.test(typeText)) add('Hub 2');
+      else if(/\bhub\b/.test(typeText) && !/\bhubkit\b/.test(typeText)) add('Hub');
+      if(/\bwi[ -]?fi\b|\bwlan\b/.test(featureText) || hubPlus) add('Wi‑Fi');
+      if(/\b4g\b|\blte\b/.test(`${featureText} ${identity}`)) add('4G / LTE');
     }
 
-    // Accesorios inalámbricos: no reclasifica productos, solo filtra la familia ya abierta.
-    if(/accesorio|accesorios/.test(familyText) && /inalambr|inalámbr|wireless/.test(familyText)){
-      const isKeypad = /\bkeypad\b|teclado/.test(source);
-      const isSiren = /homesiren|streetsiren|\bsirena\b|\bsiren\b/.test(source);
+    if(profile === 'wireless_accessories'){
+      const secondary = /bracket|soporte|support|tapa|cover|carcasa|housing|adaptador|adapter|modulo|módulo|alimentacion|alimentación|power supply|fuente|\bkit\b/.test(typeText);
+      const keypad = /keypad|teclado/.test(typeText) && !secondary;
+      const siren = /homesiren|streetsiren|\bsirena\b|\bsiren\b/.test(typeText) && !secondary;
 
-      if(isKeypad) add('Teclados');
-      if(isSiren) add('Sirenas');
+      if(keypad) add('Teclados');
+      if(siren) add('Sirenas');
 
-      if(!isKeypad && !isSiren){
-        if(/wallswitch|wall switch|\brelay\b|aj-relay|\brel[eé]s?\b/.test(source)) add('Relés');
-        if(/\bbutton\b|doublebutton|spacecontrol|\bmando\b|bot[oó]n/.test(source)) add('Botones / Mandos');
-        if(/socket|enchufe/.test(source) || (/\boutlet\b/.test(source) && !/outletcore/.test(source))) add('Enchufes');
-        if(/waterstop|v[aá]lvula|\bvalve\b/.test(source)) add('Válvulas');
-
-        const repeater = /(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(source)
-          && !/modulo|módulo|alimentacion|alimentación|power supply|fuente|bracket|soporte/.test(source);
+      if(!keypad && !siren){
+        if(/wallswitch|wall switch|\brelay\b|aj-relay|\brel[eé]s?\b/.test(typeText) && !secondary) add('Relés');
+        if(/\bbutton\b|doublebutton|spacecontrol|\bmando\b|bot[oó]n/.test(typeText) && !secondary) add('Botones / Mandos');
+        if((/socket|enchufe/.test(typeText) || (/\boutlet\b/.test(typeText) && !/outletcore/.test(typeText))) && !secondary) add('Enchufes');
+        if(/waterstop|v[aá]lvula|\bvalve\b/.test(typeText) && !secondary) add('Válvulas');
+        const repeater = /(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(typeText) && !secondary;
         if(repeater) add('Repetidores');
-
-        if(/lifequality|life quality/.test(source)) add('LifeQuality');
+        if(/lifequality|life quality/.test(typeText) && !secondary) add('LifeQuality');
       }
     }
 
     return [...tags];
   }
 
-  function quickGroups(baseItems){
-    const family = currentFamily();
+  function quickGroups(baseItems, familyOverride = null){
+    const family = familyOverride || currentFamily();
+    const profile = familyQuickProfile(family);
+    if(!profile) return [];
+
     const counts = new Map();
     baseItems.forEach(item => {
-      quickGroupsForItem(item, family).forEach(label => {
-        counts.set(label, (counts.get(label) || 0) + 1);
-      });
+      quickGroupsForItem(item, family).forEach(label => counts.set(label, (counts.get(label) || 0) + 1));
     });
-    const preferred = {
-      'camaras ip':['Bullet','Turret','Domo','Cube','PTZ'],
-      'detectores':['Movimiento','Apertura','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio'],
-      'smart home':['LightSwitch','LightCore','OutletCore','Relés','Enchufes','DoorBell'],
-      'centrales':['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
-      'nvr':['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-      'accesorios inalambricos':['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality']
-    };
-    const ft = norm(`${family?.displayTitle||''} ${family?.familyTitle||''}`);
-    let order = [];
-    for(const [key,values] of Object.entries(preferred)){
-      if(ft.includes(norm(key))) { order = values; break; }
+
+    // Acceso relacionado: los soportes siguen en Accesorios CCTV, pero se consultan
+    // desde Cámaras IP sin mover ni duplicar productos en el catálogo.
+    if(profile === 'cameras'){
+      let supports = cameraSupportItems();
+      if(clean(state.query)) supports = rankedSearch(supports, state.query);
+      supports = applyFilters(supports, state.filters);
+      if(supports.length) counts.set('Soportes', supports.length);
     }
-    const labels = [...counts.keys()].filter(label => counts.get(label) > 0);
-    labels.sort((a,b) => {
-      const ai = order.indexOf(a), bi = order.indexOf(b);
-      if(ai >= 0 || bi >= 0) return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
-      return collator.compare(a,b);
-    });
-    return labels.map(label => ({label,count:counts.get(label)}));
+
+    const order = QUICK_FILTER_ORDER[profile] || [];
+    return [...counts.entries()]
+      .filter(([,count]) => count > 0)
+      .map(([label,count]) => ({label,count}))
+      .sort((a,b) => {
+        const ai = order.indexOf(a.label), bi = order.indexOf(b.label);
+        if(ai >= 0 || bi >= 0) return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
+        return collator.compare(a.label,b.label);
+      });
   }
 
   function quickTypes(baseItems){
-    const groups = quickGroups(baseItems).filter(group => group.label !== 'Otros');
+    const groups = quickGroups(baseItems);
     if(!groups.length) return '';
-    const top = groups.slice(0, isMobile() ? 8 : 10);
-    const hidden = groups.length - top.length;
     return `<div class="hxp-type-strip" aria-label="Filtros rápidos">
       <button type="button" class="hxp-type-tab ${!state.quickGroup?'is-active':''}" data-hxp-quick="">Todos</button>
-      ${top.map(group => `<button type="button" class="hxp-type-tab ${state.quickGroup===group.label?'is-active':''}" data-hxp-quick="${esc(group.label)}"><span>${esc(group.label)}</span><em>${group.count}</em></button>`).join('')}
-      ${hidden>0 ? `<button type="button" class="hxp-type-more" data-hxp-open-filters>Más <b>+${hidden}</b></button>` : ''}
+      ${groups.map(group => `<button type="button" class="hxp-type-tab ${state.quickGroup===group.label?'is-active':''}" data-hxp-quick="${esc(group.label)}"><span>${esc(group.label)}</span><em>${group.count}</em></button>`).join('')}
     </div>`;
   }
 
@@ -1140,31 +1262,38 @@
         </div>
         ${state.familyKey ? quickTypes(quickCounterItems()) : ''}
         <div class="hxp-products-scroll" id="hxpProductsScroll">
-          ${items.map(productCard).join('') || `<div class="hxp-empty hxp-empty-products"><strong>No hay productos con estos filtros.</strong><button type="button" data-hxp-clear-filters>Limpiar filtros</button></div>`}
+          ${items.map(productCard).join('') || `<div class="hxp-empty hxp-empty-products"><strong>No hay productos con estos filtros.</strong><button type="button" data-hxp-clear-filters>Limpiar todo</button></div>`}
         </div>
       </main>`;
   }
 
-  function selectedFilterSummary(filters){
+  function selectedFilterSummary(filters, quickGroup = state.quickGroup){
     const count = activeFilterCount(filters);
-    return count ? `${count} filtro${count===1?'':'s'} activo${count===1?'':'s'}` : 'Sin filtros activos';
+    const parts = [];
+    if(quickGroup) parts.push(`Rápido: ${quickGroup}`);
+    if(count) parts.push(`${count} filtro${count===1?'':'s'} activo${count===1?'':'s'}`);
+    return parts.length ? parts.join(' · ') : 'Sin filtros activos';
   }
 
   function drawerHtml(){
     if(!state.drawerOpen) return '';
-    const base = state.familyKey ? familyItems() : buildModel().allItems.slice();
-    const facets = buildFacets(base);
-    const previewCount = resultItems(drawerDraft).length;
+    const definitionBase = definitionItemsForQuick(drawerQuickDraft);
+    const facets = buildContextualFacets(definitionBase, drawerDraft, drawerQuickDraft);
+    const previewCount = resultItems(drawerDraft, drawerQuickDraft).length;
     const groups = facets.map((group,index) => {
       const selected = drawerDraft[group.key] || [];
       const defaultOpen = selected.length || (isMobile() ? index < 2 : index < 4);
       return `<details class="hxp-filter-group" ${defaultOpen ? 'open' : ''}>
         <summary><span>${esc(group.label)}</span><em>${selected.length || group.values.length}</em></summary>
         <div class="hxp-filter-options">
-          ${group.values.map(value => `<label class="hxp-filter-option">
-            <input type="checkbox" data-hxp-facet="${esc(group.key)}" value="${esc(value.id)}" ${selected.includes(value.id)?'checked':''}>
-            <span>${esc(value.title)}</span><em>${value.count}</em>
-          </label>`).join('')}
+          ${group.values.map(value => {
+            const checked = selected.includes(value.id);
+            const disabled = value.count === 0 && !checked;
+            return `<label class="hxp-filter-option ${disabled?'is-disabled':''}">
+              <input type="checkbox" data-hxp-facet="${esc(group.key)}" value="${esc(value.id)}" ${checked?'checked':''} ${disabled?'disabled':''}>
+              <span>${esc(value.title)}</span><em>${value.count}</em>
+            </label>`;
+          }).join('')}
         </div>
       </details>`;
     }).join('');
@@ -1173,14 +1302,12 @@
       <button type="button" class="hxp-drawer-backdrop" data-hxp-close-filters aria-label="Cerrar filtros"></button>
       <aside class="hxp-drawer" role="dialog" aria-modal="true" aria-labelledby="hxpFiltersTitle">
         <header class="hxp-drawer-head">
-          <div><h3 id="hxpFiltersTitle">Filtros</h3><p id="hxpFilterSummary">${esc(selectedFilterSummary(drawerDraft))}</p></div>
+          <div><h3 id="hxpFiltersTitle">Filtros</h3><p id="hxpFilterSummary">${esc(selectedFilterSummary(drawerDraft, drawerQuickDraft))}</p></div>
           <button type="button" class="hxp-drawer-close" data-hxp-close-filters aria-label="Cerrar filtros">${svgIcon('close')}</button>
         </header>
-        <div class="hxp-drawer-body">
-          ${groups || '<div class="hxp-empty">No hay filtros adicionales para esta selección.</div>'}
-        </div>
+        <div class="hxp-drawer-body">${groups || '<div class="hxp-empty">No hay filtros adicionales para esta selección.</div>'}</div>
         <footer class="hxp-drawer-foot">
-          <button type="button" class="hxp-filter-clear" data-hxp-draft-clear>Limpiar</button>
+          <button type="button" class="hxp-filter-clear" data-hxp-draft-clear>Limpiar todo</button>
           <button type="button" class="hxp-filter-apply" data-hxp-apply>Ver ${previewCount} producto${previewCount===1?'':'s'}</button>
         </footer>
       </aside>
@@ -1218,6 +1345,7 @@
 
   function openFilters(){
     drawerDraft = JSON.parse(JSON.stringify(state.filters || {}));
+    drawerQuickDraft = state.quickGroup || '';
     state.drawerOpen = true;
     lastFocused = document.activeElement;
     render({preserveScroll:true});
@@ -1230,11 +1358,25 @@
   }
 
   function updateDrawerPreview(root){
-    const count = resultItems(drawerDraft).length;
+    const count = resultItems(drawerDraft, drawerQuickDraft).length;
     const apply = root.querySelector('[data-hxp-apply]');
     if(apply) apply.textContent = `Ver ${count} producto${count===1?'':'s'}`;
     const summary = root.querySelector('#hxpFilterSummary');
-    if(summary) summary.textContent = selectedFilterSummary(drawerDraft);
+    if(summary) summary.textContent = selectedFilterSummary(drawerDraft, drawerQuickDraft);
+
+    const groups = buildContextualFacets(definitionItemsForQuick(drawerQuickDraft), drawerDraft, drawerQuickDraft);
+    const countMap = new Map();
+    groups.forEach(group => group.values.forEach(value => countMap.set(`${group.key}::${value.id}`, value.count)));
+
+    root.querySelectorAll('[data-hxp-facet]').forEach(input => {
+      const valueCount = countMap.get(`${input.dataset.hxpFacet}::${input.value}`) || 0;
+      const label = input.closest('.hxp-filter-option');
+      const counter = label?.querySelector('em');
+      if(counter) counter.textContent = valueCount;
+      const disabled = valueCount === 0 && !input.checked;
+      input.disabled = disabled;
+      label?.classList.toggle('is-disabled', disabled);
+    });
   }
 
   function selectFamily(key){
@@ -1400,18 +1542,21 @@
 
     root.querySelector('[data-hxp-draft-clear]')?.addEventListener('click', () => {
       drawerDraft = {};
+      drawerQuickDraft = '';
       root.querySelectorAll('[data-hxp-facet]').forEach(input => { input.checked = false; });
       updateDrawerPreview(root);
     });
 
     root.querySelector('[data-hxp-apply]')?.addEventListener('click', () => {
       state.filters = JSON.parse(JSON.stringify(drawerDraft));
+      state.quickGroup = drawerQuickDraft;
       state.drawerOpen = false;
       render();
     });
 
     root.querySelector('[data-hxp-clear-filters]')?.addEventListener('click', () => {
       state.filters = {};
+      state.quickGroup = '';
       render();
     });
 
@@ -1483,6 +1628,8 @@
     window.addEventListener('hx:catalogo-cargado', () => {
       modelCache = null;
       modelSignature = '';
+      searchIndexSignature = '';
+      searchIndexCache.clear();
       const modal = byId('familiasModal');
       if(modal && !modal.classList.contains('hidden')) render();
     });
@@ -1493,11 +1640,75 @@
 
   window.abrirFamilias = openExplorer;
   window.renderFamilias = render;
+  function auditProduct(reference){
+    const needle = norm(reference);
+    const model = buildModel();
+    const item = model.allItems.find(candidate => norm(candidate.p?.name || '') === needle)
+      || model.allItems.find(candidate => norm(candidate.p?.name || '').includes(needle));
+    if(!item) return null;
+    const family = model.byFamily.get(item.familyKey);
+    return {
+      reference:item.p?.name || '',
+      family:family?.displayTitle || item.family,
+      profile:familyQuickProfile(family),
+      quickFilters:quickGroupsForItem(item, family),
+      facets:facetValues(item)
+    };
+  }
+
+  function auditFamilies(){
+    const model = buildModel();
+    return model.families.map(family => ({
+      family:family.displayTitle,
+      products:family.count,
+      profile:familyQuickProfile(family),
+      quickFilters:quickGroups(family.items, family).map(group => ({name:group.label,count:group.count}))
+    }));
+  }
+
+  function auditSearch(query, limit = 10){
+    return rankedSearch(buildModel().allItems, query).slice(0, Math.max(1,Number(limit)||10)).map(item => ({
+      reference:item.p?.name || '',
+      description:safeDescription(item.p),
+      family:buildModel().byFamily.get(item.familyKey)?.displayTitle || item.family
+    }));
+  }
+
+  function auditFilters(familyName, quickGroup = '', filters = {}){
+    const model = buildModel();
+    const family = model.families.find(candidate => norm(candidate.displayTitle) === norm(familyName))
+      || model.families.find(candidate => norm(candidate.displayTitle).includes(norm(familyName)));
+    if(!family) return null;
+    const definitionItems = isRelatedQuickGroup(quickGroup, family)
+      ? cameraSupportItems(model)
+      : family.items.slice();
+    const quickItems = quickGroup
+      ? (isRelatedQuickGroup(quickGroup, family)
+          ? definitionItems
+          : definitionItems.filter(item => quickGroupsForItem(item, family).includes(quickGroup)))
+      : definitionItems;
+    const facets = buildContextualFacets(definitionItems, filters, quickGroup, family).map(group => ({
+      key:group.key,
+      label:group.label,
+      values:group.values.map(value => ({title:value.title,count:value.count,disabled:value.count===0 && !(filters[group.key]||[]).includes(value.id)}))
+    }));
+    return {family:family.displayTitle,quickGroup,products:applyFilters(quickItems,filters).length,facets};
+  }
+
   window.HX_EXPLORER_PRO = {
     open:openExplorer,
     close:closeExplorer,
     render,
-    resetCache(){ modelCache = null; modelSignature = ''; },
-    version:'5.0.1'
+    audit:auditProduct,
+    auditFamilies,
+    auditSearch,
+    auditFilters,
+    resetCache(){
+      modelCache = null;
+      modelSignature = '';
+      searchIndexSignature = '';
+      searchIndexCache.clear();
+    },
+    version:'6.1.1'
   };
 })();

@@ -667,7 +667,7 @@ function pintarResultados(term){
 
   panel.innerHTML = results.map((x,k)=>{
     const d = descripcionProducto(x.p);
-    return `<div class="result-item" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}" data-k="${k}"><div><div class="result-name">${escapeHtml(d.icon)} ${escapeHtml(x.p.name)}</div><div class="result-meta">${escapeHtml(d.desc)}</div></div><div class="result-price">${fmt.format(x.p.pvp)}</div></div>`;
+    return `<div class="result-item" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}" data-k="${k}"><div><div class="result-name">${escapeHtml(x.p.name)}</div><div class="result-meta">${escapeHtml(d.desc)}</div></div><div class="result-price">${fmt.format(x.p.pvp)}</div></div>`;
   }).join('');
 
   panel.querySelectorAll('.result-item').forEach(el=>{
@@ -683,7 +683,7 @@ function seleccionarProducto(i, cerrar=false){
   if(seleccionado===null) return;
   $('#producto').value = String(i);
   $('#buscador').value = productos[i].name;
-  { const d = descripcionProducto(productos[i]); $('#previewProducto').innerHTML = `<b>${escapeHtml(d.icon)} ${escapeHtml(productos[i].name)}</b> · ${escapeHtml(d.desc)} · ${fmt.format(productos[i].pvp)}`; }
+  { const d = descripcionProducto(productos[i]); $('#previewProducto').innerHTML = `<b>${escapeHtml(productos[i].name)}</b> · ${escapeHtml(d.desc)} · ${fmt.format(productos[i].pvp)}`; }
   if(cerrar) $('#resultados').classList.add('hidden');
 }
 function seleccionarProductoSeguro(ref, expectedPvp=null, cerrar=false){
@@ -707,7 +707,7 @@ function resolverDesdeInput(){
   const best = buscar(term)[0];
   if(best){
     const d = descripcionProducto(best.p);
-    $('#previewProducto').innerHTML = `<b>${escapeHtml(d.icon)} ${escapeHtml(best.p.name)}</b> · ${escapeHtml(d.desc)} · ${fmt.format(best.p.pvp)}`;
+    $('#previewProducto').innerHTML = `<b>${escapeHtml(best.p.name)}</b> · ${escapeHtml(d.desc)} · ${fmt.format(best.p.pvp)}`;
   }else{
     $('#previewProducto').textContent='Selecciona un producto para ver su precio.';
   }
@@ -810,7 +810,10 @@ function hxProductVisualHtml(p, d, context){
   const img = image
     ? `<button type="button" class="hx-product-thumb" data-image="${escapeHtml(image)}" aria-label="Ampliar imagen de ${escapeHtml(p.name)}"><img src="${escapeHtml(image)}" alt="" loading="lazy" onerror="this.closest('.hx-product-thumb').classList.add('hx-image-error')"></button>`
     : '';
-  return `<div class="hx-product-info ${image ? 'has-image' : 'no-image'}">${img}<div class="hx-product-copy"><strong>${escapeHtml(d.icon)} ${escapeHtml(p.name)}</strong><span>${escapeHtml(description)}</span></div></div>`;
+  const title = context === 'search'
+    ? escapeHtml(p.name)
+    : `${escapeHtml(d.icon)} ${escapeHtml(p.name)}`;
+  return `<div class="hx-product-info ${image ? 'has-image' : 'no-image'}">${img}<div class="hx-product-copy"><strong>${title}</strong><span>${escapeHtml(description)}</span></div></div>`;
 }
 function hxBindProductImages(root){
   root.querySelectorAll('.hx-product-thumb').forEach(btn=>btn.addEventListener('click',e=>{
@@ -2233,7 +2236,7 @@ function parseCSVRobusto175(txt){
 
   const isUsefulDynamicHeader = key => {
     if(!key || ['ean','upc','isbn','weight','peso','height','alto','width','ancho','depth','profundidad'].includes(key)) return false;
-    return /(color|colour|finish|acabado|technology|tecnologia|protocol|protocolo|connect|conect|wifi|wlan|wireless|lte|4g|gsm|poe|resolution|resolucion|megapixel|lens|lente|focal|indoor|outdoor|interior|exterior|environment|entorno|compat|channel|canal|port|puerto|mount|montaje|power|alimentacion|voltage|voltaje|battery|bateria|autonomia|audio|video|iprating|proteccionip|protection|proteccion|grado|sensor|detector|format|formato|type|tipo|series|serie|range|gama|frequency|frecuencia|alcance|distancia|angle|angulo|tamper|mascota|pet|sensitivity|sensibilidad|certification|certificacion|temperature|temperatura|humidity|humedad|wdr|onvif|infrared|night|noche|radio|jeweller|wings|fibra|ethernet|sim|memory|memoria|storage|almacenamiento)/.test(key);
+    return /(color|colour|finish|acabado|technology|tecnologia|protocol|protocolo|connect|conect|wifi|wlan|wireless|lte|4g|gsm|poe|resolution|resolucion|megapixel|lens|lente|focal|indoor|outdoor|interior|exterior|environment|entorno|uso|use|aplicacion|deteccion|detection|pir|compat|channel|canal|port|puerto|hdmi|mount|montaje|power|alimentacion|voltage|voltaje|battery|bateria|autonomia|audio|video|iprating|proteccionip|protection|proteccion|grado|sensor|detector|format|formato|type|tipo|series|serie|range|gama|frequency|frecuencia|alcance|distancia|angle|angulo|tamper|mascota|pet|sensitivity|sensibilidad|certification|certificacion|temperature|temperatura|humidity|humedad|wdr|onvif|infrared|night|noche|radio|jeweller|wings|fibra|ethernet|sim|memory|memoria|storage|almacenamiento)/.test(key);
   };
 
   const rows = [];
@@ -3678,7 +3681,7 @@ resolverDesdeInput = function(){
     const best = buscar(term)[0];
     if(best){
       const d = descripcionProducto(best.p);
-      $('#previewProducto').innerHTML = `<b>${escapeHtml(d.icon)} ${escapeHtml(best.p.name)}</b> · ${escapeHtml(d.desc)} · ${fmt.format(best.p.pvp)}`;
+      $('#previewProducto').innerHTML = `<b>${escapeHtml(best.p.name)}</b> · ${escapeHtml(d.desc)} · ${fmt.format(best.p.pvp)}`;
     }else{
       $('#previewProducto').textContent='Selecciona un producto para ver su precio.';
     }
@@ -4042,7 +4045,7 @@ pintarResultados = function(term){
     const d = descripcionProducto(x.p);
     const extra = resumenProducto199(x.p);
     const meta = extra ? `${extra} · ${d.desc}` : d.desc;
-    return `<div class="result-item result-item-pro" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}" data-k="${k}"><div><div class="result-name">${escapeHtml(d.icon)} ${escapeHtml(x.p.name)}</div><div class="result-meta">${escapeHtml(meta)}</div></div><div class="result-price">${fmt.format(x.p.pvp)}</div></div>`;
+    return `<div class="result-item result-item-pro" data-index="${x.i}" data-ref="${escapeHtml(x.p.name)}" data-pvp="${Number(x.p.pvp)}" data-k="${k}"><div><div class="result-name">${escapeHtml(x.p.name)}</div><div class="result-meta">${escapeHtml(meta)}</div></div><div class="result-price">${fmt.format(x.p.pvp)}</div></div>`;
   }).join('');
   // Cada consulta nueva empieza arriba; no mueve el scroll de la página.
   panel.scrollTop = 0;

@@ -1548,3 +1548,44 @@ body:not(.light-mode) #familiasGrid .hxp-family-visual img{background:#2a342e}
     margin-left:5px!important;
   }
 }
+
+/* 6.0.2 · Smart Home comercial */
+#familiasGrid .hxp-type-tab[data-hxp-quick="Interruptores"],
+#familiasGrid .hxp-type-tab[data-hxp-quick="Enchufes"],
+#familiasGrid .hxp-type-tab[data-hxp-quick="Relés"],
+#familiasGrid .hxp-type-tab[data-hxp-quick="Timbre"],
+#familiasGrid .hxp-type-tab[data-hxp-quick="Accesorios"]{min-width:auto!important}
+
+
+/* =====================================================
+   EXPLORER PRO 6.1 · auditoría de filtros y mantenimiento
+   ===================================================== */
+#familiasGrid .hxp-filter-option.is-disabled{
+  opacity:.40;
+  cursor:not-allowed;
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+#familiasGrid .hxp-filter-option.is-disabled input{cursor:not-allowed}
+#familiasGrid .hxp-filter-option.is-disabled:hover{background:transparent!important}
+#familiasGrid .hxp-type-strip{
+  overflow-x:auto!important;
+  scrollbar-width:none!important;
+  scroll-behavior:smooth;
+}
+#familiasGrid .hxp-type-strip::-webkit-scrollbar{display:none}
+#familiasGrid .hxp-type-tab{
+  flex:0 0 auto!important;
+  min-width:auto!important;
+  white-space:nowrap!important;
+}
+
+
+/* 6.1.1 · acceso relacionado a soportes de cámaras */
+#familiasGrid .hxp-type-tab[data-hxp-quick="Soportes"]{
+  border-style:dashed!important;
+}
+#familiasGrid .hxp-type-tab[data-hxp-quick="Soportes"].is-active{
+  border-style:solid!important;
+}
