@@ -76,19 +76,19 @@ function primerValor(row, aliases) {
 const FILTER_FIELDS = [
   { key: "product_type", aliases: ["product_type", "producttype", "tipo_producto", "tipoproducto", "type", "tipo", "product_group", "grupoproducto"] },
   { key: "series", aliases: ["series", "serie", "product_series", "productseries", "gama", "range"] },
-  { key: "technology", aliases: ["technology", "tecnologia", "tecnología", "radio_technology", "radiotechnology"] },
+  { key: "technology", aliases: ["technology", "tecnologia", "tecnología", "radio_technology", "radiotechnology", "tecnologia_deteccion", "tecnologiadeteccion", "detection_technology", "detectiontechnology"] },
   { key: "protocol", aliases: ["protocol", "protocolo", "communication_protocol", "communicationprotocol", "protocolo_comunicacion"] },
   { key: "color", aliases: ["color", "colour", "finish", "acabado", "color_producto"] },
   { key: "connectivity", aliases: ["connectivity", "conectividad", "connection", "conexion", "conexión", "communications", "comunicaciones"] },
-  { key: "resolution", aliases: ["resolution", "resolucion", "resolución", "megapixels", "megapixeles", "mp"] },
-  { key: "environment", aliases: ["environment", "entorno", "installation", "instalacion", "instalación", "indoor_outdoor", "indooroutdoor", "interior_exterior", "interiorexterior", "use_environment"] },
+  { key: "resolution", aliases: ["resolution", "resolucion", "resolución", "resolucion_maxima", "resolucionmaxima", "max_resolution", "maximum_resolution", "megapixels", "megapixeles", "mp"] },
+  { key: "environment", aliases: ["environment", "entorno", "installation", "instalacion", "instalación", "indoor_outdoor", "indooroutdoor", "interior_exterior", "interiorexterior", "use_environment", "uso", "use", "aplicacion", "aplicación"] },
   { key: "photo", aliases: ["photo", "foto", "image_capture", "imagecapture", "captura_imagen", "capturaimagen", "photosensor", "fotosensor"] },
   { key: "poe", aliases: ["poe", "power_over_ethernet", "poweroverethernet"] },
   { key: "wifi", aliases: ["wifi", "wi_fi", "wireless_lan", "wirelesslan", "wlan"] },
   { key: "lte_4g", aliases: ["lte_4g", "lte4g", "4g_lte", "4glte", "lte", "4g", "gsm"] },
   { key: "compatibility", aliases: ["compatibility", "compatibilidad", "compatible_with", "compatiblewith", "compatible_con"] },
   { key: "channels", aliases: ["channels", "canales", "ports", "puertos", "number_of_channels", "numberofchannels"] },
-  { key: "lens", aliases: ["lens", "lente", "focal_length", "focallength", "distancia_focal", "optics", "optica", "óptica"] },
+  { key: "lens", aliases: ["lens", "lente", "tipo_lente", "tipolente", "focal_length", "focallength", "distancia_focal", "optics", "optica", "óptica"] },
   { key: "mounting", aliases: ["mounting", "montaje", "mount", "soporte", "installation_type", "installationtype", "tipo_instalacion"] },
   { key: "power", aliases: ["power", "alimentacion", "alimentación", "voltage", "voltaje", "power_supply", "powersupply", "fuente_alimentacion"] },
   { key: "order", aliases: ["order", "orden", "sort_order", "sortorder", "priority", "prioridad"] },
@@ -100,7 +100,7 @@ const OUTPUT_FIELDS = [
 ];
 
 const NON_FILTER_HEADER = /(name|nombre|reference|referencia|codigo|code|sku|brand|marca|manufacturer|fabricante|description|descripcion|shortdesc|image|imagen|photo(url|path)?|url|link|document|manual|datasheet|ficha|price|precio|pvp|tarifa|cost|coste|neto|stock|quantity|cantidad|existencia|ean|upc|isbn|weight|peso|height|alto|width|ancho|depth|profundidad|dimension|package|embalaje|minimo|minimum|tax|iva)/;
-const FILTER_HEADER_HINT = /(color|colour|finish|acabado|technology|tecnologia|protocol|protocolo|connect|conect|wifi|wlan|wireless|lte|4g|gsm|poe|resolution|resolucion|megapixel|lens|lente|focal|indoor|outdoor|interior|exterior|environment|entorno|compat|channel|canal|port|puerto|mount|montaje|power|aliment|voltage|voltaje|battery|bateria|autonomia|audio|video|sensor|detector|format|formato|type|tipo|series|serie|range|gama|frequency|frecuencia|alcance|range|distancia|angle|angulo|tamper|mascota|pet|sensitivity|sensibilidad|protection|proteccion|iprating|grado|certification|certificacion|temperature|temperatura|humidity|humedad|wdr|onvif|ir|night|noche|radio|jeweller|wings|fibra|ethernet|sim|memory|memoria|storage|almacenamiento)/;
+const FILTER_HEADER_HINT = /(color|colour|finish|acabado|technology|tecnologia|protocol|protocolo|connect|conect|wifi|wlan|wireless|lte|4g|gsm|poe|resolution|resolucion|megapixel|lens|lente|focal|indoor|outdoor|interior|exterior|environment|entorno|uso|use|aplicacion|compat|channel|canal|port|puerto|mount|montaje|power|aliment|voltage|voltaje|battery|bateria|autonomia|audio|video|sensor|detector|deteccion|detection|pir|format|formato|type|tipo|series|serie|range|gama|frequency|frecuencia|alcance|distancia|angle|angulo|tamper|mascota|pet|sensitivity|sensibilidad|protection|proteccion|iprating|grado|certification|certificacion|temperature|temperatura|humidity|humedad|wdr|onvif|ir|night|noche|radio|jeweller|wings|fibra|ethernet|sim|memory|memoria|storage|almacenamiento)/;
 
 function limpiarValorFiltro(value) {
   const text = limpiarDescripcion(value).replace(/\s+/g, " ").trim();
