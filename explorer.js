@@ -45,8 +45,8 @@
     { key:'connectivity', label:'Conectividad', order:50 },
     { key:'product_type', label:'Formato / tipo', order:55 },
     { key:'series', label:'Serie', order:60 },
-    { key:'resolution', label:'Resolución', order:70 },
-    { key:'environment', label:'Instalación', order:80 },
+    { key:'resolution', label:'Resolución máxima', order:70 },
+    { key:'environment', label:'Uso / instalación', order:80 },
     { key:'photo', label:'Captura de imagen', order:90 },
     { key:'poe', label:'PoE', order:100 },
     { key:'wifi', label:'Wi‑Fi', order:110 },
@@ -55,7 +55,16 @@
     { key:'channels', label:'Canales / puertos', order:140 },
     { key:'lens', label:'Óptica', order:150 },
     { key:'mounting', label:'Montaje', order:160 },
-    { key:'power', label:'Alimentación', order:170 }
+    { key:'power', label:'Alimentación', order:170 },
+    { key:'uso', label:'Uso', order:58 },
+    { key:'tecnologia_deteccion', label:'Tecnología detección', order:62 },
+    { key:'tipo_detector_pir', label:'Tipo detector PIR', order:64 },
+    { key:'alcance_de_deteccion', label:'Alcance de detección', order:66 },
+    { key:'alcance_deteccion', label:'Alcance de detección', order:66 },
+    { key:'deteccion_de_incendio', label:'Detección de incendio', order:68 },
+    { key:'deteccion_incendio', label:'Detección de incendio', order:68 },
+    { key:'resolucion_maxima', label:'Resolución máxima', order:72 },
+    { key:'tipo_lente', label:'Lente', order:152 }
   ];
 
   const KNOWN_FACET_MAP = new Map(KNOWN_FACETS.map(item => [item.key, item]));
@@ -89,6 +98,7 @@
       query:'',
       sort:'price-ref',
       filters:{},
+      quickGroup:'',
       drawerOpen:false,
       familyFilter:''
     };
@@ -226,7 +236,7 @@
       let s = 0;
       const ref = clean(p.name).toUpperCase();
       if(/central|centrales|hub|hubs/.test(familyText) && ref === 'AJ-HUB-B') s += 1000;
-      if(/nvr|grabador|grabacion|grabación/.test(familyText) && ref === 'J-NVR108-DC-B') s += 1000;
+      if(/nvr|grabador|grabacion|grabación/.test(familyText) && (ref === 'J-NVR108-DC-B' || ref === 'AJ-NVR108-DC-B')) s += 1000;
       if(/detector|detectores|intrusion|intrusión/.test(familyText) && ref === 'AJ-COMBIPROTECT-W') s += 1000;
       if(/kit/.test(familyText) && /inalambr|inalámbr/.test(familyText) && ref === 'AJ-HUBKIT-W') s += 1000;
       if(/smart home|smarthome|domotica|domótica|confort/.test(familyText) && ref === 'AJ-OUTLETCORE-BASIC') s += 1000;
@@ -314,6 +324,16 @@
         displayTitle = candidate || 'Otros productos';
       }
       if(norm(displayTitle) === 'productos anadidos' || norm(cleanCategory) === 'productos anadidos') displayTitle = 'Otros productos';
+      const shortNames = [
+        [/^nvrs? profesionales$/i, 'NVRs'],
+        [/^almacenamiento\s+nube$/i, 'Nube'],
+        [/^almacenamiento\s+en\s+nube$/i, 'Nube'],
+        [/^accesorios\s*[·-]\s*cctv$/i, 'Accesorios CCTV'],
+        [/^accesorios\s*[·-]\s*inal[aá]mbrico$/i, 'Accesorios inalámbricos'],
+        [/^kits\s*[·-]\s*cctv$/i, 'Kits CCTV'],
+        [/^kits\s*[·-]\s*inal[aá]mbrico$/i, 'Kits inalámbricos']
+      ];
+      shortNames.some(([rx,label]) => rx.test(displayTitle) ? (displayTitle = label, true) : false);
       family.displayTitle = displayTitle;
       family.context = displayTitle === 'Otros productos' ? 'Productos añadidos manualmente'
         : (cleanCategory && norm(cleanCategory) !== norm(displayTitle) ? cleanCategory : '');
@@ -413,6 +433,26 @@
     return clean(product?.short_description) || fallback;
   }
 
+
+  function searchAliases(query){
+    const q = norm(query);
+    const map = [
+      {rx:/\b(rele|reles|relé|relés|relay|wallswitch|wall switch)\b/, add:' relay wallswitch wall switch rele reles relé relés domotica smart home '},
+      {rx:/\b(doorbell|timbre|videoportero)\b/, add:' doorbell timbre videoportero smart home '},
+      {rx:/\b(phod|foto bajo demanda|fotosensor)\b/, add:' phod photo on demand foto bajo demanda motioncam fotosensor '},
+      {rx:/\b(rex|repetidor|repetidores)\b/, add:' rex rex2 rex 2 repetidor repetidores '},
+      {rx:/\b(4g|lte)\b/, add:' 4g lte gsm hub '},
+      {rx:/\b(domo|dome)\b/, add:' domo dome camara '},
+      {rx:/\b(turret)\b/, add:' turret camara '},
+      {rx:/\b(bullet)\b/, add:' bullet camara '},
+      {rx:/\b(combi|combiprotect)\b/, add:' combi combiprotect movimiento cristal '},
+      {rx:/\b(cortina|curtain)\b/, add:' cortina curtain '},
+      {rx:/\b(incendio|fire|humo)\b/, add:' incendio fire fireprotect humo smoke heat co '},
+      {rx:/\b(lightcore|lightswitch|outletcore)\b/, add:' lightcore lightswitch outletcore smart home domotica '}
+    ];
+    return map.filter(entry => entry.rx.test(q)).map(entry => entry.add).join(' ');
+  }
+
   function productSearchText(item){
     const product = item.p || {};
     const attributes = product.attributes && typeof product.attributes === 'object'
@@ -423,7 +463,8 @@
       item.category, item.family, item.subcategory,
       product.product_type, product.series, product.technology, product.protocol,
       product.color, product.connectivity, product.resolution, product.environment,
-      product.compatibility, attributes
+      product.compatibility, attributes,
+      searchAliases(`${product.name||''} ${product.short_description||''} ${product.description||''}`)
     ].filter(Boolean).join(' '));
   }
 
@@ -431,8 +472,9 @@
     const q = clean(query);
     if(!q) return items.slice();
     const allowed = new Set(items.map(item => item.index));
+    const aliasQuery = searchAliases(q);
     try{
-      if(window.HXA_KNOWLEDGE_ENGINE?.rank){
+      if(q.length >= 3 && !aliasQuery && window.HXA_KNOWLEDGE_ENGINE?.rank){
         const indexed = currentProducts().map((product,index) => ({
           ...product,
           description:[
@@ -458,6 +500,7 @@
     }catch(error){ console.warn('[Explorer Pro] búsqueda avanzada no disponible', error); }
 
     const needle = norm(q).replace(/\s+/g,' ');
+    const expandedNeedle = norm(`${q} ${aliasQuery}`).replace(/\s+/g,' ').trim();
     const compactNeedle = needle.replace(/[^a-z0-9]/g,'');
     return items
       .map(item => {
@@ -470,7 +513,7 @@
         if(ref.includes(needle)) score += 700;
         if(haystack.includes(needle)) score += 400;
         if(compactNeedle && compact.includes(compactNeedle)) score += 300;
-        const tokens = needle.split(/\s+/).filter(Boolean);
+        const tokens = expandedNeedle.split(/\s+/).filter(Boolean);
         score += tokens.reduce((total, token) => total + (haystack.includes(token) ? 90 : 0), 0);
         return { item, score };
       })
@@ -559,6 +602,18 @@
   function prettifyKey(key){
     const known = KNOWN_FACET_MAP.get(key);
     if(known) return known.label;
+    const aliases = {
+      uso:'Uso',
+      resolucion_maxima:'Resolución máxima',
+      tecnologia_deteccion:'Tecnología detección',
+      tipo_detector_pir:'Tipo detector PIR',
+      alcance_de_deteccion:'Alcance de detección',
+      alcance_deteccion:'Alcance de detección',
+      deteccion_de_incendio:'Detección de incendio',
+      deteccion_incendio:'Detección de incendio',
+      tipo_lente:'Lente'
+    };
+    if(aliases[key]) return aliases[key];
     return clean(key.replace(/[_-]+/g,' ')).replace(/\b\w/g, char => char.toUpperCase());
   }
 
@@ -704,6 +759,10 @@
     const model = buildModel();
     let items = state.familyKey ? familyItems(model) : model.allItems.slice();
     if(clean(state.query)) items = rankedSearch(items, state.query);
+    if(state.quickGroup){
+      const family = currentFamily(model);
+      items = items.filter(item => quickGroupForItem(item, family) === state.quickGroup);
+    }
     items = applyFilters(items, filters);
     if(clean(state.query) && state.sort === 'featured') return items;
     return sortItems(items);
@@ -773,6 +832,11 @@
   }
 
   function familyVisual(family){
+    if(norm(family?.displayTitle) === 'otros productos'){
+      const wdPrimary = 'https://www.westerndigital.com/content/dam/store/en-us/assets/products/internal-storage/wd-purple-sata-hdd/featured/WD-Purple-feature1.jpg.wdthumb.319.319.jpg';
+      const wdFallback = 'https://thumb.pccomponentes.com/w-530-530/articles/1100/11000748/1772-disco-duro-western-digital-purple-1tb-35-hdd-5400rpm-sata-iii-vigilancia.jpg';
+      return `<span class="hxp-family-visual hxp-family-visual-image"><img src="${wdPrimary}" data-fallback="${wdFallback}" alt="Disco duro Western Digital Purple" loading="lazy" onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;this.dataset.fallback=''}else{this.closest('.hxp-family-visual').classList.add('is-error')}"><b>O</b></span>`;
+    }
     const product = family?.representative || null;
     const image = clean(product?.image);
     if(image){
@@ -819,17 +883,99 @@
       </main>`;
   }
 
+
+  function quickGroupForItem(item, family){
+    const p = item?.p || {};
+    const familyText = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
+    const text = norm(`${item?.subcategory||''} ${p.name||''} ${p.short_description||''} ${p.description||''} ${p.product_type||''} ${p.series||''}`);
+
+    if(/camara|cámara/.test(familyText)){
+      if(/\bptz\b/.test(text)) return 'PTZ';
+      if(/\bcube\b|\bcubo\b/.test(text)) return 'Cube';
+      if(/\bturret\b/.test(text)) return 'Turret';
+      if(/\bbullet\b/.test(text)) return 'Bullet';
+      if(/\bdome\b|\bdomo\b/.test(text)) return 'Domo';
+      return 'Otros';
+    }
+
+    if(/detector|detectores|intrusion|intrusión/.test(familyText)){
+      if(/fireprotect|incendio|humo|smoke|heat|temperatura|carbon monoxide|\bco\b/.test(text)) return 'Incendio';
+      if(/phod|foto bajo demanda|photo on demand|photo by demand/.test(text)) return 'PhOD';
+      if(/combi/.test(text)) return 'Combi';
+      if(/motioncam|motion cam|verificacion fotografica|verificación fotográfica/.test(text)) return 'MotionCam';
+      if(/curtain|cortina/.test(text)) return 'Cortina';
+      if(/outdoor|exterior/.test(text)) return 'Exterior';
+      if(/glass|cristal|rotura/.test(text)) return 'Cristal';
+      if(/door|apertura|contacto magnetico|contacto magnético/.test(text)) return 'Apertura';
+      if(/motion|movimiento/.test(text)) return 'Movimiento';
+      return 'Otros';
+    }
+
+    if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(familyText)){
+      if(/doorbell|timbre|videoportero/.test(text)) return 'DoorBell';
+      if(/wallswitch|wall switch|\brelay\b|aj-relay|\brele\b|relé|reles|relés/.test(text)) return 'Relés';
+      if(/lightcore/.test(text)) return 'LightCore';
+      if(/lightswitch/.test(text)) return 'LightSwitch';
+      if(/outletcore/.test(text)) return 'OutletCore';
+      if(/socket|enchufe|outlet/.test(text)) return 'Enchufes';
+      return 'Otros';
+    }
+
+    if(/\bnvr\b|grabador|grabacion|grabación/.test(familyText)){
+      const ch = text.match(/\b(4|8|16|32|64)\s*(?:ch|canales?)\b/);
+      if(ch) return `${ch[1]} canales`;
+      return 'Otros';
+    }
+
+    if(/central|centrales|hub|hubs/.test(familyText)){
+      if(/\brex\b|\brex2\b|repetidor|repeater/.test(text)) return 'Repetidores';
+      if(/hybrid/.test(text)) return 'Hybrid';
+      if(/hub\s*2|hub2/.test(text) && /4g|lte/.test(text)) return '4G / LTE';
+      if(/hub plus|hubplus/.test(text)) return 'Hub Plus';
+      if(/hub\s*2|hub2/.test(text)) return 'Hub 2';
+      if(/\bhub\b/.test(text)) return 'Hub';
+      return 'Otros';
+    }
+
+    return '';
+  }
+
+  function quickGroups(baseItems){
+    const family = currentFamily();
+    const counts = new Map();
+    baseItems.forEach(item => {
+      const label = quickGroupForItem(item, family);
+      if(label) counts.set(label, (counts.get(label) || 0) + 1);
+    });
+    const preferred = {
+      'camaras ip':['Bullet','Turret','Domo','Cube','PTZ','Otros'],
+      'detectores':['Movimiento','Apertura','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio','Otros'],
+      'smart home':['LightSwitch','LightCore','OutletCore','Relés','Enchufes','DoorBell','Otros'],
+      'centrales':['Hub','Hub 2','4G / LTE','Hub Plus','Hybrid','Repetidores','Otros']
+    };
+    const ft = norm(`${family?.displayTitle||''} ${family?.familyTitle||''}`);
+    let order = [];
+    for(const [key,values] of Object.entries(preferred)){
+      if(ft.includes(norm(key))) { order = values; break; }
+    }
+    const labels = [...counts.keys()].filter(label => counts.get(label) > 0);
+    labels.sort((a,b) => {
+      const ai = order.indexOf(a), bi = order.indexOf(b);
+      if(ai >= 0 || bi >= 0) return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
+      return collator.compare(a,b);
+    });
+    return labels.map(label => ({label,count:counts.get(label)}));
+  }
+
   function quickTypes(baseItems){
-    const facets = buildFacets(baseItems);
-    const typeFacet = facets.find(group => group.key === 'subcategory');
-    if(!typeFacet || typeFacet.values.length < 2) return '';
-    const selected = state.filters.subcategory || [];
-    const top = typeFacet.values.slice(0, 6);
-    const hidden = typeFacet.values.length - top.length;
-    return `<div class="hxp-type-strip" aria-label="Tipos de producto">
-      <button type="button" class="hxp-type-tab ${selected.length===0?'is-active':''}" data-hxp-type="">Todos</button>
-      ${top.map(value => `<button type="button" class="hxp-type-tab ${selected.includes(value.id)?'is-active':''}" data-hxp-type="${esc(value.id)}"><span>${esc(value.title)}</span><em>${value.count}</em></button>`).join('')}
-      ${hidden>0 ? `<button type="button" class="hxp-type-more" data-hxp-open-filters>Más tipos <b>+${hidden}</b></button>` : ''}
+    const groups = quickGroups(baseItems).filter(group => group.label !== 'Otros');
+    if(groups.length < 2) return '';
+    const top = groups.slice(0, isMobile() ? 8 : 10);
+    const hidden = groups.length - top.length;
+    return `<div class="hxp-type-strip" aria-label="Filtros rápidos">
+      <button type="button" class="hxp-type-tab ${!state.quickGroup?'is-active':''}" data-hxp-quick="">Todos</button>
+      ${top.map(group => `<button type="button" class="hxp-type-tab ${state.quickGroup===group.label?'is-active':''}" data-hxp-quick="${esc(group.label)}"><span>${esc(group.label)}</span><em>${group.count}</em></button>`).join('')}
+      ${hidden>0 ? `<button type="button" class="hxp-type-more" data-hxp-open-filters>Más <b>+${hidden}</b></button>` : ''}
     </div>`;
   }
 
@@ -882,6 +1028,13 @@
     </article>`;
   }
 
+  function quickCounterItems(){
+    const model = buildModel();
+    let items = state.familyKey ? familyItems(model) : model.allItems.slice();
+    if(clean(state.query)) items = rankedSearch(items, state.query);
+    return applyFilters(items, state.filters);
+  }
+
   function productsView(){
     const model = buildModel();
     const family = currentFamily(model);
@@ -896,7 +1049,7 @@
           <div><h3>${esc(title)}</h3><p>${esc(context)}</p></div>
           ${state.familyKey ? `<button type="button" class="hxp-change-family" data-hxp-home>Cambiar familia</button>` : ''}
         </div>
-        ${state.familyKey ? quickTypes(baseItems) : ''}
+        ${state.familyKey ? quickTypes(quickCounterItems()) : ''}
         <div class="hxp-products-scroll" id="hxpProductsScroll">
           ${items.map(productCard).join('') || `<div class="hxp-empty hxp-empty-products"><strong>No hay productos con estos filtros.</strong><button type="button" data-hxp-clear-filters>Limpiar filtros</button></div>`}
         </div>
@@ -915,7 +1068,8 @@
     const previewCount = resultItems(drawerDraft).length;
     const groups = facets.map((group,index) => {
       const selected = drawerDraft[group.key] || [];
-      return `<details class="hxp-filter-group" ${index < 4 || selected.length ? 'open' : ''}>
+      const defaultOpen = selected.length || (isMobile() ? index < 2 : index < 4);
+      return `<details class="hxp-filter-group" ${defaultOpen ? 'open' : ''}>
         <summary><span>${esc(group.label)}</span><em>${selected.length || group.values.length}</em></summary>
         <div class="hxp-filter-options">
           ${group.values.map(value => `<label class="hxp-filter-option">
@@ -998,6 +1152,7 @@
     state.familyKey = key;
     state.query = '';
     state.filters = {};
+    state.quickGroup = '';
     state.sort = defaultSortForFamily(key);
     state.drawerOpen = false;
     render();
@@ -1008,6 +1163,7 @@
     state.familyKey = '';
     state.query = '';
     state.filters = {};
+    state.quickGroup = '';
     state.drawerOpen = false;
     state.sort = 'price-ref';
     render();
@@ -1036,7 +1192,17 @@
       search.addEventListener('input', event => {
         state.query = event.target.value;
         clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => render(), 130);
+        searchTimer = setTimeout(() => {
+          const value = state.query;
+          render();
+          requestAnimationFrame(() => {
+            const next = byId('hxpSearch');
+            if(next && document.activeElement !== next){
+              next.focus({preventScroll:true});
+              next.setSelectionRange(value.length,value.length);
+            }
+          });
+        }, 170);
       });
       search.addEventListener('keydown', event => {
         if(event.key === 'Escape' && state.query){
@@ -1074,11 +1240,10 @@
       render({preserveScroll:false});
     });
 
-    root.querySelectorAll('[data-hxp-type]').forEach(button => button.addEventListener('click', () => {
-      const value = button.dataset.hxpType;
-      if(value) state.filters.subcategory = [value];
-      else delete state.filters.subcategory;
-      render();
+    root.querySelectorAll('[data-hxp-quick]').forEach(button => button.addEventListener('click', () => {
+      state.quickGroup = button.dataset.hxpQuick || '';
+      render({preserveScroll:false});
+      requestAnimationFrame(() => byId('hxpProductsScroll')?.scrollTo({top:0}));
     }));
 
     root.querySelectorAll('[data-hxp-facet]').forEach(input => input.addEventListener('change', () => {
