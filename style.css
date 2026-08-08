@@ -6813,3 +6813,79 @@ body.light-mode .budget-card #tbody .drag-btn span{
 body.light-mode .budget-card #tbody tr.hx-bajo-coste > td{
   color:#172019!important;
 }
+
+
+/* =====================================================
+   7.2.8 · Buscador inicial · modo claro
+   ===================================================== */
+body.light-mode #buscador{
+  background:#ffffff!important;
+  background-image:none!important;
+  color:#172019!important;
+  border-color:#bfd4c9!important;
+  box-shadow:none!important;
+}
+body.light-mode #buscador::placeholder{
+  color:#7b8a82!important;
+  opacity:1!important;
+}
+body.light-mode #buscador:focus{
+  background:#ffffff!important;
+  color:#172019!important;
+  border-color:#2f765c!important;
+  box-shadow:0 0 0 3px rgba(47,118,92,.12)!important;
+}
+
+/* Resultados del buscador */
+body.light-mode #resultados{
+  background:#ffffff!important;
+  color:#172019!important;
+  border-color:#c8d8d0!important;
+  box-shadow:0 14px 32px rgba(24,51,39,.14)!important;
+}
+body.light-mode #resultados .result-item,
+body.light-mode #resultados .search-result,
+body.light-mode #resultados > div{
+  color:#172019!important;
+}
+body.light-mode #resultados .result-item:hover,
+body.light-mode #resultados .search-result:hover{
+  background:#f3f8f5!important;
+}
+
+/* Precios: verde oscuro y legible */
+body.light-mode #resultados .price,
+body.light-mode #resultados .result-price,
+body.light-mode #resultados [class*="price"],
+body.light-mode #resultados strong:last-child,
+body.light-mode #resultados b:last-child{
+  color:#146c43!important;
+  font-weight:800!important;
+}
+
+/* Texto secundario del resultado */
+body.light-mode #resultados small,
+body.light-mode #resultados .muted,
+body.light-mode #resultados .result-desc{
+  color:#617168!important;
+}
+
+
+/* =====================================================
+   7.2.9 · Texto seleccionado bajo el buscador · modo claro
+   ===================================================== */
+body.light-mode #previewProducto{
+  color:#52655b!important;
+}
+body.light-mode #previewProducto b,
+body.light-mode #previewProducto strong{
+  color:#172019!important;
+  font-weight:800!important;
+}
+body.light-mode .preview-line #previewProducto{
+  color:#52655b!important;
+}
+body.light-mode .preview-line #previewProducto b,
+body.light-mode .preview-line #previewProducto strong{
+  color:#172019!important;
+}
