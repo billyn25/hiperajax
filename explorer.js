@@ -98,6 +98,9 @@
   ]);
 
   const SEARCH_ALIAS_RULES = Object.freeze([
+    {rx:/\b(sirena|sirenas|homesiren|streetsiren)\b/, add:'sirena sirenas homesiren streetsiren accesorios inalambricos'},
+    {rx:/\b(teclado|teclados|keypad)\b/, add:'teclado teclados keypad keypadcombi keypadplus touchscreen accesorios inalambricos'},
+    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'}, 
     {rx:/\b(rele|reles|relé|relés|relay|wallswitch|wall switch)\b/, add:'relay wallswitch rele relés domotica smart home'},
     {rx:/\b(keypadcombi|keypad combi|teclado combi)\b/, add:'keypad combi keypadcombi teclado teclados'},
     {rx:/\b(doorbell|timbre|videoportero)\b/, add:'doorbell timbre videoportero smart home'},
@@ -742,8 +745,12 @@
     if(!key || key === '__all__' || key === '__popular__') return 'price-ref';
     const family = buildModel().byFamily.get(key);
     const text = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
+
+    // Cámaras: precio + referencia para comparar gamas/precios rápidamente.
+    if(/camara|cámara/.test(text)) return 'price-ref';
+
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'type-ref-color';
-    if(/detector|central|hub|sirena|teclado|camara|cámara/.test(text)) return 'ref-color';
+    if(/detector|central|hub|sirena|teclado/.test(text)) return 'ref-color';
     return 'price-ref';
   }
 
@@ -1018,6 +1025,19 @@
     return {p, attrs, identity, typeText, featureText, source:`${typeText} ${featureText}`};
   }
 
+  function quickProductRole(item){
+    const {p, attrs, typeText} = quickContext(item);
+    const name = norm(p.name || '');
+    const structured = norm([
+      item?.subcategory, p.product_type, p.tipo, p.series,
+      ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
+    ].filter(Boolean).join(' '));
+
+    const accessory = /(?:^|\b)(bracket|soporte|support|holder|mount|cover|tapa|frame|marco|surfacebox|surface box|faceplate|panel|carcasa|housing|adaptador|adapter|fuente|power supply|psu|alimentacion|alimentación|bypass)(?:\b|$)/.test(`${structured} ${name}`);
+    const kit = /(?:^|\b)kit(?:\b|$)/.test(`${structured} ${name}`);
+    return {accessory,kit,structured,name};
+  }
+
   function isCameraSupportItem(item){
     const p = item?.p || {};
     const attrs = normalizeAttributes(p);
@@ -1060,7 +1080,8 @@
     }
 
     if(profile === 'detectors'){
-      const fire = /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/.test(typeText);
+      const role = quickProductRole(item);
+      const fire = !role.accessory && /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/.test(typeText);
       const door = /doorprotect|door protect|contacto magn[eé]tico|magnetic contact|detector(?:\s+de)?\s+apertura/.test(typeText);
       const glass = /glassprotect|glass protect|rotura(?:\s+de)?\s+cristal|glass break/.test(typeText);
       const combi = /combiprotect|combi protect/.test(typeText);
@@ -1070,7 +1091,7 @@
       const outdoor = /outdoor|exterior/.test(`${typeText} ${featureText}`);
       const motion = /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b/.test(typeText);
 
-      if(fire) add('Incendio');
+      if(fire && !curtain) add('Incendio');
       if(motioncam) add('MotionCam');
       if(phod && motioncam) add('PhOD');
       if(combi){ add('Combi'); add('Movimiento'); add('Cristal'); }
@@ -1082,13 +1103,20 @@
     }
 
     if(profile === 'smart_home'){
-      if(/doorbell|timbre|videoportero/.test(typeText)) add('Timbre');
-      if(/wallswitch|wall switch|\brelay\b|aj-relay|rel[eé]\s+(?:contacto|tension|tensión)|\brel[eé]s?\b/.test(typeText)) add('Relés');
-      if(/lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(typeText)) add('Interruptores');
-      if(/outletcore|outlet core|socket|enchufe(?: ethernet| inteligente)?|\boutlet\b/.test(typeText)) add('Enchufes');
-      if(/waterstop|electrov[aá]lvula|\bvalve\b/.test(typeText)) add('Válvulas');
-      if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(typeText)) add('Clima / Aire');
-      if(/soporte rel[eé]|tapa.*caja|marco|frame|surfacebox|surface box|faceplate|panel/.test(typeText)) add('Accesorios');
+      const role = quickProductRole(item);
+      const smartAccessory = role.accessory
+        || /soporte rel[eé]|tapa.*caja|marco|frame|surfacebox|surface box|faceplate|panel|bypass/.test(typeText);
+
+      if(smartAccessory){
+        add('Accesorios');
+      }else{
+        if(/doorbell|timbre|videoportero/.test(typeText)) add('Timbre');
+        if(/wallswitch|wall switch|\brelay\b|aj-relay|rel[eé]\s+(?:contacto|tension|tensión)|\brel[eé]s?\b/.test(typeText)) add('Relés');
+        if(/lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(typeText)) add('Interruptores');
+        if(/outletcore|outlet core|socket|enchufe(?: ethernet| inteligente)?|\boutlet\b/.test(typeText)) add('Enchufes');
+        if(/waterstop|electrov[aá]lvula|\bvalve\b/.test(typeText)) add('Válvulas');
+        if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(typeText)) add('Clima / Aire');
+      }
     }
 
     if(profile === 'nvr'){
@@ -1110,9 +1138,11 @@
       }
 
       if(channelNumber) add(channelNumber >= 32 ? '32+ canales' : `${channelNumber} canales`);
-      const hdmi = Object.entries(attrs).some(([key,value]) =>
-        /hdmi/.test(norm(key)) && !/^(?:no|0|false|sin|n\/a)$/i.test(clean(value))
-      );
+      const hdmi = Object.entries(attrs).some(([key,value]) => {
+        const k = norm(key), v = norm(value);
+        return (/hdmi/.test(k) && !/^(?:no|0|false|sin|n\/a)$/.test(v))
+          || (/salida|video|conector|interface|interfaz/.test(k) && /\bhdmi\b/.test(v));
+      });
       if(hdmi || /\bhdmi\b/.test(featureText)) add('HDMI');
     }
 
@@ -1130,22 +1160,67 @@
     }
 
     if(profile === 'wireless_accessories'){
-      const secondary = /bracket|soporte|support|tapa|cover|carcasa|housing|adaptador|adapter|modulo|módulo|alimentacion|alimentación|power supply|fuente|\bkit\b/.test(typeText);
-      const keypad = /keypad|teclado/.test(typeText) && !secondary;
-      const siren = /homesiren|streetsiren|\bsirena\b|\bsiren\b/.test(typeText) && !secondary;
+      // En accesorios inalámbricos, identificar el producto principal por Tipo/subcategoría
+      // y por el nombre corto del modelo. Nunca por la descripción larga.
+      const name = norm(p.name || '');
+      const structuredType = norm([
+        item?.subcategory, p.product_type, p.tipo, p.series, p.technology
+      ].filter(Boolean).join(' '));
+
+      // Marcadores claros de que es un accesorio PARA el producto y no el producto.
+      const secondaryName = /cover|tapa|bracket|soporte|holder|mount|carcasa|housing|adaptador|adapter|fuente|power|psu|alimentacion|alimentación|12v|24v/.test(name);
+      const secondaryType = /tapa|cover|bracket|soporte|holder|mount|carcasa|housing|adaptador|adapter|fuente|power supply|alimentacion|alimentación/.test(structuredType);
+      const secondary = secondaryName || secondaryType;
+
+      const keypad = !secondary && (
+        /\bteclado\b|\bkeypad\b/.test(structuredType) ||
+        /(?:^|[-_])keypad(?:combi|plus|touchscreen|outdoor)?(?:[-_]|$)/.test(name) ||
+        /keypadcombi|keypadplus|keypadtouchscreen/.test(name)
+      );
+
+      const siren = !secondary && (
+        /\bsirena\b|\bsiren\b/.test(structuredType) ||
+        /homesiren|streetsiren/.test(name)
+      );
+
+      const relay = !secondary && (
+        /\brel[eé]\b|\brelay\b|contacto seco|tensi[oó]n/.test(structuredType) ||
+        /(?:^|[-_])relay(?:[-_]|$)|wallswitch/.test(name)
+      );
+
+      const button = !secondary && (
+        /\bbot[oó]n\b|\bmando\b|panic button|remote control/.test(structuredType) ||
+        /doublebutton|spacecontrol|(?:^|[-_])button(?:[-_]|$)/.test(name)
+      );
+
+      const socket = !secondary && (
+        /\benchufe\b|\bsocket\b/.test(structuredType) ||
+        /(?:^|[-_])socket(?:[-_]|$)/.test(name)
+      );
+
+      const valve = !secondary && (
+        /electrov[aá]lvula|\bv[aá]lvula\b|\bvalve\b/.test(structuredType) ||
+        /waterstop/.test(name)
+      );
+
+      const repeater = !secondary && (
+        /\brepetidor\b|\brepeater\b/.test(structuredType) ||
+        /(?:^|[-_])rex2?(?:[-_]|$)/.test(name)
+      );
+
+      const lifeQuality = !secondary && (
+        /lifequality|life quality|calidad.*aire|co2.*humedad|temperatura.*humedad/.test(structuredType) ||
+        /lifequality/.test(name)
+      );
 
       if(keypad) add('Teclados');
       if(siren) add('Sirenas');
-
-      if(!keypad && !siren){
-        if(/wallswitch|wall switch|\brelay\b|aj-relay|\brel[eé]s?\b/.test(typeText) && !secondary) add('Relés');
-        if(/\bbutton\b|doublebutton|spacecontrol|\bmando\b|bot[oó]n/.test(typeText) && !secondary) add('Botones / Mandos');
-        if((/socket|enchufe/.test(typeText) || (/\boutlet\b/.test(typeText) && !/outletcore/.test(typeText))) && !secondary) add('Enchufes');
-        if(/waterstop|v[aá]lvula|\bvalve\b/.test(typeText) && !secondary) add('Válvulas');
-        const repeater = /(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(typeText) && !secondary;
-        if(repeater) add('Repetidores');
-        if(/lifequality|life quality/.test(typeText) && !secondary) add('LifeQuality');
-      }
+      if(relay) add('Relés');
+      if(button) add('Botones / Mandos');
+      if(socket) add('Enchufes');
+      if(valve) add('Válvulas');
+      if(repeater) add('Repetidores');
+      if(lifeQuality) add('LifeQuality');
     }
 
     return [...tags];
@@ -1246,6 +1321,19 @@
     return applyFilters(items, state.filters);
   }
 
+  function desktopFamilyRail(model = buildModel()){
+    if(isMobile() || !state.familyKey) return '';
+    const families = model.families;
+    return `<aside class="hxp-family-rail" aria-label="Familias">
+      <div class="hxp-family-rail-head"><strong>Familias</strong></div>
+      <div class="hxp-family-rail-list">
+        ${families.map(family => `<button type="button" class="hxp-family-rail-item ${family.key===state.familyKey?'is-active':''}" data-hxp-family="${esc(family.key)}">
+          <span>${esc(family.displayTitle || family.familyTitle)}</span><em>${family.count}</em>
+        </button>`).join('')}
+      </div>
+    </aside>`;
+  }
+
   function productsView(){
     const model = buildModel();
     const family = currentFamily(model);
@@ -1254,7 +1342,9 @@
     const title = family?.familyTitle || 'Resultados';
     const context = family?.context || (state.query ? 'Búsqueda en todo el catálogo' : 'Todos los productos');
     return `${toolbar(items.length)}
-      <main class="hxp-main hxp-products-view">
+      <div class="hxp-products-layout">
+        ${desktopFamilyRail(model)}
+        <main class="hxp-main hxp-products-view">
         <div class="hxp-current-family">
           <button type="button" class="hxp-back" data-hxp-home aria-label="Volver a familias">${svgIcon('back')}</button>
           <div><h3>${esc(title)}</h3><p>${esc(context)}</p></div>
@@ -1264,7 +1354,8 @@
         <div class="hxp-products-scroll" id="hxpProductsScroll">
           ${items.map(productCard).join('') || `<div class="hxp-empty hxp-empty-products"><strong>No hay productos con estos filtros.</strong><button type="button" data-hxp-clear-filters>Limpiar todo</button></div>`}
         </div>
-      </main>`;
+      </main>
+      </div>`;
   }
 
   function selectedFilterSummary(filters, quickGroup = state.quickGroup){
@@ -1573,6 +1664,24 @@
     try{ if(typeof hxBindQtyControls === 'function') hxBindQtyControls(root, 'explorer'); }catch(error){ console.warn(error); }
     try{ if(typeof hxBindProductImages === 'function') hxBindProductImages(root); }catch(error){ console.warn(error); }
   }
+
+
+  window.HXA_EXPLORER_QUICK_AUDIT = function(ref){
+    const needle = norm(ref || '');
+    const model = buildModel();
+    const item = model.allItems.find(x => norm(x.p?.name || '') === needle || norm(x.p?.name || '').includes(needle));
+    if(!item) return {found:false,ref};
+    const families = model.families
+      .filter(f => f.items.some(x => x.index === item.index))
+      .map(f => ({family:f.displayTitle||f.familyTitle, quicks:quickGroupsForItem(item,f)}));
+    return {
+      found:true,
+      ref:item.p?.name,
+      product_type:item.p?.product_type || '',
+      subcategory:item.subcategory || '',
+      families
+    };
+  };
 
   function openExplorer(){
     const modal = byId('familiasModal');
