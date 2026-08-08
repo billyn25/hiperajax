@@ -1182,7 +1182,7 @@
 
       const curtain = has(
         /doublecurtain|curtainprotect|curtain protect|curtaincam|curtain cam|\bcurtain\b|\bcortina\b/
-      ) || norm(p.name || '').replace(/[^a-z0-9]/g,'').includes('curtain');
+      );
 
       const motioncam = has(
         /motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen|fotodetector.*imagen/
@@ -1194,8 +1194,7 @@
         /leakprotect|leak protect|detector(?:\s+de)?\s+inundaci[oó]n|inundaci[oó]n|water leak|flood detector/
       );
 
-      const outdoor = has(/\boutdoor\b|\bexterior\b/)
-        || norm(p.name || '').replace(/[^a-z0-9]/g,'').includes('outdoor');
+      const outdoor = has(/\boutdoor\b|\bexterior\b/);
 
       const motion = has(
         /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b|fotodetector/
@@ -1562,9 +1561,6 @@
   function render(options = {}){
     const root = byId('familiasGrid');
     if(!root) return;
-
-    const currentQuickStrip = root.querySelector('.hxp-type-strip');
-    if(currentQuickStrip && isMobile()) quickStripScrollLeft = currentQuickStrip.scrollLeft || 0;
     const active = document.activeElement;
     const restoreSearch = active?.id === 'hxpSearch';
     const selectionStart = restoreSearch ? active.selectionStart : null;
@@ -1574,13 +1570,6 @@
     state.view = showProducts ? 'products' : 'home';
     root.innerHTML = `<div class="hxp-app">${showProducts ? productsView() : homeView()}${drawerHtml()}</div>`;
     bind(root);
-
-    if(isMobile()){
-      requestAnimationFrame(() => {
-        const strip = root.querySelector('.hxp-type-strip');
-        if(strip) strip.scrollLeft = quickStripScrollLeft;
-      });
-    }
 
     if(options.preserveScroll){
       const scroller = byId('hxpProductsScroll');
@@ -1635,7 +1624,6 @@
   }
 
   function selectFamily(key){
-    if(state.familyKey !== key) quickStripScrollLeft = 0;
     state.familyKey = key;
     state.query = '';
     state.filters = {};
@@ -1647,7 +1635,6 @@
   }
 
   function goHome(){
-    quickStripScrollLeft = 0;
     state.familyKey = '';
     state.query = '';
     state.filters = {};
@@ -1770,11 +1757,6 @@
       });
     });
 
-    const quickStrip = root.querySelector('.hxp-type-strip');
-    quickStrip?.addEventListener('scroll', () => {
-      if(isMobile()) quickStripScrollLeft = quickStrip.scrollLeft || 0;
-    }, {passive:true});
-
     root.querySelectorAll('[data-hxp-family]').forEach(button => button.addEventListener('click', () => selectFamily(button.dataset.hxpFamily)));
     root.querySelectorAll('[data-hxp-home]').forEach(button => button.addEventListener('click', goHome));
     root.querySelectorAll('[data-hxp-open-filters]').forEach(button => button.addEventListener('click', openFilters));
@@ -1876,7 +1858,6 @@
   };
 
   function openExplorer(){
-    quickStripScrollLeft = 0;
     const modal = byId('familiasModal');
     if(!modal) return;
     state = freshState();
