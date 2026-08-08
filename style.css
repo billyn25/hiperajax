@@ -6579,3 +6579,101 @@ body.light-mode .add-card select option{
   background:#ffffff!important;
   color:#17221c!important;
 }
+
+
+/* =====================================================
+   7.2 · Revisar precios: aviso y modal
+   Solo presentación; la lógica existente no cambia.
+   ===================================================== */
+#catalogHealth.is-warn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:30px!important;
+  padding:5px 9px!important;
+  white-space:nowrap!important;
+  border:1px solid #e0b84d!important;
+  border-radius:9px!important;
+  background:#fff7d6!important;
+  color:#946200!important;
+  font-weight:800!important;
+  line-height:1!important;
+  cursor:pointer!important;
+  text-decoration:none!important;
+}
+#catalogHealth.is-warn:hover,
+#catalogHealth.is-warn:focus-visible{
+  background:#ffefb2!important;
+  border-color:#cd9e24!important;
+  outline:none!important;
+}
+body:not(.light-mode) #catalogHealth.is-warn{
+  background:rgba(233,168,59,.13)!important;
+  border-color:rgba(233,168,59,.45)!important;
+  color:#ffd978!important;
+}
+
+#catalogDiagnosticModal .modal-card{
+  width:min(1180px,94vw)!important;
+  max-height:76vh!important;
+  min-height:0!important;
+  padding:15px!important;
+  gap:9px!important;
+  border-radius:18px!important;
+}
+#catalogDiagnosticModal .modal-head{
+  align-items:center!important;
+  padding-bottom:9px!important;
+}
+#catalogDiagnosticModal .catalog-diagnostic-body{
+  min-height:0!important;
+  overflow:auto!important;
+}
+#catalogDiagnosticModal .modal-foot{
+  padding-top:9px!important;
+}
+#catalogDiagnosticModal .catalog-diagnostic-close{
+  flex:0 0 38px!important;
+  width:38px!important;
+  min-width:38px!important;
+  height:38px!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  opacity:1!important;
+  visibility:visible!important;
+  color:#172019!important;
+  background:#f1f7f4!important;
+  border:1px solid #cbded4!important;
+  border-radius:11px!important;
+}
+#catalogDiagnosticModal .catalog-diagnostic-close svg{
+  display:block!important;
+  width:18px!important;
+  height:18px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:2!important;
+  stroke-linecap:round!important;
+}
+body:not(.light-mode) #catalogDiagnosticModal .catalog-diagnostic-close{
+  color:#eef4f1!important;
+  background:#101b23!important;
+  border-color:rgba(126,154,174,.28)!important;
+}
+
+@media(max-width:760px){
+  #catalogDiagnosticModal{padding:8px!important}
+  #catalogDiagnosticModal .modal-card{
+    width:calc(100vw - 16px)!important;
+    max-width:none!important;
+    max-height:82dvh!important;
+    padding:11px!important;
+    gap:7px!important;
+    border-radius:15px!important;
+  }
+  #catalogDiagnosticModal .modal-head{gap:9px!important;padding-bottom:7px!important}
+  #catalogDiagnosticModal .modal-head h2{font-size:18px!important}
+  #catalogDiagnosticModal .modal-head p{font-size:11px!important;line-height:1.2!important}
+  #catalogDiagnosticModal .catalog-diagnostic-body{font-size:12px!important}
+}

@@ -1,9 +1,9 @@
 ﻿name;brand;pvp;description;image;category;family;subcategory;product_type;series;technology;color;order
-HD1TB;Disco duro wester o seagate;236.00;Disco duro wester o seagate;;;;;;;;;
-HD2TB;Disco duro wester o seagate;360.00;Disco duro wester o seagate;;;;;;;;;
-HD4TB;Disco duro wester o seagate;430.00;Disco duro wester o seagate;;;;;;;;;
-HD6TB;Disco duro wester o seagate;610.00;Disco duro wester o seagate;;;;;;;;;
-HD8TB;Disco duro wester o seagate;778.00;Disco duro wester o seagate;;;;;;;;;
+HD1TB;Disco duro wester o seagate;236.00;Disco duro wester o seagate;;Accesorios IT y Seguridad;Almacenamiento;Discos Duros Surveillance;Disco duro Surveillance;;;;
+HD2TB;Disco duro wester o seagate;360.00;Disco duro wester o seagate;;Accesorios IT y Seguridad;Almacenamiento;Discos Duros Surveillance;Disco duro Surveillance;;;;
+HD4TB;Disco duro wester o seagate;430.00;Disco duro wester o seagate;;Accesorios IT y Seguridad;Almacenamiento;Discos Duros Surveillance;Disco duro Surveillance;;;;
+HD6TB;Disco duro wester o seagate;610.00;Disco duro wester o seagate;;Accesorios IT y Seguridad;Almacenamiento;Discos Duros Surveillance;Disco duro Surveillance;;;;
+HD8TB;Disco duro wester o seagate;778.00;Disco duro wester o seagate;;Accesorios IT y Seguridad;Almacenamiento;Discos Duros Surveillance;Disco duro Surveillance;;;;
 VDMS105GP;Switch poe 5 puertos;39.37;Switch poe 5 puertos;;;;;;;;;
 VDMS108GP;Switch poe 8 puertos;49.22;Switch poe 8 puertos;;;;;;;;;
 INJ-POE-30W-V2;Injector poe;21.6;Injector poe;;;;;;;;;

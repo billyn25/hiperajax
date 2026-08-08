@@ -371,6 +371,12 @@
       return {category:'Ajax CCTV', family:'Kits'};
     }
 
+    // Almacenamiento del proveedor: conservar una familia única de discos.
+    // Se basa en la jerarquía original, no en referencias concretas.
+    if(/almacenamiento|storage/.test(combined) && /disco|hard drive|hdd|surveillance/.test(combined)){
+      return {category:'Accesorios IT y Seguridad', family:'Discos duros'};
+    }
+
     // Familias principales conocidas por su propio nombre.
     if(/centrales?|hubs?/.test(f)) return {category:category || 'Ajax Inalámbrico', family:'Centrales'};
     if(/\bnvrs?\b|grabador/.test(f)) return {category:category || 'Ajax CCTV', family:'NVRs'};
@@ -451,6 +457,7 @@
       else if(/ajax inalambrico/.test(pair) && /^kits$/.test(norm(family.familyTitle))) displayTitle = 'Kits inalámbricos';
       else if(/ajax cctv/.test(pair) && /^accesorios$/.test(norm(family.familyTitle))) displayTitle = 'Accesorios CCTV';
       else if(/ajax cctv/.test(pair) && /^kits$/.test(norm(family.familyTitle))) displayTitle = 'Kits CCTV';
+      else if(/^smart home$|^smarthome$/.test(norm(family.familyTitle))) displayTitle = 'Domótica';
       else if(/^nvrs?$/.test(norm(family.familyTitle))) displayTitle = 'NVRs';
       else if(/^nube$/.test(norm(family.familyTitle))) displayTitle = 'Nube';
       family.displayTitle = displayTitle;
@@ -1065,6 +1072,7 @@
     if(/detector|detectores|intrusion|intrusión/.test(text)) return 'detectors';
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'smart_home';
     if(/\bnvrs?\b|grabador|grabacion|grabación/.test(text)) return 'nvr';
+    if(/discos? duros?|hard drives?|almacenamiento|storage/.test(text)) return 'storage';
     if(/central|centrales|\bhub\b|hubs/.test(text)) return 'centrals';
     return '';
   }
@@ -1151,6 +1159,30 @@
 
   function isRelatedQuickGroup(quickGroup, family = currentFamily()){
     return quickGroup === 'Soportes' && familyQuickProfile(family) === 'cameras';
+  }
+
+  function storageCapacityLabel(item){
+    const p = item?.p || {};
+    const attrs = normalizeAttributes(p);
+    const text = norm([
+      p.name, p.short_description, p.description,
+      p.capacity, p.storage, p.memory,
+      ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
+    ].filter(Boolean).join(' '));
+
+    const match = text.match(/(?:^|[^0-9])(\d+(?:[.,]\d+)?)\s*(?:tb|terabytes?)(?:[^a-z0-9]|$)/i);
+    if(match){
+      const n = Number(String(match[1]).replace(',','.'));
+      if(Number.isFinite(n)) return `${Number.isInteger(n) ? n : String(n).replace('.',',')} TB`;
+    }
+
+    const compact = norm(p.name || '').replace(/[^a-z0-9]/g,'');
+    const ref = compact.match(/(\d+(?:[.,]\d+)?)tb/);
+    if(ref){
+      const n = Number(String(ref[1]).replace(',','.'));
+      if(Number.isFinite(n)) return `${Number.isInteger(n) ? n : String(n).replace('.',',')} TB`;
+    }
+    return '';
   }
 
   function quickGroupsForItem(item, family){
@@ -1268,6 +1300,11 @@
       if(repeater) add('Repetidores');
     }
 
+    if(profile === 'storage'){
+      const capacity = storageCapacityLabel(item);
+      if(capacity) add(capacity);
+    }
+
     if(profile === 'wireless_accessories'){
       const role = quickProductRole(item);
       const {structuredSource} = quickContext(item);
@@ -1290,6 +1327,16 @@
   function quickAvailability(family = currentFamily(), model = buildModel()){
     const profile = familyQuickProfile(family);
     if(!profile || !family) return [];
+
+    if(profile === 'storage'){
+      const capacities = new Set();
+      family.items.forEach(item => {
+        const label = storageCapacityLabel(item);
+        if(label) capacities.add(label);
+      });
+      return [...capacities].sort((a,b) => (parseFloat(a)||0) - (parseFloat(b)||0));
+    }
+
     const order = QUICK_FILTER_ORDER[profile] || [];
     if(!order.length) return [];
 
@@ -1299,9 +1346,6 @@
     });
 
     if(profile === 'cameras' && cameraSupportItems(model).length) available.add('Soportes');
-
-    // Estable durante búsquedas/filtros, pero sin atajos que estructuralmente
-    // no tienen ningún producto en esta familia.
     return order.filter(label => available.has(label));
   }
 
@@ -1936,6 +1980,6 @@
       searchIndexSignature = '';
       searchIndexCache.clear();
     },
-    version:'7.1.0-catalog-clean-search'
+    version:'7.2.1-storage-quicks-domotica'
   };
 })();
