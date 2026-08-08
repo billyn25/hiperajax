@@ -4957,9 +4957,6 @@ function hxEnsureCatalogDiagnosticUI(){
           </button>
         </div>
         <div id="catalogDiagnosticBody" class="catalog-diagnostic-body"></div>
-        <div class="modal-foot">
-          <button type="button" class="secondary catalog-diagnostic-done" data-catalog-diagnostic-close>Cerrar</button>
-        </div>
       </div>`;
     document.body.appendChild(modal);
     modal.querySelectorAll('[data-catalog-diagnostic-close]').forEach(el=>el.addEventListener('click', hxCloseCatalogDiagnostic));
