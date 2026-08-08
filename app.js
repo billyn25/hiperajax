@@ -5118,8 +5118,8 @@ function hxDiagnosticarCatalogo(opciones={}){
     status.tabIndex=0;
   }else if(totalAvisos){
     status.classList.add('is-warn');
-    status.textContent=`⚠ Revisar precios (${totalAvisos})`;
-    status.title='Ver diferencias detectadas';
+    status.textContent=`⚠ Revisar PVP (${totalAvisos})`;
+    status.title='Ver diferencias de PVP y avisos de bajo coste';
     status.setAttribute('role','button');
     status.tabIndex=0;
   }else{
@@ -5135,7 +5135,7 @@ function hxDiagnosticarCatalogo(opciones={}){
 
   const bloques=[];
   bloques.push(`<section class="catalog-diag-summary ${totalAvisos?'has-warning':'is-clean'}">
-    <strong>${totalAvisos?'Hay precios que conviene revisar':'Catálogo y presupuestos comprobados'}</strong>
+    <strong>${totalAvisos?'Hay PVP y avisos que conviene revisar':'Catálogo y presupuestos comprobados'}</strong>
     <span>${informe.productos} productos · ${informe.referencias} referencias · Fuente: ${escapeHtml(informe.fuente)}</span>
     <small>Cargado: ${escapeHtml(hxCatalogDate(cargadoEn))} · Identificador: ${escapeHtml(fingerprint)}</small>
   </section>`);
@@ -5146,48 +5146,48 @@ function hxDiagnosticarCatalogo(opciones={}){
     </section>`);
   }
   if(conflictosPrecio.length){
-    bloques.push(`<section class="catalog-diag-section"><h3>La misma referencia aparece con dos precios</h3>${conflictosPrecio.map(x=>`
-      <div class="catalog-diag-item is-warning"><b>${escapeHtml(x.ref)}</b><span>${fmt.format(x.anterior)} frente a ${fmt.format(x.nuevo)}</span></div>`).join('')}</section>`);
+    bloques.push(`<section class="catalog-diag-section"><h3>La misma referencia aparece con dos PVP</h3>${conflictosPrecio.map(x=>`
+      <div class="catalog-diag-item is-warning"><b>${escapeHtml(x.ref)}</b><span>PVP ${fmt.format(x.anterior)} → PVP ${fmt.format(x.nuevo)}</span></div>`).join('')}</section>`);
   }
   if(presupuestoActual.length){
-    bloques.push(`<section class="catalog-diag-section"><h3>Presupuesto abierto</h3>${presupuestoActual.map(x=>`
-      <div class="catalog-diag-item is-warning"><b>${escapeHtml(x.ref)}</b><span>Línea ${x.linea}: ${fmt.format(x.guardado)} · Catálogo: ${fmt.format(x.catalogo)}</span></div>`).join('')}
+    bloques.push(`<section class="catalog-diag-section"><h3>Cambios de PVP · presupuesto abierto</h3>${presupuestoActual.map(x=>`
+      <div class="catalog-diag-item is-warning"><b>${escapeHtml(x.ref)}</b><span>Línea ${x.linea}: PVP guardado ${fmt.format(x.guardado)} → PVP actual ${fmt.format(x.catalogo)}</span></div>`).join('')}
       <p class="catalog-diag-help">No se cambia ningún precio automáticamente para no alterar un presupuesto sin tu permiso.</p></section>`);
   }
   if(bajoCosteActual.length){
     bloques.push(`<section class="catalog-diag-section catalog-diag-lowcost"><h3>Bajo coste en el presupuesto abierto</h3>
       <p><b>${bajoCosteActual.length}</b> línea${bajoCosteActual.length===1?'':'s'} queda${bajoCosteActual.length===1?'':'n'} por debajo del coste neto tras aplicar el descuento.</p>
-      ${bajoCosteActual.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>Línea ${x.linea}: venta ${fmt.format(x.precioFinal)} · coste ${fmt.format(x.coste)}</span></div>`).join('')}
+      ${bajoCosteActual.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>Línea ${x.linea}: PVP final ${fmt.format(x.precioFinal)} · coste neto ${fmt.format(x.coste)}</span></div>`).join('')}
     </section>`);
   }
   if(guardadosBajoCoste.length){
     bloques.push(`<section class="catalog-diag-section catalog-diag-lowcost"><h3>Bajo coste en presupuestos guardados</h3>
       <p><b>${lineasGuardadasBajoCoste}</b> línea${lineasGuardadasBajoCoste===1?'':'s'} bajo coste en <b>${guardadosBajoCoste.length}</b> presupuesto${guardadosBajoCoste.length===1?'':'s'}.</p>
       ${guardadosBajoCoste.map(p=>`<details class="catalog-diag-budget"><summary>${escapeHtml(p.etiqueta)} <span>${p.lineas.length} aviso${p.lineas.length===1?'':'s'}</span></summary>
-        ${p.lineas.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>Venta ${fmt.format(x.precioFinal)} · coste ${fmt.format(x.coste)}</span></div>`).join('')}
+        ${p.lineas.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>PVP final ${fmt.format(x.precioFinal)} · coste neto ${fmt.format(x.coste)}</span></div>`).join('')}
       </details>`).join('')}
     </section>`);
   }
 
   if(guardados.length){
-    bloques.push(`<section class="catalog-diag-section"><h3>Presupuestos guardados con precios distintos</h3>
+    bloques.push(`<section class="catalog-diag-section"><h3>Cambios de PVP · presupuestos guardados</h3>
       <p><b>${guardados.length}</b> presupuesto${guardados.length===1?'':'s'} · <b>${lineasGuardadasAfectadas}</b> línea${lineasGuardadasAfectadas===1?'':'s'} para revisar.</p>
       ${guardados.slice(0,30).map(p=>`<details class="catalog-diag-budget"><summary>${escapeHtml(p.etiqueta)} <span>${p.diferencias.length} diferencia${p.diferencias.length===1?'':'s'}</span></summary>
-        ${p.diferencias.map(x=>`<div class="catalog-diag-item is-warning"><b>${escapeHtml(x.ref)}</b><span>${fmt.format(x.guardado)} → ${fmt.format(x.catalogo)}</span></div>`).join('')}
+        ${p.diferencias.map(x=>`<div class="catalog-diag-item is-warning"><b>${escapeHtml(x.ref)}</b><span>PVP guardado ${fmt.format(x.guardado)} → PVP actual ${fmt.format(x.catalogo)}</span></div>`).join('')}
       </details>`).join('')}
       ${guardados.length>30?`<p class="catalog-diag-help">Se muestran los primeros 30 presupuestos afectados.</p>`:''}
     </section>`);
   }
   if(duplicados.length && !conflictosPrecio.length){
-    bloques.push(`<section class="catalog-diag-section"><h3>Referencias repetidas</h3><p>${duplicados.length} referencia${duplicados.length===1?'':'s'} repetida${duplicados.length===1?'':'s'}, todas con el mismo precio.</p></section>`);
+    bloques.push(`<section class="catalog-diag-section"><h3>Referencias repetidas</h3><p>${duplicados.length} referencia${duplicados.length===1?'':'s'} repetida${duplicados.length===1?'':'s'}, todas con el mismo PVP.</p></section>`);
   }
   if(!totalAvisos && !duplicados.length){
-    bloques.push(`<section class="catalog-diag-section"><p>No hay diferencias entre el catálogo actual, el presupuesto abierto y los presupuestos guardados.</p></section>`);
+    bloques.push(`<section class="catalog-diag-section"><p>No hay diferencias de PVP entre el catálogo actual, el presupuesto abierto y los presupuestos guardados.</p></section>`);
   }
   body.innerHTML=bloques.join('');
 
   if(totalAvisos && avisarToast){
-    try{ hxToastGlobal(`${totalAvisos} precio${totalAvisos===1?'':'s'} para revisar`, 'error'); }catch(e){}
+    try{ hxToastGlobal(`${totalAvisos} aviso${totalAvisos===1?'':'s'} de PVP/coste para revisar`, 'error'); }catch(e){}
   }
   if(totalAvisos && abrirSiHayAvisos) hxOpenCatalogDiagnostic();
   return informe;
