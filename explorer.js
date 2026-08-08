@@ -279,9 +279,28 @@
 
   function productSignature(){
     const list = currentProducts();
-    const first = list[0]?.name || '';
-    const last = list[list.length - 1]?.name || '';
-    return `${list.length}|${first}|${last}`;
+    let hash = 2166136261 >>> 0;
+
+    // Hash only classification/search-relevant fields. ~600 products is cheap,
+    // and prevents stale quick filters when Netlify/manual enrichment changes metadata.
+    for(const p of list){
+      const attrs = p?.attributes && typeof p.attributes === 'object'
+        ? Object.entries(p.attributes).map(([k,v]) => `${k}:${v}`).join('|')
+        : '';
+      const text = [
+        p?.name, p?.category, p?.categoria, p?.family, p?.familia,
+        p?.subcategory, p?.subfamily, p?.product_type, p?.tipo,
+        p?.short_description, p?.series, p?.technology,
+        p?.environment, p?.photo, p?.channels, p?.connectivity,
+        p?.wifi, p?.lte_4g, attrs
+      ].filter(Boolean).join('¦');
+
+      for(let i=0;i<text.length;i++){
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 16777619) >>> 0;
+      }
+    }
+    return `${list.length}|${hash.toString(16)}`;
   }
 
   function representativeProduct(family){
@@ -1072,12 +1091,12 @@
       p.mounting, p.power
     ].filter(Boolean).join(' '));
 
-    // La descripción larga NO manda. Solo completa señales que faltan.
     const fallback = norm(p.description || '');
+    const typeText = norm(`${structured} ${identity}`);
 
     return {
       p, attrs, identity,
-      typeText:structured,
+      typeText,
       featureText:features,
       structuredSource:`${structured} ${identity} ${features}`,
       fallback,
@@ -1247,16 +1266,21 @@
     }
 
     if(profile === 'centrals'){
-      const secondaryRex = /modulo|módulo|alimentacion|alimentación|power supply|fuente|bracket|soporte|tapa|cover/.test(typeText);
-      const repeater = /(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(typeText) && !secondaryRex;
-      const hubPlus = /hub\s*2\s*plus|hub2plus|hub plus|hubplus/.test(typeText);
+      const {structuredSource} = quickContext(item);
+      const centralSource = structuredSource;
+
+      const secondaryRex = /modulo|módulo|alimentacion|alimentación|power supply|fuente|bracket|soporte|tapa|cover/.test(centralSource);
+      const repeater = /(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(centralSource) && !secondaryRex;
+      const hubPlus = /hub\s*2\s*plus|hub2plus|hub plus|hubplus/.test(centralSource);
+
       if(repeater) add('Repetidores');
-      if(/hybrid/.test(typeText)) add('Hybrid');
+      if(/hybrid/.test(centralSource)) add('Hybrid');
       if(hubPlus) add('Hub Plus');
-      if(/hub\s*2|hub2/.test(typeText)) add('Hub 2');
-      else if(/\bhub\b/.test(typeText) && !/\bhubkit\b/.test(typeText)) add('Hub');
-      if(/\bwi[ -]?fi\b|\bwlan\b/.test(featureText) || hubPlus) add('Wi‑Fi');
-      if(/\b4g\b|\blte\b/.test(`${featureText} ${identity}`)) add('4G / LTE');
+      if(/hub\s*2|hub2/.test(centralSource)) add('Hub 2');
+      else if(/\bhub\b/.test(centralSource) && !/\bhubkit\b/.test(centralSource)) add('Hub');
+
+      if(/\bwi[ -]?fi\b|\bwlan\b/.test(centralSource) || hubPlus) add('Wi‑Fi');
+      if(/\b4g\b|\blte\b/.test(centralSource)) add('4G / LTE');
     }
 
     if(profile === 'wireless_accessories'){
@@ -1805,6 +1829,7 @@
       .map(f => ({family:f.displayTitle||f.familyTitle, quicks:quickGroupsForItem(item,f)}));
     return {
       found:true,
+      catalogSignature:productSignature(),
       ref:item.p?.name,
       product_type:item.p?.product_type || '',
       subcategory:item.subcategory || '',
