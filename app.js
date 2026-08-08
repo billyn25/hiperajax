@@ -1706,6 +1706,98 @@ function exportarExcel(){
   XLSX.writeFile(wb,`presupuesto_${safe}.xlsx`);
 }
 
+function descripcionPdfCorta(linea){
+  try{
+    const l = linea || {};
+    const refOriginal = String(l.name || '').trim();
+    const brandOriginal = String(l.brand || '').trim();
+    const brandEsAjax = normaliza(brandOriginal) === 'ajax';
+    // En el CSV, la columna brand contiene la descripción de los artículos no AJAX.
+    // El PDF debe conservarla en lugar de fabricar una descripción desde la referencia.
+    const descOriginal = String(l.desc || (!brandEsAjax ? brandOriginal : '') || '').trim();
+    if(!refOriginal && descOriginal) return descOriginal.slice(0, 58);
+    if(l.manual){ return (descOriginal || refOriginal || 'Línea manual').slice(0, 58); }
+    if(descOriginal && !brandEsAjax){
+      return descOriginal.length > 58 ? descOriginal.slice(0,55).trim() + '…' : descOriginal;
+    }
+
+    const ref = refOriginal.toUpperCase();
+
+    function colorRef(r){
+      if(/(^|[-_])W($|[-_])/.test(r)) return 'Blanco';
+      if(/(^|[-_])B($|[-_])/.test(r)) return 'Negro';
+      if(/(^|[-_])GRA($|[-_])/.test(r)) return 'Grafito';
+      if(/(^|[-_])GRE($|[-_])/.test(r)) return 'Verde';
+      if(/(^|[-_])IVO($|[-_])/.test(r)) return 'Marfil';
+      if(/(^|[-_])OLI($|[-_])/.test(r)) return 'Oliva';
+      if(/(^|[-_])FOG($|[-_])/.test(r)) return 'Niebla';
+      if(/(^|[-_])OYS($|[-_])/.test(r)) return 'Ostra';
+      return '';
+    }
+
+    const color = colorRef(ref);
+    let base = ref.replace(/^AJ-/, '');
+
+    const exactos = [
+      [/^HUB2PLUS/, 'Hub 2 Plus'], [/^HUB2-4G/, 'Hub 2 4G'], [/^HUB2/, 'Hub 2'], [/^HUBBP/, 'Hub BP'], [/^HUB($|-)/, 'Hub'],
+      [/^REX2/, 'ReX 2'], [/^REX($|-)/, 'ReX'],
+      [/^MOTIONCAM-HDR-PHOD/, 'MotionCam HDR PhOD'], [/^MOTIONCAM-HDR/, 'MotionCam HDR'], [/^MOTIONCAMOUTDOOR.*PHOD/, 'MotionCam Outdoor PhOD'], [/^MOTIONCAMOUTDOOR/, 'MotionCam Outdoor'], [/^MOTIONCAM/, 'MotionCam'],
+      [/^MOTIONPROTECTPLUS/, 'MotionProtect Plus'], [/^MOTIONPROTECT/, 'MotionProtect'], [/^OUTDOORPROTECT/, 'OutdoorProtect'],
+      [/^DOORPROTECTPLUS/, 'DoorProtect Plus'], [/^DOORPROTECT/, 'DoorProtect'], [/^GLASSPROTECT/, 'GlassProtect'],
+      [/^CURTAINCAM/, 'CurtainCam'], [/^DUALCURTAIN/, 'DualCurtain Outdoor'], [/^CURTAINOUTDOOR/, 'Curtain Outdoor'], [/^CURTAINPROTECT/, 'CurtainProtect'],
+      [/^KEYPADTOUCHSCREEN/, 'KeyPad TouchScreen'], [/^KEYPADPLUS/, 'KeyPad Plus'], [/^KEYPADOUTDOOR/, 'KeyPad Outdoor'], [/^KEYPAD/, 'KeyPad'],
+      [/^HOMESIREN/, 'HomeSiren'], [/^STREETSIRENCUSTOM/, 'StreetSiren Custom'], [/^STREETSIREN/, 'StreetSiren'],
+      [/^FIREPROTECT2-HSC/, 'FireProtect 2 HSC'], [/^FIREPROTECT2-HS/, 'FireProtect 2 HS'], [/^FIREPROTECT2-HC/, 'FireProtect 2 HC'], [/^FIREPROTECT2-H/, 'FireProtect 2 H'], [/^FIREPROTECT2-C/, 'FireProtect 2 C'], [/^FIREPROTECTPLUS/, 'FireProtect Plus'], [/^FIREPROTECT/, 'FireProtect'],
+      [/^LEAKSPROTECT/, 'LeaksProtect'], [/^WATERSTOP/, 'WaterStop'], [/^LIFEQUALITY-LITE/, 'LifeQuality Lite'], [/^LIFEQUALITY/, 'LifeQuality'],
+      [/^BULLETCAM-(\d+)/, 'BulletCam $1 MP'], [/^DOMECAM-MINI-(\d+)/, 'DomeCam Mini $1 MP'], [/^DOMECAM-(\d+)/, 'DomeCam $1 MP'], [/^TURRETCAM-(\d+)/, 'TurretCam $1 MP'], [/^INDOORCAM-(\d+)/, 'IndoorCam $1 MP'], [/^DOORBELL-(\d+)/, 'DoorBell $1 MP'],
+      [/^NVRKIT/, 'Kit NVR'], [/^NVR(\d+)/, 'NVR $1'],
+      [/^LIGHTCORE-1G/, 'LightSwitch 1 tecla'], [/^LIGHTCORE-2G2W/, 'LightSwitch 2 teclas/2 vías'], [/^LIGHTCORE-2G/, 'LightSwitch 2 teclas'], [/^LIGHTCORE-2W/, 'LightSwitch 2 vías'], [/^LIGHTCORE-CROSS/, 'LightSwitch cruzamiento'], [/^LIGHTCORE-DIMMER/, 'Dimmer LightSwitch'],
+      [/^SOCKET/, 'Socket'], [/^OUTLETCORE-SMART/, 'Outlet Core Smart'], [/^OUTLETCORE-LAN/, 'Outlet Core LAN'], [/^OUTLETCORE-BASIC/, 'Outlet Core Basic'], [/^RELAY/, 'Relay'], [/^WALLSWITCH/, 'WallSwitch'],
+      [/^TRANSMITTER/, 'Transmitter'], [/^MULTITRANSMITTER/, 'MultiTransmitter'], [/^UARTBRIDGE/, 'uartBridge'], [/^OCBRIDGE/, 'ocBridge'], [/^VHFBRIDGE/, 'vhfBridge'],
+      [/^SPACECONTROL/, 'SpaceControl'], [/^DOUBLEBUTTON/, 'DoubleButton'], [/^BUTTON/, 'Button'], [/^TAG/, 'Tag'], [/^PASS/, 'Pass'],
+      [/^HD(\d+)TB/, 'Disco HDD $1 TB'], [/^HS[-_ ]?TF.*(128G)/, 'MicroSD 128 GB'], [/^HS[-_ ]?TF.*(64G)/, 'MicroSD 64 GB'], [/^HS[-_ ]?TF.*(32G)/, 'MicroSD 32 GB']
+    ];
+
+    let nombre = '';
+    for(const [rx, val] of exactos){
+      const m = ref.match(rx);
+      if(m){ nombre = val.replace('$1', m[1] || ''); break; }
+    }
+
+    if(!nombre){
+      nombre = base
+        .replace(/-(B|W|GRA|GRE|IVO|OLI|FOG|OYS)(-|$)/g, '-')
+        .replace(/-(DUMMY|BRACKET|LENS)$/g, '')
+        .replace(/[-_]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase()
+        .replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    const extras = [];
+    if(/PHOD/.test(ref) && !/PHOD/i.test(nombre)) extras.push('PhOD');
+    if(/HDR/.test(ref) && !/HDR/i.test(nombre)) extras.push('HDR');
+    if(/HLVF/.test(ref)) extras.push('HLVF');
+    if(/HL($|-)/.test(ref)) extras.push('HL');
+    if(/4G/.test(ref) && !/4G/.test(nombre)) extras.push('4G');
+    if(/POE/.test(ref)) extras.push('PoE');
+    if(/AC($|-)/.test(ref)) extras.push('AC');
+
+    let out = [nombre, ...extras, color].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+    if(!out) out = descOriginal || refOriginal;
+
+    // Mantiene PDF compacto sin cortar referencias comerciales importantes.
+    if(out.length > 52){
+      out = out.replace(/\b(Jeweller|inalámbrico|inteligente|compatible|para sistemas Ajax)\b/gi,'').replace(/\s+/g,' ').trim();
+    }
+    if(out.length > 58) out = out.slice(0,55).trim() + '…';
+    return out;
+  }catch(e){
+    return String((linea && (linea.desc || linea.name)) || 'Producto').slice(0,58);
+  }
+}
+
 async function pdf(){
   // Si no hay productos reales, no abre ni genera ningún PDF.
   const tieneProductos = Array.isArray(lineas) && lineas.some(l => l && !l.separador && l.tipo !== 'separador');
