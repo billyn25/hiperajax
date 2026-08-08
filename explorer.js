@@ -1069,57 +1069,11 @@
     return '';
   }
 
-  function referenceSignals(product){
-    const ref = norm(product?.name || '');
-    const compact = ref.replace(/[^a-z0-9]/g,'');
-
-    // Señales comerciales embebidas en referencias concatenadas.
-    // No clasifica una referencia concreta: extrae términos reutilizables.
-    const signals = [];
-    const add = value => { if(value && !signals.includes(value)) signals.push(value); };
-
-    if(compact.includes('motioncam')) add('motioncam');
-    if(compact.includes('curtaincam') || compact.includes('curtain')) add('curtain');
-    if(compact.includes('outdoor')) add('outdoor');
-    if(compact.includes('phod')) add('phod');
-    if(compact.includes('doorprotect')) add('doorprotect');
-    if(compact.includes('glassprotect')) add('glassprotect');
-    if(compact.includes('combiprotect')) add('combiprotect');
-    if(compact.includes('fireprotect')) add('fireprotect');
-    if(compact.includes('leaksprotect') || compact.includes('leakprotect')) add('leakprotect');
-
-    if(compact.includes('keypad')) add('keypad');
-    if(compact.includes('homesiren')) add('homesiren');
-    if(compact.includes('streetsiren')) add('streetsiren');
-    if(compact.includes('wallswitch')) add('wallswitch');
-    if(compact.includes('relay')) add('relay');
-    if(compact.includes('spacecontrol')) add('spacecontrol');
-    if(compact.includes('doublebutton')) add('doublebutton');
-    if(compact.includes('waterstop')) add('waterstop');
-    if(compact.includes('lifequality')) add('lifequality');
-
-    if(compact.includes('hub2plus')) add('hub2plus');
-    else if(compact.includes('hub2')) add('hub2');
-    else if(compact.includes('hub')) add('hub');
-    if(compact.includes('4g')) add('4g');
-    if(compact.includes('lte')) add('lte');
-    if(compact.includes('rex2')) add('rex2');
-    else if(/(?:^|aj)rex/.test(compact)) add('rex');
-
-    if(compact.includes('bullet')) add('bullet');
-    if(compact.includes('turret')) add('turret');
-    if(compact.includes('dome')) add('dome');
-    if(compact.includes('ptz')) add('ptz');
-
-    return signals.join(' ');
-  }
-
   function quickContext(item){
     const p = item?.p || {};
     const attrs = normalizeAttributes(p);
 
     const identity = norm(`${p.name||''} ${p.short_description||''}`);
-    const refSignals = referenceSignals(p);
 
     const structured = norm([
       item?.subcategory,
@@ -1128,7 +1082,6 @@
       p.series, p.serie,
       p.technology, p.tecnologia,
       p.protocol, p.protocolo,
-      refSignals,
       ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
     ].filter(Boolean).join(' '));
 
@@ -1142,7 +1095,7 @@
     const typeText = norm(`${structured} ${identity}`);
 
     return {
-      p, attrs, identity, refSignals,
+      p, attrs, identity,
       typeText,
       featureText:features,
       structuredSource:`${structured} ${identity} ${features}`,
@@ -1207,10 +1160,18 @@
 
     if(profile === 'detectors'){
       const role = quickProductRole(item);
+      const compactRef = norm(p.name || '').replace(/[^a-z0-9]/g,'');
+      const modelSignals = [
+        compactRef.includes('curtain') ? 'curtain' : '',
+        compactRef.includes('outdoor') ? 'outdoor' : '',
+        compactRef.includes('phod') ? 'phod' : '',
+        compactRef.includes('motioncam') || compactRef.includes('curtaincam') ? 'motioncam' : '',
+        compactRef.includes('leaksprotect') || compactRef.includes('leakprotect') ? 'leakprotect' : ''
+      ].filter(Boolean).join(' ');
       const {structuredSource, fallback} = quickContext(item);
 
       const has = (rx, fallbackRx = rx) =>
-        rx.test(structuredSource) || (!role.accessory && fallbackRx.test(fallback));
+        rx.test(modelSignals) || rx.test(structuredSource) || (!role.accessory && fallbackRx.test(fallback));
 
       const fire = !role.accessory && has(
         /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/,
@@ -1916,7 +1877,6 @@
       subcategory:item.subcategory,
       product_type:item.p?.product_type || '',
       quicks:quickGroupsForItem(item,family),
-      referenceSignals:ctx.refSignals,
       structured:ctx.structuredSource,
       fallback:ctx.fallback
     };
