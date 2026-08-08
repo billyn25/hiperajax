@@ -80,8 +80,8 @@
   // Los productos se asignan dinámicamente desde Tipo/atributos/nombre; nunca por listas de referencias.
   const QUICK_FILTER_ORDER = Object.freeze({
     cameras:['Bullet','Turret','Domo','Cube','PTZ','Soportes'],
-    detectors:['Movimiento','Apertura','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio'],
-    smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios','Relés'],
+    detectors:['Movimiento','Apertura','Inundación','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio'],
+    smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
     wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality']
@@ -98,6 +98,7 @@
   ]);
 
   const SEARCH_ALIAS_RULES = Object.freeze([
+    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'}, 
     {rx:/\b(sirena|sirenas|homesiren|streetsiren)\b/, add:'sirena sirenas homesiren streetsiren accesorios inalambricos'},
     {rx:/\b(teclado|teclados|keypad)\b/, add:'teclado teclados keypad keypadcombi keypadplus touchscreen accesorios inalambricos'},
     {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'}, 
@@ -789,11 +790,13 @@
     const family = buildModel().byFamily.get(key);
     const text = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
 
-    // Cámaras: precio + referencia para comparar gamas/precios rápidamente.
-    if(/camara|cámara/.test(text)) return 'price-ref';
+    // Familias donde comparar precio es más útil comercialmente.
+    if(/camara|cámara|detector/.test(text)) return 'price-ref';
 
+    // Smart Home: agrupar por tipo antes de referencia.
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'type-ref-color';
-    if(/detector|central|hub|sirena|teclado/.test(text)) return 'ref-color';
+
+    if(/central|hub|sirena|teclado/.test(text)) return 'ref-color';
     return 'price-ref';
   }
 
@@ -1130,7 +1133,8 @@
       const combi = /combiprotect|combi protect/.test(typeText);
       const motioncam = /motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen/.test(typeText);
       const phod = /\bphod\b|photo on demand|foto bajo demanda/.test(source);
-      const curtain = /doublecurtain|curtainprotect|curtain protect|curtaincam|curtain cam|\bcurtain\b|\bcortina\b/.test(typeText);
+      const curtain = /doublecurtain|curtainprotect|curtain protect|curtaincam|curtain cam|\bcurtain\b|\bcortina\b/.test(`${typeText} ${identity}`);
+      const flood = /leakprotect|leak protect|detector(?:\s+de)?\s+inundaci[oó]n|inundaci[oó]n|water leak|flood detector/.test(typeText);
       const outdoor = /outdoor|exterior/.test(`${typeText} ${featureText}`);
       const motion = /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b/.test(typeText);
 
@@ -1139,6 +1143,7 @@
       if(phod && motioncam) add('PhOD');
       if(combi){ add('Combi'); add('Movimiento'); add('Cristal'); }
       if(door && !fire) add('Apertura');
+      if(flood && !fire) add('Inundación');
       if(glass && !fire) add('Cristal');
       if(motion && !fire) add('Movimiento');
       if(curtain && !fire) add('Cortina');
@@ -1158,8 +1163,10 @@
         const isSwitch = /lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(typeText);
 
         if(/doorbell|timbre|videoportero/.test(typeText)) add('Timbre');
-        if(isRelay) add('Relés');
-        if(isSwitch && !isRelay && !isOutlet) add('Interruptores');
+
+        // Comercialmente Relay/WallSwitch se buscan como interruptores.
+        if((isSwitch || isRelay) && !isOutlet) add('Interruptores');
+
         if(isOutlet) add('Enchufes');
         if(/waterstop|electrov[aá]lvula|\bvalve\b/.test(typeText)) add('Válvulas');
         if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(typeText)) add('Clima / Aire');
@@ -1421,7 +1428,7 @@
     const title = family?.familyTitle || 'Resultados';
     const context = family?.context || (state.query ? 'Búsqueda en todo el catálogo' : 'Todos los productos');
     return `${toolbar(items.length)}
-      <div class="hxp-products-layout">
+      <div class="hxp-products-layout ${state.familyKey ? 'has-family-rail' : 'is-global-results'}">
         ${desktopFamilyRail(model)}
         <main class="hxp-main hxp-products-view">
         <div class="hxp-current-family">

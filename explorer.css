@@ -1668,3 +1668,22 @@ body:not(.light-mode) #familiasGrid .hxp-family-visual img{background:#2a342e}
 #familiasGrid .hxp-type-tab.is-active{
   opacity:1!important;
 }
+
+
+/* 6.4.2 · búsqueda global PC a ancho completo */
+#familiasGrid .hxp-products-layout.is-global-results{
+  grid-template-columns:minmax(0,1fr)!important;
+}
+#familiasGrid .hxp-products-layout.is-global-results .hxp-products-view{
+  width:100%!important;
+  min-width:0!important;
+}
+#familiasGrid .hxp-products-layout.is-global-results .hxp-products-scroll{
+  width:100%!important;
+}
+@media(min-width:761px){
+  #familiasGrid .hxp-products-layout.is-global-results .hxp-product{
+    width:100%!important;
+    max-width:none!important;
+  }
+}
