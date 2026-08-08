@@ -2328,12 +2328,7 @@ function hxEsProductoAjax(p){
 
 function hxEsAlmacenamientoSurveillance(p){
   const texto = normaliza([
-    p?.category,
-    p?.family,
-    p?.subcategory,
-    p?.product_type,
-    p?.description,
-    p?.short_description
+    p?.category, p?.family, p?.subcategory, p?.product_type
   ].filter(Boolean).join(' '));
   return /almacenamiento|storage/.test(texto)
     && /disco duro|discos duros|surveillance|hard drive|hdd/.test(texto);

@@ -1023,6 +1023,13 @@
     </div>`;
   }
 
+  function visibleFamilyTitle(family){
+    const raw = clean(family?.displayTitle || family?.familyTitle || '');
+    const identity = norm(`${raw} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
+    if(/smart home|smarthome/.test(identity)) return 'Domótica';
+    return raw;
+  }
+
   function familyVisual(family){
     if(norm(family?.displayTitle) === 'otros productos'){
       return `<span class="hxp-family-visual hxp-family-visual-image"><img src="./assets/explorer/western-digital-purple.jpg" alt="Disco duro Western Digital Purple" loading="lazy"><b>O</b></span>`;
@@ -1030,9 +1037,9 @@
     const product = family?.representative || null;
     const image = clean(product?.image);
     if(image){
-      return `<span class="hxp-family-visual hxp-family-visual-image"><img src="${esc(image)}" alt="" loading="lazy" onerror="this.closest('.hxp-family-visual').classList.add('is-error')"><b>${esc((family.displayTitle||'?').slice(0,1).toUpperCase())}</b></span>`;
+      return `<span class="hxp-family-visual hxp-family-visual-image"><img src="${esc(image)}" alt="" loading="lazy" onerror="this.closest('.hxp-family-visual').classList.add('is-error')"><b>${esc((visibleFamilyTitle(family)||'?').slice(0,1).toUpperCase())}</b></span>`;
     }
-    return `<span class="hxp-family-visual"><b>${esc((family?.displayTitle||'?').slice(0,1).toUpperCase())}</b></span>`;
+    return `<span class="hxp-family-visual"><b>${esc((visibleFamilyTitle(family)||'?').slice(0,1).toUpperCase())}</b></span>`;
   }
 
   function homeView(){
@@ -1043,7 +1050,7 @@
       <button type="button" class="hxp-family-card" data-hxp-family="${esc(family.key)}">
         ${familyVisual(family)}
         <span class="hxp-family-copy">
-          <strong>${esc(family.displayTitle)}</strong>
+          <strong>${esc(visibleFamilyTitle(family))}</strong>
           ${family.context ? `<small>${esc(family.context)}</small>` : '<small>Ver productos</small>'}
         </span>
         <em>${family.count}</em>
@@ -1467,7 +1474,7 @@
       <div class="hxp-family-rail-head"><strong>Familias</strong></div>
       <div class="hxp-family-rail-list">
         ${families.map(family => `<button type="button" class="hxp-family-rail-item ${family.key===state.familyKey?'is-active':''}" data-hxp-family="${esc(family.key)}">
-          <span>${esc(family.displayTitle || family.familyTitle)}</span><em>${family.count}</em>
+          <span>${esc(visibleFamilyTitle(family))}</span><em>${family.count}</em>
         </button>`).join('')}
       </div>
     </aside>`;
@@ -1989,6 +1996,6 @@
       searchIndexSignature = '';
       searchIndexCache.clear();
     },
-    version:'7.2.4-domotica-storage-order'
+    version:'7.2.5-fix-domotica-storage-price'
   };
 })();
