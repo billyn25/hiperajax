@@ -1069,11 +1069,57 @@
     return '';
   }
 
+  function referenceSignals(product){
+    const ref = norm(product?.name || '');
+    const compact = ref.replace(/[^a-z0-9]/g,'');
+
+    // Señales comerciales embebidas en referencias concatenadas.
+    // No clasifica una referencia concreta: extrae términos reutilizables.
+    const signals = [];
+    const add = value => { if(value && !signals.includes(value)) signals.push(value); };
+
+    if(compact.includes('motioncam')) add('motioncam');
+    if(compact.includes('curtaincam') || compact.includes('curtain')) add('curtain');
+    if(compact.includes('outdoor')) add('outdoor');
+    if(compact.includes('phod')) add('phod');
+    if(compact.includes('doorprotect')) add('doorprotect');
+    if(compact.includes('glassprotect')) add('glassprotect');
+    if(compact.includes('combiprotect')) add('combiprotect');
+    if(compact.includes('fireprotect')) add('fireprotect');
+    if(compact.includes('leaksprotect') || compact.includes('leakprotect')) add('leakprotect');
+
+    if(compact.includes('keypad')) add('keypad');
+    if(compact.includes('homesiren')) add('homesiren');
+    if(compact.includes('streetsiren')) add('streetsiren');
+    if(compact.includes('wallswitch')) add('wallswitch');
+    if(compact.includes('relay')) add('relay');
+    if(compact.includes('spacecontrol')) add('spacecontrol');
+    if(compact.includes('doublebutton')) add('doublebutton');
+    if(compact.includes('waterstop')) add('waterstop');
+    if(compact.includes('lifequality')) add('lifequality');
+
+    if(compact.includes('hub2plus')) add('hub2plus');
+    else if(compact.includes('hub2')) add('hub2');
+    else if(compact.includes('hub')) add('hub');
+    if(compact.includes('4g')) add('4g');
+    if(compact.includes('lte')) add('lte');
+    if(compact.includes('rex2')) add('rex2');
+    else if(/(?:^|aj)rex/.test(compact)) add('rex');
+
+    if(compact.includes('bullet')) add('bullet');
+    if(compact.includes('turret')) add('turret');
+    if(compact.includes('dome')) add('dome');
+    if(compact.includes('ptz')) add('ptz');
+
+    return signals.join(' ');
+  }
+
   function quickContext(item){
     const p = item?.p || {};
     const attrs = normalizeAttributes(p);
 
     const identity = norm(`${p.name||''} ${p.short_description||''}`);
+    const refSignals = referenceSignals(p);
 
     const structured = norm([
       item?.subcategory,
@@ -1082,6 +1128,7 @@
       p.series, p.serie,
       p.technology, p.tecnologia,
       p.protocol, p.protocolo,
+      refSignals,
       ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
     ].filter(Boolean).join(' '));
 
@@ -1095,7 +1142,7 @@
     const typeText = norm(`${structured} ${identity}`);
 
     return {
-      p, attrs, identity,
+      p, attrs, identity, refSignals,
       typeText,
       featureText:features,
       structuredSource:`${structured} ${identity} ${features}`,
@@ -1561,6 +1608,9 @@
   function render(options = {}){
     const root = byId('familiasGrid');
     if(!root) return;
+
+    const currentQuickStrip = root.querySelector('.hxp-type-strip');
+    if(currentQuickStrip && isMobile()) quickStripScrollLeft = currentQuickStrip.scrollLeft || 0;
     const active = document.activeElement;
     const restoreSearch = active?.id === 'hxpSearch';
     const selectionStart = restoreSearch ? active.selectionStart : null;
@@ -1570,6 +1620,13 @@
     state.view = showProducts ? 'products' : 'home';
     root.innerHTML = `<div class="hxp-app">${showProducts ? productsView() : homeView()}${drawerHtml()}</div>`;
     bind(root);
+
+    if(isMobile()){
+      requestAnimationFrame(() => {
+        const strip = root.querySelector('.hxp-type-strip');
+        if(strip) strip.scrollLeft = quickStripScrollLeft;
+      });
+    }
 
     if(options.preserveScroll){
       const scroller = byId('hxpProductsScroll');
@@ -1624,6 +1681,7 @@
   }
 
   function selectFamily(key){
+    if(state.familyKey !== key) quickStripScrollLeft = 0;
     state.familyKey = key;
     state.query = '';
     state.filters = {};
@@ -1635,6 +1693,7 @@
   }
 
   function goHome(){
+    quickStripScrollLeft = 0;
     state.familyKey = '';
     state.query = '';
     state.filters = {};
@@ -1757,6 +1816,11 @@
       });
     });
 
+    const quickStrip = root.querySelector('.hxp-type-strip');
+    quickStrip?.addEventListener('scroll', () => {
+      if(isMobile()) quickStripScrollLeft = quickStrip.scrollLeft || 0;
+    }, {passive:true});
+
     root.querySelectorAll('[data-hxp-family]').forEach(button => button.addEventListener('click', () => selectFamily(button.dataset.hxpFamily)));
     root.querySelectorAll('[data-hxp-home]').forEach(button => button.addEventListener('click', goHome));
     root.querySelectorAll('[data-hxp-open-filters]').forEach(button => button.addEventListener('click', openFilters));
@@ -1852,12 +1916,14 @@
       subcategory:item.subcategory,
       product_type:item.p?.product_type || '',
       quicks:quickGroupsForItem(item,family),
+      referenceSignals:ctx.refSignals,
       structured:ctx.structuredSource,
       fallback:ctx.fallback
     };
   };
 
   function openExplorer(){
+    quickStripScrollLeft = 0;
     const modal = byId('familiasModal');
     if(!modal) return;
     state = freshState();
