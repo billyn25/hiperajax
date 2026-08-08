@@ -474,10 +474,11 @@
       if(/ajax inalambrico/.test(pair) && /^detectores$/.test(norm(family.familyTitle))) displayTitle = 'Detectores';
       else if(/ajax inalambrico/.test(pair) && /^accesorios$/.test(norm(family.familyTitle))) displayTitle = 'Accesorios inalámbricos';
       else if(/ajax inalambrico/.test(pair) && /^kits$/.test(norm(family.familyTitle))) displayTitle = 'Kits inalámbricos';
+      else if(/ajax cctv/.test(pair) && /c[aá]maras?/.test(norm(family.familyTitle))) displayTitle = 'Cámaras IP';
       else if(/ajax cctv/.test(pair) && /^accesorios$/.test(norm(family.familyTitle))) displayTitle = 'Accesorios CCTV';
       else if(/ajax cctv/.test(pair) && /^kits$/.test(norm(family.familyTitle))) displayTitle = 'Kits CCTV';
       else if(/smart home|smarthome/.test(pair)) displayTitle = 'Domótica';
-      else if(/^nvrs?$/.test(norm(family.familyTitle))) displayTitle = 'NVRs';
+      else if(/^nvrs?$/.test(norm(family.familyTitle)) || /nvr|grabador/.test(norm(family.familyTitle))) displayTitle = 'NVR profesionales';
       else if(/^nube$/.test(norm(family.familyTitle))) displayTitle = 'Nube';
       family.displayTitle = displayTitle;
       family.context = displayTitle === 'Otros productos' ? 'Productos añadidos manualmente'
@@ -1738,19 +1739,22 @@
         // todas las teclas aunque se escriba rápido.
         if(!byId('hxpProductsScroll')){
           if(!clean(state.query)) return;
+          // Esperar a que el usuario termine de escribir antes de cambiar de portada
+          // a resultados. Así no sustituimos el input a mitad de una palabra.
           searchTimer = setTimeout(() => {
+            if(!clean(state.query) || byId('hxpProductsScroll')) return;
             render();
             requestAnimationFrame(() => {
               const next = byId('hxpSearch');
               next?.focus({preventScroll:true});
               if(next) next.setSelectionRange(next.value.length,next.value.length);
             });
-          }, 140);
+          }, 320);
           return;
         }
 
-        // En resultados: refresco ligero y diferido, sin reconstruir el buscador.
-        searchTimer = setTimeout(() => refreshSearchResults(), 70);
+        // En resultados nunca reconstruimos el buscador: solo la lista.
+        searchTimer = setTimeout(() => refreshSearchResults(), 120);
       });
       search.addEventListener('keydown', event => {
         if(event.key === 'Escape' && state.query){
@@ -1782,6 +1786,7 @@
     const quickStrip = root.querySelector('.hxp-type-strip');
     quickStrip?.addEventListener('scroll', () => { if(isMobile()) quickStripScrollLeft = quickStrip.scrollLeft || 0; }, {passive:true});
         root.querySelectorAll('[data-hxp-family]').forEach(button => button.addEventListener('click', () => selectFamily(button.dataset.hxpFamily)));
+    root.querySelectorAll('[data-hxp-home]').forEach(button => button.addEventListener('click', goHome));
     root.querySelectorAll('[data-hxp-open-filters]').forEach(button => button.addEventListener('click', openFilters));
     root.querySelectorAll('[data-hxp-close-filters]').forEach(button => button.addEventListener('click', closeFilters));
 
