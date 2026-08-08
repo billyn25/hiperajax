@@ -175,7 +175,7 @@ body.light-mode .line-qty-btn{
 .add-card .quick-add,
 .add-card .quick-manual,
 .add-card .quick-separator,
-.add-card .catalog-actions button{
+.add-card .explorer-entry-btn{
   min-height:var(--ui-control-height)!important;
   display:inline-flex!important;
   align-items:center!important;
@@ -193,11 +193,11 @@ body.light-mode .line-qty-btn{
 .add-card .quick-add:hover,
 .add-card .quick-manual:hover,
 .add-card .quick-separator:hover,
-.add-card .catalog-actions button:hover{transform:translateY(-1px)}
+.add-card .explorer-entry-btn:hover{transform:translateY(-1px)}
 .add-card .quick-add:active,
 .add-card .quick-manual:active,
 .add-card .quick-separator:active,
-.add-card .catalog-actions button:active{transform:translateY(0) scale(.97)}
+.add-card .explorer-entry-btn:active{transform:translateY(0) scale(.97)}
 
 /* Cerrar modales: icono real, sin carácter × */
 .modal-close{
@@ -270,7 +270,7 @@ body.light-mode .line-qty-btn{
   .add-card .quick-add,
   .add-card .quick-manual,
   .add-card .quick-separator,
-  .add-card .catalog-actions button{font-size:12.5px!important;padding-inline:10px!important}
+  .add-card .explorer-entry-btn{font-size:12.5px!important;padding-inline:10px!important}
   #pmModal .pmx-actions button{min-height:48px!important;font-size:13px!important;padding-inline:9px!important}
   .budget-card .drag-btn,
   .budget-card button.trash,
@@ -884,7 +884,7 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
   .add-card .quick-add{grid-column:2!important;width:100%!important;min-width:0!important}
   .add-card .quick-manual{grid-column:1!important;width:100%!important;min-width:0!important}
   .add-card .quick-separator{grid-column:2!important;width:100%!important;min-width:0!important}
-  .add-card .quick-catalog{grid-column:1/-1!important;width:100%!important;min-width:0!important}
+  .add-card .quick-explorer{grid-column:1/-1!important;width:100%!important;min-width:0!important}
   .add-card .quick-qty input,
   .add-card .quick-add,
   .add-card .quick-manual,

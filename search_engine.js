@@ -3,7 +3,6 @@
 
    Usado por:
    - buscador inicial
-   - Catálogo
    - Explorer
 
    Criterio, de mayor a menor peso:
@@ -47,20 +46,6 @@
     rele: ['relay', 'wallswitch']
   });
 
-  // Reglas de los botones rápidos del Catálogo. Se mantienen aquí,
-  // junto al motor de búsqueda, para evitar filtros repartidos por app.js.
-  const CATALOG_FILTERS = Object.freeze({
-    cam:n=>/bulletcam|domecam|turretcam|indoorcam|doorbell/.test(n),
-    hub:n=>/^aj-hub/.test(n) && !/bracket|batt|battery|dummy|repair|kit/.test(n),
-    det:n=>/motionprotect|motioncam|doorprotect|glassprotect|combiprotect|curtain|outdoorprotect|fireprotect|leaksprotect|lifequality|seismoprotect/.test(n) && !/dummy|lens|bracket/.test(n),
-    sir:n=>/homesiren|streetsiren|speakerss/.test(n) && !/dummy|bracket/.test(n),
-    key:n=>/keypad/.test(n) && !/dummy|bracket/.test(n),
-    dom:n=>/lightcore|lightswitch|centerbutton|sidebutton|solobutton|centercove?r|sidecove?r|solocove?r|coverplate|outletcore|outletbasic|outletlan|socket|wallswitch|relay|multirelay|bypass|frame|surfacebox/.test(n),
-    nvr:n=>/nvr/.test(n),
-    sup:n=>/junctionbox/.test(n),
-    out:n=>/outdoor|street|doorbell|waterstop|curtainoutdoor/.test(n),
-    fire:n=>/fireprotect|manualcallpoint|en54/.test(n)
-  });
 
   const CACHE = new Map();
   let cachedSignature = '';
@@ -394,8 +379,7 @@
     rank,
     scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),
     clearCache:()=>{ CACHE.clear(); cachedSignature=''; indexedSignature=''; indexedRecords=[]; indexedProducts=null; },
-    version:'6.0-indice-unico',
-    catalogFilters:CATALOG_FILTERS
+    version:'6.0-indice-unico'
   };
   global.HXA_KNOWLEDGE_ENGINE = engine;
   global.HXA_SEARCH_ENGINE = engine;
@@ -416,56 +400,12 @@
     return q ? adapt(source,q,limit) : alphabeticalRows(source);
   }
 
-  function applyCatalogQuick(rows, term){
-    let quick='';
-    try{ quick = typeof catalogQuick204 !== 'undefined' ? String(catalogQuick204||'') : ''; }
-    catch(e){}
-    if(!quick) return rows;
 
-    // “Más usados” conserva su aprendizaje real, pero usa el motor común
-    // cuando además hay texto escrito.
-    if(quick==='used'){
-      try{
-        if(typeof listaMasUsados206 === 'function') return listaMasUsados206(term);
-      }catch(e){}
-      return [];
-    }
 
-    const test=CATALOG_FILTERS[quick];
-    if(typeof test !== 'function') return rows;
-    return rows.filter(x=>{
-      const name=(x.p&&x.p.name)||'';
-      // Los filtros trabajan con la referencia compacta y estable.
-      const catalogName=String(name).toLowerCase();
-      return test(catalogName);
-    });
-  }
 
-  function applyCatalogLetter(rows){
-    let letter='';
-    try{ letter = typeof catalogLetter193 !== 'undefined' ? String(catalogLetter193||'') : ''; }
-    catch(e){}
-    if(!letter) return rows;
-    try{
-      if(typeof catalogLetterOf193 === 'function'){
-        return rows.filter(x=>catalogLetterOf193(x.p)===letter);
-      }
-    }catch(e){}
-    return rows;
-  }
-
-  // Punto único de entrada para Inicio y Catálogo.
-  // El Catálogo añade únicamente sus filtros de navegación sobre el mismo ranking.
+  // Punto único de entrada para Inicio y Explorer.
   buscar = function(term){
     return searchRows(getProducts(),term,300);
-  };
-
-  buscarCatalogo = function(term=''){
-    const source=getProducts();
-    let rows=searchRows(source,term,300);
-    rows=applyCatalogQuick(rows,term);
-    rows=applyCatalogLetter(rows);
-    return rows;
   };
 
 })(typeof window!=='undefined' ? window : globalThis);

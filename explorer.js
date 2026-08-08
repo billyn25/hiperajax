@@ -473,8 +473,8 @@
       return {
         key:'__all__',
         familyTitle:'Todos los productos',
-        categoryTitle:'Catálogo completo',
-        context:'Todo el catálogo Ajax',
+        categoryTitle:'Todos los productos',
+        context:'Todos los productos Ajax',
         items:model.allItems.slice(),
         count:model.allItems.length,
         all:true
@@ -964,7 +964,7 @@
   }
 
   function headerSearch(){
-    const scope = state.familyKey ? (currentFamily()?.familyTitle || 'familia') : 'todo el catálogo';
+    const scope = state.familyKey ? (currentFamily()?.familyTitle || 'familia') : 'todos los productos';
     const placeholder = isMobile()
       ? (state.familyKey ? `Buscar en ${scope}…` : 'Buscar producto…')
       : (state.familyKey ? `Buscar dentro de ${scope}…` : 'Buscar referencia, descripción o producto…');
@@ -1177,9 +1177,8 @@
 
       const curtain = matches(/doublecurtain|curtainprotect|curtain cam|curtaincam|\bcurtain\b|\bcortina\b/);
       const flood = matches(/leakprotect|leaksprotect|water leak|flood detector|detector(?:\s+de)?\s+inundaci[oó]n|\binundaci[oó]n\b/);
-      const fire = !role.accessory && !curtain && !flood && matches(
-        /fireprotect|smoke detector|heat detector|carbon monoxide|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)/
-      );
+      const firePattern = /fireprotect|smoke detector|heat detector|carbon monoxide|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)/;
+      const fire = !role.accessory && !curtain && !flood && firePattern.test(structuredSource);
       const door = matches(/doorprotect|door protect|magnetic contact|contacto magn[eé]tico|detector(?:\s+de)?\s+apertura/);
       const glass = matches(/glassprotect|glass protect|glass break|rotura(?:\s+de)?\s+cristal/);
       const combi = matches(/combiprotect|combi protect/);
@@ -1293,10 +1292,17 @@
     if(!profile || !family) return [];
     const order = QUICK_FILTER_ORDER[profile] || [];
     if(!order.length) return [];
-    if(profile === 'cameras' && !cameraSupportItems(model).length){
-      return order.filter(label => label !== 'Soportes');
-    }
-    return order.slice();
+
+    const available = new Set();
+    family.items.forEach(item => {
+      quickGroupsForItem(item, family).forEach(label => available.add(label));
+    });
+
+    if(profile === 'cameras' && cameraSupportItems(model).length) available.add('Soportes');
+
+    // Estable durante búsquedas/filtros, pero sin atajos que estructuralmente
+    // no tienen ningún producto en esta familia.
+    return order.filter(label => available.has(label));
   }
 
   function quickGroups(baseItems, familyOverride = null){
@@ -1647,21 +1653,24 @@
         state.query = event.target.value;
         clearTimeout(searchTimer);
 
-        // Desde la portada, la primera letra abre resultados una sola vez.
+        // No sustituir el input mientras el usuario está escribiendo.
+        // La portada pasa a resultados después de una pausa breve, conservando
+        // todas las teclas aunque se escriba rápido.
         if(!byId('hxpProductsScroll')){
-          if(clean(state.query)){
+          if(!clean(state.query)) return;
+          searchTimer = setTimeout(() => {
             render();
             requestAnimationFrame(() => {
               const next = byId('hxpSearch');
               next?.focus({preventScroll:true});
               if(next) next.setSelectionRange(next.value.length,next.value.length);
             });
-          }
+          }, 140);
           return;
         }
 
-        // Ya en resultados: solo actualiza la lista, nunca reconstruye el input.
-        searchTimer = setTimeout(() => refreshSearchResults(), 90);
+        // En resultados: refresco ligero y diferido, sin reconstruir el buscador.
+        searchTimer = setTimeout(() => refreshSearchResults(), 70);
       });
       search.addEventListener('keydown', event => {
         if(event.key === 'Escape' && state.query){
@@ -1927,6 +1936,6 @@
       searchIndexSignature = '';
       searchIndexCache.clear();
     },
-    version:'7.0.0-clean-automatic'
+    version:'7.1.0-catalog-clean-search'
   };
 })();

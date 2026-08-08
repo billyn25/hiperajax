@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Presupuestador de AJAX · Hiper Antena</title>
   <link rel="stylesheet" href="style.css?v=5.0.1">
-  <link rel="stylesheet" href="explorer.css?v=7.0.0">
+  <link rel="stylesheet" href="explorer.css?v=7.1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -77,12 +77,9 @@
         <button id="add" class="add-btn quick-add"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span>Añadir</span></button>
         <button id="btnManual" class="secondary manual-btn quick-manual"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg></span><span>Línea vacía</span></button>
         <button id="btnSeparador" class="secondary separator-btn quick-separator"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><path d="M8 12h8"/></svg></span><span>Separador</span></button>
-        <div class="normal-select custom-select-box quick-catalog">
-          <label>Catálogo completo</label>
-          <div class="catalog-actions">
-            <button type="button" id="btnCatalogo" class="catalog-btn"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22z"/><path d="M20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22z"/></svg></span><span>Catálogo</span></button>
-            <button type="button" id="btnFamilias" class="family-btn"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg></span><span>Explorar</span></button>
-          </div>
+        <div class="normal-select custom-select-box quick-explorer">
+          <label>Productos</label>
+          <button type="button" id="btnFamilias" class="family-btn explorer-entry-btn"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg></span><span>Explorer</span></button>
           <select id="producto" class="native-hidden"><option value="">Cargando catálogo...</option></select>
         </div>
       </div>
@@ -133,28 +130,6 @@
 
     <footer class="footer"><b>Hiper Antena</b> - Tienda para los profesionales <span class="creator">· Creado por David Corregidor</span></footer>
   </main>
-
-
-  <div id="catalogModal" class="modal hidden" aria-hidden="true">
-    <div class="modal-backdrop" id="catalogBackdrop"></div>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="catalogTitle">
-      <div class="modal-head">
-        <div>
-          <h2 id="catalogTitle">Catálogo completo</h2>
-          <p>Busca por nombre, referencia o palabra clave y añade el producto al presupuesto.</p>
-        </div>
-        <button type="button" id="catalogClose" class="modal-close" aria-label="Cerrar"><span class="ui-icon ui-icon-only" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></span></button>
-      </div>
-      <div class="modal-search-row">
-        <input id="catalogFilter" class="catalog-filter" autocomplete="off" placeholder="Buscar por referencia o descripción…">
-        <span id="catalogCount" class="catalog-count">0 productos</span>
-      </div>
-      <div id="catalogItems" class="catalog-items"></div>
-      <div class="modal-foot">
-        <button type="button" id="catalogCancel" class="secondary">Cerrar</button>
-      </div>
-    </div>
-  </div>
 
 
   <div id="familiasModal" class="modal hidden" aria-hidden="true">
@@ -242,8 +217,8 @@
     </div>
   </div>
 
-  <script src="app.js?v=5.0.1"></script>
-  <script src="search_engine.js?v=6.0.0"></script>
-  <script src="explorer.js?v=7.0.0"></script>
+  <script src="app.js?v=7.1.0"></script>
+  <script src="search_engine.js?v=7.1.0"></script>
+  <script src="explorer.js?v=7.1.0"></script>
 </body>
 </html>

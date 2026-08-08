@@ -33,37 +33,31 @@ textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,143,95,.14
 
 /* Ajustes PRO finales */
 .results-panel{max-height:none;overflow:hidden;top:44px}
-.results-panel::-webkit-scrollbar,.catalog-panel::-webkit-scrollbar{display:none}
 .result-item{min-height:48px}
 .native-hidden{display:none!important}
 .custom-select-box{position:relative}
-.catalog-btn{width:100%;height:38px;margin-top:5px;background:#091118;color:#fff!important;border:1px solid #284536;border-radius:10px;padding:8px 10px;outline:none;font-size:13px;text-align:left;box-shadow:none;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.catalog-btn:after{content:"⌄";float:right;color:#98b5a7;font-weight:900}
-.catalog-panel{position:absolute;left:0;right:0;top:63px;z-index:35;border:1px solid rgba(31,143,95,.35);border-radius:14px;background:#071016;box-shadow:0 18px 38px rgba(0,0,0,.50);padding:8px;overflow:hidden}
-.catalog-filter{height:34px;margin:0 0 7px 0;border-radius:10px;background:#0b151d;color:#fff!important}
-.catalog-items{display:grid;gap:5px;max-height:none;overflow:hidden}
-.catalog-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;padding:8px 9px;border-radius:10px;background:rgba(255,255,255,.025);border:1px solid rgba(31,143,95,.10);cursor:pointer;color:#fff}
-.catalog-item:hover{background:rgba(31,143,95,.16);border-color:rgba(31,143,95,.32)}
-.catalog-item span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:800;font-size:12px}
-.catalog-item b{font-size:12px;color:#c8ffe4;white-space:nowrap}
-.catalog-empty{padding:9px;color:var(--muted);font-size:12px;text-align:center}
+
+
+
+
+
+
+
+
+
 .recentes{min-height:0;margin:-2px 0 8px;color:#9cb3a8;font-size:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .recent-label{color:#d6f6e4;font-weight:900;margin-right:2px}
 .recent-chip{border:1px solid rgba(31,143,95,.25);background:rgba(31,143,95,.10);border-radius:999px;padding:4px 8px;cursor:pointer;color:#eefdf5;max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .recent-chip:hover{background:rgba(31,143,95,.20)}
 .product-tools{grid-template-columns:minmax(330px,1.25fr) minmax(260px,.95fr) 80px 112px 130px}
-@media (max-width:980px){.product-tools{grid-template-columns:1fr 1fr 74px}.manual-btn{grid-column:auto}.catalog-panel{top:63px}}
-@media (max-width:760px){.product-tools{grid-template-columns:1fr}.catalog-panel{position:absolute}}
-/* Ajuste desplegable normal: mantiene diseño, pero ya no parece cortado */
-.catalog-panel{top:64px;max-height:none;overflow:visible;padding:9px}
-.catalog-count{font-size:11px;color:#9cb3a8;margin:0 2px 7px 2px;font-weight:800}
-.catalog-items{max-height:none;overflow:visible;display:grid;gap:5px}
-.catalog-more{width:100%;height:34px;margin-top:7px;background:rgba(31,143,95,.13);border:1px solid rgba(31,143,95,.34);box-shadow:none;text-align:center;color:#eafff3!important}
-.catalog-more:hover{background:rgba(31,143,95,.22)}
+@media (max-width:980px){.product-tools{grid-template-columns:1fr 1fr 74px}.manual-btn{grid-column:auto}}
+@media (max-width:760px){.product-tools{grid-template-columns:1fr}}
 
 
-.catalog-panel{z-index:9999;}
-.catalog-item{min-height:34px;}
+
+
+
+
 
 /* Catálogo completo en modal: sustituye el desplegable largo */
 body.modal-open{overflow:hidden}
@@ -77,23 +71,21 @@ body.modal-open{overflow:hidden}
 .modal-close{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);box-shadow:none;color:#fff!important;font-size:24px;line-height:1;padding:0}
 .modal-close:hover{background:rgba(31,143,95,.18)}
 .modal-search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
-.modal .catalog-filter{height:42px;margin:0;background:#091118!important;color:#fff!important;border:1px solid rgba(31,143,95,.34);border-radius:13px;padding:0 13px;font-size:14px}
-.modal .catalog-count{font-size:12px;color:#c5ffe0;font-weight:900;border:1px solid rgba(31,143,95,.28);background:rgba(31,143,95,.10);padding:10px 12px;border-radius:999px;white-space:nowrap}
-.modal .catalog-items{display:grid;gap:7px;overflow:auto;max-height:56vh;padding:2px 4px 2px 0;scrollbar-width:thin;scrollbar-color:rgba(31,143,95,.45) transparent}
-.modal .catalog-items::-webkit-scrollbar{width:8px;display:block!important}
-.modal .catalog-items::-webkit-scrollbar-thumb{background:rgba(31,143,95,.45);border-radius:999px}
-.catalog-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:10px;border:1px solid rgba(31,143,95,.13);background:rgba(255,255,255,.025);border-radius:14px;cursor:pointer}
-.catalog-row:hover{border-color:rgba(31,143,95,.36);background:rgba(31,143,95,.12)}
-.catalog-main{min-width:0;display:grid;gap:3px}
-.catalog-main strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;font-size:13px}
-.catalog-main span{color:#9cb3a8;font-size:11px}
-.catalog-row>b{color:#c5ffe0;font-size:13px;white-space:nowrap}
-.catalog-add{height:32px;padding:0 12px;border-radius:10px;background:linear-gradient(135deg,#1f8f5f,#146c43);box-shadow:none;color:#fff!important;font-size:12px}
-.catalog-add:hover{filter:brightness(1.08)}
+
+
+
+
+
+
+
+
+
+
+
+
 .modal-foot{display:flex;justify-content:flex-end;gap:10px;border-top:1px solid rgba(31,143,95,.18);padding-top:12px}
-.modal-foot .catalog-more{width:auto;min-width:150px;margin:0;height:38px;background:rgba(31,143,95,.13);border:1px solid rgba(31,143,95,.34);color:#eafff3!important}
-.catalog-btn{text-align:center!important}
-@media(max-width:760px){.modal{padding:10px}.modal-card{max-height:92vh;padding:14px;border-radius:18px}.modal-search-row{grid-template-columns:1fr}.catalog-row{grid-template-columns:minmax(0,1fr) auto}.catalog-add{grid-column:1 / -1}.modal .catalog-items{max-height:52vh}}
+
+@media(max-width:760px){.modal{padding:10px}.modal-card{max-height:92vh;padding:14px;border-radius:18px}.modal-search-row{grid-template-columns:1fr}}
 
 
 /* Tema claro + botón de cambio de modo */
@@ -102,18 +94,15 @@ body.modal-open{overflow:hidden}
 body.light-mode{--bg:#f5f7fa;--panel:#ffffff;--panel2:#f8faf9;--line:#d9e5df;--text:#172019;--muted:#5f7168;background:radial-gradient(circle at top right,rgba(31,143,95,.12),transparent 34%),linear-gradient(180deg,#f5f7fa,#eef4f1);color:var(--text)}
 
 body.light-mode .card{background:linear-gradient(180deg,#ffffff,#f8faf9);border-color:rgba(31,143,95,.20);box-shadow:0 14px 34px rgba(18,35,28,.10)}
-body.light-mode h1,body.light-mode h2,body.light-mode .footer b,body.light-mode .preview-line b,body.light-mode .result-name,body.light-mode td,body.light-mode .catalog-main strong{color:#172019!important}
-body.light-mode input,body.light-mode select,body.light-mode textarea,body.light-mode .catalog-btn,body.light-mode .modal .catalog-filter{background:#ffffff!important;color:#172019!important;border-color:#cbded4}
+
 body.light-mode input::placeholder{color:#8da098}
 body.light-mode select option{background:#ffffff;color:#172019}
 body.light-mode .results-panel,body.light-mode .modal-card{background:linear-gradient(180deg,#ffffff,#f7fbf9);border-color:rgba(31,143,95,.28);box-shadow:0 24px 65px rgba(18,35,28,.20);color:#172019}
-body.light-mode .result-item:hover,body.light-mode .result-item.active,body.light-mode .catalog-row:hover{background:rgba(31,143,95,.10)}
-body.light-mode .result-price,body.light-mode .catalog-row>b{color:#146c43}
+
 body.light-mode .preview-line,body.light-mode .totals div{background:#f4faf7;border-color:rgba(31,143,95,.18)}
 body.light-mode th{background:#e8f4ee;color:#0d4d31}
 body.light-mode .table-scroll{border-color:rgba(31,143,95,.20)}
 body.light-mode .secondary,body.light-mode .manual-btn{background:#f1f7f4;color:#172019!important;border-color:#cbded4}
-body.light-mode .footer,body.light-mode .subtitle,body.light-mode label,body.light-mode .result-meta,body.light-mode .catalog-main span,body.light-mode .modal-head p{color:#5f7168}
 body.light-mode .modal-backdrop{background:rgba(14,28,22,.42)}
 body.light-mode .modal-close{background:#f1f7f4;color:#172019!important;border-color:#d7e5de}
 
@@ -312,18 +301,6 @@ body.light-mode .creator{color:#14532d!important;font-weight:800;}
 @media(max-width:760px){#fecha,input[type="date"]{min-width:0;width:100%;max-width:100%;}}
 
 
-.modal .catalog-count{
-  color:#eafff3 !important;
-  background:rgba(31,143,95,.22) !important;
-  border:1px solid rgba(134,239,172,.55) !important;
-  font-weight:900 !important;
-}
-body.light-mode .modal .catalog-count{
-  color:#14532d !important;
-  background:#dcfce7 !important;
-  border:1px solid #86efac !important;
-}
-
 
 html body.light-mode button.trash,
 html body.light-mode .trash,
@@ -397,21 +374,12 @@ html body.light-mode .table-scroll table tbody tr td button.trash:hover{
 
 
 /* =====================================================
-   PRO FINAL: Familias rápidas + botón borrar estable
+   Explorer · acceso único a productos
    ===================================================== */
-.catalog-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:7px;
-  margin-top:5px;
-}
-.catalog-actions .catalog-btn,
-.catalog-actions .family-btn{
+.family-btn{
   width:100%;
   height:38px;
-  margin-top:0;
-}
-.family-btn{
+  margin-top:5px;
   background:#14231c!important;
   color:#fff!important;
   border:1px solid rgba(31,143,95,.30)!important;
@@ -469,7 +437,7 @@ body.light-mode .row-actions button.trash:hover{
   border-color:#7f1d1d!important;
 }
 @media(max-width:760px){
-  .catalog-actions{grid-template-columns:1fr;}
+
 }
 
 
@@ -523,13 +491,6 @@ body.light-mode .trash:hover,
 body.light-mode button.trash:hover{
   background:#991b1b !important;
   color:#fff !important;
-}
-
-/* Modal familias: modo claro legible, sin gris encima del verde */
-body.light-mode .modal .catalog-count{
-  color:#14532d!important;
-  background:#dcfce7!important;
-  border-color:#86efac!important;
 }
 
 /* Ajuste tabla responsive */
@@ -648,41 +609,29 @@ body.light-mode .price-input.editable-pvp{
    v1.6.2 PRO - Añadir rápido junto al buscador
    ========================================================= */
 .product-tools-pro{
-  grid-template-columns:minmax(430px,1.45fr) 78px 112px 130px minmax(260px,.9fr) !important;
+  grid-template-columns:minmax(430px,1.45fr) 78px 112px 130px minmax(150px,.62fr) !important;
   align-items:end;
 }
 .quick-main{min-width:0;}
 .quick-qty input{font-weight:800;text-align:center;}
 .quick-add{height:38px;background:linear-gradient(135deg,var(--green),var(--green2));}
 .quick-manual{height:38px;}
-.quick-catalog{min-width:0;}
+.quick-explorer{min-width:0;}
 .price-input.editable-pvp{border-color:rgba(31,143,95,.45);background:rgba(31,143,95,.08);font-weight:800;color:#fff!important;}
 @media(max-width:1180px){
   .product-tools-pro{grid-template-columns:minmax(280px,1fr) 76px 112px !important;}
-  .quick-manual,.quick-catalog{grid-column:auto;}
+  .quick-manual,.quick-explorer{grid-column:auto;}
 }
 @media(max-width:760px){
   .product-tools-pro{grid-template-columns:1fr 86px !important;gap:8px;}
   .quick-main{grid-column:1 / -1;}
   .quick-qty{grid-column:1;}
   .quick-add{grid-column:2; width:100%;padding-left:8px;padding-right:8px;}
-  .quick-manual,.quick-catalog{grid-column:1 / -1;width:100%;}
+  .quick-manual,.quick-explorer{grid-column:1 / -1;width:100%;}
   .quote-row input[type="date"], #fecha{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;padding-right:38px!important;}
   .quote-row label{min-width:0!important;overflow:visible!important;}
 }
 body.light-mode .price-input.editable-pvp{background:#fff!important;color:#111827!important;border-color:#166534!important;}
-
-
-.catalog-az{
-  display:flex;
-  flex-wrap:wrap;
-  gap:3px;
-  margin:6px 0 9px;
-  padding:6px;
-  border:1px solid rgba(31,143,95,.18);
-  border-radius:12px;
-  background:rgba(255,255,255,.025);
-}
 .az-chip{
   min-width:24px;
   height:24px;
@@ -701,9 +650,8 @@ body.light-mode .price-input.editable-pvp{background:#fff!important;color:#11182
   color:#fff;
   border-color:rgba(255,255,255,.18);
 }
-.catalog-row strong,.result-name{font-size:12px;}
-.catalog-row span,.result-meta{font-size:10px;}
-.catalog-count{font-size:11px;}
+
+
 .modal-head p{font-size:11px;}
 
 
@@ -714,12 +662,6 @@ body.light-mode .price-input.editable-pvp{background:#fff!important;color:#11182
   margin-top:0;
 }
 @media(max-width:760px){.saved-search-input{width:100%;}}
-
-/* v1.9.9 PRO - A-Z claro + resultados más legibles */
-body.light-mode .catalog-az{
-  background:#f7fbf8!important;
-  border-color:#cbded4!important;
-}
 body.light-mode .az-chip{
   background:#ffffff!important;
   color:#334155!important;
@@ -743,32 +685,7 @@ body.light-mode .az-chip.active{
 .results-panel::-webkit-scrollbar-thumb{background:rgba(31,143,95,.45);border-radius:999px}
 body.light-mode .result-item-pro .result-meta{color:#5f7168!important}
 
-/* v1.9.10 PRO - corrección definitiva A-Z en modo claro
-   La regla global de botones en modo claro tenía más prioridad y pintaba todos los A-Z en verde. */
-body.light-mode button.az-chip,
-body.light-mode .catalog-az button.az-chip,
-body.light-mode #catalogAZ button.az-chip{
-  background:#ffffff!important;
-  color:#334155!important;
-  border:1px solid #cbded4!important;
-  box-shadow:none!important;
-}
-body.light-mode button.az-chip:hover,
-body.light-mode .catalog-az button.az-chip:hover,
-body.light-mode #catalogAZ button.az-chip:hover{
-  background:#eaf7ef!important;
-  color:#14532d!important;
-  border-color:#86cfa8!important;
-}
-body.light-mode button.az-chip.active,
-body.light-mode .catalog-az button.az-chip.active,
-body.light-mode #catalogAZ button.az-chip.active{
-  background:linear-gradient(135deg,#166534,#14532d)!important;
-  color:#ffffff!important;
-  border-color:#14532d!important;
-  box-shadow:0 0 0 2px rgba(22,101,52,.18)!important;
-  transform:translateY(-1px);
-}
+
 
 
 /* v2.0.2 PRO - botón separador y ajuste de buscador */
@@ -790,19 +707,6 @@ body.light-mode .section-input{color:#14532d!important;background:transparent!im
   .quick-qty{grid-column:1;}
   .quick-add{grid-column:2;}
   .quick-manual,.quick-separator,.quick-catalog{grid-column:1 / -1;width:100%;}
-}
-
-
-/* v2.0.4 PRO - panel acciones rápidas catálogo */
-.catalog-quick-panel{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin:6px 0 10px;
-  padding:7px;
-  border:1px solid rgba(31,143,95,.18);
-  border-radius:14px;
-  background:rgba(31,143,95,.055);
 }
 .quick-cat-chip{
   height:27px;
@@ -826,30 +730,9 @@ body.light-mode .section-input{color:#14532d!important;background:transparent!im
   border-color:rgba(255,255,255,.18);
   box-shadow:0 6px 14px rgba(31,143,95,.18)!important;
 }
-body.light-mode button.quick-cat-chip,
-body.light-mode .catalog-quick-panel button.quick-cat-chip{
-  background:#ffffff!important;
-  color:#334155!important;
-  border:1px solid #cbded4!important;
-  box-shadow:none!important;
-}
-body.light-mode button.quick-cat-chip:hover,
-body.light-mode .catalog-quick-panel button.quick-cat-chip:hover{
-  background:#eaf7ef!important;
-  color:#14532d!important;
-  border-color:#86cfa8!important;
-}
-body.light-mode button.quick-cat-chip.active,
-body.light-mode .catalog-quick-panel button.quick-cat-chip.active{
-  background:linear-gradient(135deg,#166534,#14532d)!important;
-  color:#ffffff!important;
-  border-color:#14532d!important;
-  box-shadow:0 0 0 2px rgba(22,101,52,.18)!important;
-}
-body.light-mode .catalog-quick-panel{
-  background:#f7fbf8!important;
-  border-color:#cbded4!important;
-}
+
+
+
 @media(max-width:760px){
   .quick-cat-chip{font-size:10.5px;padding:0 8px;height:26px;line-height:26px;}
 }
@@ -858,94 +741,20 @@ body.light-mode .catalog-quick-panel{
 /* v2.0.5 PRO - acciones rápidas encima del A-Z y modo claro claro */
 #catalogQuick204{order:1;margin-bottom:6px;}
 #catalogAZ{order:2;margin-top:4px;}
-html body.light-mode .catalog-quick-panel button.quick-cat-chip:not(.active),
-html body.light-mode #catalogQuick204 button.quick-cat-chip:not(.active){
-  background:#ffffff!important;
-  color:#334155!important;
-  border:1px solid #cbded4!important;
-  box-shadow:none!important;
-}
-html body.light-mode .catalog-quick-panel button.quick-cat-chip:not(.active):hover,
-html body.light-mode #catalogQuick204 button.quick-cat-chip:not(.active):hover{
-  background:#eaf7ef!important;
-  color:#14532d!important;
-  border-color:#86cfa8!important;
-}
-html body.light-mode .catalog-quick-panel button.quick-cat-chip.active,
-html body.light-mode #catalogQuick204 button.quick-cat-chip.active{
-  background:linear-gradient(135deg,#166534,#14532d)!important;
-  color:#ffffff!important;
-  border-color:#14532d!important;
-  box-shadow:0 0 0 2px rgba(22,101,52,.22),0 8px 18px rgba(22,101,52,.18)!important;
-  transform:translateY(-1px);
-}
 
 
-/* v2.0.7 PRO - botones Catálogo / Familias uniformes */
-.catalog-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:7px;
-  margin-top:5px;
-}
-.catalog-actions .catalog-btn,
-.catalog-actions .family-btn{
-  width:100%!important;
-  height:38px!important;
-  min-height:38px!important;
-  margin:0!important;
-  padding:8px 10px!important;
-  border-radius:10px!important;
-  font-size:13px!important;
-  font-weight:800!important;
-  line-height:1!important;
-  text-align:center!important;
-  box-shadow:none!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-}
-.catalog-actions .catalog-btn:after{content:""!important;display:none!important;}
-.catalog-actions .family-btn{
-  background:#091118!important;
-  color:#fff!important;
-  border:1px solid #284536!important;
-}
-.catalog-actions .catalog-btn{
-  background:#091118!important;
-  color:#fff!important;
-  border:1px solid #284536!important;
-}
-.catalog-actions .catalog-btn:hover,
-.catalog-actions .family-btn:hover{
-  background:rgba(31,143,95,.18)!important;
-  border-color:rgba(31,143,95,.55)!important;
-}
-body.light-mode .catalog-actions .catalog-btn,
-body.light-mode .catalog-actions .family-btn{
-  background:#ffffff!important;
-  color:#172019!important;
-  border:1px solid #cbded4!important;
-}
-body.light-mode .catalog-actions .catalog-btn:hover,
-body.light-mode .catalog-actions .family-btn:hover{
-  background:#eaf7ef!important;
-  color:#14532d!important;
-  border-color:#86cfa8!important;
-}
+
+
+
+
+
+
+
+
 
 /* v2.0.7 PRO - en el modal: buscador -> acciones rápidas -> A-Z -> productos */
 #catalogQuick204{margin:8px 0 6px!important;}
 #catalogAZ{margin:4px 0 9px!important;}
-
-/* v2.0.8 PRO - filtros dentro del cuerpo del modal, debajo del buscador */
-.catalog-top-filters{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  margin:0 0 2px;
-  order:0;
-}
 #catalogQuickHost208:empty,
 #catalogAZHost208:empty{display:none;}
 #catalogQuickHost208 #catalogQuick204,
@@ -956,9 +765,6 @@ body.light-mode .catalog-actions .family-btn:hover{
 #catalogQuickHost208[style*="display: none"] + #catalogAZHost208 #catalogAZ,
 #catalogAZHost208 #catalogAZ{
   margin-top:0!important;
-}
-body.light-mode .catalog-top-filters{
-  color:#172019;
 }
 
 
@@ -984,17 +790,7 @@ body.light-mode .catalog-top-filters{
   line-height:1;
   font-size:15px;
 }
-.catalog-actions .catalog-btn,
-.catalog-actions .family-btn{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:6px!important;
-}
-.catalog-actions .catalog-btn .btn-ico,
-.catalog-actions .family-btn .btn-ico{
-  margin-right:0;
-}
+
 body.light-mode .section-title-under-actions h2{
   color:#145b37;
 }
@@ -1098,45 +894,12 @@ th,td{
 .section-title-under-actions{
   margin:14px 0 10px!important;
 }
-.catalog-actions{
-  display:grid!important;
-  grid-template-columns:115px 115px!important;
-  gap:8px!important;
-  justify-content:start!important;
-  align-items:end!important;
-}
-.catalog-actions .catalog-btn,
-.catalog-actions .family-btn{
-  width:115px!important;
-  min-width:115px!important;
-  max-width:115px!important;
-  height:38px!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:6px!important;
-  padding:8px 10px!important;
-  font-size:13px!important;
-  font-weight:800!important;
-  text-align:center!important;
-  margin-top:5px!important;
-}
-.catalog-actions .catalog-btn .btn-ico,
-.catalog-actions .family-btn .btn-ico{
-  margin-right:0!important;
-}
-.catalog-actions .catalog-btn:after{content:""!important;display:none!important;}
+
+
+
 @media(max-width:760px){
   .wrap{width:100%!important;padding-left:12px!important;padding-right:12px!important;}
-  
-  
-  .catalog-actions{grid-template-columns:1fr 1fr!important;width:100%!important;}
-  .catalog-actions .catalog-btn,
-  .catalog-actions .family-btn{
-    width:100%!important;
-    min-width:0!important;
-    max-width:none!important;
-  }
+
 }
 
 /* =====================================================
@@ -1208,9 +971,7 @@ th,td{
   .quick-main,.quick-qty,.quick-add,.quick-manual,.quick-separator,.quick-catalog{
     grid-column:1 / -1!important;width:100%!important;
   }
-  .catalog-actions{grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%!important;}
-  .catalog-actions .catalog-btn,
-  .catalog-actions .family-btn{width:100%!important;max-width:none!important;}
+
 
   .preview-line{font-size:11px!important;}
   .table-scroll{max-height:none!important;overflow-x:auto!important;}
@@ -1233,14 +994,12 @@ th,td{
   .modal-head p{font-size:11px!important;}
   .modal-close{width:34px!important;height:34px!important;font-size:22px!important;}
   .modal-search-row{grid-template-columns:1fr!important;gap:8px!important;}
-  .modal .catalog-count{width:max-content!important;max-width:100%!important;padding:7px 10px!important;font-size:11px!important;}
-  .catalog-top-filters{gap:7px!important;padding:7px!important;}
-  .catalog-quick-panel{gap:6px!important;}
-  .catalog-quick-panel button.quick-cat-chip,
-  #catalogAZ button.az-chip{font-size:11px!important;padding:6px 8px!important;min-height:30px!important;}
-  .modal .catalog-items{max-height:55vh!important;}
-  .catalog-row{grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;padding:8px!important;}
-  .catalog-add{grid-column:1 / -1!important;width:100%!important;height:32px!important;}
+
+
+
+
+
+
 
   /* Explorador en móvil: navegación por bloques, productos con único scroll */
 }
@@ -1298,11 +1057,6 @@ th,td{
   #catalogModal .modal-foot{
     flex:0 0 auto!important;
   }
-  #catalogModal .catalog-top-filters{
-    flex:0 0 auto!important;
-    padding:5px!important;
-    gap:5px!important;
-  }
   #catalogQuick204,
   #catalogAZ{
     display:flex!important;
@@ -1323,12 +1077,6 @@ th,td{
     padding:4px 7px!important;
     font-size:10.5px!important;
     line-height:1!important;
-  }
-  #catalogModal .catalog-items{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    max-height:none!important;
-    overflow-y:auto!important;
   }
 
   /* Explorar móvil: producto y botón Añadir siempre visibles dentro de cada tarjeta */
@@ -1448,21 +1196,7 @@ th,td{
   .quick-separator{
     height:38px!important;
   }
-  .catalog-actions{
-    display:grid!important;
-    grid-template-columns:1fr 1fr!important;
-    gap:8px!important;
-    width:100%!important;
-  }
-  .catalog-actions .catalog-btn,
-  .catalog-actions .family-btn{
-    width:100%!important;
-    min-width:0!important;
-    max-width:none!important;
-    height:38px!important;
-    font-size:12px!important;
-    padding:8px 9px!important;
-  }
+
 
   .results-panel{
     position:absolute!important;
@@ -1519,30 +1253,6 @@ th,td{
   .totals,.totals.totals-v3{grid-template-columns:1fr!important;}
 }
 
-/* =====================================================
-   v2.3.2 PRO - Arreglo final Explorar + iPhone + contador
-   ===================================================== */
-
-/* Contador Catálogo y Explorar idénticos */
-.modal .catalog-count{
-  font-size:12px!important;
-  color:#eafff3!important;
-  font-weight:900!important;
-  border:1px solid rgba(134,239,172,.55)!important;
-  background:rgba(31,143,95,.22)!important;
-  padding:10px 12px!important;
-  border-radius:999px!important;
-  white-space:nowrap!important;
-  line-height:1!important;
-  width:max-content!important;
-  max-width:100%!important;
-}
-
-body.light-mode .modal .catalog-count{
-  color:#14532d!important;
-  background:#dcfce7!important;
-  border:1px solid #86efac!important;
-}
 
 /* Explorador PC: un poco más ancho y compacto */
 
@@ -1579,37 +1289,8 @@ body.light-mode .modal .catalog-count{
     max-width:1320px!important;
   }
 
-  #catalogModal .catalog-items{
-    max-height:62vh!important;
-  }
-
-  #catalogModal .catalog-row{
-    grid-template-columns:minmax(0,1fr) auto auto!important;
-  }
 }
 
-/* Badge contador: verde legible y uniforme en Catálogo y Explorar */
-#catalogModal .catalog-count{
-  font-size:12px!important;
-  color:#c5ffe0!important;
-  font-weight:900!important;
-  border:1px solid rgba(31,143,95,.34)!important;
-  background:rgba(31,143,95,.12)!important;
-  padding:9px 12px!important;
-  border-radius:999px!important;
-  white-space:nowrap!important;
-  line-height:1!important;
-  width:max-content!important;
-  max-width:100%!important;
-}
-
-body.light-mode #catalogModal .catalog-count,
-body.light #catalogModal .catalog-count,
-body.claro #catalogModal .catalog-count{
-  color:#167c3d!important;
-  background:#dff8e8!important;
-  border:1px solid #6ecf92!important;
-}
 
 /* Móvil: solo Catálogo. No modificar #familiasModal aquí. */
 @media (max-width:760px){
@@ -1693,25 +1374,7 @@ body.claro #catalogModal .catalog-count{
     padding:0!important;
   }
 
-  #catalogModal .catalog-filter{
-    height:39px!important;
-    margin:0!important;
-  }
 
-  #catalogModal .catalog-count{
-    padding:8px 11px!important;
-    font-size:11.5px!important;
-  }
-
-  #catalogModal .catalog-top-filters{
-    flex:0 0 auto!important;
-    max-height:118px!important;
-    overflow:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-    padding:6px!important;
-    margin:0!important;
-    gap:6px!important;
-  }
 
   #catalogQuick204,
   #catalogAZ{
@@ -1735,34 +1398,9 @@ body.claro #catalogModal .catalog-count{
     line-height:1!important;
   }
 
-  #catalogModal .catalog-items{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    max-height:none!important;
-    overflow:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-    padding:0 0 calc(env(safe-area-inset-bottom, 0px) + 14px) 0!important;
-  }
 
-  #catalogModal .catalog-row{
-    grid-template-columns:minmax(0,1fr) auto!important;
-    gap:8px!important;
-    padding:8px!important;
-  }
 
-  #catalogModal .catalog-main strong{
-    font-size:12.5px!important;
-  }
-  #catalogModal .catalog-main span{
-    font-size:10.5px!important;
-  }
 
-  #catalogModal .catalog-add{
-    grid-column:1 / -1!important;
-    width:100%!important;
-    height:33px!important;
-    margin-top:2px!important;
-  }
 
   #catalogModal .modal-foot{
     flex:0 0 auto!important;
@@ -1792,39 +1430,8 @@ body.claro #catalogModal .catalog-count{
     width:min(1320px,98vw)!important;
     max-width:1320px!important;
   }
-
-  #catalogModal .catalog-items{
-    max-height:62vh!important;
-  }
 }
 
-/* Contador de productos: verde visible, uniforme en oscuro y claro */
-#catalogModal .catalog-count{
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  width:max-content!important;
-  max-width:100%!important;
-  min-height:34px!important;
-  padding:8px 12px!important;
-  border-radius:999px!important;
-  border:1px solid rgba(31,143,95,.42)!important;
-  background:rgba(31,143,95,.18)!important;
-  color:#d7ffe9!important;
-  font-size:12px!important;
-  font-weight:900!important;
-  line-height:1!important;
-  white-space:nowrap!important;
-  box-shadow:0 0 0 1px rgba(31,143,95,.06) inset!important;
-}
-
-body.light #catalogModal .catalog-count,
-body.light-mode #catalogModal .catalog-count,
-body.claro #catalogModal .catalog-count{
-  background:#dff8e8!important;
-  border-color:#55bd7d!important;
-  color:#13743a!important;
-}
 
 /* Móvil: SOLO Catálogo. El Explorador móvil queda como estaba. */
 @media (max-width:760px){
@@ -1916,28 +1523,7 @@ body.claro #catalogModal .catalog-count{
     padding:0!important;
   }
 
-  #catalogModal .catalog-filter{
-    width:100%!important;
-    min-width:0!important;
-    height:40px!important;
-    margin:0!important;
-  }
 
-  #catalogModal .catalog-count{
-    min-height:40px!important;
-    padding:0 10px!important;
-    font-size:11px!important;
-  }
-
-  #catalogModal .catalog-top-filters{
-    flex:0 0 auto!important;
-    max-height:118px!important;
-    overflow:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-    padding:6px!important;
-    margin:0!important;
-    gap:6px!important;
-  }
 
   #catalogQuick204,
   #catalogAZ{
@@ -1965,35 +1551,9 @@ body.claro #catalogModal .catalog-count{
     line-height:1!important;
   }
 
-  #catalogModal .catalog-items{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    max-height:none!important;
-    overflow:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-    padding:0 0 calc(env(safe-area-inset-bottom, 0px) + 14px) 0!important;
-  }
 
-  #catalogModal .catalog-row{
-    grid-template-columns:minmax(0,1fr) auto!important;
-    gap:8px!important;
-    padding:8px!important;
-  }
 
-  #catalogModal .catalog-main strong{
-    font-size:12.5px!important;
-  }
 
-  #catalogModal .catalog-main span{
-    font-size:10.5px!important;
-  }
-
-  #catalogModal .catalog-add{
-    grid-column:1 / -1!important;
-    width:100%!important;
-    height:33px!important;
-    margin-top:2px!important;
-  }
 
   #catalogModal .modal-foot{
     flex:0 0 auto!important;
@@ -2150,15 +1710,6 @@ body.claro .app-toast-text{color:#305548}
     align-self:end!important;
   }
 
-  .product-tools-pro input,
-  .product-tools-pro button,
-  .product-tools-pro .catalog-btn,
-  .product-tools-pro .family-btn{
-    height:var(--ui-control-h)!important;
-    min-height:var(--ui-control-h)!important;
-    line-height:1!important;
-  }
-
   .quick-add,
   .quick-manual,
   .quick-separator{
@@ -2170,29 +1721,7 @@ body.claro .app-toast-text{color:#305548}
     gap:6px!important;
   }
 
-  .catalog-actions{
-    display:grid!important;
-    grid-template-columns:1fr 1fr!important;
-    gap:8px!important;
-    width:100%!important;
-    align-items:end!important;
-  }
 
-  .catalog-actions .catalog-btn,
-  .catalog-actions .family-btn{
-    width:100%!important;
-    max-width:none!important;
-    padding:0 12px!important;
-    display:inline-flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    gap:6px!important;
-    text-align:center!important;
-    font-size:13px!important;
-    font-weight:900!important;
-  }
-
-  .catalog-actions .catalog-btn:after{content:""!important;display:none!important;}
   .btn-ico{display:inline-flex!important;align-items:center!important;line-height:1!important;}
 
   .preview-line{
@@ -2357,15 +1886,13 @@ body.claro .line-qty-btn,
   .quick-qty,.quick-add,.quick-manual{grid-column:auto!important;min-width:0!important;}
   .quick-separator{grid-column:1 / span 2!important;width:100%!important;min-width:0!important;}
   .quick-catalog{grid-column:3 / span 2!important;width:100%!important;min-width:0!important;}
-  .catalog-actions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:8px!important;width:100%!important;}
-  .catalog-actions .catalog-btn,.catalog-actions .family-btn{min-width:0!important;width:100%!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+
 }
 
 @media (max-width:760px){
   .product-tools-pro{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;}
   .quick-main,.quick-qty,.quick-add,.quick-manual,.quick-separator,.quick-catalog{grid-column:1 / -1!important;width:100%!important;min-width:0!important;}
-  .catalog-actions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:8px!important;width:100%!important;}
-  .catalog-actions .catalog-btn,.catalog-actions .family-btn{min-width:0!important;width:100%!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+
   .budget-card .qty-cell{min-width:126px!important;width:126px!important;max-width:126px!important;}
   .budget-card .line-qty-stepper{grid-template-columns:32px 48px 32px!important;width:124px!important;min-width:124px!important;max-width:124px!important;}
   .budget-card .line-qty-btn{width:32px!important;min-width:32px!important;height:34px!important;}
@@ -2388,24 +1915,7 @@ body.claro .line-qty-btn,
   }
   .quick-main{min-width:0!important;}
   .quick-catalog{min-width:0!important;width:100%!important;}
-  .catalog-actions{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-    gap:6px!important;
-    width:100%!important;
-    min-width:0!important;
-  }
-  .catalog-actions .catalog-btn,
-  .catalog-actions .family-btn{
-    width:100%!important;
-    min-width:0!important;
-    max-width:100%!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    white-space:nowrap!important;
-    padding-left:8px!important;
-    padding-right:8px!important;
-  }
+
 }
 
 @media (min-width:761px) and (max-width:1050px){
@@ -2438,22 +1948,7 @@ body.claro .line-qty-btn,
   .quick-main{min-width:0!important;}
   .quick-qty,.quick-add,.quick-manual,.quick-separator,.quick-catalog{min-width:0!important;}
   .quick-catalog{width:100%!important;}
-  .catalog-actions{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-    gap:6px!important;
-    width:100%!important;
-    min-width:0!important;
-  }
-  .catalog-actions .catalog-btn,
-  .catalog-actions .family-btn{
-    width:100%!important;
-    min-width:0!important;
-    max-width:100%!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    white-space:nowrap!important;
-  }
+
 }
 
 @media (min-width:761px) and (max-width:1060px){
@@ -2517,24 +2012,7 @@ body.claro .line-qty-btn,
     min-width:0!important;
   }
   .quick-catalog{width:100%!important;}
-  .catalog-actions{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-    gap:6px!important;
-    width:100%!important;
-    min-width:0!important;
-  }
-  .catalog-actions .catalog-btn,
-  .catalog-actions .family-btn{
-    width:100%!important;
-    min-width:0!important;
-    max-width:100%!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    white-space:nowrap!important;
-    padding-left:8px!important;
-    padding-right:8px!important;
-  }
+
 }
 
 @media (min-width:761px) and (max-width:1060px){
@@ -2567,15 +2045,6 @@ body.claro .line-qty-btn,
     border-bottom:1px solid rgba(31,143,95,.18)!important;
   }
 
-  #catalogModal .catalog-filter{
-    height:42px!important;
-    margin:0!important;
-  }
-
-  #catalogModal .catalog-count{
-    min-height:34px!important;
-    padding:8px 12px!important;
-  }
 }
 
 
@@ -4172,17 +3641,6 @@ body.light-mode #pmModal .pmx-row-side strong{
   #pmModal.pm-mobile-preview .pmx-actions{grid-template-columns:1fr!important}
   #pmModal.pm-mobile-preview .pmx-close-action{grid-column:auto!important}
 }
-
-
-/* =====================================================
-   v3.2.0 - Productividad Explorer + aire botón Atrás móvil
-   ===================================================== */
-.catalog-add.added-ok,
-.explore-add.added-ok{
-  background:#41566d!important;
-  border-color:#718ba3!important;
-  color:#fff!important;
-}
 @media(max-width:820px){
   #pmModal.pm-mobile-preview .pmx-mobile-back{
     min-height:40px!important;
@@ -4197,88 +3655,19 @@ body.light-mode #pmModal .pmx-row-side strong{
   }
 }
 
-/* =====================================================
-   3.0.0 ESTABLE - Catálogo y Explorador
-   Estados visuales aislados, sin gradientes verdes.
-   ===================================================== */
-#catalogModal .catalog-row{
-  transition:background-color .14s ease,border-color .14s ease,color .14s ease,box-shadow .14s ease!important;
-}
 
-/* Modo oscuro */
-body:not(.light-mode) #catalogModal .catalog-row:hover{
-  background:#263442!important;
-  background-image:none!important;
-  border-color:#526b80!important;
-  color:#f7fafc!important;
-}
-body:not(.light-mode) #catalogModal .catalog-row:hover *{
-  color:#f7fafc!important;
-}
 
-/* Modo claro */
-body.light-mode #catalogModal .catalog-row{
-  background:#ffffff!important;
-  background-image:none!important;
-  border-color:#d7e0e8!important;
-  color:#1f2937!important;
-}
-body.light-mode #catalogModal .catalog-row:hover{
-  background:#e9f0f6!important;
-  background-image:none!important;
-  border-color:#9fb3c5!important;
-  color:#1f2937!important;
-  box-shadow:none!important;
-}
-body.light-mode #catalogModal .catalog-row:hover *{
-  color:#1f2937!important;
-}
-body.light-mode #catalogModal .catalog-main strong{
-  color:#17202a!important;
-}
-body.light-mode #catalogModal .catalog-main span{
-  color:#526373!important;
-}
-body.light-mode #catalogModal .catalog-row>b{
-  color:#274c67!important;
-}
 
-/* Botones Añadir / Añadido */
-#catalogModal .catalog-add{
-  background:#3d4b57!important;
-  background-image:none!important;
-  border:1px solid #657686!important;
-  color:#ffffff!important;
-  box-shadow:none!important;
-}
-#catalogModal .catalog-add:hover{
-  background:#4a5b69!important;
-  border-color:#8395a5!important;
-  color:#ffffff!important;
-}
-#catalogModal .catalog-add.added-ok{
-  background:#355a78!important;
-  background-image:none!important;
-  border-color:#6f96b6!important;
-  color:#ffffff!important;
-}
-body.light-mode #catalogModal .catalog-add{
-  background:#e2e8ee!important;
-  background-image:none!important;
-  border-color:#aab9c6!important;
-  color:#263746!important;
-}
-body.light-mode #catalogModal .catalog-add:hover{
-  background:#d2dde6!important;
-  border-color:#8fa5b7!important;
-  color:#1d2d3b!important;
-}
-body.light-mode #catalogModal .catalog-add.added-ok{
-  background:#cfe0ee!important;
-  background-image:none!important;
-  border-color:#7e9fba!important;
-  color:#17324a!important;
-}
+
+
+
+
+
+
+
+
+
+
 
 /* 3.0.0 - efecto único al añadir al final */
 @keyframes hxLineaNuevaPulso{
@@ -4646,9 +4035,6 @@ body.light-mode .hx-global-toast.is-error{background:#f7e8ea;border-color:#d8aeb
   color:var(--text);
   font-variant-numeric:tabular-nums;
 }
-#catalogModal .catalog-row{
-  grid-template-columns:minmax(0,1fr) auto auto auto;
-}
 body.light-mode .hx-modal-qty,
 body.light .hx-modal-qty{
   background:#f4f8f6;
@@ -4657,28 +4043,11 @@ body.light .hx-modal-qty{
 body.light-mode .hx-modal-qty-value,
 body.light .hx-modal-qty-value{color:#173126;}
 @media(max-width:760px){
-  #catalogModal .catalog-row{
-    grid-template-columns:minmax(0,1fr) auto!important;
-  }
+
   #catalogModal .hx-modal-qty{
     grid-column:1;
     width:max-content;
   }
-  #catalogModal .catalog-add{
-    grid-column:2!important;
-    width:auto!important;
-    min-width:92px;
-  }
-}
-
-/* =====================================================
-   3.4.3 — AJUSTE VISUAL CANTIDAD EN MODAL CATÁLOGO
-   Mantiene selector y Añadir compactos, igual que Explorer.
-   ===================================================== */
-#catalogModal .catalog-row{
-  grid-template-columns:minmax(0,1fr) auto auto auto!important;
-  align-items:center!important;
-  column-gap:10px!important;
 }
 #catalogModal .hx-modal-qty{
   width:96px!important;
@@ -4686,39 +4055,14 @@ body.light .hx-modal-qty-value{color:#173126;}
   max-width:96px!important;
   justify-self:end!important;
 }
-#catalogModal .catalog-add{
-  grid-column:auto!important;
-  width:auto!important;
-  min-width:86px!important;
-  max-width:110px!important;
-  height:32px!important;
-  margin:0!important;
-  padding:0 12px!important;
-  justify-self:end!important;
-  align-self:center!important;
-}
 @media(max-width:760px){
-  #catalogModal .catalog-row{
-    grid-template-columns:minmax(0,1fr) auto!important;
-    grid-template-areas:
-      "main price"
-      "qty add"!important;
-    row-gap:8px!important;
-  }
-  #catalogModal .catalog-main{grid-area:main!important;}
-  #catalogModal .catalog-row>b{grid-area:price!important;justify-self:end!important;}
+
+
+
   #catalogModal .hx-modal-qty{
     grid-area:qty!important;
     grid-column:auto!important;
     justify-self:start!important;
-  }
-  #catalogModal .catalog-add{
-    grid-area:add!important;
-    grid-column:auto!important;
-    width:auto!important;
-    min-width:92px!important;
-    max-width:112px!important;
-    justify-self:end!important;
   }
 }
 
@@ -4784,30 +4128,8 @@ body.light .hx-modal-qty-value{color:#173126;}
   }
   .add-card .quick-manual{grid-column:1!important;}
   .add-card .quick-separator{grid-column:2!important;}
-  .add-card .quick-add,
-  .add-card .quick-manual,
-  .add-card .quick-separator,
-  .add-card .catalog-actions .catalog-btn,
-  .add-card .catalog-actions .family-btn{
-    width:100%!important;
-    min-width:0!important;
-    max-width:none!important;
-    height:44px!important;
-    min-height:44px!important;
-    padding:9px 10px!important;
-    margin:0!important;
-    border-radius:12px!important;
-    justify-content:center!important;
-    white-space:nowrap!important;
-  }
   .add-card .quick-add{
     font-weight:800!important;
-  }
-  .add-card .catalog-actions{
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:8px!important;
-    width:100%!important;
   }
 
   /* En móvil el cierre es siempre la X superior; sin segundo botón ancho. */
@@ -5169,65 +4491,46 @@ body.light-mode #pmModal .pmx-products li{background:#fff!important;border-color
   }
 }
 
-/* =====================================================
-   CATÁLOGO: estado y diagnóstico visible
-   - Estado correcto: texto discreto, sin aspecto de botón.
-   - Incidencias: enlace ámbar/rojo que abre el detalle.
-   ===================================================== */
-.catalog-health{
-  display:inline-flex;align-items:center;
-  min-height:auto;margin-left:9px;padding:1px 0;
-  border:0!important;border-radius:0!important;background:transparent!important;
-  font-size:11px;font-weight:600;line-height:1.25;
-  box-shadow:none!important;vertical-align:middle;
-  text-decoration:none;text-underline-offset:3px;
-}
-.catalog-health[hidden]{display:none!important}
-.catalog-health.is-checking,.catalog-health.is-ok{display:none!important}
-.catalog-health.is-warn{color:#d9a62e!important;cursor:pointer;text-decoration:underline}
-.catalog-health.is-error{color:#e06c75!important;cursor:pointer;text-decoration:underline}
-.catalog-health.is-warn:hover,.catalog-health.is-error:hover{filter:brightness(1.12)}
-.catalog-health:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:3px!important}
-body.light-mode .catalog-health.is-warn,
-body:not(.dark) .catalog-health.is-warn{color:#9a6700!important}
-body.light-mode .catalog-health.is-error,
-body:not(.dark) .catalog-health.is-error{color:#a2303c!important}
-.catalog-diagnostic-modal .modal-card{width:min(760px,96vw)}
-.catalog-diagnostic-body{display:grid;gap:12px;overflow:auto;max-height:58vh;padding-right:3px}
-.catalog-diag-summary,.catalog-diag-section{border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:13px;background:rgba(255,255,255,.035)}
-.catalog-diag-summary{display:grid;gap:4px}
-.catalog-diag-summary strong{font-size:14px;color:#d6ffe5}
-.catalog-diag-summary span,.catalog-diag-section p{font-size:12px;color:#b7c9c0;margin:0}
-.catalog-diag-summary.has-warning{border-color:rgba(255,184,77,.40);background:rgba(154,98,11,.12)}
-.catalog-diag-summary.has-warning strong{color:#ffe0a0}
-.catalog-diag-section h3{font-size:13px;margin:0 0 8px;color:#eef8f2}
-.catalog-diag-item{display:grid;gap:3px;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.04);margin-top:6px}
-.catalog-diag-item b{font-size:12px;color:#fff}
-.catalog-diag-item span{font-size:11px;color:#c6d8cf}
-.catalog-diag-item.is-warning{border-left:3px solid #dca33b}
-.catalog-diag-help{margin-top:9px!important}
-body.light-mode .catalog-health{color:#66756d}
-body.light-mode .catalog-health.is-ok{color:#66756d}
-body.light-mode .catalog-health.is-warn{color:#8a5b00}
-body.light-mode .catalog-health.is-error{color:#9b3340}
-body.light-mode .catalog-diag-summary,body.light-mode .catalog-diag-section{background:#f7fbf9;border-color:#d7e5de}
-body.light-mode .catalog-diag-summary strong,body.light-mode .catalog-diag-section h3{color:#183c2b}
-body.light-mode .catalog-diag-summary span,body.light-mode .catalog-diag-section p,body.light-mode .catalog-diag-item span{color:#536c60}
-body.light-mode .catalog-diag-item{background:#fff}
-body.light-mode .catalog-diag-item b{color:#173b2a}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @media(max-width:760px){
-  .catalog-health{display:flex;width:max-content;max-width:100%;margin:7px 0 0;font-size:10px}
-  .catalog-diagnostic-body{max-height:60vh}
+
+
 }
 
-/* v4.0.5 · Detalle de control de precios guardados */
-.catalog-diag-summary small{display:block;margin-top:5px;color:var(--muted);font-size:.78rem}
-.catalog-diag-info{border-left:3px solid rgba(70,120,170,.55)}
-.catalog-diag-budget{margin:8px 0;border:1px solid var(--border);border-radius:10px;background:rgba(127,127,127,.035);overflow:hidden}
-.catalog-diag-budget summary{cursor:pointer;padding:10px 12px;font-weight:700;display:flex;justify-content:space-between;gap:12px;align-items:center}
-.catalog-diag-budget summary span{font-size:.78rem;font-weight:600;color:var(--muted)}
-.catalog-diag-budget[open] summary{border-bottom:1px solid var(--border)}
-.catalog-diag-budget .catalog-diag-item{margin:8px 10px}
+
+
+
+
+
 
 /* =====================================================
    v4.0.14c - Cabecera de presupuesto compacta en una línea
@@ -6859,32 +6162,8 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
 }
 
 
-/* v4.2.20 · fotos y descripciones, integración mínima */
-.catalog-row .hx-product-info{
-  min-width:0;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  overflow:hidden;
-}
-.catalog-row .hx-product-copy{
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-  overflow:hidden;
-}
-.catalog-row .hx-product-copy strong,
-.catalog-row .hx-product-copy span{
-  min-width:0;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.catalog-row .hx-product-copy strong{white-space:nowrap}
-.catalog-row .hx-product-copy span{
-  white-space:nowrap;
-  opacity:.82;
-}
+
+
 .hx-product-thumb{
   flex:0 0 44px;
   width:44px;
@@ -6944,40 +6223,18 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
   cursor:pointer;
 }
 @media(max-width:760px){
-  .catalog-row .hx-product-info{gap:8px}
+
   .hx-product-thumb{
     flex-basis:38px;
     width:38px;
     height:38px;
     border-radius:7px;
   }
-  .catalog-row .hx-product-copy span{
-    white-space:normal;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    line-height:1.25;
-  }
 }
 
-
-/* v4.2.20b · conservar orden estable y ajustar solo legibilidad */
-.catalog-row .hx-product-copy strong{
-  font-size:12px!important;
-  line-height:1.2!important;
-  font-weight:700!important;
-}
-.catalog-row .hx-product-copy span{
-  font-size:10.5px!important;
-  line-height:1.25!important;
-}
 @media(max-width:760px){
-  .catalog-row .hx-product-copy strong{
-    font-size:11.5px!important;
-  }
-  .catalog-row .hx-product-copy span{
-    font-size:10px!important;
-  }
+
+
 }
 
 /* v4.2.20c · foto en buscador inicial sin alterar su estructura */
@@ -7042,10 +6299,7 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
    productos nunca se estiran para rellenar el espacio disponible.
    ===================================================== */
 @media (max-width:760px){
-  #catalogModal .catalog-items{
-    align-content:start!important;
-    grid-auto-rows:max-content!important;
-  }
+
 }
 
 
@@ -7182,29 +6436,9 @@ body.light-mode .header-toolbar > .header-theme:hover,body.light-mode .header-to
 }
 
 
-/* Control de precios: cierre visible y táctil en todos los modos */
-.catalog-diagnostic-modal .catalog-diagnostic-close{
-  flex:0 0 42px!important;width:42px!important;min-width:42px!important;max-width:42px!important;
-  height:42px!important;min-height:42px!important;max-height:42px!important;padding:0!important;
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  color:var(--text)!important;background:rgba(127,127,127,.06)!important;
-  border:1px solid rgba(127,127,127,.20)!important;border-radius:13px!important;
-  position:relative;z-index:3;overflow:visible!important;
-}
-.catalog-diagnostic-modal .catalog-diagnostic-close svg{
-  display:block;width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2.6;
-  stroke-linecap:round;stroke-linejoin:round;pointer-events:none;
-}
-.catalog-diagnostic-modal .catalog-diagnostic-close:hover,
-.catalog-diagnostic-modal .catalog-diagnostic-close:focus-visible{
-  background:rgba(31,143,95,.12)!important;border-color:rgba(31,143,95,.42)!important;outline:none;
-}
 @media(max-width:760px){
-  .catalog-diagnostic-modal .modal-head{align-items:flex-start!important;}
-  .catalog-diagnostic-modal .catalog-diagnostic-close{
-    flex-basis:44px!important;width:44px!important;min-width:44px!important;max-width:44px!important;
-    height:44px!important;min-height:44px!important;max-height:44px!important;
-  }
+
+
 }
 
 
@@ -7231,23 +6465,6 @@ body.light .hx-image-preview img,
 body.claro .hx-image-preview img{
   background:linear-gradient(145deg,#f3f5f6,#e5e9ec)!important;
 }
-
-
-/* =====================================================
-   EXPLORER 3.0.1 - subcategorías visibles, sin iconos negros
-   y fondo gris neutro para fotografías en toda la app.
-   ===================================================== */
-
-/* Fotos: gris neutro; nunca verde ni negro de botón. */
-.hx-product-thumb,
-button.hx-product-thumb,
-.catalog-row .hx-product-thumb{
-  background:#2a3036!important;
-  background-image:none!important;
-  border-color:#515b64!important;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)!important;
-  color:inherit!important;
-}
 .hx-product-thumb:hover,button.hx-product-thumb:hover{background:#333a41!important;border-color:#69747e!important;transform:none!important;}
 .hx-product-thumb img{background:transparent!important;}
 .hx-image-preview img{background:#2a3036!important;background-image:none!important;border:1px solid #515b64!important;}
@@ -7266,3 +6483,53 @@ body.light-mode .hx-image-preview img,body.light .hx-image-preview img,body.clar
    EXPLORER 4.1 — BASE ORIGINAL + VISTA AMPLIA COMPACTA
    Mantiene íntegra la clasificación CSV original.
    ===================================================== */
+
+
+/* =====================================================
+   7.1 · Inicio limpio: Explorer único + aviso de precios
+   ===================================================== */
+.add-card .quick-explorer{
+  min-width:0;
+}
+.add-card .quick-explorer > label{
+  white-space:nowrap;
+}
+.add-card .explorer-entry-btn{
+  width:100%!important;
+  min-width:0!important;
+  height:38px!important;
+  margin-top:5px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+}
+#catalogHealth{
+  flex:0 0 auto!important;
+  width:auto!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  line-height:1.15!important;
+}
+.preview-line{
+  gap:14px!important;
+}
+.preview-line #previewProducto{
+  min-width:0!important;
+  flex:1 1 auto!important;
+}
+@media(max-width:760px){
+  .add-card .quick-explorer{
+    grid-column:1 / -1!important;
+    width:100%!important;
+  }
+  .add-card .explorer-entry-btn{
+    min-height:42px!important;
+  }
+  #catalogHealth{
+    white-space:nowrap!important;
+    flex:0 0 auto!important;
+  }
+}
