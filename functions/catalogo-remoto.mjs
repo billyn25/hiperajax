@@ -240,6 +240,17 @@ function escaparCSV(value) {
   return /[;"\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
+function esDiscoSurveillance(classification = {}) {
+  const text = normalizarClave([
+    classification.category,
+    classification.family,
+    classification.subcategory,
+  ].filter(Boolean).join(" "));
+  const storage = /almacenamiento|storage/.test(text);
+  const hardDrive = /discoduro|discosduros|surveillance|harddrive|hdd/.test(text);
+  return storage && hardDrive;
+}
+
 async function crearCatalogoAjax(response) {
   if (!response.body) throw new Error("El proveedor no devolvió contenido");
 
@@ -276,7 +287,15 @@ async function crearCatalogoAjax(response) {
     const row = filaNormalizada(originalRow);
     const name = String(primerValor(row, ["name", "reference", "referencia", "codigo", "sku"])).trim();
     const brand = String(primerValor(row, ["brand", "marca", "manufacturer", "fabricante"])).trim();
-    if (!name || brand.toUpperCase() !== "AJAX") continue;
+    if (!name) continue;
+
+    // La clasificación se lee ANTES del filtro de marca.
+    // Además de AJAX se conserva la rama de almacenamiento Surveillance,
+    // de modo que futuros discos del proveedor entren solos.
+    const classification = valoresClasificacion(row, classificationFields || {});
+    const isAjax = brand.toUpperCase() === "AJAX";
+    const isSurveillanceDrive = esDiscoSurveillance(classification);
+    if (!isAjax && !isSurveillanceDrive) continue;
 
     const key = name.toUpperCase();
     if (products.has(key)) continue;
@@ -287,8 +306,7 @@ async function crearCatalogoAjax(response) {
     if (cost > 0 && !detectedCostField) detectedCostField = "precio_neto_compra";
     if (cost > 0) productsWithCost += 1;
 
-    const classification = valoresClasificacion(row, classificationFields || {});
-    if (classification.category) ajaxClassified += 1;
+    if (isAjax && classification.category) ajaxClassified += 1;
     if (classificationSamples.length < 5) {
       classificationSamples.push({
         name,
@@ -308,7 +326,7 @@ async function crearCatalogoAjax(response) {
 
     products.set(key, {
       name,
-      brand: "Ajax",
+      brand: isAjax ? "Ajax" : (brand || "Almacenamiento"),
       pvp: String(primerValor(row, ["PVP", "recommended_retail_price", "retail_price", "precio_venta", "tarifa"])).trim(),
       description: limpiarDescripcion(primerValor(row, ["description", "descripcion"])),
       short_description: limpiarDescripcion(primerValor(row, ["short_description", "shortDescription", "short_desc", "description_short", "descripcion_corta"])),
@@ -323,7 +341,7 @@ async function crearCatalogoAjax(response) {
     });
   }
 
-  if (!products.size) throw new Error("No se encontraron productos AJAX en el CSV remoto");
+  if (!products.size) throw new Error("No se encontraron productos compatibles en el CSV remoto");
 
   const lines = [OUTPUT_FIELDS.join(";")];
   const sorted = [...products.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
@@ -331,8 +349,8 @@ async function crearCatalogoAjax(response) {
     lines.push(OUTPUT_FIELDS.map((field) => product[field] ?? "").map(escaparCSV).join(";"));
   }
 
-  console.log("[catalogo-remoto] muestras AJAX de clasificación:", classificationSamples);
-  console.log(`[catalogo-remoto] AJAX clasificados: ${ajaxClassified}/${sorted.length}`);
+  console.log("[catalogo-remoto] muestras de clasificación:", classificationSamples);
+  console.log(`[catalogo-remoto] AJAX clasificados: ${ajaxClassified}; catálogo compatible: ${sorted.length}`);
 
   return {
     csv: lines.join("\n"),
