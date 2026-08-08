@@ -6737,3 +6737,79 @@ body:not(.light-mode) #catalogHealth.is-warn{
     overflow:auto!important;
   }
 }
+
+
+/* =====================================================
+   7.2.7 · Presupuesto · filas modo claro
+   Corrección aislada de referencias, cantidad y descuento.
+   ===================================================== */
+body.light-mode .budget-card #tbody tr[data-linea-index]{
+  color:#172019!important;
+}
+
+body.light-mode .budget-card #tbody tr[data-linea-index] > td{
+  color:#172019!important;
+}
+
+body.light-mode .budget-card #tbody .product-cell,
+body.light-mode .budget-card #tbody .hx-product-ref{
+  color:#172019!important;
+}
+
+body.light-mode .budget-card #tbody .desc-cell{
+  color:#5f7168!important;
+}
+
+body.light-mode .budget-card #tbody .price-input.editable-pvp,
+body.light-mode .budget-card #tbody .qty-input,
+body.light-mode .budget-card #tbody .line-qty-input,
+body.light-mode .budget-card #tbody .dto-input,
+body.light-mode .budget-card #tbody .manual-input,
+body.light-mode .budget-card #tbody .desc-input{
+  background:#ffffff!important;
+  background-image:none!important;
+  color:#172019!important;
+  border-color:#bfd4c9!important;
+  box-shadow:none!important;
+}
+
+body.light-mode .budget-card #tbody .price-input.editable-pvp:focus,
+body.light-mode .budget-card #tbody .qty-input:focus,
+body.light-mode .budget-card #tbody .line-qty-input:focus,
+body.light-mode .budget-card #tbody .dto-input:focus,
+body.light-mode .budget-card #tbody .manual-input:focus,
+body.light-mode .budget-card #tbody .desc-input:focus{
+  background:#ffffff!important;
+  color:#172019!important;
+  border-color:#2f765c!important;
+  box-shadow:0 0 0 3px rgba(47,118,92,.12)!important;
+}
+
+body.light-mode .budget-card #tbody .line-qty-btn{
+  background:#f1f7f4!important;
+  color:#172019!important;
+  border:1px solid #c7d8cf!important;
+  box-shadow:none!important;
+}
+body.light-mode .budget-card #tbody .line-qty-btn:hover{
+  background:#e6f2ec!important;
+  border-color:#8eb7a2!important;
+}
+
+body.light-mode .budget-card #tbody tr[data-linea-index] > td:nth-child(6) b{
+  color:#14532d!important;
+}
+
+body.light-mode .budget-card #tbody .drag-btn{
+  background:#eef8f2!important;
+  border-color:#a9d0ba!important;
+  color:#17784a!important;
+}
+
+body.light-mode .budget-card #tbody .drag-btn span{
+  background:#17784a!important;
+}
+
+body.light-mode .budget-card #tbody tr.hx-bajo-coste > td{
+  color:#172019!important;
+}
