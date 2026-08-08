@@ -1085,7 +1085,7 @@
       const door = /doorprotect|door protect|contacto magn[eé]tico|magnetic contact|detector(?:\s+de)?\s+apertura/.test(typeText);
       const glass = /glassprotect|glass protect|rotura(?:\s+de)?\s+cristal|glass break/.test(typeText);
       const combi = /combiprotect|combi protect/.test(typeText);
-      const motioncam = /motioncam|motion cam/.test(typeText);
+      const motioncam = /motioncam|motion cam|curtaincam|curtain cam/.test(typeText);
       const phod = /\bphod\b|photo on demand|foto bajo demanda/.test(source);
       const curtain = /doublecurtain|curtainprotect|curtain protect|\bcurtain\b|\bcortina\b/.test(typeText);
       const outdoor = /outdoor|exterior/.test(`${typeText} ${featureText}`);
@@ -1110,10 +1110,14 @@
       if(smartAccessory){
         add('Accesorios');
       }else{
+        const isRelay = /wallswitch|wall switch|\brelay\b|aj-relay|rel[eé]\s+(?:contacto|tension|tensión)|\brel[eé]s?\b/.test(typeText);
+        const isOutlet = /outletcore|outlet core|socket|enchufe(?: ethernet| inteligente)?|\boutlet\b/.test(typeText);
+        const isSwitch = /lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(typeText);
+
         if(/doorbell|timbre|videoportero/.test(typeText)) add('Timbre');
-        if(/wallswitch|wall switch|\brelay\b|aj-relay|rel[eé]\s+(?:contacto|tension|tensión)|\brel[eé]s?\b/.test(typeText)) add('Relés');
-        if(/lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(typeText)) add('Interruptores');
-        if(/outletcore|outlet core|socket|enchufe(?: ethernet| inteligente)?|\boutlet\b/.test(typeText)) add('Enchufes');
+        if(isRelay) add('Relés');
+        if(isSwitch && !isRelay && !isOutlet) add('Interruptores');
+        if(isOutlet) add('Enchufes');
         if(/waterstop|electrov[aá]lvula|\bvalve\b/.test(typeText)) add('Válvulas');
         if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(typeText)) add('Clima / Aire');
       }
@@ -1143,7 +1147,10 @@
         return (/hdmi/.test(k) && !/^(?:no|0|false|sin|n\/a)$/.test(v))
           || (/salida|video|conector|interface|interfaz/.test(k) && /\bhdmi\b/.test(v));
       });
-      if(hdmi || /\bhdmi\b/.test(featureText)) add('HDMI');
+      const nvrModel = clean(p.name || '').toUpperCase();
+      const hdmiModel = /(?:^|[-_])NVR\d+(?:[-_])H[A-Z0-9]*/.test(nvrModel)
+        || /AJ-NVR\d+-H[A-Z0-9]*/.test(nvrModel);
+      if(hdmi || hdmiModel || /\bhdmi\b/.test(featureText)) add('HDMI');
     }
 
     if(profile === 'centrals'){
@@ -1226,42 +1233,68 @@
     return [...tags];
   }
 
+  function quickAvailability(family = currentFamily(), model = buildModel()){
+    const profile = familyQuickProfile(family);
+    if(!profile || !family) return [];
+
+    const order = QUICK_FILTER_ORDER[profile] || [];
+    const available = new Set();
+
+    // Related quicks (currently Soportes in cameras) are allowed to live outside
+    // the family but their presence is stable for the session/catalog.
+    if(profile === 'cameras' && cameraSupportItems(model).length) available.add('Soportes');
+
+    family.items.forEach(item => {
+      quickGroupsForItem(item, family).forEach(label => available.add(label));
+    });
+
+    // Only configured commercial labels are allowed to render.
+    return order.filter(label => available.has(label));
+  }
+
   function quickGroups(baseItems, familyOverride = null){
     const family = familyOverride || currentFamily();
     const profile = familyQuickProfile(family);
-    if(!profile) return [];
+    if(!profile || !family) return [];
 
-    const counts = new Map();
+    const model = buildModel();
+    const available = quickAvailability(family, model);
+    const counts = new Map(available.map(label => [label, 0]));
+
+    // Contextual counts from current query/advanced filters.
     baseItems.forEach(item => {
-      quickGroupsForItem(item, family).forEach(label => counts.set(label, (counts.get(label) || 0) + 1));
+      quickGroupsForItem(item, family).forEach(label => {
+        if(counts.has(label)) counts.set(label, counts.get(label) + 1);
+      });
     });
 
-    // Acceso relacionado: los soportes siguen en Accesorios CCTV, pero se consultan
-    // desde Cámaras IP sin mover ni duplicar productos en el catálogo.
-    if(profile === 'cameras'){
-      let supports = cameraSupportItems();
+    // Related camera supports are counted contextually too.
+    if(profile === 'cameras' && counts.has('Soportes')){
+      let supports = cameraSupportItems(model);
       if(clean(state.query)) supports = rankedSearch(supports, state.query);
       supports = applyFilters(supports, state.filters);
-      if(supports.length) counts.set('Soportes', supports.length);
+      counts.set('Soportes', supports.length);
     }
 
-    const order = QUICK_FILTER_ORDER[profile] || [];
-    return [...counts.entries()]
-      .filter(([,count]) => count > 0)
-      .map(([label,count]) => ({label,count}))
-      .sort((a,b) => {
-        const ai = order.indexOf(a.label), bi = order.indexOf(b.label);
-        if(ai >= 0 || bi >= 0) return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
-        return collator.compare(a.label,b.label);
-      });
+    return available.map(label => ({label, count:counts.get(label) || 0}));
   }
 
   function quickTypes(baseItems){
     const groups = quickGroups(baseItems);
     if(!groups.length) return '';
+
     return `<div class="hxp-type-strip" aria-label="Filtros rápidos">
       <button type="button" class="hxp-type-tab ${!state.quickGroup?'is-active':''}" data-hxp-quick="">Todos</button>
-      ${groups.map(group => `<button type="button" class="hxp-type-tab ${state.quickGroup===group.label?'is-active':''}" data-hxp-quick="${esc(group.label)}"><span>${esc(group.label)}</span><em>${group.count}</em></button>`).join('')}
+      ${groups.map(group => {
+        const active = state.quickGroup === group.label;
+        const disabled = group.count === 0 && !active;
+        return `<button type="button"
+          class="hxp-type-tab ${active?'is-active':''} ${disabled?'is-disabled':''}"
+          data-hxp-quick="${esc(group.label)}"
+          ${disabled?'disabled aria-disabled="true"':''}>
+          <span>${esc(group.label)}</span><em>${group.count}</em>
+        </button>`;
+      }).join('')}
     </div>`;
   }
 
@@ -1337,6 +1370,9 @@
   function productsView(){
     const model = buildModel();
     const family = currentFamily(model);
+    if(family && state.quickGroup && !quickAvailability(family, model).includes(state.quickGroup)){
+      state.quickGroup = '';
+    }
     const baseItems = family ? family.items.slice() : model.allItems.slice();
     const items = resultItems();
     const title = family?.familyTitle || 'Resultados';

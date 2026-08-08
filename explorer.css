@@ -1645,3 +1645,26 @@ body:not(.light-mode) #familiasGrid .hxp-family-visual img{background:#2a342e}
   #familiasGrid .hxp-products-layout{height:calc(100% - 58px);display:block}
   #familiasGrid .hxp-family-rail{display:none!important}
 }
+
+
+/* =====================================================
+   EXPLORER PRO 6.3 · quick filters stable/clean
+   ===================================================== */
+#familiasGrid .hxp-type-tab.is-disabled,
+#familiasGrid .hxp-type-tab:disabled{
+  opacity:.42!important;
+  cursor:default!important;
+  transform:none!important;
+  box-shadow:none!important;
+  border-color:var(--hxp-line-soft)!important;
+  background:var(--hxp-panel)!important;
+  color:var(--hxp-muted)!important;
+}
+#familiasGrid .hxp-type-tab.is-disabled em,
+#familiasGrid .hxp-type-tab:disabled em{
+  background:var(--hxp-panel-2)!important;
+  color:var(--hxp-muted)!important;
+}
+#familiasGrid .hxp-type-tab.is-active{
+  opacity:1!important;
+}
