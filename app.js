@@ -5018,6 +5018,19 @@ function hxDiagnosticarCatalogo(opciones={}){
   });
 
   const presupuestoActual = hxCompareLinesWithCatalog(lineas, porRef);
+  const bajoCosteActual = [];
+  (Array.isArray(lineas) ? lineas : []).forEach((linea,index)=>{
+    if(!linea || linea.manual || linea.separador) return;
+    const ref = hxCatalogRef(linea.name);
+    const vigente = porRef.get(ref);
+    const coste = hxCatalogMoney(linea.precio_neto_compra || vigente?.producto?.precio_neto_compra);
+    const pvp = hxCatalogMoney(linea.pvp);
+    const dto = Number(linea.dto)||0;
+    const precioFinal = pvp * (1-dto/100);
+    if(coste > 0 && precioFinal < coste){
+      bajoCosteActual.push({ref:ref || String(linea.name||''), linea:index+1, pvp, dto, precioFinal, coste, diferencia:precioFinal-coste});
+    }
+  });
   const guardados = [];
   const listaGuardada = typeof leerListaPresupuestos === 'function' ? leerListaPresupuestos() : [];
   (Array.isArray(listaGuardada) ? listaGuardada : []).forEach((p,index)=>{
@@ -5049,12 +5062,13 @@ function hxDiagnosticarCatalogo(opciones={}){
   hxSaveCatalogMeta(meta);
 
   const lineasGuardadasAfectadas = guardados.reduce((n,p)=>n+p.diferencias.length,0);
-  const totalAvisos = conflictosPrecio.length + presupuestoActual.length + lineasGuardadasAfectadas + (productos.length ? 0 : 1);
+  const totalAvisos = conflictosPrecio.length + presupuestoActual.length + lineasGuardadasAfectadas + bajoCosteActual.length + (productos.length ? 0 : 1);
   const informe={
     ...meta,
     duplicados,
     conflictosPrecio,
     presupuestoActual,
+    bajoCosteActual,
     presupuestosGuardados:guardados,
     presupuestosGuardadosAfectados:guardados.length,
     lineasGuardadasAfectadas,
@@ -5116,6 +5130,12 @@ function hxDiagnosticarCatalogo(opciones={}){
     bloques.push(`<section class="catalog-diag-section"><h3>Presupuesto abierto</h3>${presupuestoActual.map(x=>`
       <div class="catalog-diag-item is-warning"><b>${escapeHtml(x.ref)}</b><span>Línea ${x.linea}: ${fmt.format(x.guardado)} · Catálogo: ${fmt.format(x.catalogo)}</span></div>`).join('')}
       <p class="catalog-diag-help">No se cambia ningún precio automáticamente para no alterar un presupuesto sin tu permiso.</p></section>`);
+  }
+  if(bajoCosteActual.length){
+    bloques.push(`<section class="catalog-diag-section catalog-diag-lowcost"><h3>Bajo coste en el presupuesto abierto</h3>
+      <p><b>${bajoCosteActual.length}</b> línea${bajoCosteActual.length===1?'':'s'} queda${bajoCosteActual.length===1?'':'n'} por debajo del coste neto tras aplicar el descuento.</p>
+      ${bajoCosteActual.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>Línea ${x.linea}: venta ${fmt.format(x.precioFinal)} · coste ${fmt.format(x.coste)}</span></div>`).join('')}
+    </section>`);
   }
   if(guardados.length){
     bloques.push(`<section class="catalog-diag-section"><h3>Presupuestos guardados con precios distintos</h3>

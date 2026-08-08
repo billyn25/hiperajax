@@ -18,20 +18,23 @@
   ];
 
   const FAMILY_PRIORITY = [
+    // Ajax inalámbrico: mantener el bloque junto.
     ['central','centrales','hub','hubs'],
     ['detector','detectores','intrusion','intrusión'],
-    ['sirena','sirenas'],
-    ['teclado','teclados','mando','mandos'],
-    ['camara','cámara','camaras','cámaras','videovigilancia'],
-    ['nvr','grabador','grabadores','grabacion','grabación'],
+    ['accesorios inalambricos','accesorios inalámbricos','sirena','sirenas','teclado','teclados','mando','mandos'],
+    ['kit inalambrico','kits inalambricos','kit inalámbrico','kits inalámbricos'],
     ['incendio','fuego','fire'],
+    ['smart home','smarthome','domotica','domótica','automatizacion','automatización','confort'],
+    // CCTV: cámaras primero y NVR profesionales inmediatamente después.
+    ['camara ip','cámaras ip','camara','cámara','camaras','cámaras','videovigilancia'],
+    ['nvr profesionales','nvr','grabador','grabadores','grabacion','grabación'],
+    ['accesorios cctv'],
+    ['kits cctv','kit cctv'],
     ['red','poe','network'],
     ['accesorio','accesorios','soporte','soportes'],
     ['alimentacion','alimentación','bateria','batería'],
-    // Estas familias se fuerzan al final en este orden.
-    ['smart home','smarthome','domotica','domótica','automatizacion','automatización','confort'],
-    ['almacenamiento nube','almacenamiento en nube','cloud storage','cloud'],
     ['repuesto','repuestos','recambio','recambios'],
+    ['almacenamiento nube','almacenamiento en nube','cloud storage','cloud','nube'],
     ['merchandising','merchan'],
     ['productos añadidos','productos anadidos']
   ];
