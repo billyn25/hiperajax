@@ -577,41 +577,35 @@
     const q = clean(query);
     if(!q) return items.slice();
 
-    const index = ensureSearchIndex();
-    const needle = norm(q).replace(/\s+/g,' ');
-    const compactNeedle = needle.replace(/[^a-z0-9]/g,'');
-    const aliasQuery = searchAliases(q);
-    const tokens = norm(`${q} ${aliasQuery}`).split(/\s+/).filter(token => token.length > 1);
+    // MISMO MOTOR que Inicio/Catálogo, pero limitado al conjunto recibido.
+    // Si estamos dentro de una familia, 'items' contiene solo esa familia.
+    try{
+      const engine = window.HXA_SEARCH_ENGINE || window.HXA_KNOWLEDGE_ENGINE;
+      if(engine?.rank){
+        const source = items.map(item => item.p);
+        const ranked = engine.rank(source, q, Math.min(300, source.length));
+        return ranked
+          .map(product => items[Number(product._hxaIndex)])
+          .filter(Boolean);
+      }
+    }catch(error){
+      console.warn('[Explorer Pro] motor común no disponible', error);
+    }
 
-    return items
-      .map(item => {
-        const entry = index.get(item.index);
-        if(!entry) return {item,score:0};
-        let score = 0;
-
-        // Referencia: prioridad absoluta.
-        if(entry.ref === needle || entry.compactRef === compactNeedle) score += 5000;
-        else if(entry.ref.startsWith(needle) || entry.compactRef.startsWith(compactNeedle)) score += 2800;
-        else if(entry.ref.includes(needle) || entry.compactRef.includes(compactNeedle)) score += 1800;
-
-        // Texto precalculado: no vuelve a normalizar el catálogo en cada tecla.
-        if(entry.haystack.includes(needle)) score += 900;
-        if(compactNeedle && entry.compact.includes(compactNeedle)) score += 650;
-        if(entry.quick && entry.quick.includes(needle)) score += 1600;
-
-        let tokenHits = 0;
-        let quickHits = 0;
-        for(const token of tokens){
-          if(entry.haystack.includes(token)) tokenHits += 1;
-          if(entry.quick && entry.quick.includes(token)) quickHits += 1;
-        }
-        score += tokenHits * 110 + quickHits * 260;
-
-        return {item,score};
-      })
-      .filter(result => result.score > 0)
-      .sort((a,b) => b.score-a.score || collator.compare(a.item.p?.name||'',b.item.p?.name||''))
-      .map(result => result.item);
+    // Fallback mínimo, estricto y local.
+    const needle = norm(q);
+    const compact = needle.replace(/[^a-z0-9]/g,'');
+    return items.filter(item => {
+      const p = item.p || {};
+      const ref = norm(p.name || '');
+      const text = norm([
+        p.name, p.short_description, item.subcategory, p.product_type,
+        p.family, p.category
+      ].filter(Boolean).join(' '));
+      return ref.includes(needle)
+        || ref.replace(/[^a-z0-9]/g,'').includes(compact)
+        || text.includes(needle);
+    });
   }
 
   function modelItemByIndex(index){ return buildModel().allItems.find(item => item.index === Number(index)) || null; }
@@ -1131,11 +1125,12 @@
       const door = /doorprotect|door protect|contacto magn[eé]tico|magnetic contact|detector(?:\s+de)?\s+apertura/.test(typeText);
       const glass = /glassprotect|glass protect|rotura(?:\s+de)?\s+cristal|glass break/.test(typeText);
       const combi = /combiprotect|combi protect/.test(typeText);
-      const motioncam = /motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen/.test(typeText);
-      const phod = /\bphod\b|photo on demand|foto bajo demanda/.test(source);
-      const curtain = /doublecurtain|curtainprotect|curtain protect|curtaincam|curtain cam|\bcurtain\b|\bcortina\b/.test(`${typeText} ${identity}`);
-      const flood = /leakprotect|leak protect|detector(?:\s+de)?\s+inundaci[oó]n|inundaci[oó]n|water leak|flood detector/.test(typeText);
-      const outdoor = /outdoor|exterior/.test(`${typeText} ${featureText}`);
+      const detectorSource = norm(`${typeText} ${identity} ${featureText}`);
+      const motioncam = /motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen|fotodetector.*imagen/.test(detectorSource);
+      const phod = /\bphod\b|photo on demand|foto bajo demanda/.test(detectorSource);
+      const curtain = /doublecurtain|curtainprotect|curtain protect|curtaincam|curtain cam|\bcurtain\b|\bcortina\b/.test(detectorSource);
+      const flood = /leakprotect|leak protect|detector(?:\s+de)?\s+inundaci[oó]n|inundaci[oó]n|water leak|flood detector/.test(detectorSource);
+      const outdoor = /outdoor|exterior/.test(detectorSource);
       const motion = /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b/.test(typeText);
 
       if(fire && !curtain) add('Incendio');
