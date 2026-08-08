@@ -1069,11 +1069,56 @@
     return '';
   }
 
+  const QUICK_SIGNAL_PATTERNS = Object.freeze([
+    ['motioncam', /motioncam/],
+    ['curtain', /curtain/],
+    ['outdoor', /outdoor/],
+    ['phod', /phod/],
+    ['doorprotect', /doorprotect/],
+    ['glassprotect', /glassprotect/],
+    ['combiprotect', /combiprotect/],
+    ['fireprotect', /fireprotect/],
+    ['leakprotect', /leaks?protect|leakprotect/],
+    ['keypad', /keypad/],
+    ['homesiren', /homesiren/],
+    ['streetsiren', /streetsiren/],
+    ['wallswitch', /wallswitch/],
+    ['relay', /relay/],
+    ['spacecontrol', /spacecontrol/],
+    ['doublebutton', /doublebutton/],
+    ['waterstop', /waterstop/],
+    ['lifequality', /lifequality/],
+    ['hub2plus', /hub2plus/],
+    ['hub2', /hub2/],
+    ['hub', /hub/],
+    ['4g', /4g/],
+    ['lte', /lte/],
+    ['rex2', /rex2/],
+    ['rex', /(?:^|aj)rex/],
+    ['bullet', /bullet/],
+    ['turret', /turret/],
+    ['dome', /dome/],
+    ['ptz', /ptz/],
+    ['nvr', /nvr/],
+    ['hdmi', /hdmi/]
+  ]);
+
+  function semanticReferenceSignals(product){
+    const compact = norm(product?.name || '').replace(/[^a-z0-9]/g,'');
+    if(!compact) return '';
+    const found = [];
+    QUICK_SIGNAL_PATTERNS.forEach(([label,rx]) => {
+      if(rx.test(compact) && !found.includes(label)) found.push(label);
+    });
+    return found.join(' ');
+  }
+
   function quickContext(item){
     const p = item?.p || {};
     const attrs = normalizeAttributes(p);
 
     const identity = norm(`${p.name||''} ${p.short_description||''}`);
+    const semanticSignals = semanticReferenceSignals(p);
 
     const structured = norm([
       item?.subcategory,
@@ -1082,6 +1127,7 @@
       p.series, p.serie,
       p.technology, p.tecnologia,
       p.protocol, p.protocolo,
+      semanticSignals,
       ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
     ].filter(Boolean).join(' '));
 
@@ -1095,7 +1141,7 @@
     const typeText = norm(`${structured} ${identity}`);
 
     return {
-      p, attrs, identity,
+      p, attrs, identity, semanticSignals,
       typeText,
       featureText:features,
       structuredSource:`${structured} ${identity} ${features}`,
