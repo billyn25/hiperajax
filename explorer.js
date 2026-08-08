@@ -1069,45 +1069,24 @@
     return '';
   }
 
-  const QUICK_SIGNAL_PATTERNS = Object.freeze([
-    ['motioncam', /motioncam/],
-    ['curtain', /curtain/],
-    ['outdoor', /outdoor/],
-    ['phod', /phod/],
-    ['doorprotect', /doorprotect/],
-    ['glassprotect', /glassprotect/],
-    ['combiprotect', /combiprotect/],
-    ['fireprotect', /fireprotect/],
-    ['leakprotect', /leaks?protect|leakprotect/],
-    ['keypad', /keypad/],
-    ['homesiren', /homesiren/],
-    ['streetsiren', /streetsiren/],
-    ['wallswitch', /wallswitch/],
-    ['relay', /relay/],
-    ['spacecontrol', /spacecontrol/],
-    ['doublebutton', /doublebutton/],
-    ['waterstop', /waterstop/],
-    ['lifequality', /lifequality/],
-    ['hub2plus', /hub2plus/],
-    ['hub2', /hub2/],
-    ['hub', /hub/],
-    ['4g', /4g/],
-    ['lte', /lte/],
-    ['rex2', /rex2/],
-    ['rex', /(?:^|aj)rex/],
-    ['bullet', /bullet/],
-    ['turret', /turret/],
-    ['dome', /dome/],
-    ['ptz', /ptz/],
-    ['nvr', /nvr/],
-    ['hdmi', /hdmi/]
+  const QUICK_SIGNAL_RULES = Object.freeze([
+    ['motioncam', /motioncam/], ['curtain', /curtain/], ['outdoor', /outdoor/], ['phod', /phod/],
+    ['doorprotect', /doorprotect/], ['glassprotect', /glassprotect/], ['combiprotect', /combiprotect/],
+    ['fireprotect', /fireprotect/], ['leakprotect', /leaks?protect|leakprotect/],
+    ['keypad', /keypad/], ['homesiren', /homesiren/], ['streetsiren', /streetsiren/],
+    ['wallswitch', /wallswitch/], ['relay', /relay/], ['spacecontrol', /spacecontrol/],
+    ['doublebutton', /doublebutton/], ['button', /(?:^|aj)button/], ['socket', /socket/],
+    ['waterstop', /waterstop/], ['lifequality', /lifequality/],
+    ['hub2plus', /hub2plus/], ['hub2', /hub2/], ['hub', /hub/], ['4g', /4g/], ['lte', /lte/],
+    ['rex2', /rex2/], ['rex', /(?:^|aj)rex/], ['bullet', /bullet/], ['turret', /turret/],
+    ['dome', /dome/], ['ptz', /ptz/], ['nvr', /nvr/], ['hdmi', /hdmi/]
   ]);
 
-  function semanticReferenceSignals(product){
+  function quickReferenceSignals(product){
     const compact = norm(product?.name || '').replace(/[^a-z0-9]/g,'');
     if(!compact) return '';
     const found = [];
-    QUICK_SIGNAL_PATTERNS.forEach(([label,rx]) => {
+    QUICK_SIGNAL_RULES.forEach(([label,rx]) => {
       if(rx.test(compact) && !found.includes(label)) found.push(label);
     });
     return found.join(' ');
@@ -1116,37 +1095,23 @@
   function quickContext(item){
     const p = item?.p || {};
     const attrs = normalizeAttributes(p);
-
     const identity = norm(`${p.name||''} ${p.short_description||''}`);
-    const semanticSignals = semanticReferenceSignals(p);
-
+    const signals = quickReferenceSignals(p);
     const structured = norm([
-      item?.subcategory,
-      p.subcategory, p.subfamily, p.subfamilia,
-      p.product_type, p.tipo,
-      p.series, p.serie,
-      p.technology, p.tecnologia,
-      p.protocol, p.protocolo,
-      semanticSignals,
+      item?.subcategory, p.subcategory, p.subfamily, p.subfamilia,
+      p.product_type, p.tipo, p.series, p.serie, p.technology, p.tecnologia,
+      p.protocol, p.protocolo, p.environment, p.photo, p.channels, p.connectivity,
+      p.wifi, p.lte_4g, p.poe, p.resolution, p.lens, signals,
       ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
     ].filter(Boolean).join(' '));
-
-    const features = norm([
-      p.environment, p.photo, p.channels, p.connectivity,
-      p.wifi, p.lte_4g, p.poe, p.resolution, p.lens,
-      p.mounting, p.power
-    ].filter(Boolean).join(' '));
-
     const fallback = norm(p.description || '');
-    const typeText = norm(`${structured} ${identity}`);
-
     return {
-      p, attrs, identity, semanticSignals,
-      typeText,
-      featureText:features,
-      structuredSource:`${structured} ${identity} ${features}`,
+      p, attrs, identity, signals,
+      typeText:norm(`${structured} ${identity}`),
+      featureText:structured,
+      structuredSource:norm(`${structured} ${identity}`),
       fallback,
-      source:`${structured} ${identity} ${features} ${fallback}`
+      source:norm(`${structured} ${identity} ${fallback}`)
     };
   }
 
@@ -1207,55 +1172,32 @@
     if(profile === 'detectors'){
       const role = quickProductRole(item);
       const {structuredSource, fallback} = quickContext(item);
-
-      const has = (rx, fallbackRx = rx) =>
+      const matches = (rx, fallbackRx = rx) =>
         rx.test(structuredSource) || (!role.accessory && fallbackRx.test(fallback));
 
-      const fire = !role.accessory && has(
-        /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/,
-        /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/
+      const curtain = matches(/doublecurtain|curtainprotect|curtain cam|curtaincam|\bcurtain\b|\bcortina\b/);
+      const flood = matches(/leakprotect|leaksprotect|water leak|flood detector|detector(?:\s+de)?\s+inundaci[oó]n|\binundaci[oó]n\b/);
+      const fire = !role.accessory && !curtain && !flood && matches(
+        /fireprotect|smoke detector|heat detector|carbon monoxide|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)/
       );
+      const door = matches(/doorprotect|door protect|magnetic contact|contacto magn[eé]tico|detector(?:\s+de)?\s+apertura/);
+      const glass = matches(/glassprotect|glass protect|glass break|rotura(?:\s+de)?\s+cristal/);
+      const combi = matches(/combiprotect|combi protect/);
+      const motioncam = matches(/motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen|fotodetector.*imagen/);
+      const phod = matches(/\bphod\b|photo on demand|foto bajo demanda/);
+      const outdoor = matches(/\boutdoor\b|\bexterior\b/);
+      const motion = matches(/motionprotect|motion protect|\bpir\b|detector(?:\s+de)?\s+movimiento|fotodetector/);
 
-      const door = has(
-        /doorprotect|door protect|contacto magn[eé]tico|magnetic contact|detector(?:\s+de)?\s+apertura/
-      );
-
-      const glass = has(
-        /glassprotect|glass protect|rotura(?:\s+de)?\s+cristal|glass break/
-      );
-
-      const combi = has(/combiprotect|combi protect/);
-
-      const curtain = has(
-        /doublecurtain|curtainprotect|curtain protect|curtaincam|curtain cam|\bcurtain\b|\bcortina\b/
-      );
-
-      const motioncam = has(
-        /motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen|fotodetector.*imagen/
-      );
-
-      const phod = has(/\bphod\b|photo on demand|foto bajo demanda/);
-
-      const flood = has(
-        /leakprotect|leak protect|detector(?:\s+de)?\s+inundaci[oó]n|inundaci[oó]n|water leak|flood detector/
-      );
-
-      const outdoor = has(/\boutdoor\b|\bexterior\b/);
-
-      const motion = has(
-        /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b|fotodetector/
-      );
-
-      if(fire && !curtain && !flood) add('Incendio');
-      if(motioncam) add('MotionCam');
-      if(phod && motioncam) add('PhOD');
-      if(combi){ add('Combi'); add('Movimiento'); add('Cristal'); }
+      if(motion) add('Movimiento');
       if(door && !fire) add('Apertura');
       if(flood && !fire) add('Inundación');
+      if(motioncam) add('MotionCam');
+      if(phod && motioncam) add('PhOD');
       if(glass && !fire) add('Cristal');
-      if(motion && !fire) add('Movimiento');
-      if(curtain && !fire) add('Cortina');
+      if(combi){ add('Combi'); add('Movimiento'); add('Cristal'); }
       if(outdoor && !fire) add('Exterior');
+      if(curtain && !fire) add('Cortina');
+      if(fire) add('Incendio');
     }
 
     if(profile === 'smart_home'){
@@ -1313,84 +1255,34 @@
 
     if(profile === 'centrals'){
       const {structuredSource} = quickContext(item);
-      const centralSource = structuredSource;
+      const src = structuredSource;
+      const secondary = /modulo|módulo|alimentacion|alimentación|power supply|fuente|bracket|soporte|tapa|cover/.test(src);
+      const repeater = !secondary && /(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(src);
+      const hubPlus = /hub\s*2\s*plus|hub2plus|hub plus|hubplus/.test(src);
 
-      const secondaryRex = /modulo|módulo|alimentacion|alimentación|power supply|fuente|bracket|soporte|tapa|cover/.test(centralSource);
-      const repeater = /(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(centralSource) && !secondaryRex;
-      const hubPlus = /hub\s*2\s*plus|hub2plus|hub plus|hubplus/.test(centralSource);
-
-      if(repeater) add('Repetidores');
-      if(/hybrid/.test(centralSource)) add('Hybrid');
+      if(/\bhub\s*2\b|\bhub2\b/.test(src)) add('Hub 2');
+      else if(/\bhub\b/.test(src) && !/\bhubkit\b/.test(src)) add('Hub');
+      if(/\b4g\b|\blte\b/.test(src)) add('4G / LTE');
+      if(/\bwi[ -]?fi\b|\bwlan\b/.test(src) || hubPlus) add('Wi‑Fi');
       if(hubPlus) add('Hub Plus');
-      if(/hub\s*2|hub2/.test(centralSource)) add('Hub 2');
-      else if(/\bhub\b/.test(centralSource) && !/\bhubkit\b/.test(centralSource)) add('Hub');
-
-      if(/\bwi[ -]?fi\b|\bwlan\b/.test(centralSource) || hubPlus) add('Wi‑Fi');
-      if(/\b4g\b|\blte\b/.test(centralSource)) add('4G / LTE');
+      if(/\bhybrid\b/.test(src)) add('Hybrid');
+      if(repeater) add('Repetidores');
     }
 
     if(profile === 'wireless_accessories'){
-      // En accesorios inalámbricos, identificar el producto principal por Tipo/subcategoría
-      // y por el nombre corto del modelo. Nunca por la descripción larga.
-      const name = norm(p.name || '');
-      const structuredType = norm([
-        item?.subcategory, p.product_type, p.tipo, p.series, p.technology
-      ].filter(Boolean).join(' '));
-
-      // Marcadores claros de que es un accesorio PARA el producto y no el producto.
-      const secondaryName = /cover|tapa|bracket|soporte|holder|mount|carcasa|housing|adaptador|adapter|fuente|power|psu|alimentacion|alimentación|12v|24v/.test(name);
-      const secondaryType = /tapa|cover|bracket|soporte|holder|mount|carcasa|housing|adaptador|adapter|fuente|power supply|alimentacion|alimentación/.test(structuredType);
-      const secondary = secondaryName || secondaryType;
-
-      const keypad = !secondary && (
-        /\bteclado\b|\bkeypad\b/.test(structuredType) ||
-        /(?:^|[-_])keypad(?:combi|plus|touchscreen|outdoor)?(?:[-_]|$)/.test(name) ||
-        /keypadcombi|keypadplus|keypadtouchscreen/.test(name)
-      );
-
-      const siren = !secondary && (
-        /\bsirena\b|\bsiren\b/.test(structuredType) ||
-        /homesiren|streetsiren/.test(name)
-      );
-
-      const relay = !secondary && (
-        /\brel[eé]\b|\brelay\b|contacto seco|tensi[oó]n/.test(structuredType) ||
-        /(?:^|[-_])relay(?:[-_]|$)|wallswitch/.test(name)
-      );
-
-      const button = !secondary && (
-        /\bbot[oó]n\b|\bmando\b|panic button|remote control/.test(structuredType) ||
-        /doublebutton|spacecontrol|(?:^|[-_])button(?:[-_]|$)/.test(name)
-      );
-
-      const socket = !secondary && (
-        /\benchufe\b|\bsocket\b/.test(structuredType) ||
-        /(?:^|[-_])socket(?:[-_]|$)/.test(name)
-      );
-
-      const valve = !secondary && (
-        /electrov[aá]lvula|\bv[aá]lvula\b|\bvalve\b/.test(structuredType) ||
-        /waterstop/.test(name)
-      );
-
-      const repeater = !secondary && (
-        /\brepetidor\b|\brepeater\b/.test(structuredType) ||
-        /(?:^|[-_])rex2?(?:[-_]|$)/.test(name)
-      );
-
-      const lifeQuality = !secondary && (
-        /lifequality|life quality|calidad.*aire|co2.*humedad|temperatura.*humedad/.test(structuredType) ||
-        /lifequality/.test(name)
-      );
-
-      if(keypad) add('Teclados');
-      if(siren) add('Sirenas');
-      if(relay) add('Relés');
-      if(button) add('Botones / Mandos');
-      if(socket) add('Enchufes');
-      if(valve) add('Válvulas');
-      if(repeater) add('Repetidores');
-      if(lifeQuality) add('LifeQuality');
+      const role = quickProductRole(item);
+      const {structuredSource} = quickContext(item);
+      const src = structuredSource;
+      if(!role.accessory){
+        if(/\bkeypad\b|\bteclado\b/.test(src)) add('Teclados');
+        if(/homesiren|streetsiren|\bsiren\b|\bsirena\b/.test(src)) add('Sirenas');
+        if(/\brelay\b|wallswitch|\brel[eé]\b/.test(src)) add('Relés');
+        if(/spacecontrol|doublebutton|(?:^|\s)button(?:\s|$)|\bmando\b|bot[oó]n/.test(src)) add('Botones / Mandos');
+        if(/\bsocket\b|\benchufe\b/.test(src)) add('Enchufes');
+        if(/waterstop|\bvalve\b|\bv[aá]lvula\b/.test(src)) add('Válvulas');
+        if(/(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(src)) add('Repetidores');
+        if(/lifequality|life quality/.test(src)) add('LifeQuality');
+      }
     }
 
     return [...tags];
@@ -1399,20 +1291,12 @@
   function quickAvailability(family = currentFamily(), model = buildModel()){
     const profile = familyQuickProfile(family);
     if(!profile || !family) return [];
-
     const order = QUICK_FILTER_ORDER[profile] || [];
-    const available = new Set();
-
-    // Related quicks (currently Soportes in cameras) are allowed to live outside
-    // the family but their presence is stable for the session/catalog.
-    if(profile === 'cameras' && cameraSupportItems(model).length) available.add('Soportes');
-
-    family.items.forEach(item => {
-      quickGroupsForItem(item, family).forEach(label => available.add(label));
-    });
-
-    // Only configured commercial labels are allowed to render.
-    return order.filter(label => available.has(label));
+    if(!order.length) return [];
+    if(profile === 'cameras' && !cameraSupportItems(model).length){
+      return order.filter(label => label !== 'Soportes');
+    }
+    return order.slice();
   }
 
   function quickGroups(baseItems, familyOverride = null){
@@ -1607,6 +1491,8 @@
   function render(options = {}){
     const root = byId('familiasGrid');
     if(!root) return;
+    const currentQuickStrip = root.querySelector('.hxp-type-strip');
+    if(currentQuickStrip && isMobile()) quickStripScrollLeft = currentQuickStrip.scrollLeft || 0;
     const active = document.activeElement;
     const restoreSearch = active?.id === 'hxpSearch';
     const selectionStart = restoreSearch ? active.selectionStart : null;
@@ -1616,6 +1502,7 @@
     state.view = showProducts ? 'products' : 'home';
     root.innerHTML = `<div class="hxp-app">${showProducts ? productsView() : homeView()}${drawerHtml()}</div>`;
     bind(root);
+    if(isMobile()) requestAnimationFrame(() => { const strip = root.querySelector('.hxp-type-strip'); if(strip) strip.scrollLeft = quickStripScrollLeft; });
 
     if(options.preserveScroll){
       const scroller = byId('hxpProductsScroll');
@@ -1803,7 +1690,9 @@
       });
     });
 
-    root.querySelectorAll('[data-hxp-family]').forEach(button => button.addEventListener('click', () => selectFamily(button.dataset.hxpFamily)));
+    const quickStrip = root.querySelector('.hxp-type-strip');
+    quickStrip?.addEventListener('scroll', () => { if(isMobile()) quickStripScrollLeft = quickStrip.scrollLeft || 0; }, {passive:true});
+        root.querySelectorAll('[data-hxp-family]').forEach(button => button.addEventListener('click', () => selectFamily(button.dataset.hxpFamily)));
     root.querySelectorAll('[data-hxp-home]').forEach(button => button.addEventListener('click', goHome));
     root.querySelectorAll('[data-hxp-open-filters]').forEach(button => button.addEventListener('click', openFilters));
     root.querySelectorAll('[data-hxp-close-filters]').forEach(button => button.addEventListener('click', closeFilters));
@@ -2038,6 +1927,6 @@
       searchIndexSignature = '';
       searchIndexCache.clear();
     },
-    version:'6.1.1'
+    version:'7.0.0-clean-automatic'
   };
 })();
