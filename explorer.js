@@ -1053,16 +1053,36 @@
   function quickContext(item){
     const p = item?.p || {};
     const attrs = normalizeAttributes(p);
+
     const identity = norm(`${p.name||''} ${p.short_description||''}`);
-    const typeText = norm([
-      item?.subcategory, p.product_type, p.tipo, p.series, p.technology, p.protocol,
-      p.name, p.short_description
-    ].filter(Boolean).join(' '));
-    const featureText = norm([
-      p.environment, p.photo, p.channels, p.connectivity, p.wifi, p.lte_4g,
+
+    const structured = norm([
+      item?.subcategory,
+      p.subcategory, p.subfamily, p.subfamilia,
+      p.product_type, p.tipo,
+      p.series, p.serie,
+      p.technology, p.tecnologia,
+      p.protocol, p.protocolo,
       ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
     ].filter(Boolean).join(' '));
-    return {p, attrs, identity, typeText, featureText, source:`${typeText} ${featureText}`};
+
+    const features = norm([
+      p.environment, p.photo, p.channels, p.connectivity,
+      p.wifi, p.lte_4g, p.poe, p.resolution, p.lens,
+      p.mounting, p.power
+    ].filter(Boolean).join(' '));
+
+    // La descripción larga NO manda. Solo completa señales que faltan.
+    const fallback = norm(p.description || '');
+
+    return {
+      p, attrs, identity,
+      typeText:structured,
+      featureText:features,
+      structuredSource:`${structured} ${identity} ${features}`,
+      fallback,
+      source:`${structured} ${identity} ${features} ${fallback}`
+    };
   }
 
   function quickProductRole(item){
@@ -1121,19 +1141,47 @@
 
     if(profile === 'detectors'){
       const role = quickProductRole(item);
-      const fire = !role.accessory && /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/.test(typeText);
-      const door = /doorprotect|door protect|contacto magn[eé]tico|magnetic contact|detector(?:\s+de)?\s+apertura/.test(typeText);
-      const glass = /glassprotect|glass protect|rotura(?:\s+de)?\s+cristal|glass break/.test(typeText);
-      const combi = /combiprotect|combi protect/.test(typeText);
-      const detectorSource = norm(`${typeText} ${identity} ${featureText}`);
-      const motioncam = /motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen|fotodetector.*imagen/.test(detectorSource);
-      const phod = /\bphod\b|photo on demand|foto bajo demanda/.test(detectorSource);
-      const curtain = /doublecurtain|curtainprotect|curtain protect|curtaincam|curtain cam|\bcurtain\b|\bcortina\b/.test(detectorSource);
-      const flood = /leakprotect|leak protect|detector(?:\s+de)?\s+inundaci[oó]n|inundaci[oó]n|water leak|flood detector/.test(detectorSource);
-      const outdoor = /outdoor|exterior/.test(detectorSource);
-      const motion = /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b/.test(typeText);
+      const {structuredSource, fallback} = quickContext(item);
 
-      if(fire && !curtain) add('Incendio');
+      const has = (rx, fallbackRx = rx) =>
+        rx.test(structuredSource) || (!role.accessory && fallbackRx.test(fallback));
+
+      const fire = !role.accessory && has(
+        /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/,
+        /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/
+      );
+
+      const door = has(
+        /doorprotect|door protect|contacto magn[eé]tico|magnetic contact|detector(?:\s+de)?\s+apertura/
+      );
+
+      const glass = has(
+        /glassprotect|glass protect|rotura(?:\s+de)?\s+cristal|glass break/
+      );
+
+      const combi = has(/combiprotect|combi protect/);
+
+      const curtain = has(
+        /doublecurtain|curtainprotect|curtain protect|curtaincam|curtain cam|\bcurtain\b|\bcortina\b/
+      );
+
+      const motioncam = has(
+        /motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen|fotodetector.*imagen/
+      );
+
+      const phod = has(/\bphod\b|photo on demand|foto bajo demanda/);
+
+      const flood = has(
+        /leakprotect|leak protect|detector(?:\s+de)?\s+inundaci[oó]n|inundaci[oó]n|water leak|flood detector/
+      );
+
+      const outdoor = has(/\boutdoor\b|\bexterior\b/);
+
+      const motion = has(
+        /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b|fotodetector/
+      );
+
+      if(fire && !curtain && !flood) add('Incendio');
       if(motioncam) add('MotionCam');
       if(phod && motioncam) add('PhOD');
       if(combi){ add('Combi'); add('Movimiento'); add('Cristal'); }
@@ -1761,6 +1809,26 @@
       product_type:item.p?.product_type || '',
       subcategory:item.subcategory || '',
       families
+    };
+  };
+
+  window.HXA_EXPLORER_CLASSIFY = function(ref){
+    const needle = norm(ref || '');
+    const model = buildModel();
+    const item = model.allItems.find(x => norm(x.p?.name || '') === needle);
+    if(!item) return {found:false,ref};
+    const family = model.byFamily.get(item.familyKey);
+    const ctx = quickContext(item);
+    return {
+      found:true,
+      ref:item.p?.name,
+      family:family?.displayTitle || family?.familyTitle,
+      category:item.category,
+      subcategory:item.subcategory,
+      product_type:item.p?.product_type || '',
+      quicks:quickGroupsForItem(item,family),
+      structured:ctx.structuredSource,
+      fallback:ctx.fallback
     };
   };
 
