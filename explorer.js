@@ -266,26 +266,26 @@
     const category = norm(entry.categoryTitle);
     const text = norm(`${entry.familyTitle} ${entry.categoryTitle}`);
 
-    // Orden comercial: primero todo Ajax inalámbrico, después CCTV.
+    // Familias CCTV: el orden se decide por la familia real, aunque el proveedor
+    // entregue una categoría distinta o vacía. NVR siempre va tras Cámaras IP.
+    if(/c[aá]maras?\s*ip|cameras?\s*ip|videovigilancia|camera/.test(text) && !/accesorio|kit|nvr|grabador/.test(text)) return 100;
+    if(/nvr|grabador/.test(text)) return 101;
+    if(/accesorios?\s*cctv/.test(text) || (/ajax cctv/.test(category) && /^accesorios?$/.test(family))) return 102;
+    if(/kits?\s*cctv/.test(text) || (/ajax cctv/.test(category) && /^kits?$/.test(family))) return 103;
+
+    // Ajax inalámbrico: mantener el bloque junto antes de CCTV.
     if(/ajax inalambrico/.test(category)){
       if(/^centrales?$|^hubs?$/.test(family)) return 0;
       if(/^detectores?$/.test(family)) return 10;
       if(/^accesorios?$/.test(family)) return 20;
       if(/^kits?$/.test(family)) return 30;
-      return 40;
-    }
-    if(/ajax cctv/.test(category)){
-      if(/c[aá]maras?/.test(family)) return 100;
-      if(/nvrs?|grabador/.test(family)) return 110;
-      if(/^accesorios?$/.test(family)) return 120;
-      if(/^kits?$/.test(family)) return 130;
-      return 140;
+      if(/repuesto|repuestos|recambio|recambios/.test(text)) return 40;
+      return 50;
     }
 
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 200;
     if(/discos? duros?|disco duro|almacenamiento|storage|surveillance/.test(text) && !/nube|cloud/.test(text)) return 210;
     if(/repuesto|repuestos|recambio|recambios/.test(text)) return 220;
-    // Nube va expresamente justo después de Repuestos.
     if(/almacenamiento nube|almacenamiento en nube|cloud storage|\bnube\b|\bcloud\b/.test(text)) return 221;
     if(/merchandising|merchan/.test(text)) return 230;
     if(/productos añadidos|productos anadidos|otros productos/.test(text)) return 250;

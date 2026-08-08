@@ -5018,20 +5018,32 @@ function hxDiagnosticarCatalogo(opciones={}){
   });
 
   const presupuestoActual = hxCompareLinesWithCatalog(lineas, porRef);
-  const bajoCosteActual = [];
-  (Array.isArray(lineas) ? lineas : []).forEach((linea,index)=>{
-    if(!linea || linea.manual || linea.separador) return;
-    const ref = hxCatalogRef(linea.name);
-    const vigente = porRef.get(ref);
-    const coste = hxCatalogMoney(linea.precio_neto_compra || vigente?.producto?.precio_neto_compra);
-    const pvp = hxCatalogMoney(linea.pvp);
-    const dto = Number(linea.dto)||0;
-    const precioFinal = pvp * (1-dto/100);
-    if(coste > 0 && precioFinal < coste){
-      bajoCosteActual.push({ref:ref || String(linea.name||''), linea:index+1, pvp, dto, precioFinal, coste, diferencia:precioFinal-coste});
-    }
-  });
+
+  function hxLowCostLines(listaLineas){
+    const salida = [];
+    (Array.isArray(listaLineas) ? listaLineas : []).forEach((linea,index)=>{
+      if(!linea || linea.manual || linea.separador) return;
+      const ref = hxCatalogRef(linea.name);
+      const vigente = porRef.get(ref);
+      const coste = hxCatalogMoney(linea.precio_neto_compra || vigente?.producto?.precio_neto_compra);
+      const pvp = hxCatalogMoney(linea.pvp);
+      const dto = Math.max(0,Math.min(100,Number(linea.dto)||0));
+      const precioFinal = pvp * (1-dto/100);
+      if(coste > 0 && precioFinal < coste){
+        salida.push({
+          ref:ref || String(linea.name||''),
+          linea:index+1,
+          pvp,dto,precioFinal,coste,
+          diferencia:precioFinal-coste
+        });
+      }
+    });
+    return salida;
+  }
+
+  const bajoCosteActual = hxLowCostLines(lineas);
   const guardados = [];
+  const guardadosBajoCoste = [];
   const listaGuardada = typeof leerListaPresupuestos === 'function' ? leerListaPresupuestos() : [];
   (Array.isArray(listaGuardada) ? listaGuardada : []).forEach((p,index)=>{
     const diferencias = hxCompareLinesWithCatalog(p?.lineas, porRef);
@@ -5041,6 +5053,15 @@ function hxDiagnosticarCatalogo(opciones={}){
         etiqueta:hxBudgetLabel(p,index),
         fecha:String(p?.fecha || p?.guardado || ''),
         diferencias
+      });
+    }
+    const bajoCoste = hxLowCostLines(p?.lineas);
+    if(bajoCoste.length){
+      guardadosBajoCoste.push({
+        id:String(p?.id || ''),
+        etiqueta:hxBudgetLabel(p,index),
+        fecha:String(p?.fecha || p?.guardado || ''),
+        lineas:bajoCoste
       });
     }
   });
@@ -5062,13 +5083,15 @@ function hxDiagnosticarCatalogo(opciones={}){
   hxSaveCatalogMeta(meta);
 
   const lineasGuardadasAfectadas = guardados.reduce((n,p)=>n+p.diferencias.length,0);
-  const totalAvisos = conflictosPrecio.length + presupuestoActual.length + lineasGuardadasAfectadas + bajoCosteActual.length + (productos.length ? 0 : 1);
+  const lineasGuardadasBajoCoste = guardadosBajoCoste.reduce((n,p)=>n+p.lineas.length,0);
+  const totalAvisos = conflictosPrecio.length + presupuestoActual.length + lineasGuardadasAfectadas + bajoCosteActual.length + lineasGuardadasBajoCoste + (productos.length ? 0 : 1);
   const informe={
     ...meta,
     duplicados,
     conflictosPrecio,
     presupuestoActual,
     bajoCosteActual,
+    presupuestosGuardadosBajoCoste:guardadosBajoCoste,
     presupuestosGuardados:guardados,
     presupuestosGuardadosAfectados:guardados.length,
     lineasGuardadasAfectadas,
@@ -5137,6 +5160,15 @@ function hxDiagnosticarCatalogo(opciones={}){
       ${bajoCosteActual.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>Línea ${x.linea}: venta ${fmt.format(x.precioFinal)} · coste ${fmt.format(x.coste)}</span></div>`).join('')}
     </section>`);
   }
+  if(guardadosBajoCoste.length){
+    bloques.push(`<section class="catalog-diag-section catalog-diag-lowcost"><h3>Bajo coste en presupuestos guardados</h3>
+      <p><b>${lineasGuardadasBajoCoste}</b> línea${lineasGuardadasBajoCoste===1?'':'s'} bajo coste en <b>${guardadosBajoCoste.length}</b> presupuesto${guardadosBajoCoste.length===1?'':'s'}.</p>
+      ${guardadosBajoCoste.map(p=>`<details class="catalog-diag-budget"><summary>${escapeHtml(p.etiqueta)} <span>${p.lineas.length} aviso${p.lineas.length===1?'':'s'}</span></summary>
+        ${p.lineas.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>Venta ${fmt.format(x.precioFinal)} · coste ${fmt.format(x.coste)}</span></div>`).join('')}
+      </details>`).join('')}
+    </section>`);
+  }
+
   if(guardados.length){
     bloques.push(`<section class="catalog-diag-section"><h3>Presupuestos guardados con precios distintos</h3>
       <p><b>${guardados.length}</b> presupuesto${guardados.length===1?'':'s'} · <b>${lineasGuardadasAfectadas}</b> línea${lineasGuardadasAfectadas===1?'':'s'} para revisar.</p>
