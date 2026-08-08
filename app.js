@@ -1709,7 +1709,10 @@ function exportarExcel(){
 async function pdf(){
   // Si no hay productos reales, no abre ni genera ningún PDF.
   const tieneProductos = Array.isArray(lineas) && lineas.some(l => l && !l.separador && l.tipo !== 'separador');
-  if(!tieneProductos) return;
+  if(!tieneProductos){
+    alert('Añade al menos un producto antes de generar el PDF.');
+    return;
+  }
 
   // Safari/iOS puede bloquear una descarga iniciada después de await().
   // Se reserva una pestaña en el mismo gesto del usuario y se usa al final.
@@ -1724,7 +1727,7 @@ async function pdf(){
   }
 
   const { jsPDF } = window.jspdf || {};
-  if(!jsPDF || !window.jspdf.jsPDF.API.autoTable){
+  if(!jsPDF || typeof jsPDF !== 'function' || typeof jsPDF.API?.autoTable !== 'function'){
     try{ pdfWindow?.close(); }catch(_error){}
     alert('No se pudo cargar el generador PDF. Comprueba la conexión a internet para las librerías jsPDF.');
     return;
@@ -1920,7 +1923,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('#catalogFilter')?.addEventListener('input',e=>{ pintarCatalogPanel(e.target.value); });
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') cerrarCatalogo(); });
   $('#add').addEventListener('click',addLinea); $('#btnManual').addEventListener('click',addLineaManual); $('#btnSeparador')?.addEventListener('click',addSeparador);
-  $('#btnPDF').addEventListener('click',pdf); $('#btnExcel')?.addEventListener('click',exportarExcel); $('#btnSave').addEventListener('click',guardar); $('#btnDuplicate').addEventListener('click',duplicarPresupuesto); $('#btnLoadSaved').addEventListener('click',cargarPresupuestoGuardado); $('#btnDeleteSaved').addEventListener('click',borrarPresupuestoGuardado); $('#btnClear').addEventListener('click',limpiar);
+  $('#btnPDF')?.addEventListener('click',()=>{
+    const btn=$('#btnPDF');
+    const label=btn?.querySelector('.header-format-label');
+    if(btn?.dataset.generating==='1') return;
+    if(btn) btn.dataset.generating='1';
+    if(label) label.textContent='…';
+    Promise.resolve(pdf()).catch(error=>{
+      console.error('[PDF] Error al generar el presupuesto', error);
+      alert(`No se pudo generar el PDF. ${error?.message || 'Revisa la consola para más detalles.'}`);
+    }).finally(()=>{
+      if(btn) delete btn.dataset.generating;
+      if(label) label.textContent='PDF';
+    });
+  }); $('#btnExcel')?.addEventListener('click',exportarExcel); $('#btnSave').addEventListener('click',guardar); $('#btnDuplicate').addEventListener('click',duplicarPresupuesto); $('#btnLoadSaved').addEventListener('click',cargarPresupuestoGuardado); $('#btnDeleteSaved').addEventListener('click',borrarPresupuestoGuardado); $('#btnClear').addEventListener('click',limpiar);
   $('#dtoGeneral').addEventListener('input',aplicarDescuentoGeneralALineas); $('#iva').addEventListener('input',render);
 });
 
@@ -4841,8 +4857,8 @@ function hxEnsureCatalogDiagnosticUI(){
       <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="catalogDiagnosticTitle">
         <div class="modal-head">
           <div>
-            <h2 id="catalogDiagnosticTitle">Control de precios</h2>
-            <p id="catalogDiagnosticSubtitle">Comprobación del catálogo y presupuestos guardados.</p>
+            <h2 id="catalogDiagnosticTitle">Revisar precios</h2>
+            <p id="catalogDiagnosticSubtitle">Compara el catálogo actual con tus presupuestos.</p>
           </div>
           <button type="button" class="modal-close catalog-diagnostic-close" data-catalog-diagnostic-close aria-label="Cerrar">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -4850,7 +4866,7 @@ function hxEnsureCatalogDiagnosticUI(){
         </div>
         <div id="catalogDiagnosticBody" class="catalog-diagnostic-body"></div>
         <div class="modal-foot">
-          <button type="button" class="secondary" data-catalog-diagnostic-close>Entendido</button>
+          <button type="button" class="secondary catalog-diagnostic-done" data-catalog-diagnostic-close>Cerrar</button>
         </div>
       </div>`;
     document.body.appendChild(modal);

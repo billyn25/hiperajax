@@ -259,22 +259,36 @@
   }
 
   function familyPriority(entry){
+    const family = norm(entry.familyTitle);
+    const category = norm(entry.categoryTitle);
     const text = norm(`${entry.familyTitle} ${entry.categoryTitle}`);
-    if(/almacenamiento nube|almacenamiento en nube|cloud storage|\bcloud\b/.test(text)) return 910;
-    const late = [
-      {terms:['smart home','smarthome','domotica','domótica','automatizacion','automatización','confort'], rank:900},
-      {terms:['discos duros','disco duro','almacenamiento','storage','surveillance'], rank:905},
-      {terms:['repuesto','repuestos','recambio','recambios'], rank:920},
-      {terms:['merchandising','merchan'], rank:930},
-      {terms:['incendio','fuego','fire','fireprotect'], rank:940},
-      {terms:['productos añadidos','productos anadidos','otros productos'], rank:950}
-    ];
-    const lateMatch = late.find(group => group.terms.some(term => text.includes(norm(term))));
-    if(lateMatch) return lateMatch.rank;
-    const found = FAMILY_PRIORITY.findIndex(group => group.some(term => text.includes(norm(term))));
-    if(found >= 0) return found;
-    if(norm(entry.categoryTitle).includes('sin categoria')) return 999;
-    return 100;
+
+    // Orden comercial: primero todo Ajax inalámbrico, después CCTV.
+    if(/ajax inalambrico/.test(category)){
+      if(/^centrales?$|^hubs?$/.test(family)) return 0;
+      if(/^detectores?$/.test(family)) return 10;
+      if(/^accesorios?$/.test(family)) return 20;
+      if(/^kits?$/.test(family)) return 30;
+      return 40;
+    }
+    if(/ajax cctv/.test(category)){
+      if(/c[aá]maras?/.test(family)) return 100;
+      if(/nvrs?|grabador/.test(family)) return 110;
+      if(/^accesorios?$/.test(family)) return 120;
+      if(/^kits?$/.test(family)) return 130;
+      return 140;
+    }
+
+    if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 200;
+    if(/discos? duros?|disco duro|almacenamiento|storage|surveillance/.test(text) && !/nube|cloud/.test(text)) return 210;
+    if(/repuesto|repuestos|recambio|recambios/.test(text)) return 220;
+    // Nube va expresamente justo después de Repuestos.
+    if(/almacenamiento nube|almacenamiento en nube|cloud storage|\bnube\b|\bcloud\b/.test(text)) return 221;
+    if(/merchandising|merchan/.test(text)) return 230;
+    if(/productos añadidos|productos anadidos|otros productos/.test(text)) return 250;
+    if(/incendio|fuego|fire|fireprotect/.test(text)) return 260;
+    if(category.includes('sin categoria')) return 999;
+    return 300;
   }
 
   function currentProducts(){ return Array.isArray(productos) ? productos : []; }
