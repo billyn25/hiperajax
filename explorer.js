@@ -81,7 +81,7 @@
   const QUICK_FILTER_ORDER = Object.freeze({
     cameras:['Bullet','Turret','Domo','Cube','PTZ','Soportes'],
     detectors:['Movimiento','Apertura','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio'],
-    smart_home:['Interruptores','Enchufes','Relés','Timbre','Válvulas','Clima / Aire','Accesorios'],
+    smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios','Relés'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
     wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality']
@@ -313,6 +313,20 @@
     return withImage.slice().sort((a,b) => score(b)-score(a))[0]?.p || withImage[0].p;
   }
 
+  function canonicalFamilyName(value){
+    const raw = clean(value);
+    const n = norm(raw);
+
+    // Unifica variantes tipográficas/comerciales sin mover productos entre áreas.
+    if(/^accesorios?\s*(?:[·\-]\s*)?inalambric[oa]s?$/.test(n)) return 'Accesorios · Inalámbrico';
+    if(/^detectores?$/.test(n) || /^detectores?\s*(?:[·\-]\s*)?inalambric[oa]s?$/.test(n)) return 'Detectores · Inalámbrico';
+    if(/^kits?\s*(?:[·\-]\s*)?inalambric[oa]s?$/.test(n)) return 'Kits · Inalámbrico';
+    if(/^accesorios?\s*(?:[·\-]\s*)?cctv$/.test(n)) return 'Accesorios · CCTV';
+    if(/^kits?\s*(?:[·\-]\s*)?cctv$/.test(n)) return 'Kits · CCTV';
+
+    return raw;
+  }
+
   function buildModel(){
     const signature = productSignature();
     if(modelCache && modelSignature === signature) return modelCache;
@@ -321,14 +335,15 @@
     const allItems = [];
     currentProducts().forEach((product, index) => {
       const cls = classification(product);
+      const canonicalFamily = canonicalFamilyName(cls.family);
       const categoryId = slug(cls.category);
-      const familyId = slug(cls.family);
+      const familyId = slug(canonicalFamily);
       const familyKey = `${categoryId}::${familyId}`;
       const item = {
         p:product,
         index,
         category:cls.category,
-        family:cls.family,
+        family:canonicalFamily,
         subcategory:cls.subcategory,
         familyKey
       };
@@ -345,7 +360,7 @@
           categoryId,
           categoryTitle:cls.category,
           familyId,
-          familyTitle:cls.family,
+          familyTitle:canonicalFamily,
           items:[],
           count:0
         });
