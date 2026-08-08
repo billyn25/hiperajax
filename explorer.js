@@ -236,16 +236,24 @@
       product?.tipo || product?.series || product?.serie || product?.technology || product?.tecnologia ||
       product?.protocol || product?.protocolo
     );
+
     const path = splitHierarchy(category);
     if(path.length > 1){
       category = path[0];
       if(!family) family = path[1];
       if(!subcategory && path[2]) subcategory = path.slice(2).join(' › ');
     }
+
     if(!subcategory) subcategory = inferredSubcategory(product);
     if(!category) category = manual ? 'Productos añadidos' : 'Sin categoría';
     if(!family) family = manual ? 'Productos añadidos' : 'General';
-    return { category, family, subcategory:subcategory || 'Todos' };
+
+    const canonical = canonicalClassification(category, family);
+    return {
+      category:canonical.category,
+      family:canonical.family,
+      subcategory:subcategory || 'Todos'
+    };
   }
 
   function familyPriority(entry){
@@ -313,18 +321,46 @@
     return withImage.slice().sort((a,b) => score(b)-score(a))[0]?.p || withImage[0].p;
   }
 
-  function canonicalFamilyName(value){
-    const raw = clean(value);
-    const n = norm(raw);
+  function canonicalClassification(categoryValue, familyValue){
+    let category = clean(categoryValue);
+    let family = clean(familyValue);
+    const c = norm(category);
+    const f = norm(family);
+    const combined = norm(`${category} ${family}`);
 
-    // Unifica variantes tipográficas/comerciales sin mover productos entre áreas.
-    if(/^accesorios?\s*(?:[·\-]\s*)?inalambric[oa]s?$/.test(n)) return 'Accesorios · Inalámbrico';
-    if(/^detectores?$/.test(n) || /^detectores?\s*(?:[·\-]\s*)?inalambric[oa]s?$/.test(n)) return 'Detectores · Inalámbrico';
-    if(/^kits?\s*(?:[·\-]\s*)?inalambric[oa]s?$/.test(n)) return 'Kits · Inalámbrico';
-    if(/^accesorios?\s*(?:[·\-]\s*)?cctv$/.test(n)) return 'Accesorios · CCTV';
-    if(/^kits?\s*(?:[·\-]\s*)?cctv$/.test(n)) return 'Kits · CCTV';
+    // Canonicalización SEMÁNTICA de pares categoría/familia.
+    // No mueve productos por referencia: solo unifica nombres equivalentes del proveedor/manual.
+    if(/detectores?/.test(combined) && /inalambr|inalámbr|wireless/.test(combined)){
+      return {category:'Ajax Inalámbrico', family:'Detectores'};
+    }
+    if(/^detectores?$/.test(f) || /^detectores?$/.test(c)){
+      return {category:'Ajax Inalámbrico', family:'Detectores'};
+    }
 
-    return raw;
+    if(/accesorios?/.test(combined) && /inalambr|inalámbr|wireless/.test(combined)){
+      return {category:'Ajax Inalámbrico', family:'Accesorios'};
+    }
+    if(/kits?/.test(combined) && /inalambr|inalámbr|wireless/.test(combined)){
+      return {category:'Ajax Inalámbrico', family:'Kits'};
+    }
+
+    if(/accesorios?/.test(combined) && /cctv|video/.test(combined)){
+      return {category:'Ajax CCTV', family:'Accesorios'};
+    }
+    if(/kits?/.test(combined) && /cctv|video/.test(combined)){
+      return {category:'Ajax CCTV', family:'Kits'};
+    }
+
+    // Familias principales conocidas por su propio nombre.
+    if(/centrales?|hubs?/.test(f)) return {category:category || 'Ajax Inalámbrico', family:'Centrales'};
+    if(/\bnvrs?\b|grabador/.test(f)) return {category:category || 'Ajax CCTV', family:'NVRs'};
+    if(/c[aá]maras?/.test(f)) return {category:category || 'Ajax CCTV', family:'Cámaras IP'};
+    if(/smart home|smarthome|dom[oó]tica/.test(f)) return {category:category || 'Ajax', family:'Smart Home'};
+    if(/repuestos?|recambios?/.test(f)) return {category:category || 'Ajax', family:'Repuestos'};
+    if(/merchandising/.test(f)) return {category:category || 'Ajax', family:'Merchandising'};
+    if(/nube|cloud/.test(f)) return {category:category || 'Servicios', family:'Nube'};
+
+    return {category:category || 'Sin categoría', family:family || 'General'};
   }
 
   function buildModel(){
@@ -335,15 +371,14 @@
     const allItems = [];
     currentProducts().forEach((product, index) => {
       const cls = classification(product);
-      const canonicalFamily = canonicalFamilyName(cls.family);
       const categoryId = slug(cls.category);
-      const familyId = slug(canonicalFamily);
+      const familyId = slug(cls.family);
       const familyKey = `${categoryId}::${familyId}`;
       const item = {
         p:product,
         index,
         category:cls.category,
-        family:canonicalFamily,
+        family:cls.family,
         subcategory:cls.subcategory,
         familyKey
       };
@@ -360,7 +395,7 @@
           categoryId,
           categoryTitle:cls.category,
           familyId,
-          familyTitle:canonicalFamily,
+          familyTitle:cls.family,
           items:[],
           count:0
         });
@@ -390,28 +425,21 @@
         displayTitle = candidate || 'Otros productos';
       }
       if(norm(displayTitle) === 'productos anadidos' || norm(cleanCategory) === 'productos anadidos') displayTitle = 'Otros productos';
-      const shortNames = [
-        [/^nvrs? profesionales$/i, 'NVRs'],
-        [/^almacenamiento\s+nube$/i, 'Nube'],
-        [/^almacenamiento\s+en\s+nube$/i, 'Nube'],
-        [/^accesorios\s*[·-]\s*cctv$/i, 'Accesorios CCTV'],
-        [/^accesorios\s*[·-]\s*inal[aá]mbrico$/i, 'Accesorios inalámbricos'],
-        [/^kits\s*[·-]\s*cctv$/i, 'Kits CCTV'],
-        [/^kits\s*[·-]\s*inal[aá]mbrico$/i, 'Kits inalámbricos']
-      ];
-      shortNames.some(([rx,label]) => rx.test(displayTitle) ? (displayTitle = label, true) : false);
+      const pair = norm(`${family.categoryTitle} ${family.familyTitle}`);
+      if(/ajax inalambrico/.test(pair) && /^detectores$/.test(norm(family.familyTitle))) displayTitle = 'Detectores';
+      else if(/ajax inalambrico/.test(pair) && /^accesorios$/.test(norm(family.familyTitle))) displayTitle = 'Accesorios inalámbricos';
+      else if(/ajax inalambrico/.test(pair) && /^kits$/.test(norm(family.familyTitle))) displayTitle = 'Kits inalámbricos';
+      else if(/ajax cctv/.test(pair) && /^accesorios$/.test(norm(family.familyTitle))) displayTitle = 'Accesorios CCTV';
+      else if(/ajax cctv/.test(pair) && /^kits$/.test(norm(family.familyTitle))) displayTitle = 'Kits CCTV';
+      else if(/^nvrs?$/.test(norm(family.familyTitle))) displayTitle = 'NVRs';
+      else if(/^nube$/.test(norm(family.familyTitle))) displayTitle = 'Nube';
       family.displayTitle = displayTitle;
       family.context = displayTitle === 'Otros productos' ? 'Productos añadidos manualmente'
         : (cleanCategory && norm(cleanCategory) !== norm(displayTitle) ? cleanCategory : '');
       family.representative = representativeProduct(family);
     });
 
-    const displayCounts = new Map();
-    families.forEach(family => displayCounts.set(slug(family.displayTitle), (displayCounts.get(slug(family.displayTitle)) || 0) + 1));
-    families.forEach(family => {
-      family.duplicateTitle = (displayCounts.get(slug(family.displayTitle)) || 0) > 1;
-      if(family.duplicateTitle && family.context) family.displayTitle = `${family.displayTitle} · ${family.context}`;
-    });
+
 
     const byFamily = new Map(families.map(family => [family.key, family]));
     modelCache = { allItems, families, byFamily };
@@ -1100,9 +1128,9 @@
       const door = /doorprotect|door protect|contacto magn[eé]tico|magnetic contact|detector(?:\s+de)?\s+apertura/.test(typeText);
       const glass = /glassprotect|glass protect|rotura(?:\s+de)?\s+cristal|glass break/.test(typeText);
       const combi = /combiprotect|combi protect/.test(typeText);
-      const motioncam = /motioncam|motion cam|curtaincam|curtain cam/.test(typeText);
+      const motioncam = /motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen/.test(typeText);
       const phod = /\bphod\b|photo on demand|foto bajo demanda/.test(source);
-      const curtain = /doublecurtain|curtainprotect|curtain protect|\bcurtain\b|\bcortina\b/.test(typeText);
+      const curtain = /doublecurtain|curtainprotect|curtain protect|curtaincam|curtain cam|\bcurtain\b|\bcortina\b/.test(typeText);
       const outdoor = /outdoor|exterior/.test(`${typeText} ${featureText}`);
       const motion = /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b/.test(typeText);
 
