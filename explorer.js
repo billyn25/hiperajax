@@ -140,6 +140,7 @@
   let drawerDraft = {};
   let drawerQuickDraft = '';
   let lastFocused = null;
+  let quickStripScrollLeft = 0;
 
   function freshState(){
     return {
@@ -1032,7 +1033,7 @@
 
   function familyVisual(family){
     if(norm(family?.displayTitle) === 'otros productos'){
-      return `<span class="hxp-family-visual hxp-family-visual-image"><img src="./assets/explorer/western-digital-purple.jpg" alt="Disco duro Western Digital Purple" loading="lazy"><b>O</b></span>`;
+      return `<span class="hxp-family-visual"><b>O</b></span>`;
     }
     const product = family?.representative || null;
     const image = clean(product?.image);
@@ -1635,11 +1636,13 @@
 
   function goHome(){
     state.familyKey = '';
+    state.familyFilter = '';
     state.query = '';
     state.filters = {};
     state.quickGroup = '';
     state.drawerOpen = false;
     state.sort = 'price-ref';
+    quickStripScrollLeft = 0;
     render();
   }
 
@@ -1762,7 +1765,6 @@
     const quickStrip = root.querySelector('.hxp-type-strip');
     quickStrip?.addEventListener('scroll', () => { if(isMobile()) quickStripScrollLeft = quickStrip.scrollLeft || 0; }, {passive:true});
         root.querySelectorAll('[data-hxp-family]').forEach(button => button.addEventListener('click', () => selectFamily(button.dataset.hxpFamily)));
-    root.querySelectorAll('[data-hxp-home]').forEach(button => button.addEventListener('click', goHome));
     root.querySelectorAll('[data-hxp-open-filters]').forEach(button => button.addEventListener('click', openFilters));
     root.querySelectorAll('[data-hxp-close-filters]').forEach(button => button.addEventListener('click', closeFilters));
 
@@ -1901,6 +1903,15 @@
       event.preventDefault();
       closeExplorer();
     }, true);
+
+    // Navegación interna robusta: funciona aunque render() sustituya los botones.
+    byId('familiasGrid')?.addEventListener('click', event => {
+      const home = event.target.closest?.('[data-hxp-home]');
+      if(!home) return;
+      event.preventDefault();
+      event.stopPropagation();
+      goHome();
+    });
     document.addEventListener('keydown', event => {
       if(event.key !== 'Escape') return;
       const modal = byId('familiasModal');
@@ -1996,6 +2007,6 @@
       searchIndexSignature = '';
       searchIndexCache.clear();
     },
-    version:'7.2.5-fix-domotica-storage-price'
+    version:'7.4.0-catalog-preserved-explorer-fix'
   };
 })();
