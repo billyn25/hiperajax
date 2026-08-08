@@ -259,9 +259,10 @@
 
   function familyPriority(entry){
     const text = norm(`${entry.familyTitle} ${entry.categoryTitle}`);
+    if(/almacenamiento nube|almacenamiento en nube|cloud storage|\bcloud\b/.test(text)) return 910;
     const late = [
       {terms:['smart home','smarthome','domotica','domótica','automatizacion','automatización','confort'], rank:900},
-      {terms:['almacenamiento nube','almacenamiento en nube','cloud storage','cloud'], rank:910},
+      {terms:['discos duros','disco duro','almacenamiento','storage','surveillance'], rank:905},
       {terms:['repuesto','repuestos','recambio','recambios'], rank:920},
       {terms:['merchandising','merchan'], rank:930},
       {terms:['incendio','fuego','fire','fireprotect'], rank:940},
@@ -457,13 +458,21 @@
       else if(/ajax inalambrico/.test(pair) && /^kits$/.test(norm(family.familyTitle))) displayTitle = 'Kits inalámbricos';
       else if(/ajax cctv/.test(pair) && /^accesorios$/.test(norm(family.familyTitle))) displayTitle = 'Accesorios CCTV';
       else if(/ajax cctv/.test(pair) && /^kits$/.test(norm(family.familyTitle))) displayTitle = 'Kits CCTV';
-      else if(/^smart home$|^smarthome$/.test(norm(family.familyTitle))) displayTitle = 'Domótica';
+      else if(/smart home|smarthome/.test(pair)) displayTitle = 'Domótica';
       else if(/^nvrs?$/.test(norm(family.familyTitle))) displayTitle = 'NVRs';
       else if(/^nube$/.test(norm(family.familyTitle))) displayTitle = 'Nube';
       family.displayTitle = displayTitle;
       family.context = displayTitle === 'Otros productos' ? 'Productos añadidos manualmente'
         : (cleanCategory && norm(cleanCategory) !== norm(displayTitle) ? cleanCategory : '');
-      family.representative = representativeProduct(family);
+      if(/discos? duros?|almacenamiento|storage/.test(norm(`${family.displayTitle} ${family.familyTitle} ${family.categoryTitle}`))){
+        family.representative = family.items
+          .map(item => item.p)
+          .find(product => clean(product?.image) && /visio/.test(clean(product?.origen_catalogo)))
+          || family.items.map(item => item.p).find(product => clean(product?.image))
+          || representativeProduct(family);
+      }else{
+        family.representative = representativeProduct(family);
+      }
     });
 
 
@@ -1980,6 +1989,6 @@
       searchIndexSignature = '';
       searchIndexCache.clear();
     },
-    version:'7.2.1-storage-quicks-domotica'
+    version:'7.2.4-domotica-storage-order'
   };
 })();

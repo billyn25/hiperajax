@@ -2326,6 +2326,23 @@ function hxEsProductoAjax(p){
   return marca === 'ajax' || ref.startsWith('AJ-') || ref.startsWith('10XAJ-');
 }
 
+function hxEsAlmacenamientoSurveillance(p){
+  const texto = normaliza([
+    p?.category,
+    p?.family,
+    p?.subcategory,
+    p?.product_type,
+    p?.description,
+    p?.short_description
+  ].filter(Boolean).join(' '));
+  return /almacenamiento|storage/.test(texto)
+    && /disco duro|discos duros|surveillance|hard drive|hdd/.test(texto);
+}
+
+function hxEsProductoBasePermitido(p){
+  return hxEsProductoAjax(p) || hxEsAlmacenamientoSurveillance(p);
+}
+
 function hxUnirCatalogos(base, manual){
   const mapa = new Map();
   const tieneValor = valor => valor !== undefined && valor !== null && (typeof valor !== 'string' || valor.trim() !== '');
@@ -2334,7 +2351,7 @@ function hxUnirCatalogos(base, manual){
     return Object.fromEntries(Object.entries(atributos).filter(([,valor]) => tieneValor(valor)));
   };
 
-  (Array.isArray(base) ? base : []).filter(hxEsProductoAjax).forEach(p=>{
+  (Array.isArray(base) ? base : []).filter(hxEsProductoBasePermitido).forEach(p=>{
     const ref = String(p?.name || '').trim().toUpperCase();
     if(ref) mapa.set(ref, {...p, attributes:atributosValidos(p?.attributes), origen_catalogo:'visio'});
   });
@@ -2345,8 +2362,17 @@ function hxUnirCatalogos(base, manual){
     const ref = String(p?.name || '').trim().toUpperCase();
     if(!ref) return;
     const anterior = mapa.get(ref) || {};
+    const esStorageOriginal = hxEsAlmacenamientoSurveillance(anterior);
+    const camposProveedorStorage = new Set([
+      'brand','description','short_description','image','stock',
+      'category','family','subcategory','product_type','series','technology','color'
+    ]);
     const informados = Object.fromEntries(
-      Object.entries(p || {}).filter(([clave,valor]) => clave !== 'attributes' && clave !== 'raw' && tieneValor(valor))
+      Object.entries(p || {}).filter(([clave,valor]) => {
+        if(clave === 'attributes' || clave === 'raw' || !tieneValor(valor)) return false;
+        if(esStorageOriginal && camposProveedorStorage.has(clave)) return false;
+        return true;
+      })
     );
     const pvpManual = numero(p?.pvp);
     const costeManual = numero(p?.precio_neto_compra);
@@ -2363,7 +2389,7 @@ function hxUnirCatalogos(base, manual){
         ...atributosValidos(anterior.attributes),
         ...atributosValidos(p.attributes)
       },
-      origen_catalogo:'manual'
+      origen_catalogo: esStorageOriginal ? 'visio+manual' : 'manual'
     };
     mapa.set(ref, merged);
   });
