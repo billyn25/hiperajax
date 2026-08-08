@@ -1160,18 +1160,10 @@
 
     if(profile === 'detectors'){
       const role = quickProductRole(item);
-      const compactRef = norm(p.name || '').replace(/[^a-z0-9]/g,'');
-      const modelSignals = [
-        compactRef.includes('curtain') ? 'curtain' : '',
-        compactRef.includes('outdoor') ? 'outdoor' : '',
-        compactRef.includes('phod') ? 'phod' : '',
-        compactRef.includes('motioncam') || compactRef.includes('curtaincam') ? 'motioncam' : '',
-        compactRef.includes('leaksprotect') || compactRef.includes('leakprotect') ? 'leakprotect' : ''
-      ].filter(Boolean).join(' ');
       const {structuredSource, fallback} = quickContext(item);
 
       const has = (rx, fallbackRx = rx) =>
-        rx.test(modelSignals) || rx.test(structuredSource) || (!role.accessory && fallbackRx.test(fallback));
+        rx.test(structuredSource) || (!role.accessory && fallbackRx.test(fallback));
 
       const fire = !role.accessory && has(
         /fireprotect|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)|smoke detector|heat detector|carbon monoxide/,
@@ -1190,7 +1182,7 @@
 
       const curtain = has(
         /doublecurtain|curtainprotect|curtain protect|curtaincam|curtain cam|\bcurtain\b|\bcortina\b/
-      );
+      ) || norm(p.name || '').replace(/[^a-z0-9]/g,'').includes('curtain');
 
       const motioncam = has(
         /motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen|fotodetector.*imagen/
@@ -1202,7 +1194,8 @@
         /leakprotect|leak protect|detector(?:\s+de)?\s+inundaci[oó]n|inundaci[oó]n|water leak|flood detector/
       );
 
-      const outdoor = has(/\boutdoor\b|\bexterior\b/);
+      const outdoor = has(/\boutdoor\b|\bexterior\b/)
+        || norm(p.name || '').replace(/[^a-z0-9]/g,'').includes('outdoor');
 
       const motion = has(
         /motionprotect|motion protect|detector(?:\s+de)?\s+movimiento|\bpir\b|fotodetector/
