@@ -6533,3 +6533,49 @@ body.light-mode .hx-image-preview img,body.light .hx-image-preview img,body.clar
     flex:0 0 auto!important;
   }
 }
+
+
+/* =====================================================
+   7.1.1 · Modo claro: campos de inicio
+   Corrige herencias oscuras sin tocar modo oscuro.
+   ===================================================== */
+body.light-mode .top-card input,
+body.light-mode .top-card select,
+body.light-mode .top-card textarea,
+body.light-mode .add-card #buscador,
+body.light-mode .add-card #cantidad,
+body.light-mode .add-card select{
+  background:#ffffff!important;
+  background-image:none!important;
+  color:#17221c!important;
+  border-color:#c7d8cf!important;
+  box-shadow:none!important;
+}
+
+body.light-mode .top-card input::placeholder,
+body.light-mode .top-card textarea::placeholder,
+body.light-mode .add-card #buscador::placeholder{
+  color:#7c8b84!important;
+  opacity:1!important;
+}
+
+body.light-mode .top-card input:focus,
+body.light-mode .top-card select:focus,
+body.light-mode .top-card textarea:focus,
+body.light-mode .add-card #buscador:focus,
+body.light-mode .add-card #cantidad:focus{
+  background:#ffffff!important;
+  color:#17221c!important;
+  border-color:#2f765c!important;
+  box-shadow:0 0 0 3px rgba(47,118,92,.12)!important;
+}
+
+body.light-mode .top-card input[type="date"]{
+  color-scheme:light!important;
+}
+
+body.light-mode .top-card select option,
+body.light-mode .add-card select option{
+  background:#ffffff!important;
+  color:#17221c!important;
+}

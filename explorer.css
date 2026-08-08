@@ -3,21 +3,21 @@
    Interfaz aislada: no depende de las capas históricas de Explorer.
    ===================================================== */
 #familiasModal{
-  --hxp-bg:#111914;
-  --hxp-panel:#17221c;
-  --hxp-panel-2:#1c2922;
-  --hxp-card:#1a261f;
-  --hxp-card-hover:#203128;
-  --hxp-line:#34463c;
-  --hxp-line-soft:rgba(142,170,154,.18);
-  --hxp-text:#f1f6f3;
-  --hxp-muted:#9fb0a7;
+  --hxp-bg:#071016;
+  --hxp-panel:#0d171f;
+  --hxp-panel-2:#101b23;
+  --hxp-card:#101b23;
+  --hxp-card-hover:#14222b;
+  --hxp-line:rgba(126,154,174,.28);
+  --hxp-line-soft:rgba(126,154,174,.16);
+  --hxp-text:#eef4f1;
+  --hxp-muted:#9aadb7;
   --hxp-accent:#35a86f;
   --hxp-accent-strong:#238b59;
-  --hxp-accent-soft:rgba(53,168,111,.15);
+  --hxp-accent-soft:rgba(53,168,111,.13);
   --hxp-danger:#e45a64;
   --hxp-warning:#e9a83b;
-  --hxp-shadow:0 30px 90px rgba(0,0,0,.52);
+  --hxp-shadow:0 30px 90px rgba(0,0,0,.56);
   padding:10px;
 }
 
@@ -40,7 +40,7 @@ body.light-mode #familiasModal{
 }
 
 #familiasModal .modal-backdrop{
-  background:rgba(4,10,7,.72);
+  background:rgba(3,9,13,.68);
   backdrop-filter:blur(8px);
 }
 body.light-mode #familiasModal .modal-backdrop{background:rgba(20,37,28,.46)}
