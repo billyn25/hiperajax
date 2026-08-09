@@ -2555,21 +2555,15 @@ function hxEsAlmacenamientoSurveillance(p){
 }
 
 function hxEsTarjetaSDOriginal(p){
-  const category = normaliza(p?.category || '');
-  const family = normaliza(p?.family || '');
-  const subcategory = normaliza(p?.subcategory || '');
-  const productType = normaliza(p?.product_type || '');
-  const hierarchy = `${category} ${family} ${subcategory} ${productType}`;
+  const texto = normaliza([
+    p?.category, p?.family, p?.subcategory, p?.product_type
+  ].filter(Boolean).join(' '));
 
-  // Jerarquía ORIGINAL del CSV grande, antes del filtro de marca Ajax.
-  const enAccesoriosIT = /accesorios it y seguridad|accesorios it|it y seguridad/.test(category)
-    || /accesorios it y seguridad|accesorios it|it y seguridad/.test(hierarchy);
-  const enAlmacenamiento = /almacenamiento|storage/.test(family)
-    || /almacenamiento|storage/.test(hierarchy);
-  const esTarjeta = /tarjetas? sd|micro ?sd|microsd|memory card/.test(subcategory)
-    || /tarjetas? sd|micro ?sd|microsd|memory card/.test(productType);
-
-  return enAccesoriosIT && enAlmacenamiento && esTarjeta;
+  // El CSV de Visiotech expone category_parent + category.
+  // Para la ruta web Almacenamiento / Tarjetas SD basta esa pareja:
+  // no exigimos el nivel superior, que no existe como columna separada.
+  return /almacenamiento|storage/.test(texto)
+    && /tarjetas? sd|micro ?sd|microsd|memory card|sd card/.test(texto);
 }
 
 function hxEsProductoBasePermitido(p){
@@ -2669,7 +2663,7 @@ async function cargarCatalogo(){
   try{
     let baseTxt = '';
     try{
-      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v=203');
+      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v=205');
     }catch(errorRemoto){
       console.warn('Catálogo remoto no disponible; se usa la copia local.', errorRemoto);
       baseTxt = await hxLeerCSV(CSV_URL);
