@@ -7313,3 +7313,225 @@ body.light-mode #catalogDiagnosticModal .catalog-diag-lowcost{
   background:#fff8f8!important;
 }
 body.light-mode #catalogDiagnosticModal .catalog-diag-item.is-lowcost span{color:#a61b1b!important}
+
+/* =====================================================
+   7.4.9 · Mis presupuestos PC
+   Scroll adaptativo EXCLUSIVO del panel izquierdo.
+   No altera lista central, vista previa ni navegación móvil.
+   ===================================================== */
+@media (min-width:821px){
+  #pmModal .pmx-folders{
+    align-self:stretch!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:min(66vh,700px)!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior-y:contain!important;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-gutter:stable!important;
+    padding-bottom:32px!important;
+  }
+}
+
+
+/* =====================================================
+   7.5.0 · Pulido visual previo a congelación
+   - Tarjetas móviles de presupuestos más compactas.
+   - Botones Atrás unificados.
+   - Fondos oscuros de modales unificados.
+   - Separación discreta entre stock y bajo coste.
+   ===================================================== */
+
+/* Paleta común para los modales en modo noche. */
+body:not(.light-mode){
+  --hx-modal-shell:#071016;
+  --hx-modal-head:#0d171f;
+  --hx-modal-panel:#101b23;
+  --hx-modal-panel-2:#14222b;
+  --hx-modal-border:rgba(126,154,174,.28);
+  --hx-modal-line:rgba(126,154,174,.16);
+  --hx-modal-text:#eef4f1;
+  --hx-modal-muted:#9aadb7;
+  --hx-modal-accent:#35a86f;
+}
+
+body:not(.light-mode) .modal-backdrop{
+  background:rgba(3,9,13,.72)!important;
+  backdrop-filter:blur(8px)!important;
+}
+
+body:not(.light-mode) .modal-card,
+body:not(.light-mode) #pmModal .pmx-modal-card.explore-wrap,
+body:not(.light-mode) #catalogDiagnosticModal > .modal-card{
+  background:linear-gradient(180deg,var(--hx-modal-head),var(--hx-modal-shell))!important;
+  border-color:var(--hx-modal-border)!important;
+  color:var(--hx-modal-text)!important;
+}
+
+body:not(.light-mode) #pmModal .pmx-head,
+body:not(.light-mode) #catalogDiagnosticModal .modal-head{
+  background:var(--hx-modal-head)!important;
+  border-bottom-color:var(--hx-modal-line)!important;
+}
+
+body:not(.light-mode) #pmModal .pmx-folders,
+body:not(.light-mode) #pmModal .pmx-browser,
+body:not(.light-mode) #pmModal .pmx-preview{
+  background:var(--hx-modal-panel)!important;
+  border-color:var(--hx-modal-border)!important;
+}
+
+body:not(.light-mode) #pmModal .pmx-browser-head,
+body:not(.light-mode) #pmModal .pmx-preview-head{
+  background:var(--hx-modal-head)!important;
+  border-bottom-color:var(--hx-modal-line)!important;
+}
+
+/* Los dos Atrás del gestor comparten exactamente la misma métrica. */
+#pmModal .pmx-mobile-back,
+#pmModal .pmx-mobile-back-filters{
+  width:auto!important;
+  min-width:96px!important;
+  height:42px!important;
+  min-height:42px!important;
+  padding:0 14px!important;
+  gap:7px!important;
+  border-radius:11px!important;
+  border:1px solid rgba(126,154,174,.28)!important;
+  background:#101b23!important;
+  color:#eef4f1!important;
+  box-shadow:none!important;
+  font-size:12.5px!important;
+  line-height:1!important;
+  font-weight:800!important;
+}
+
+#pmModal .pmx-mobile-back svg,
+#pmModal .pmx-mobile-back-filters svg{
+  width:17px!important;
+  height:17px!important;
+  flex:0 0 17px!important;
+}
+
+#pmModal .pmx-mobile-back:hover,
+#pmModal .pmx-mobile-back-filters:hover,
+#pmModal .pmx-mobile-back:focus-visible,
+#pmModal .pmx-mobile-back-filters:focus-visible{
+  background:rgba(53,168,111,.13)!important;
+  border-color:#35a86f!important;
+  outline:none!important;
+}
+
+body.light-mode #pmModal .pmx-mobile-back,
+body.light-mode #pmModal .pmx-mobile-back-filters{
+  background:#f4f8f6!important;
+  border-color:#cadbd2!important;
+  color:#172019!important;
+}
+
+/* Tarjetas de Mis presupuestos: menos altas, sin perder información. */
+@media(max-width:900px){
+  #pmModal.pm-mobile-list .pmx-list{
+    padding:8px 7px 12px!important;
+    gap:9px!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-row{
+    grid-template-columns:40px minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    column-gap:12px!important;
+    row-gap:0!important;
+    min-height:0!important;
+    padding:12px!important;
+    border-radius:13px!important;
+    align-items:start!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-row-icon{
+    width:40px!important;
+    height:40px!important;
+    min-width:40px!important;
+    border-radius:10px!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-row-main{
+    gap:2px!important;
+    padding-top:0!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-card-identifier,
+  #pmModal.pm-mobile-list .pmx-card-identifier-416{
+    font-size:15px!important;
+    line-height:1.18!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-card-number,
+  #pmModal.pm-mobile-list .pmx-card-number-416{
+    margin-top:0!important;
+    font-size:13px!important;
+    line-height:1.18!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-row-main>small,
+  #pmModal.pm-mobile-list .pmx-card-client,
+  #pmModal.pm-mobile-list .pmx-card-client-416{
+    margin-top:1px!important;
+    font-size:11.7px!important;
+    line-height:1.22!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-card-fields{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:3px 8px!important;
+    margin-top:6px!important;
+    padding-top:6px!important;
+    border-top:1px solid rgba(151,174,164,.20)!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-card-fields em{
+    font-size:11.1px!important;
+    line-height:1.2!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-row-side{
+    grid-column:2!important;
+    margin-top:7px!important;
+    padding:7px 0 0!important;
+    gap:8px!important;
+    border-top:1px solid rgba(151,174,164,.20)!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-row-side strong{
+    font-size:15px!important;
+    line-height:1!important;
+  }
+
+  #pmModal.pm-mobile-list .pmx-row-side small{
+    font-size:11px!important;
+    line-height:1.1!important;
+  }
+}
+
+/* Solo 5 px entre el punto de stock y el aviso de bajo coste. */
+@media(max-width:760px){
+  .budget-card .product-cell .hx-stock-dot + .hx-cost-warning{
+    display:inline-flex!important;
+    width:max-content!important;
+    margin:0 0 0 5px!important;
+    vertical-align:middle!important;
+  }
+}

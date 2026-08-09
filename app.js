@@ -5118,8 +5118,8 @@ function hxDiagnosticarCatalogo(opciones={}){
     status.tabIndex=0;
   }else if(totalAvisos){
     status.classList.add('is-warn');
-    status.textContent=`⚠ Revisar PVP (${totalAvisos})`;
-    status.title='Ver diferencias de PVP y avisos de bajo coste';
+    status.textContent=`⚠ Diferencias de precios (${totalAvisos})`;
+    status.title='Ver diferencias de precios y avisos de bajo coste';
     status.setAttribute('role','button');
     status.tabIndex=0;
   }else{

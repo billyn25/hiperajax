@@ -1687,3 +1687,57 @@ body:not(.light-mode) #familiasGrid .hxp-family-visual img{background:#2a342e}
     max-width:none!important;
   }
 }
+
+
+/* =====================================================
+   7.5.0 · Atrás del Explorer igual al resto de modales
+   ===================================================== */
+#familiasGrid .hxp-back{
+  width:auto!important;
+  min-width:96px!important;
+  height:42px!important;
+  min-height:42px!important;
+  padding:0 14px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  border-radius:11px!important;
+  border:1px solid var(--hxp-line)!important;
+  background:var(--hxp-panel)!important;
+  color:var(--hxp-text)!important;
+  box-shadow:none!important;
+  font-size:12.5px!important;
+  line-height:1!important;
+  font-weight:800!important;
+}
+
+#familiasGrid .hxp-back svg{
+  width:17px!important;
+  height:17px!important;
+  flex:0 0 17px!important;
+}
+
+#familiasGrid .hxp-back span{
+  display:inline!important;
+}
+
+#familiasGrid .hxp-back:hover,
+#familiasGrid .hxp-back:focus-visible{
+  background:var(--hxp-accent-soft)!important;
+  border-color:var(--hxp-accent)!important;
+  outline:none!important;
+}
+
+@media(max-width:760px){
+  #familiasGrid .hxp-current-family{
+    grid-template-columns:auto minmax(0,1fr)!important;
+  }
+
+  #familiasGrid .hxp-back{
+    min-width:92px!important;
+    height:40px!important;
+    min-height:40px!important;
+    padding:0 12px!important;
+  }
+}

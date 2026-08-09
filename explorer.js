@@ -1514,7 +1514,7 @@
         ${desktopFamilyRail(model)}
         <main class="hxp-main hxp-products-view">
         <div class="hxp-current-family">
-          <button type="button" class="hxp-back" data-hxp-home aria-label="Volver a familias">${svgIcon('back')}</button>
+          <button type="button" class="hxp-back" data-hxp-home aria-label="Volver a familias">${svgIcon('back')}<span>Atrás</span></button>
           <div><h3>${esc(title)}</h3><p>${esc(context)}</p></div>
           ${state.familyKey ? `<button type="button" class="hxp-change-family" data-hxp-home>Cambiar familia</button>` : ''}
         </div>
