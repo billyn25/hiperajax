@@ -2621,11 +2621,56 @@ function hxUnirCatalogos(base, manual){
   return [...mapa.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
 }
 
+const HX_CATALOGO_LOCAL_KEY='hx_catalogo_remoto_csv_v1';
+const HX_CATALOGO_LOCAL_TTL=24*60*60*1000;
+
+function hxCatalogoLocalLeer(){
+  try{
+    const raw=localStorage.getItem(HX_CATALOGO_LOCAL_KEY);
+    if(!raw) return null;
+    const data=JSON.parse(raw);
+    const ts=Number(data?.ts)||0;
+    const csv=String(data?.csv||'');
+    if(!ts || !csv || (Date.now()-ts)>=HX_CATALOGO_LOCAL_TTL){
+      localStorage.removeItem(HX_CATALOGO_LOCAL_KEY);
+      return null;
+    }
+    return {ts,csv};
+  }catch(_error){ return null; }
+}
+
+function hxCatalogoLocalGuardar(csv){
+  try{
+    localStorage.setItem(HX_CATALOGO_LOCAL_KEY,JSON.stringify({ts:Date.now(),csv:String(csv||'')}));
+  }catch(_error){}
+}
+
 async function hxLeerCSV(url){
   const esFuncionCatalogo = String(url || '').includes('/.netlify/functions/catalogo-remoto');
+
+  if(esFuncionCatalogo){
+    const local=hxCatalogoLocalLeer();
+    if(local){
+      const ageSeconds=Math.floor((Date.now()-local.ts)/1000);
+      window.HX_CATALOGO_CACHE={
+        age:ageSeconds,
+        cacheStatus:'browser-local',
+        generatedAt:new Date(local.ts).toISOString(),
+        productsWithCost:0,
+        costField:'',
+        cached:true,
+        local:true
+      };
+      return local.csv;
+    }
+  }
+
   const finalUrl = esFuncionCatalogo ? url : `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`;
   const r = await fetch(finalUrl, {cache: esFuncionCatalogo ? 'default' : 'no-store'});
   if(!r.ok) throw new Error(`HTTP ${r.status} en ${url}`);
+
+  const text=await r.text();
+
   if(esFuncionCatalogo){
     const age = Number(r.headers.get('age') || 0);
     const cacheStatus = String(r.headers.get('cache-status') || r.headers.get('x-nf-cache') || '').trim();
@@ -2638,11 +2683,13 @@ async function hxLeerCSV(url){
       generatedAt,
       productsWithCost,
       costField,
-      cached: age > 0 || /hit/i.test(cacheStatus)
+      cached: age > 0 || /hit/i.test(cacheStatus),
+      local:false
     };
+    hxCatalogoLocalGuardar(text);
     console.info('[Catálogo Netlify]', window.HX_CATALOGO_CACHE);
   }
-  return r.text();
+  return text;
 }
 
 async function cargarCatalogo(){
@@ -2699,7 +2746,7 @@ async function cargarCatalogo(){
       const minutos = Math.max(0, Math.floor((Number(c.age)||0) / 60));
       const cacheTxt = c.cached ? `caché Netlify · ${minutos} min` : 'actualizado ahora · caché iniciada';
       prev.textContent = `✅ ${productos.length} productos · ${cacheTxt}.`;
-      prev.title = c.generatedAt ? `CSV generado: ${c.generatedAt}` : 'La caché de Netlify se conserva hasta 8 horas.';
+      prev.title = c.generatedAt ? `CSV generado: ${c.generatedAt}` : 'La caché del catálogo se conserva hasta 24 horas.';
     }else{
       prev.textContent = `⚠️ ${productos.length} productos cargados (copia local + manual).`;
     }
@@ -5456,6 +5503,35 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   const HX_LEER_ENDPOINT_413 = '/.netlify/functions/leer-presupuesto';
   let hxCloudLista413 = [];
   let hxCloudCargando413 = null;
+  let hxCloudCargadaEn413 = 0;
+  const HX_CLOUD_LIST_TTL_413 = 10 * 60 * 1000;
+  const HX_CLOUD_SESSION_KEY_413 = 'hx_cloud_presupuestos_v1';
+
+  function hxCloudRestaurarSesion413(){
+    try{
+      const raw=sessionStorage.getItem(HX_CLOUD_SESSION_KEY_413);
+      if(!raw) return false;
+      const data=JSON.parse(raw);
+      const ts=Number(data?.ts)||0;
+      const lista=Array.isArray(data?.lista)?data.lista:[];
+      if(!ts || !lista.length || (Date.now()-ts)>=HX_CLOUD_LIST_TTL_413){
+        sessionStorage.removeItem(HX_CLOUD_SESSION_KEY_413);
+        return false;
+      }
+      hxCloudLista413=lista.map(hxNormalizarResumen413);
+      hxCloudCargadaEn413=ts;
+      return true;
+    }catch(_error){ return false; }
+  }
+
+  function hxCloudGuardarSesion413(){
+    try{
+      sessionStorage.setItem(HX_CLOUD_SESSION_KEY_413,JSON.stringify({
+        ts:hxCloudCargadaEn413||Date.now(),
+        lista:hxCloudLista413
+      }));
+    }catch(_error){}
+  }
 
   function hxNormalizarResumen413(p){
     const mongoId = String(p?.mongoId || p?._id || '').trim();
@@ -5482,7 +5558,19 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),220);},1800);
   }
 
-  async function hxCargarListaCloud413({silencioso=false}={}){
+  async function hxCargarListaCloud413({silencioso=false,forzar=false}={}){
+    if(!hxCloudLista413.length && !forzar) hxCloudRestaurarSesion413();
+    const ahora=Date.now();
+    const cacheValida=!forzar
+      && hxCloudLista413.length
+      && hxCloudCargadaEn413
+      && (ahora-hxCloudCargadaEn413) < HX_CLOUD_LIST_TTL_413;
+
+    if(cacheValida){
+      refrescarPresupuestosGuardados();
+      return hxCloudLista413;
+    }
+
     if(hxCloudCargando413) return hxCloudCargando413;
     hxCloudCargando413=(async()=>{
       try{
@@ -5490,6 +5578,8 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
         const out=await res.json().catch(()=>null);
         if(!res.ok || !out?.ok) throw new Error(out?.mensaje || out?.error || `Error ${res.status}`);
         hxCloudLista413=(Array.isArray(out.presupuestos)?out.presupuestos:[]).map(hxNormalizarResumen413);
+        hxCloudCargadaEn413=Date.now();
+        hxCloudGuardarSesion413();
         refrescarPresupuestosGuardados();
         window.dispatchEvent(new CustomEvent('hiperajax:presupuestos-importados'));
         return hxCloudLista413;
@@ -5581,6 +5671,8 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     const id=normalizado.mongoId;
     const pos=hxCloudLista413.findIndex(p=>String(p.mongoId)===id);
     if(pos>=0) hxCloudLista413[pos]=normalizado; else hxCloudLista413.unshift(normalizado);
+    hxCloudCargadaEn413=Date.now();
+    hxCloudGuardarSesion413();
     refrescarPresupuestosGuardados();
     window.dispatchEvent(new CustomEvent('hiperajax:presupuestos-importados'));
     return normalizado;
@@ -5588,6 +5680,8 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   window.HX_CLOUD_REMOVE_PRESUPUESTO=id=>{
     const key=String(id||'');
     hxCloudLista413=hxCloudLista413.filter(p=>String(p?.mongoId||p?.id||'')!==key);
+    hxCloudCargadaEn413=Date.now();
+    hxCloudGuardarSesion413();
     refrescarPresupuestosGuardados();
     window.dispatchEvent(new CustomEvent('hiperajax:presupuestos-importados'));
   };
