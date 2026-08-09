@@ -5426,6 +5426,18 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
       hxGuardarCopiaLocal(data, duplicadoDe ? '' : selectedId);
       window.HX_ACTIVE_BUDGET_ID = String(resultado.mongoId || data.mongoId || '');
+
+      // Sincronizar la lista cloud/cache que alimenta Mis presupuestos.
+      // MongoDB ya ha guardado correctamente; sin este upsert, la caché de 10 min
+      // podía seguir mostrando la versión anterior del presupuesto actualizado.
+      window.HX_CLOUD_UPSERT_PRESUPUESTO?.({
+        ...data,
+        id: String(resultado.mongoId || data.mongoId || ''),
+        mongoId: String(resultado.mongoId || data.mongoId || ''),
+        numero: resultado.numero || data.numero,
+        updatedAt: resultado.updatedAt || data.updatedAt || new Date().toISOString()
+      });
+
       hxDuplicadoDePendiente = null;
       hxIdentificadorDuplicadoPendiente = '';
       alert(resultado.operacion === 'actualizado'
