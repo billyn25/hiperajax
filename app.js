@@ -2554,16 +2554,13 @@ function hxEsAlmacenamientoSurveillance(p){
     && /disco duro|discos duros|surveillance|hard drive|hdd/.test(texto);
 }
 
+
 function hxEsTarjetaSDOriginal(p){
   const texto = normaliza([
     p?.category, p?.family, p?.subcategory, p?.product_type
   ].filter(Boolean).join(' '));
-
-  // El CSV de Visiotech expone category_parent + category.
-  // Para la ruta web Almacenamiento / Tarjetas SD basta esa pareja:
-  // no exigimos el nivel superior, que no existe como columna separada.
   return /almacenamiento|storage/.test(texto)
-    && /tarjetas? sd|micro ?sd|microsd|memory card|sd card/.test(texto);
+    && /tarjetas? sd|micro ?sd|microsd|sd card|memory card/.test(texto);
 }
 
 function hxEsProductoBasePermitido(p){
@@ -2663,7 +2660,7 @@ async function cargarCatalogo(){
   try{
     let baseTxt = '';
     try{
-      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v=205');
+      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v=206');
     }catch(errorRemoto){
       console.warn('Catálogo remoto no disponible; se usa la copia local.', errorRemoto);
       baseTxt = await hxLeerCSV(CSV_URL);
