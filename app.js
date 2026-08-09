@@ -2554,8 +2554,26 @@ function hxEsAlmacenamientoSurveillance(p){
     && /disco duro|discos duros|surveillance|hard drive|hdd/.test(texto);
 }
 
+function hxEsTarjetaSDOriginal(p){
+  const category = normaliza(p?.category || '');
+  const family = normaliza(p?.family || '');
+  const subcategory = normaliza(p?.subcategory || '');
+  const productType = normaliza(p?.product_type || '');
+  const hierarchy = `${category} ${family} ${subcategory} ${productType}`;
+
+  // Jerarquía ORIGINAL del CSV grande, antes del filtro de marca Ajax.
+  const enAccesoriosIT = /accesorios it y seguridad|accesorios it|it y seguridad/.test(category)
+    || /accesorios it y seguridad|accesorios it|it y seguridad/.test(hierarchy);
+  const enAlmacenamiento = /almacenamiento|storage/.test(family)
+    || /almacenamiento|storage/.test(hierarchy);
+  const esTarjeta = /tarjetas? sd|micro ?sd|microsd|memory card/.test(subcategory)
+    || /tarjetas? sd|micro ?sd|microsd|memory card/.test(productType);
+
+  return enAccesoriosIT && enAlmacenamiento && esTarjeta;
+}
+
 function hxEsProductoBasePermitido(p){
-  return hxEsProductoAjax(p) || hxEsAlmacenamientoSurveillance(p);
+  return hxEsProductoAjax(p) || hxEsAlmacenamientoSurveillance(p) || hxEsTarjetaSDOriginal(p);
 }
 
 function hxUnirCatalogos(base, manual){
@@ -2578,6 +2596,7 @@ function hxUnirCatalogos(base, manual){
     if(!ref) return;
     const anterior = mapa.get(ref) || {};
     const esStorageOriginal = hxEsAlmacenamientoSurveillance(anterior);
+    const esSDOriginal = hxEsTarjetaSDOriginal(anterior);
     const camposProveedorStorage = new Set([
       'brand','description','short_description','image','stock',
       'category','family','subcategory','product_type','series','technology','color'
@@ -2585,7 +2604,7 @@ function hxUnirCatalogos(base, manual){
     const informados = Object.fromEntries(
       Object.entries(p || {}).filter(([clave,valor]) => {
         if(clave === 'attributes' || clave === 'raw' || !tieneValor(valor)) return false;
-        if(esStorageOriginal && camposProveedorStorage.has(clave)) return false;
+        if((esStorageOriginal || esSDOriginal) && camposProveedorStorage.has(clave)) return false;
         return true;
       })
     );
@@ -2604,7 +2623,7 @@ function hxUnirCatalogos(base, manual){
         ...atributosValidos(anterior.attributes),
         ...atributosValidos(p.attributes)
       },
-      origen_catalogo: esStorageOriginal ? 'visio+manual' : 'manual'
+      origen_catalogo: (esStorageOriginal || esSDOriginal) ? 'visio+manual' : 'manual'
     };
     mapa.set(ref, merged);
   });

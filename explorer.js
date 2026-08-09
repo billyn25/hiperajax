@@ -284,7 +284,9 @@
     }
 
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 200;
-    if(/discos? duros?|disco duro|almacenamiento|storage|surveillance/.test(text) && !/nube|cloud/.test(text)) return 210;
+    if(/discos? duros?|disco duro|surveillance/.test(text) && !/nube|cloud|tarjetas? sd|micro ?sd|microsd/.test(text)) return 210;
+    if(/tarjetas? sd|micro ?sd|microsd|memory card/.test(text)) return 211;
+    if(/almacenamiento|storage/.test(text) && !/nube|cloud/.test(text)) return 212;
     if(/repuesto|repuestos|recambio|recambios/.test(text)) return 220;
     if(/almacenamiento nube|almacenamiento en nube|cloud storage|\bnube\b|\bcloud\b/.test(text)) return 221;
     if(/merchandising|merchan/.test(text)) return 230;
@@ -390,8 +392,10 @@
       return {category:'Ajax CCTV', family:'Kits'};
     }
 
-    // Almacenamiento del proveedor: conservar una familia única de discos.
-    // Se basa en la jerarquía original, no en referencias concretas.
+    // Almacenamiento del proveedor desde la jerarquía original.
+    if(/almacenamiento|storage/.test(combined) && /tarjetas? sd|micro ?sd|microsd|memory card/.test(combined)){
+      return {category:'Accesorios IT y Seguridad', family:'Tarjetas SD'};
+    }
     if(/almacenamiento|storage/.test(combined) && /disco|hard drive|hdd|surveillance/.test(combined)){
       return {category:'Accesorios IT y Seguridad', family:'Discos duros'};
     }
@@ -1107,6 +1111,7 @@
     if(/detector|detectores|intrusion|intrusión/.test(text)) return 'detectors';
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'smart_home';
     if(/\bnvrs?\b|grabador|grabacion|grabación/.test(text)) return 'nvr';
+    if(/tarjetas? sd|micro ?sd|microsd|memory card/.test(text)) return 'sd_storage';
     if(/discos? duros?|hard drives?|almacenamiento|storage/.test(text)) return 'storage';
     if(/central|centrales|\bhub\b|hubs/.test(text)) return 'centrals';
     return '';
@@ -1194,6 +1199,21 @@
 
   function isRelatedQuickGroup(quickGroup, family = currentFamily()){
     return quickGroup === 'Soportes' && familyQuickProfile(family) === 'cameras';
+  }
+
+  function sdCapacityLabel(item){
+    const p = item?.p || {};
+    const attrs = normalizeAttributes(p);
+    const text = norm([
+      p.name, p.short_description, p.description,
+      p.capacity, p.storage, p.memory,
+      ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
+    ].filter(Boolean).join(' '));
+    const match = text.match(/(?:^|[^0-9])(\d+(?:[.,]\d+)?)\s*(gb|tb)(?:[^a-z0-9]|$)/i);
+    if(!match) return '';
+    const n = Number(String(match[1]).replace(',','.'));
+    if(!Number.isFinite(n)) return '';
+    return `${Number.isInteger(n) ? n : String(n).replace('.',',')} ${String(match[2]).toUpperCase()}`;
   }
 
   function storageCapacityLabel(item){
@@ -1335,6 +1355,11 @@
       if(repeater) add('Repetidores');
     }
 
+    if(profile === 'sd_storage'){
+      const capacity = sdCapacityLabel(item);
+      if(capacity) add(capacity);
+    }
+
     if(profile === 'storage'){
       const capacity = storageCapacityLabel(item);
       if(capacity) add(capacity);
@@ -1362,6 +1387,15 @@
   function quickAvailability(family = currentFamily(), model = buildModel()){
     const profile = familyQuickProfile(family);
     if(!profile || !family) return [];
+
+    if(profile === 'sd_storage'){
+      const capacities = new Set();
+      family.items.forEach(item => {
+        const label = sdCapacityLabel(item);
+        if(label) capacities.add(label);
+      });
+      return [...capacities].sort((a,b) => (parseFloat(a)||0) - (parseFloat(b)||0));
+    }
 
     if(profile === 'storage'){
       const capacities = new Set();
