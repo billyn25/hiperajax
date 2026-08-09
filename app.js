@@ -2622,7 +2622,7 @@ function hxUnirCatalogos(base, manual){
 }
 
 const HX_CATALOGO_LOCAL_KEY='hx_catalogo_remoto_csv_v1';
-const HX_CATALOGO_LOCAL_TTL=24*60*60*1000;
+const HX_CATALOGO_LOCAL_TTL=48*60*60*1000;
 
 function hxCatalogoLocalLeer(){
   try{
@@ -2746,7 +2746,7 @@ async function cargarCatalogo(){
       const minutos = Math.max(0, Math.floor((Number(c.age)||0) / 60));
       const cacheTxt = c.cached ? `caché Netlify · ${minutos} min` : 'actualizado ahora · caché iniciada';
       prev.textContent = `✅ ${productos.length} productos · ${cacheTxt}.`;
-      prev.title = c.generatedAt ? `CSV generado: ${c.generatedAt}` : 'La caché del catálogo se conserva hasta 24 horas.';
+      prev.title = c.generatedAt ? `CSV generado: ${c.generatedAt}` : 'La caché del catálogo se conserva hasta 48 horas.';
     }else{
       prev.textContent = `⚠️ ${productos.length} productos cargados (copia local + manual).`;
     }
@@ -5280,7 +5280,7 @@ function hxRefreshPriceControlSoon(){
     if(Array.isArray(productos) && productos.length) hxDiagnosticarCatalogo({abrirSiHayAvisos:false,avisarToast:false});
   },40);
 }
-['hiperajax:presupuestos-importados'].forEach(evt=>window.addEventListener(evt,hxRefreshPriceControlSoon));
+window.addEventListener('hiperajax:presupuestos-importados',hxRefreshPriceControlSoon);
 const aplicarPresupuesto_BASE_DIAGNOSTICO = aplicarPresupuesto;
 aplicarPresupuesto = function(){
   const r=aplicarPresupuesto_BASE_DIAGNOSTICO.apply(this,arguments);
@@ -5659,11 +5659,7 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     if(sel) sel.value=id;
     hxAbrirCloud413(id);
   },true);
-
-  document.addEventListener('DOMContentLoaded',()=>{
-  });
-
-  window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
+window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
   window.HX_ABRIR_PRESUPUESTO=hxAbrirCloud413;
   window.HX_CLOUD_GET_PRESUPUESTO=id=>hxCloudLista413.find(p=>String(p?.mongoId||p?.id||'')===String(id||''))||null;
   window.HX_CLOUD_UPSERT_PRESUPUESTO=presupuesto=>{
@@ -5877,9 +5873,6 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
     event.stopImmediatePropagation();
     hxDuplicar415();
   },true);
-
-  document.addEventListener('DOMContentLoaded',()=>{
-  });
 })();
 
 

@@ -327,6 +327,19 @@
     const withImage = family.items.filter(item => clean(item.p?.image));
     if(!withImage.length) return family.items[0]?.p || null;
     const familyText = norm(`${family.familyTitle} ${family.categoryTitle}`);
+
+    // Representantes comerciales fijados solo para la portada de familias.
+    const wantedRef = /tarjetas? sd|micro ?sd|microsd|memory card/.test(familyText)
+      ? 'HS-TF-D3STD/64G/NEO LUX/WW'
+      : (/accesorio|accesorios/.test(familyText) && /inalambr|inalámbr|wireless/.test(familyText)
+          ? 'AJ-HOMESIREN-B'
+          : '');
+
+    if(wantedRef){
+      const exact = withImage.find(item => clean(item.p?.name).toUpperCase() === wantedRef);
+      if(exact) return exact.p;
+    }
+
     const score = item => {
       const p = item.p || {};
       const t = norm(`${p.name||''} ${p.short_description||''} ${p.description||''} ${p.subcategory||''} ${p.product_type||''}`);
@@ -489,7 +502,10 @@
       family.displayTitle = displayTitle;
       family.context = displayTitle === 'Otros productos' ? 'Productos añadidos manualmente'
         : (cleanCategory && norm(cleanCategory) !== norm(displayTitle) ? cleanCategory : '');
-      if(/discos? duros?|almacenamiento|storage/.test(norm(`${family.displayTitle} ${family.familyTitle} ${family.categoryTitle}`))){
+      const representativeText = norm(`${family.displayTitle} ${family.familyTitle} ${family.categoryTitle}`);
+      if(/tarjetas? sd|micro ?sd|microsd|memory card/.test(representativeText)){
+        family.representative = representativeProduct(family);
+      }else if(/discos? duros?|almacenamiento|storage/.test(representativeText)){
         family.representative = family.items
           .map(item => item.p)
           .find(product => clean(product?.image) && /visio/.test(clean(product?.origen_catalogo)))
@@ -851,6 +867,10 @@
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'type-ref-color';
 
     if(/central|hub|sirena|teclado/.test(text)) return 'ref-color';
+
+    // Productos añadidos/manuales: mantener referencias relacionadas juntas.
+    if(/otros productos|productos anadidos|productos añadidos/.test(text)) return 'ref';
+
     return 'price-ref';
   }
 
