@@ -409,8 +409,8 @@ export async function handler(event) {
       headers: {
         ...CORS_HEADERS,
         "Content-Type": "text/csv; charset=utf-8",
-        "Cache-Control": "public, max-age=300",
-        "Netlify-CDN-Cache-Control": "public, durable, s-maxage=28800, stale-while-revalidate=900",
+        "Cache-Control": "public, max-age=900",
+        "Netlify-CDN-Cache-Control": "public, durable, s-maxage=86400, stale-while-revalidate=3600",
         "X-HiperAjax-Products": String(result.products),
         "X-HiperAjax-Source": "visiotech-csv-parse-stream",
         "X-HiperAjax-Time-Ms": String(elapsedMs),
