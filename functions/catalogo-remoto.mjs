@@ -240,6 +240,26 @@ function escaparCSV(value) {
   return /[;"\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
+function esDiscoSurveillance(classification = {}) {
+  const text = normalizarClave([
+    classification.category,
+    classification.family,
+    classification.subcategory,
+  ].filter(Boolean).join(" "));
+  return /almacenamiento|storage/.test(text)
+    && /discoduro|discosduros|surveillance|harddrive|hdd/.test(text);
+}
+
+function esTarjetaSD(classification = {}) {
+  const text = normalizarClave([
+    classification.category,
+    classification.family,
+    classification.subcategory,
+  ].filter(Boolean).join(" "));
+  return /almacenamiento|storage/.test(text)
+    && /tarjetassd|tarjetasd|microsd|memorycard|sdcard/.test(text);
+}
+
 async function crearCatalogoAjax(response) {
   if (!response.body) throw new Error("El proveedor no devolvió contenido");
 
@@ -281,26 +301,12 @@ async function crearCatalogoAjax(response) {
     // IMPORTANTE: clasificar ANTES de filtrar por marca.
     // Así podemos conservar familias concretas del CSV grande aunque no sean AJAX.
     const classification = valoresClasificacion(row, classificationFields || {});
-    const classificationText = normalizarClave([
-      classification.category,
-      classification.family,
-      classification.subcategory,
-    ].filter(Boolean).join(" "));
-
     const isAjax = brand.toUpperCase() === "AJAX";
+    const isStorageDrive = esDiscoSurveillance(classification);
+    const isSdCard = esTarjetaSD(classification);
 
-    // Accesorios IT y Seguridad / Almacenamiento / Discos duros.
-    const isStorageDrive =
-      /accesoriosit/.test(classificationText) &&
-      /almacenamiento|storage/.test(classificationText) &&
-      /discoduro|discosduros|harddrive|hdd|surveillance/.test(classificationText);
-
-    // Accesorios IT y Seguridad / Almacenamiento / Tarjetas SD.
-    const isSdCard =
-      /accesoriosit/.test(classificationText) &&
-      /almacenamiento|storage/.test(classificationText) &&
-      /tarjetassd|tarjetasd|microsd|memorycard/.test(classificationText);
-
+    // Misma estrategia que la versión de Almacenamiento que ya funcionaba:
+    // la jerarquía real category_parent/category basta; no exigimos un tercer nivel.
     if (!isAjax && !isStorageDrive && !isSdCard) continue;
 
     const key = name.toUpperCase();
