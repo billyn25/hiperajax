@@ -7404,3 +7404,22 @@ body.light-mode #catalogDiagnosticModal .modal-head h3,
 body:not(.dark) #catalogDiagnosticModal .modal-head h3{
   color:#1d2b24!important;
 }
+
+
+/* 7.6.8 · Revisar precios: contraste definitivo del título */
+#catalogDiagnosticModal #catalogDiagnosticTitle,
+#catalogDiagnosticModal .modal-head #catalogDiagnosticTitle,
+body.dark #catalogDiagnosticModal #catalogDiagnosticTitle,
+body:not(.light):not(.light-mode) #catalogDiagnosticModal #catalogDiagnosticTitle{
+  color:#f4f8f6!important;
+  -webkit-text-fill-color:#f4f8f6!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+
+body.light #catalogDiagnosticModal #catalogDiagnosticTitle,
+body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
+  color:#18251f!important;
+  -webkit-text-fill-color:#18251f!important;
+  opacity:1!important;
+}

@@ -1286,13 +1286,33 @@
       const flood = matches(/leakprotect|leaksprotect|water leak|flood detector|detector(?:\s+de)?\s+inundaci[oó]n|\binundaci[oó]n\b/);
       const firePattern = /fireprotect|smoke detector|heat detector|carbon monoxide|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)/;
       const fire = !role.accessory && !curtain && !flood && firePattern.test(structuredSource);
-      // Apertura: solo contactos magnéticos / detectores de puerta o ventana.
-      // Evita falsos positivos de detectores PIR cuya descripción menciona
-      // protección/tamper frente a la apertura de la carcasa.
-      const door = matches(
-        /doorprotect|door protect|magnetic contact|contacto magn[eé]tico|detector(?:\s+de)?\s+apertura[^.]{0,50}(?:puerta|ventana)|(?:puerta|ventana)[^.]{0,50}(?:apertura|contacto magn[eé]tico)/,
-        /doorprotect|door protect|magnetic contact|contacto magn[eé]tico|detector(?:\s+de)?\s+apertura[^.]{0,50}(?:puerta|ventana)|(?:puerta|ventana)[^.]{0,50}(?:apertura|contacto magn[eé]tico)/
-      );
+      // APERTURA: clasificación positiva por función real.
+      // No usa la descripción larga como señal: un PIR/exterior puede mencionar
+      // "apertura de carcasa" o tamper sin ser un contacto de apertura.
+      const pDoor = item?.p || {};
+      const attrsDoor = normalizeAttributes(pDoor);
+      const refDoor = norm(pDoor.name || '');
+      const shortDoor = norm(pDoor.short_description || '');
+      const structuredDoor = norm([
+        item?.subcategory, pDoor.subcategory, pDoor.subfamily, pDoor.subfamilia,
+        pDoor.product_type, pDoor.tipo, pDoor.series, pDoor.serie,
+        ...Object.entries(attrsDoor)
+          .filter(([key]) => /tipo|type|categoria|category|subcategoria|subcategory|sensor|detector|contact/.test(norm(key)))
+          .flatMap(([key,value]) => [key,value])
+      ].filter(Boolean).join(' '));
+
+      const doorRoleSource = norm(`${refDoor} ${shortDoor} ${structuredDoor}`);
+      const isDoorProtect = /doorprotect|door protect/.test(doorRoleSource);
+      const isMagneticContact = /magnetic contact|contacto magn[eé]tico|reed contact|reed switch/.test(doorRoleSource);
+      const isOpeningDetector =
+        /detector(?:\s+de)?\s+apertura/.test(doorRoleSource)
+        && /\bpuerta\b|\bventana\b|door|window/.test(doorRoleSource);
+      const isTamperOnly =
+        /tamper|antisabotaje|anti sabotaje|apertura(?:\s+de)?\s+(?:carcasa|tapa|cuerpo|housing|cover)/.test(doorRoleSource)
+        && !isDoorProtect && !isMagneticContact;
+
+      const door = !role.accessory && !isTamperOnly
+        && (isDoorProtect || isMagneticContact || isOpeningDetector);
       const glass = matches(/glassprotect|glass protect|glass break|rotura(?:\s+de)?\s+cristal/);
       const combi = matches(/combiprotect|combi protect/);
       const motioncam = matches(/motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen|fotodetector.*imagen/);
