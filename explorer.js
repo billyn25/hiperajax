@@ -1286,7 +1286,13 @@
       const flood = matches(/leakprotect|leaksprotect|water leak|flood detector|detector(?:\s+de)?\s+inundaci[oó]n|\binundaci[oó]n\b/);
       const firePattern = /fireprotect|smoke detector|heat detector|carbon monoxide|detector(?:\s+de)?\s+(?:humo|incendio|calor|co)/;
       const fire = !role.accessory && !curtain && !flood && firePattern.test(structuredSource);
-      const door = matches(/doorprotect|door protect|magnetic contact|contacto magn[eé]tico|detector(?:\s+de)?\s+apertura/);
+      // Apertura: solo contactos magnéticos / detectores de puerta o ventana.
+      // Evita falsos positivos de detectores PIR cuya descripción menciona
+      // protección/tamper frente a la apertura de la carcasa.
+      const door = matches(
+        /doorprotect|door protect|magnetic contact|contacto magn[eé]tico|detector(?:\s+de)?\s+apertura[^.]{0,50}(?:puerta|ventana)|(?:puerta|ventana)[^.]{0,50}(?:apertura|contacto magn[eé]tico)/,
+        /doorprotect|door protect|magnetic contact|contacto magn[eé]tico|detector(?:\s+de)?\s+apertura[^.]{0,50}(?:puerta|ventana)|(?:puerta|ventana)[^.]{0,50}(?:apertura|contacto magn[eé]tico)/
+      );
       const glass = matches(/glassprotect|glass protect|glass break|rotura(?:\s+de)?\s+cristal/);
       const combi = matches(/combiprotect|combi protect/);
       const motioncam = matches(/motioncam|motion cam|curtaincam|curtain cam|detector de movimiento con imagen|fotodetector.*imagen/);

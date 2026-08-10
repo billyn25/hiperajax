@@ -7390,3 +7390,17 @@ body.light-mode #catalogDiagnosticModal .catalog-diag-item.is-lowcost span{color
     margin-bottom:3px!important;
   }
 }
+
+/* 7.6.6 · contraste del título del modal de precios */
+#catalogDiagnosticModal .modal-head h2,
+#catalogDiagnosticModal .modal-head h3{
+  color:#f4f7f5!important;
+}
+body.light #catalogDiagnosticModal .modal-head h2,
+body.light-mode #catalogDiagnosticModal .modal-head h2,
+body:not(.dark) #catalogDiagnosticModal .modal-head h2,
+body.light #catalogDiagnosticModal .modal-head h3,
+body.light-mode #catalogDiagnosticModal .modal-head h3,
+body:not(.dark) #catalogDiagnosticModal .modal-head h3{
+  color:#1d2b24!important;
+}

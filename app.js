@@ -5212,14 +5212,14 @@ function hxDiagnosticarCatalogo(opciones={}){
     bloques.push(`<section class="catalog-diag-section catalog-diag-lowcost"><h3>Venta bajo coste · presupuesto abierto</h3>
       ${identificadorActual?`<p class="catalog-diag-help"><b>Identificador:</b> ${escapeHtml(identificadorActual)}</p>`:''}
       <p><b>${bajoCosteActual.length}</b> línea${bajoCosteActual.length===1?'':'s'} requiere${bajoCosteActual.length===1?'':'n'} revisión por venta bajo coste.</p>
-      ${bajoCosteActual.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>Línea ${x.linea}: PVP final ${fmt.format(x.precioFinal)}</span></div>`).join('')}
+      ${bajoCosteActual.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>Línea ${x.linea}: Precio final ${fmt.format(x.precioFinal)}</span></div>`).join('')}
     </section>`);
   }
   if(guardadosBajoCoste.length){
     bloques.push(`<section class="catalog-diag-section catalog-diag-lowcost"><h3>Bajo coste en presupuestos guardados</h3>
       <p><b>${lineasGuardadasBajoCoste}</b> línea${lineasGuardadasBajoCoste===1?'':'s'} bajo coste en <b>${guardadosBajoCoste.length}</b> presupuesto${guardadosBajoCoste.length===1?'':'s'}.</p>
       ${guardadosBajoCoste.map(p=>`<details class="catalog-diag-budget"><summary>${escapeHtml(p.etiqueta)}${p.identificador?` · ${escapeHtml(p.identificador)}`:''} <span>${p.lineas.length} aviso${p.lineas.length===1?'':'s'}</span></summary>
-        ${p.lineas.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>PVP final ${fmt.format(x.precioFinal)}</span></div>`).join('')}
+        ${p.lineas.map(x=>`<div class="catalog-diag-item is-lowcost"><b>${escapeHtml(x.ref)}</b><span>Precio final ${fmt.format(x.precioFinal)}</span></div>`).join('')}
       </details>`).join('')}
     </section>`);
   }
