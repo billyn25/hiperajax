@@ -1391,7 +1391,9 @@
       if(/\bbracket\b|\bbrackets\b|\bsoporte\b|\bmount\b/.test(src)) add('Brackets');
       if(/carcasa|housing|enclosure|\bcover\b|\btapa\b|\bcuerpo\b/.test(src)) add('Carcasas');
       if(/bateria|batería|battery|batterykit|battery kit|\bbatt\b|\bpila\b/.test(src)) add('Baterías');
-      if(/\bpcb\b|printed circuit|placa electronica|placa electrónica|circuit board/.test(src)) add('PCB');
+      const refSpare = norm(item?.p?.name || '');
+      if(/\bpcb\b|printed circuit|placa electronica|placa electrónica|circuit board/.test(src)
+        || /pcb\d*|[-_]pcb(?:[-_]|$)/.test(refSpare)) add('PCB');
       if(/\blente\b|\blentes\b|\blens\b|\blenses\b|optica|óptica/.test(src)) add('Lentes');
     }
 
