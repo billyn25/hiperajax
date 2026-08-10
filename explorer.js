@@ -1302,11 +1302,17 @@
       ].filter(Boolean).join(' '));
 
       const doorRoleSource = norm(`${refDoor} ${shortDoor} ${structuredDoor}`);
-      const isDoorProtect = /doorprotect|door protect/.test(doorRoleSource);
-      const isMagneticContact = /magnetic contact|contacto magn[eé]tico|reed contact|reed switch/.test(doorRoleSource);
+      // DoorProtect debe ser un token real. "OutdoorProtect" contiene
+      // la cadena "doorprotect", pero NO es un contacto de apertura.
+      const isDoorProtect =
+        /(?:^|[\s_-])doorprotect(?:[\s_-]|$)|\bdoor\s+protect\b/.test(doorRoleSource);
+
+      const isMagneticContact =
+        /magnetic contact|contacto magn[eé]tico|reed contact|reed switch/.test(doorRoleSource);
+
       const isOpeningDetector =
         /detector(?:\s+de)?\s+apertura/.test(doorRoleSource)
-        && /\bpuerta\b|\bventana\b|door|window/.test(doorRoleSource);
+        && /\bpuerta\b|\bventana\b|\bdoor\b|\bwindow\b/.test(doorRoleSource);
       const isTamperOnly =
         /tamper|antisabotaje|anti sabotaje|apertura(?:\s+de)?\s+(?:carcasa|tapa|cuerpo|housing|cover)/.test(doorRoleSource)
         && !isDoorProtect && !isMagneticContact;
