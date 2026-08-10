@@ -7364,3 +7364,29 @@ body.light-mode #catalogDiagnosticModal .catalog-diag-item.is-lowcost span{color
     margin-left:5px!important;
   }
 }
+
+
+/* =====================================================
+   7.6.4 · Pulido final de Mis presupuestos
+   ===================================================== */
+
+/* PC: la vista de tres columnas ya está completa; Atrás no aporta navegación. */
+@media (min-width:901px){
+  #pmModal #pmBackMobile{
+    display:none!important;
+  }
+}
+
+/* Móvil: dar aire a los dos separadores de la vista previa.
+   No altera PC ni la estructura de la tarjeta. */
+@media (max-width:900px){
+  #pmModal .pmx-preview-body .pmx-identity{
+    padding-bottom:17px!important;
+    margin-bottom:2px!important;
+  }
+
+  #pmModal .pmx-preview-body .pmx-total{
+    padding-bottom:17px!important;
+    margin-bottom:3px!important;
+  }
+}

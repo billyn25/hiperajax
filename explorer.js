@@ -87,7 +87,8 @@
     smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality']
+    wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality'],
+    spares:['Brackets','Carcasas','Baterías','PCB','Lentes']
   });
 
   const FACET_EQUIVALENT_GROUPS = Object.freeze([
@@ -1128,6 +1129,7 @@
 
   function familyQuickProfile(family){
     const text = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
+    if(/repuesto|repuestos|recambio|recambios/.test(text)) return 'spares';
     if(/accesorio|accesorios/.test(text) && /inalambr|inalámbr|wireless/.test(text)) return 'wireless_accessories';
     if(/camara|cámara/.test(text)) return 'cameras';
     if(/detector|detectores|intrusion|intrusión/.test(text)) return 'detectors';
@@ -1381,6 +1383,16 @@
     if(profile === 'storage'){
       const capacity = storageCapacityLabel(item);
       if(capacity) add(capacity);
+    }
+
+    if(profile === 'spares'){
+      const {source} = quickContext(item);
+      const src = source;
+      if(/\bbracket\b|\bbrackets\b|\bsoporte\b|\bmount\b/.test(src)) add('Brackets');
+      if(/carcasa|housing|enclosure|\bcover\b|\btapa\b|\bcuerpo\b/.test(src)) add('Carcasas');
+      if(/bateria|batería|battery|batterykit|battery kit|\bbatt\b|\bpila\b/.test(src)) add('Baterías');
+      if(/\bpcb\b|printed circuit|placa electronica|placa electrónica|circuit board/.test(src)) add('PCB');
+      if(/\blente\b|\blentes\b|\blens\b|\blenses\b|optica|óptica/.test(src)) add('Lentes');
     }
 
     if(profile === 'wireless_accessories'){
