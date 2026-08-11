@@ -2032,13 +2032,12 @@
       button.dataset.hxpBound='1';
       button.addEventListener('click', () => addProduct(button.dataset.hxpAdd, button));
     });
-    root.querySelectorAll('.hx-product-thumb').forEach(button => {
-      if(button.dataset.hxpBound) return;
-      button.dataset.hxpBound='1';
-      button.addEventListener('click', () => {
-        if(typeof abrirImagenProducto === 'function') abrirImagenProducto(button.dataset.image);
-      });
-    });
+    // Resultados dinámicos de búsqueda: usar el mismo visor de imágenes
+    // que el catálogo normal. Antes se llamaba a abrirImagenProducto(),
+    // función inexistente, por eso la miniatura no hacía nada.
+    try{
+      if(typeof hxBindProductImages === 'function') hxBindProductImages(root);
+    }catch(error){ console.warn(error); }
   }
 
   function bind(root){
