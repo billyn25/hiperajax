@@ -260,7 +260,7 @@
     if(!family) family = manual ? 'Productos añadidos' : 'General';
 
     const selectedRef = clean(product?.name).toUpperCase();
-    if(['DS-1280ZJ-XS','DS-1280ZJ-XS-B','DS-1280ZJ-XS-W'].includes(selectedRef)){
+    if(['DS-1280ZJ-XS','DS-1280ZJ-XS-B'].includes(selectedRef)){
       return {
         category:'Ajax CCTV',
         family:'Accesorios',
