@@ -87,8 +87,9 @@
     smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality'],
-    spares:['Brackets','Carcasas','Baterías','PCB','Lentes']
+    wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter'],
+    spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
+    power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE']
   });
 
   const FACET_EQUIVALENT_GROUPS = Object.freeze([
@@ -254,7 +255,7 @@
     if(!category) category = manual ? 'Productos añadidos' : 'Sin categoría';
     if(!family) family = manual ? 'Productos añadidos' : 'General';
 
-    const canonical = canonicalClassification(category, family);
+    const canonical = canonicalClassification(category, family, subcategory);
     return {
       category:canonical.category,
       family:canonical.family,
@@ -285,8 +286,15 @@
     }
 
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 200;
+    if(/discos? duros?|disco duro|surveillance/.test(text) && !/nube|cloud|tarjetas? sd/.test(text)) return 210;
     if(/tarjetas? sd|micro ?sd|microsd|sd card|memory card/.test(text)) return 211;
-    if(/discos? duros?|disco duro|almacenamiento|storage|surveillance/.test(text) && !/nube|cloud/.test(text)) return 210;
+    if(/alimentacion|alimentación/.test(family)) return 212;
+    if(/^sais?$|^ups$/.test(family)) return 213;
+    if(/switches? no gestionables?|no gestionable|unmanaged/.test(text)) return 214;
+    if(/routers?\s*3g|routers?\s*4g|routers?\s*5g|3g\/4g\/5g/.test(text)) return 215;
+    if(/racks? de pared|rack wall|lockbox/.test(text)) return 216;
+    if(/barreras? infrarrojas?|infrared barrier|photobeam/.test(text)) return 217;
+    if(/almacenamiento|storage/.test(text) && !/nube|cloud/.test(text)) return 217;
     if(/repuesto|repuestos|recambio|recambios/.test(text)) return 220;
     if(/almacenamiento nube|almacenamiento en nube|cloud storage|\bnube\b|\bcloud\b/.test(text)) return 221;
     if(/merchandising|merchan/.test(text)) return 230;
@@ -375,12 +383,14 @@
     return withImage.slice().sort((a,b) => score(b)-score(a))[0]?.p || withImage[0].p;
   }
 
-  function canonicalClassification(categoryValue, familyValue){
+  function canonicalClassification(categoryValue, familyValue, subcategoryValue=''){
     let category = clean(categoryValue);
     let family = clean(familyValue);
+    const subcategory = clean(subcategoryValue);
     const c = norm(category);
     const f = norm(family);
     const combined = norm(`${category} ${family}`);
+    const fullCombined = norm(`${category} ${family} ${subcategory}`);
 
     // Canonicalización SEMÁNTICA de pares categoría/familia.
     // No mueve productos por referencia: solo unifica nombres equivalentes del proveedor/manual.
@@ -405,15 +415,47 @@
       return {category:'Ajax CCTV', family:'Kits'};
     }
 
-    // Tarjetas SD del proveedor: segunda familia original, paralela a Discos duros.
-    if(/almacenamiento|storage/.test(combined) && /tarjetas? sd|micro ?sd|microsd|sd card|memory card/.test(combined)){
+    // Familias extra del proveedor: jerarquía completa, no referencias cerradas.
+    if(/almacenamiento|storage/.test(fullCombined) && /tarjetas? sd|micro ?sd|microsd|sd card|memory card/.test(fullCombined)){
       return {category:'Accesorios IT y Seguridad', family:'Tarjetas SD'};
     }
 
-    // Almacenamiento del proveedor: conservar una familia única de discos.
-    // Se basa en la jerarquía original, no en referencias concretas.
-    if(/almacenamiento|storage/.test(combined) && /disco|hard drive|hdd|surveillance/.test(combined)){
+    if(/almacenamiento|storage/.test(fullCombined) && /disco|hard drive|hdd|surveillance/.test(fullCombined)){
       return {category:'Accesorios IT y Seguridad', family:'Discos duros'};
+    }
+
+    if(/alimentacion|alimentación/.test(fullCombined)
+      && /baterias? y pilas|baterías? y pilas|fuentes? y alimentadores|power suppl/.test(fullCombined)){
+      return {category:'Accesorios IT y Seguridad', family:'Alimentación'};
+    }
+
+    if(/(?:^|\s)sais?(?:\s|$)|(?:^|\s)ups(?:\s|$)|alimentacion ininterrumpida|alimentación ininterrumpida/.test(fullCombined)){
+      return {category:'Accesorios IT y Seguridad', family:'SAIs'};
+    }
+
+    if(/networking|switching|switches/.test(fullCombined)
+      && /no gestionable|unmanaged/.test(fullCombined)){
+      return {category:'Networking', family:'Switches no gestionables'};
+    }
+
+    // Netlify ya limita esta rama a RACK-WALL y LOCKBOX mural.
+    if(/racks?|armarios? rack/.test(fullCombined)){
+      return {category:'Accesorios IT y Seguridad', family:'Racks de pared'};
+    }
+
+    if(/intrusion|intrusión/.test(fullCombined)
+      && /barreras? infrarrojas?|infrared barrier|photobeam/.test(fullCombined)){
+      return {category:'Intrusión', family:'Barreras infrarrojas'};
+    }
+
+    if(/networking|accesorios/.test(fullCombined) && /poe/.test(fullCombined)
+      && /inyector|injector/.test(fullCombined)){
+      return {category:'Accesorios IT y Seguridad', family:'Alimentación'};
+    }
+
+    if(/networking|routing/.test(fullCombined)
+      && /routers?\s*3g|routers?\s*4g|routers?\s*5g|3g\/4g\/5g/.test(fullCombined)){
+      return {category:'Networking', family:'Routers 3G/4G/5G'};
     }
 
     // Familias principales conocidas por su propio nombre.
@@ -525,7 +567,27 @@
     return modelCache;
   }
 
+  function hxIsNewProduct(product){
+    const ref=clean(product?.name).toUpperCase();
+    return Boolean(ref && window.HX_PRODUCTOS_NUEVOS && window.HX_PRODUCTOS_NUEVOS[ref]);
+  }
+
+  function newProductsFamily(model = buildModel()){
+    const items=model.allItems.filter(item=>hxIsNewProduct(item.p));
+    return {
+      key:'__new__',
+      familyTitle:'Nuevos',
+      categoryTitle:'Nuevos',
+      displayTitle:'Nuevos',
+      context:'Productos detectados en las últimas actualizaciones',
+      items,
+      count:items.length,
+      newOnly:true
+    };
+  }
+
   function currentFamily(model = buildModel()){
+    if(state.familyKey === '__new__') return newProductsFamily(model);
     if(state.familyKey === '__popular__') return popularFamily(model);
     if(state.familyKey === '__all__'){
       return {
@@ -1113,6 +1175,10 @@
           </label>
         </div>
         <div class="hxp-family-grid">
+          ${newProductsFamily(model).count ? `<button type="button" class="hxp-family-card hxp-family-card-new" data-hxp-family="__new__">
+            <span class="hxp-family-visual hxp-family-visual-special"><b>NEW</b></span><span class="hxp-family-copy"><strong>Nuevos</strong><small>Revisar altas y su clasificación automática</small></span>
+            <em>${newProductsFamily(model).count}</em><span class="hxp-family-arrow">${svgIcon('chevron')}</span>
+          </button>` : ''}
           <button type="button" class="hxp-family-card hxp-family-card-popular" data-hxp-family="__popular__">
             <span class="hxp-family-visual hxp-family-visual-special"><b>★</b></span><span class="hxp-family-copy"><strong>Más usados</strong><small>Tus referencias habituales primero</small></span>
             <em>${popularFamily(model).count}</em><span class="hxp-family-arrow">${svgIcon('chevron')}</span>
@@ -1130,6 +1196,7 @@
   function familyQuickProfile(family){
     const text = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
     if(/repuesto|repuestos|recambio|recambios/.test(text)) return 'spares';
+    if(/alimentacion|alimentación/.test(text) && !/nube|cloud/.test(text)) return 'power_supply';
     if(/accesorio|accesorios/.test(text) && /inalambr|inalámbr|wireless/.test(text)) return 'wireless_accessories';
     if(/camara|cámara/.test(text)) return 'cameras';
     if(/detector|detectores|intrusion|intrusión/.test(text)) return 'detectors';
@@ -1429,10 +1496,35 @@
       if(/\blente\b|\blentes\b|\blens\b|\blenses\b|optica|óptica/.test(src)) add('Lentes');
     }
 
+    if(profile === 'power_supply'){
+      const pPower = item?.p || {};
+      const {source} = quickContext(item);
+      const hierarchy = norm([
+        pPower.category, pPower.family, pPower.subcategory, pPower.product_type,
+        item?.category, item?.family, item?.subcategory
+      ].filter(Boolean).join(' '));
+      const compact = norm(pPower.name || '').replace(/[^a-z0-9]/g,'');
+      const excludedPack = /batterybox|batterykit|batterypack|batteryholder|batterycase|powerbank|acumulador|accumulator|modulobateria|batterymodule/.test(compact);
+      const pile = /baterias? y pilas|batteries and cells/.test(hierarchy)
+        && !excludedPack
+        && (/pila|pilas|battery cell|coin cell|button cell/.test(source)
+          || /battcr|cr\d{3,4}[a-z]?|lr\d+[a-z]?|er\d+[a-z]?|batt(?:aa|aaa|aaaa|9v)/.test(compact));
+      const supply = /fuentes? y alimentadores|power suppl/.test(hierarchy)
+        || /fuente(?:\s+de)?\s+alimentacion|alimentador|power supply|ac adapter|adaptador de corriente/.test(source);
+
+      const poeInjector = /poe/.test(hierarchy)
+        && /inyector poe|poe injector|injector poe/.test(source);
+
+      if(pile) add('Pilas');
+      if(supply) add('Fuentes y Alimentadores');
+      if(poeInjector) add('Inyectores PoE');
+    }
+
     if(profile === 'wireless_accessories'){
       const role = quickProductRole(item);
       const {structuredSource} = quickContext(item);
       const src = structuredSource;
+      if(/\btransmitter\b|\btransmisor\b/.test(src)) add('Transmitter');
       if(!role.accessory){
         if(/\bkeypad\b|\bteclado\b/.test(src)) add('Teclados');
         if(/homesiren|streetsiren|\bsiren\b|\bsirena\b/.test(src)) add('Sirenas');
@@ -1558,12 +1650,17 @@
     const price = Number(product.pvp) || 0;
     const description = safeDescription(product) || 'Sin descripción disponible';
     const priceText = typeof fmt?.format === 'function' ? fmt.format(price) : `${price.toFixed(2)} €`;
-    return `<article class="hxp-product" data-index="${item.index}" data-ref="${esc(product.name)}" data-pvp="${price}">
+    const isNew = hxIsNewProduct(product);
+    const newBadge = isNew ? '<span class="hxp-new-badge">NUEVO</span>' : '';
+    const newClass = isNew ? `<span class="hxp-new-class">${esc(item.category)} → ${esc(item.family)}${item.subcategory?` · ${esc(item.subcategory)}`:''}</span>` : '';
+    return `<article class="hxp-product${isNew?' is-new-product':''}" data-index="${item.index}" data-ref="${esc(product.name)}" data-pvp="${price}">
+      ${newBadge}
       <div class="hxp-product-main">
         ${productImage(product)}
         <div class="hxp-product-copy">
           <strong class="hxp-product-ref">${esc(product.name || 'Sin referencia')}</strong>
           <span class="hxp-product-description">${esc(description)}</span>
+          ${newClass}
           <div class="hxp-product-meta">${stockBadge(product)}${productMeta(product)}</div>
         </div>
       </div>
@@ -2127,6 +2224,6 @@
       searchIndexSignature = '';
       searchIndexCache.clear();
     },
-    version:'7.4.0-catalog-preserved-explorer-fix'
+    version:'7.7.0-catalogo-expandido'
   };
 })();

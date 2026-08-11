@@ -2534,26 +2534,102 @@ function hxEsProductoAjax(p){
   return marca === 'ajax' || ref.startsWith('AJ-') || ref.startsWith('10XAJ-');
 }
 
-function hxEsAlmacenamientoSurveillance(p){
-  const texto = normaliza([
-    p?.category, p?.family, p?.subcategory, p?.product_type
+function hxTextoProveedor(p){
+  return normaliza([
+    p?.category, p?.family, p?.subcategory, p?.product_type,
+    p?.short_description, p?.description, p?.name
   ].filter(Boolean).join(' '));
+}
+
+function hxEsAlmacenamientoSurveillance(p){
+  const texto = hxTextoProveedor(p);
   return /almacenamiento|storage/.test(texto)
     && /disco duro|discos duros|surveillance|hard drive|hdd/.test(texto);
 }
 
-
 function hxEsTarjetaSDOriginal(p){
-  const texto = normaliza([
-    p?.category, p?.family, p?.subcategory, p?.product_type
-  ].filter(Boolean).join(' '));
+  const texto = hxTextoProveedor(p);
   return /almacenamiento|storage/.test(texto)
     && /tarjetas? sd|micro ?sd|microsd|sd card|memory card/.test(texto);
 }
 
-function hxEsProductoBasePermitido(p){
-  return hxEsProductoAjax(p) || hxEsAlmacenamientoSurveillance(p) || hxEsTarjetaSDOriginal(p);
+function hxEsPilaAlimentacion(p){
+  const texto = hxTextoProveedor(p);
+  const compact = texto.replace(/[^a-z0-9]/g,'');
+  if(!/baterias y pilas/.test(texto)) return false;
+
+  const excluded = /batterybox|batterykit|batterypack|batteryholder|batterycase|powerbank|acumulador|accumulator|modulobateria|batterymodule/.test(compact);
+  const cell = /pila|pilas|batterycell|coincell|buttoncell|battcr|cr\d{3,4}[a-z]?|lr\d+[a-z]?|er\d+[a-z]?|batt(?:aa|aaa|aaaa|9v)/.test(compact);
+  return cell && !excluded;
 }
+
+function hxEsFuenteAlimentador(p){
+  const texto = hxTextoProveedor(p);
+  return /fuentes y alimentadores|fuente alimentador|power supply|power supplies/.test(texto);
+}
+
+function hxEsSAI(p){
+  const niveles = [p?.category,p?.family,p?.subcategory]
+    .map(value=>normaliza(value).trim())
+    .filter(Boolean);
+
+  return niveles.some(value =>
+    value === 'sai' || value === 'sais' || value === 'ups'
+    || value.endsWith('sais') || value.endsWith('ups')
+    || /sistemas de alimentacion ininterrumpida/.test(value)
+  );
+}
+
+function hxEsSwitchNoGestionable(p){
+  const texto = hxTextoProveedor(p);
+  return /switching|switches/.test(texto)
+    && /no gestionable|unmanaged/.test(texto);
+}
+
+function hxEsRackPared(p){
+  const texto = hxTextoProveedor(p);
+  if(!/racks?|armario rack/.test(texto)) return false;
+
+  const ref = String(p?.name || '').trim().toUpperCase();
+  return /RACK-WALL/.test(ref) || /LOCKBOX-\d+U-SL(?:-|$)/.test(ref);
+}
+
+function hxEsBarreraInfrarroja(p){
+  const texto = hxTextoProveedor(p);
+  return /intrusion/.test(texto)
+    && /barrera infrarroja|barreras infrarrojas|infrared barrier|photobeam/.test(texto);
+}
+
+function hxEsInyectorPoE(p){
+  const texto = hxTextoProveedor(p);
+  return /networking|accesorios/.test(texto)
+    && /poe/.test(texto)
+    && /inyector poe|poe injector|injector poe/.test(texto);
+}
+
+function hxEsRouterMovil(p){
+  const texto = hxTextoProveedor(p);
+  return /networking|routing/.test(texto)
+    && /routers? 3g\/4g\/5g|routers? 3g|routers? 4g|routers? 5g|3g\/4g\/5g/.test(texto);
+}
+
+function hxEsProductoProveedorExtra(p){
+  return hxEsAlmacenamientoSurveillance(p)
+    || hxEsTarjetaSDOriginal(p)
+    || hxEsPilaAlimentacion(p)
+    || hxEsFuenteAlimentador(p)
+    || hxEsSAI(p)
+    || hxEsSwitchNoGestionable(p)
+    || hxEsRackPared(p)
+    || hxEsBarreraInfrarroja(p)
+    || hxEsInyectorPoE(p)
+    || hxEsRouterMovil(p);
+}
+
+function hxEsProductoBasePermitido(p){
+  return hxEsProductoAjax(p) || hxEsProductoProveedorExtra(p);
+}
+
 
 function hxUnirCatalogos(base, manual){
   const mapa = new Map();
@@ -2574,16 +2650,15 @@ function hxUnirCatalogos(base, manual){
     const ref = String(p?.name || '').trim().toUpperCase();
     if(!ref) return;
     const anterior = mapa.get(ref) || {};
-    const esStorageOriginal = hxEsAlmacenamientoSurveillance(anterior);
-    const esSDOriginal = hxEsTarjetaSDOriginal(anterior);
-    const camposProveedorStorage = new Set([
+    const esProveedorOriginal = hxEsProductoProveedorExtra(anterior);
+    const camposProveedorOriginal = new Set([
       'brand','description','short_description','image','stock',
       'category','family','subcategory','product_type','series','technology','color'
     ]);
     const informados = Object.fromEntries(
       Object.entries(p || {}).filter(([clave,valor]) => {
         if(clave === 'attributes' || clave === 'raw' || !tieneValor(valor)) return false;
-        if((esStorageOriginal || esSDOriginal) && camposProveedorStorage.has(clave)) return false;
+        if(esProveedorOriginal && camposProveedorOriginal.has(clave)) return false;
         return true;
       })
     );
@@ -2602,15 +2677,56 @@ function hxUnirCatalogos(base, manual){
         ...atributosValidos(anterior.attributes),
         ...atributosValidos(p.attributes)
       },
-      origen_catalogo: (esStorageOriginal || esSDOriginal) ? 'visio+manual' : 'manual'
+      origen_catalogo: esProveedorOriginal ? 'visio+manual' : 'manual'
     };
     mapa.set(ref, merged);
   });
   return [...mapa.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
 }
 
-const HX_CATALOGO_LOCAL_KEY='hx_catalogo_remoto_csv_v1';
+const HX_CATALOGO_LOCAL_KEY='hx_catalogo_remoto_csv_v2';
+const HX_CATALOGO_LOCAL_OLD_KEYS=['hx_catalogo_remoto_csv_v1'];
 const HX_CATALOGO_LOCAL_TTL=48*60*60*1000;
+
+const HX_CATALOGO_BASELINE_KEY='hx_catalogo_refs_baseline_v1';
+const HX_CATALOGO_NEW_KEY='hx_catalogo_nuevos_v1';
+const HX_CATALOGO_NEW_DAYS=15;
+
+function hxCatalogoRefs(lista){
+  return [...new Set((Array.isArray(lista)?lista:[])
+    .map(p=>String(p?.name||'').trim().toUpperCase())
+    .filter(Boolean))].sort();
+}
+
+function hxActualizarProductosNuevos(lista){
+  try{
+    const ahora=Date.now();
+    const refs=hxCatalogoRefs(lista);
+    const baselineRaw=localStorage.getItem(HX_CATALOGO_BASELINE_KEY);
+    if(!baselineRaw){
+      localStorage.setItem(HX_CATALOGO_BASELINE_KEY,JSON.stringify(refs));
+      localStorage.setItem(HX_CATALOGO_NEW_KEY,JSON.stringify({}));
+      window.HX_PRODUCTOS_NUEVOS={};
+      return {};
+    }
+    const prev=new Set(JSON.parse(baselineRaw)||[]);
+    let nuevos={};
+    try{ nuevos=JSON.parse(localStorage.getItem(HX_CATALOGO_NEW_KEY)||'{}')||{}; }catch(_e){}
+    refs.forEach(ref=>{ if(!prev.has(ref) && !nuevos[ref]) nuevos[ref]=ahora; });
+    const limite=HX_CATALOGO_NEW_DAYS*24*60*60*1000;
+    Object.keys(nuevos).forEach(ref=>{
+      if(!refs.includes(ref) || (ahora-Number(nuevos[ref]||0))>limite) delete nuevos[ref];
+    });
+    localStorage.setItem(HX_CATALOGO_BASELINE_KEY,JSON.stringify(refs));
+    localStorage.setItem(HX_CATALOGO_NEW_KEY,JSON.stringify(nuevos));
+    window.HX_PRODUCTOS_NUEVOS=nuevos;
+    return nuevos;
+  }catch(_error){
+    window.HX_PRODUCTOS_NUEVOS={};
+    return {};
+  }
+}
+
 
 function hxCatalogoLocalLeer(){
   try{
@@ -2629,6 +2745,7 @@ function hxCatalogoLocalLeer(){
 
 function hxCatalogoLocalGuardar(csv){
   try{
+    HX_CATALOGO_LOCAL_OLD_KEYS.forEach(key=>localStorage.removeItem(key));
     localStorage.setItem(HX_CATALOGO_LOCAL_KEY,JSON.stringify({ts:Date.now(),csv:String(csv||'')}));
   }catch(_error){}
 }
@@ -2695,7 +2812,7 @@ async function cargarCatalogo(){
   try{
     let baseTxt = '';
     try{
-      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v=206');
+      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v=210');
     }catch(errorRemoto){
       console.warn('Catálogo remoto no disponible; se usa la copia local.', errorRemoto);
       baseTxt = await hxLeerCSV(CSV_URL);
@@ -2709,6 +2826,7 @@ async function cargarCatalogo(){
     const base = parseCSVRobusto175(baseTxt);
     const manual = manualTxt ? parseCSVRobusto175(manualTxt) : [];
     productos = hxUnirCatalogos(base, manual);
+    hxActualizarProductosNuevos(productos);
     if(!productos.length) throw new Error('Catálogo vacío o columnas no reconocidas');
     try{
       window.HX_EXPLORER_PRO?.resetCache?.();
