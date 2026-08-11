@@ -335,6 +335,13 @@ function esRouterMovil(classification = {}) {
     && /routers?3g4g5g|routers?3g|routers?4g|routers?5g|3g4g5g/.test(branch);
 }
 
+function esSoporteCCTVSeleccionado(name = "") {
+  const ref = String(name || "").trim().toUpperCase();
+  return ref === "DS-1280ZJ-XS"
+    || ref === "DS-1280ZJ-XS-B"
+    || ref === "DS-1280ZJ-XS-W";
+}
+
 async function crearCatalogoAjax(response) {
   if (!response.body) throw new Error("El proveedor no devolvió contenido");
 
@@ -387,11 +394,12 @@ async function crearCatalogoAjax(response) {
     const isInfraredBarrier = esBarreraInfrarroja(classification);
     const isPoeInjector = esInyectorPoE(classification, row, name);
     const isMobileRouter = esRouterMovil(classification);
+    const isSelectedCctvSupport = esSoporteCCTVSeleccionado(name);
 
     const isExtraSupplierProduct = isSurveillanceDrive || isSdCard
       || isBatteryCell || isPowerSupply || isUps
       || isUnmanagedSwitch || isWallRack || isInfraredBarrier
-      || isPoeInjector || isMobileRouter;
+      || isPoeInjector || isMobileRouter || isSelectedCctvSupport;
 
     if (!isAjax && !isExtraSupplierProduct) continue;
 
