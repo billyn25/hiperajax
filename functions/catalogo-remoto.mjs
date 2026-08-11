@@ -240,27 +240,99 @@ function escaparCSV(value) {
   return /[;"\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-function esDiscoSurveillance(classification = {}) {
-  const text = normalizarClave([
+function textoClasificacionProveedor(classification = {}) {
+  return normalizarClave([
     classification.category,
     classification.family,
     classification.subcategory,
   ].filter(Boolean).join(" "));
-  const storage = /almacenamiento|storage/.test(text);
-  const hardDrive = /discoduro|discosduros|surveillance|harddrive|hdd/.test(text);
-  return storage && hardDrive;
+}
+
+function esDiscoSurveillance(classification = {}) {
+  const text = textoClasificacionProveedor(classification);
+  return /almacenamiento|storage/.test(text)
+    && /discoduro|discosduros|surveillance|harddrive|hdd/.test(text);
+}
+
+function esTarjetaSD(classification = {}) {
+  const text = textoClasificacionProveedor(classification);
+  return /almacenamiento|storage/.test(text)
+    && /tarjetassd|tarjetasd|microsd|sdcard|memorycard/.test(text);
+}
+
+function esPilaAlimentacion(classification = {}, row = {}, name = "") {
+  const branch = textoClasificacionProveedor(classification);
+  if (!/bateriasypilas/.test(branch)) return false;
+
+  const productText = normalizarClave([
+    name,
+    primerValor(row, ["short_description", "shortDescription", "short_desc", "descripcion_corta"]),
+    primerValor(row, ["description", "descripcion"]),
+    primerValor(row, ["product_type", "producttype", "tipo_producto", "tipo"]),
+  ].filter(Boolean).join(" "));
+
+  // Solo pilas/celdas: no packs, kits, cajas ni módulos de batería.
+  const excluded = /batterybox|batterykit|batterypack|batteryholder|batterycase|powerbank|acumulador|accumulator|modulobateria|batterymodule/.test(productText);
+  const cell = /pila|pilas|batterycell|coincell|buttoncell|battcr|cr\d{3,4}[a-z]?|lr\d+[a-z]?|er\d+[a-z]?|batt(?:aa|aaa|aaaa|9v)/.test(productText);
+  return cell && !excluded;
+}
+
+function esFuenteAlimentador(classification = {}) {
+  const text = textoClasificacionProveedor(classification);
+  return /fuentesyalimentadores|fuentealimentador|powersupplies|powersupply/.test(text);
+}
+
+function esSAI(classification = {}) {
+  const levels = [
+    classification.category,
+    classification.family,
+    classification.subcategory,
+  ].map(normalizarClave).filter(Boolean);
+
+  return levels.some(value =>
+    value === "sai" || value === "sais" || value === "ups"
+    || value.endsWith("sais") || value.endsWith("ups")
+    || /sistemasdealimentacionininterrumpida/.test(value)
+  );
+}
+
+function esSwitchNoGestionable(classification = {}) {
+  const text = textoClasificacionProveedor(classification);
+  return /switching|switches/.test(text)
+    && /nogestionable|unmanaged/.test(text);
+}
+
+function esRackPared(classification = {}, name = "") {
+  const text = textoClasificacionProveedor(classification);
+  if (!/racks?|armariosrack/.test(text)) return false;
+
+  const ref = normalizarClave(name);
+  return /rackwall/.test(ref) || /lockbox\d+usl/.test(ref);
+}
+
+function esBarreraInfrarroja(classification = {}) {
+  const text = textoClasificacionProveedor(classification);
+  return /intrusion/.test(text)
+    && /barrerainfrarroja|barrerasinfrarrojas|infraredbarrier|photobeam/.test(text);
 }
 
 
-function esTarjetaSD(classification = {}) {
-  const text = normalizarClave([
-    classification.category,
-    classification.family,
-    classification.subcategory,
+function esInyectorPoE(classification = {}, row = {}, name = "") {
+  const branch = textoClasificacionProveedor(classification);
+  if (!/networking|accesorios/.test(branch) || !/poe/.test(branch)) return false;
+  const productText = normalizarClave([
+    name,
+    primerValor(row, ["short_description", "shortDescription", "short_desc", "descripcion_corta"]),
+    primerValor(row, ["description", "descripcion"]),
+    primerValor(row, ["product_type", "producttype", "tipo_producto", "tipo"]),
   ].filter(Boolean).join(" "));
-  const storage = /almacenamiento|storage/.test(text);
-  const sd = /tarjetassd|tarjetasd|microsd|sdcard|memorycard/.test(text);
-  return storage && sd;
+  return /inyectorpoe|poeinjector|injectorpoe/.test(productText);
+}
+
+function esRouterMovil(classification = {}) {
+  const branch = textoClasificacionProveedor(classification);
+  return /networking|routing/.test(branch)
+    && /routers?3g4g5g|routers?3g|routers?4g|routers?5g|3g4g5g/.test(branch);
 }
 
 async function crearCatalogoAjax(response) {
@@ -301,13 +373,27 @@ async function crearCatalogoAjax(response) {
     const brand = String(primerValor(row, ["brand", "marca", "manufacturer", "fabricante"])).trim();
     if (!name) continue;
 
-    // Flujo de Almacenamiento recuperado EXACTAMENTE de la versión que funcionaba.
-    // Tarjetas SD es solo una segunda excepción paralela.
+    // La clasificación se evalúa ANTES del filtro Ajax.
+    // Las familias extra se conservan por jerarquía para admitir productos futuros.
     const classification = valoresClasificacion(row, classificationFields || {});
     const isAjax = brand.toUpperCase() === "AJAX";
     const isSurveillanceDrive = esDiscoSurveillance(classification);
     const isSdCard = esTarjetaSD(classification);
-    if (!isAjax && !isSurveillanceDrive && !isSdCard) continue;
+    const isBatteryCell = esPilaAlimentacion(classification, row, name);
+    const isPowerSupply = esFuenteAlimentador(classification);
+    const isUps = esSAI(classification);
+    const isUnmanagedSwitch = esSwitchNoGestionable(classification);
+    const isWallRack = esRackPared(classification, name);
+    const isInfraredBarrier = esBarreraInfrarroja(classification);
+    const isPoeInjector = esInyectorPoE(classification, row, name);
+    const isMobileRouter = esRouterMovil(classification);
+
+    const isExtraSupplierProduct = isSurveillanceDrive || isSdCard
+      || isBatteryCell || isPowerSupply || isUps
+      || isUnmanagedSwitch || isWallRack || isInfraredBarrier
+      || isPoeInjector || isMobileRouter;
+
+    if (!isAjax && !isExtraSupplierProduct) continue;
 
     const key = name.toUpperCase();
     if (products.has(key)) continue;
@@ -337,7 +423,7 @@ async function crearCatalogoAjax(response) {
 
     products.set(key, {
       name,
-      brand: isAjax ? "Ajax" : (brand || "Almacenamiento"),
+      brand: isAjax ? "Ajax" : (brand || "Proveedor"),
       pvp: String(primerValor(row, ["PVP", "recommended_retail_price", "retail_price", "precio_venta", "tarifa"])).trim(),
       description: limpiarDescripcion(primerValor(row, ["description", "descripcion"])),
       short_description: limpiarDescripcion(primerValor(row, ["short_description", "shortDescription", "short_desc", "description_short", "descripcion_corta"])),
