@@ -92,7 +92,8 @@
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
     routers_mobile:['Routers','Licencias'],
-    unmanaged_switches:['4 puertos','5 puertos','8 puertos','16 puertos','24 puertos','48 puertos','PoE']
+    unmanaged_switches:['4 puertos','5 puertos','8 puertos','16 puertos','24 puertos','48 puertos','PoE'],
+    infrared_barriers:['Cableadas','Inalámbricas','Híbridas','Compatible Ajax','Solares']
   });
 
   const FACET_EQUIVALENT_GROUPS = Object.freeze([
@@ -257,6 +258,15 @@
     if(!subcategory) subcategory = inferredSubcategory(product);
     if(!category) category = manual ? 'Productos añadidos' : 'Sin categoría';
     if(!family) family = manual ? 'Productos añadidos' : 'General';
+
+    const selectedRef = clean(product?.name).toUpperCase();
+    if(['DS-1280ZJ-XS','DS-1280ZJ-XS-B','DS-1280ZJ-XS-W'].includes(selectedRef)){
+      return {
+        category:'Ajax CCTV',
+        family:'Accesorios',
+        subcategory:'Soportes cámaras'
+      };
+    }
 
     const canonical = canonicalClassification(category, family, subcategory);
     return {
@@ -1216,6 +1226,7 @@
     if(/switches? no gestionables?|no gestionable|unmanaged/.test(text)) return 'unmanaged_switches';
     if(/alimentacion|alimentación/.test(text) && !/nube|cloud/.test(text)) return 'power_supply';
     if(/accesorio|accesorios/.test(text) && /inalambr|inalámbr|wireless/.test(text)) return 'wireless_accessories';
+    if(/barreras? infrarrojas?|infrared barrier|photobeam/.test(text)) return 'infrared_barriers';
     if(/camara|cámara/.test(text)) return 'cameras';
     if(/detector|detectores|intrusion|intrusión/.test(text)) return 'detectors';
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'smart_home';
@@ -1359,6 +1370,53 @@
       if(/\bturret\b/.test(typeText)) add('Turret');
       if(/\bbullet\b/.test(typeText)) add('Bullet');
       if(/\bdome\b|\bdomo\b/.test(typeText)) add('Domo');
+    }
+
+    if(profile === 'infrared_barriers'){
+      const pBarrier = item?.p || {};
+      const attrsBarrier = normalizeAttributes(pBarrier);
+      const hierarchyBarrier = norm([
+        item?.category, item?.family, item?.subcategory,
+        pBarrier.category, pBarrier.family, pBarrier.subcategory,
+        pBarrier.product_type, pBarrier.tipo, pBarrier.technology, pBarrier.tecnologia,
+        ...Object.entries(attrsBarrier).flatMap(([key,value]) => [key,value])
+      ].filter(Boolean).join(' '));
+      const sourceBarrier = norm([
+        pBarrier.name, pBarrier.short_description, pBarrier.description,
+        hierarchyBarrier
+      ].filter(Boolean).join(' '));
+
+      // El tipo de comunicación es excluyente:
+      // Híbrida > Inalámbrica > Cableada.
+      const hybridBarrier =
+        /cablead[ao]\s+(?:e|y)\s+inalambric[ao]|wired\s+(?:and|&)\s+wireless|\bhybrid\b|\bhibrid[ao]\b/.test(sourceBarrier);
+
+      const wirelessBarrier =
+        !hybridBarrier && (
+          /ajax\s+inalambric[ao]|\binalambric[ao]\b|\bwireless\b|\bradio\b/.test(hierarchyBarrier)
+          || /barrera[^.]{0,60}(?:inalambric[ao]|wireless)/.test(sourceBarrier)
+        );
+
+      const wiredBarrier =
+        !hybridBarrier && !wirelessBarrier && (
+          /\bcablead[ao]\b|\bwired\b|salida de rele|salida de rel[eé]|relay output/.test(hierarchyBarrier)
+          || /barrera[^.]{0,60}(?:cablead[ao]|wired)/.test(sourceBarrier)
+        );
+
+      // Compatibilidad no equivale a Apertura: DoorProtect/Transmitter solo
+      // activa este atajo de integración Ajax.
+      const ajaxCompatible =
+        /ajax\s+inalambric[ao]|compatible[^.]{0,80}\bajax\b|integracion[^.]{0,80}\bajax\b|integración[^.]{0,80}\bajax\b/.test(sourceBarrier)
+        || /(?:^|[\s_-])transmitter(?:[\s_-]|$)|\bdoor\s*protect\b|(?:^|[\s_-])doorprotect(?:[\s_-]|$)/.test(sourceBarrier);
+
+      const solarBarrier =
+        /\bsolar\b|panel solar|alimentacion solar|alimentación solar|solar powered|photovoltaic|fotovoltaic[ao]/.test(sourceBarrier);
+
+      if(wiredBarrier) add('Cableadas');
+      if(wirelessBarrier) add('Inalámbricas');
+      if(hybridBarrier) add('Híbridas');
+      if(ajaxCompatible) add('Compatible Ajax');
+      if(solarBarrier) add('Solares');
     }
 
     if(profile === 'detectors'){
