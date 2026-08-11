@@ -89,7 +89,10 @@
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
     wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
-    power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE']
+    power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
+    ups:['UPS'],
+    routers_mobile:['Routers','Licencias'],
+    unmanaged_switches:['4 puertos','5 puertos','8 puertos','16 puertos','24 puertos','48 puertos','PoE']
   });
 
   const FACET_EQUIVALENT_GROUPS = Object.freeze([
@@ -338,14 +341,23 @@
     const familyText = norm(`${family.familyTitle} ${family.categoryTitle}`);
 
     // Representantes comerciales fijados solo para la portada de familias.
-    const wantedRef = /tarjetas? sd|micro ?sd|microsd|memory card/.test(familyText)
-      ? 'HS-TF-D3STD/64G/NEO LUX/WW'
-      : (/accesorio|accesorios/.test(familyText) && /inalambr|inalámbr|wireless/.test(familyText)
-          ? 'AJ-HOMESIREN-B'
-          : '');
+    const wantedRef =
+      /tarjetas? sd|micro ?sd|microsd|memory card/.test(familyText)
+        ? 'HS-TF-D3STD/64G/NEO LUX/WW'
+        : (/^alimentacion$|^alimentación$/.test(norm(family?.displayTitle||family?.familyTitle||'')) ? 'DC1210'
+        : (/racks? de pared|rack wall/.test(familyText) ? 'RACK-WALL'
+        : (/^sais?$|^ups$/.test(norm(family?.displayTitle||family?.familyTitle||'')) ? 'UPS1500VA-4'
+        : (/routers? 3g|routers? 4g|routers? 5g|3g\/4g\/5g/.test(familyText) ? 'SF-ROUTER-4G-UPS-4P'
+        : (/accesorio|accesorios/.test(familyText) && /inalambr|inalámbr|wireless/.test(familyText)
+            ? 'AJ-HOMESIREN-B'
+            : '')))));
 
     if(wantedRef){
-      const exact = withImage.find(item => clean(item.p?.name).toUpperCase() === wantedRef);
+      const wantedUpper = wantedRef.toUpperCase();
+      const exact = withImage.find(item => clean(item.p?.name).toUpperCase() === wantedUpper)
+        || (/^RACK-WALL$/.test(wantedUpper)
+          ? withImage.find(item => clean(item.p?.name).toUpperCase().startsWith('RACK-WALL'))
+          : null);
       if(exact) return exact.p;
     }
 
@@ -931,6 +943,9 @@
 
     if(/central|hub|sirena|teclado/.test(text)) return 'ref-color';
 
+    // SAIs: referencias agrupadas y ordenadas de forma estable.
+    if(/^sais?$|^ups$/.test(norm(family?.displayTitle||family?.familyTitle||''))) return 'ref';
+
     // Productos añadidos/manuales: mantener referencias relacionadas juntas.
     if(/otros productos|productos anadidos|productos añadidos/.test(text)) return 'ref';
 
@@ -1196,6 +1211,9 @@
   function familyQuickProfile(family){
     const text = norm(`${family?.displayTitle||''} ${family?.familyTitle||''} ${family?.categoryTitle||''}`);
     if(/repuesto|repuestos|recambio|recambios/.test(text)) return 'spares';
+    if(/^sais?$|^ups$/.test(norm(family?.displayTitle||family?.familyTitle||''))) return 'ups';
+    if(/routers? 3g|routers? 4g|routers? 5g|3g\/4g\/5g/.test(text)) return 'routers_mobile';
+    if(/switches? no gestionables?|no gestionable|unmanaged/.test(text)) return 'unmanaged_switches';
     if(/alimentacion|alimentación/.test(text) && !/nube|cloud/.test(text)) return 'power_supply';
     if(/accesorio|accesorios/.test(text) && /inalambr|inalámbr|wireless/.test(text)) return 'wireless_accessories';
     if(/camara|cámara/.test(text)) return 'cameras';
@@ -1494,6 +1512,45 @@
       if(/\bpcb\b|printed circuit|placa electronica|placa electrónica|circuit board/.test(src)
         || /pcb\d*|[-_]pcb(?:[-_]|$)/.test(refSpare)) add('PCB');
       if(/\blente\b|\blentes\b|\blens\b|\blenses\b|optica|óptica/.test(src)) add('Lentes');
+    }
+
+    if(profile === 'ups'){
+      const {source} = quickContext(item);
+      if(/\bups\b|\bsai\b|alimentacion ininterrumpida|alimentación ininterrumpida/.test(source)) add('UPS');
+    }
+
+    if(profile === 'routers_mobile'){
+      const pRouter = item?.p || {};
+      const {source} = quickContext(item);
+      const textRouter = norm(`${pRouter.name||''} ${pRouter.short_description||''} ${pRouter.description||''} ${source}`);
+      const isLicense = /licencia|license|licence|suscripcion|suscripción|subscription/.test(textRouter);
+      if(isLicense) add('Licencias');
+      else add('Routers');
+    }
+
+    if(profile === 'unmanaged_switches'){
+      const pSwitch = item?.p || {};
+      const attrsSwitch = normalizeAttributes(pSwitch);
+      const textSwitch = norm([
+        pSwitch.name,pSwitch.short_description,pSwitch.description,
+        pSwitch.ports,pSwitch.puertos,pSwitch.poe,
+        ...Object.entries(attrsSwitch).flatMap(([k,v])=>[k,v])
+      ].filter(Boolean).join(' '));
+
+      let ports = 0;
+      const explicitPorts = textSwitch.match(/(?:^|\D)(4|5|8|16|24|48)\s*(?:puertos?|ports?)(?:\D|$)/);
+      if(explicitPorts) ports = Number(explicitPorts[1]);
+
+      if(!ports){
+        const refCompact = norm(pSwitch.name||'').replace(/[^a-z0-9]/g,'');
+        const refPorts = refCompact.match(/(?:switch|sw)[a-z]*?(04|05|08|16|24|48)(?:[a-z]|$)/);
+        if(refPorts) ports = Number(refPorts[1]);
+      }
+
+      if([4,5,8,16,24,48].includes(ports)) add(`${ports} puertos`);
+
+      const poe = /\bpoe\b|poe\+|802\.3af|802\.3at|802\.3bt/.test(textSwitch);
+      if(poe) add('PoE');
     }
 
     if(profile === 'power_supply'){
