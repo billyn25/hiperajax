@@ -1566,15 +1566,19 @@
         && !excludedPack
         && (/pila|pilas|battery cell|coin cell|button cell/.test(source)
           || /battcr|cr\d{3,4}[a-z]?|lr\d+[a-z]?|er\d+[a-z]?|batt(?:aa|aaa|aaaa|9v)/.test(compact));
-      const supply = /fuentes? y alimentadores|power suppl/.test(hierarchy)
-        || /fuente(?:\s+de)?\s+alimentacion|alimentador|power supply|ac adapter|adaptador de corriente/.test(source);
+      // Los atajos de Alimentación son excluyentes por rama/función.
+      // Una pila puede mencionar "alimentación" en su descripción, pero nunca debe
+      // aparecer como Fuente y Alimentador.
+      const supplyBranch = /fuentes? y alimentadores|power supplies/.test(hierarchy);
+      const supplyType = /fuente(?:\s+de)?\s+alimentacion|alimentador|power supply|ac adapter|adaptador de corriente/.test(source);
+      const supply = !pile && (supplyBranch || supplyType);
 
-      const poeInjector = /poe/.test(hierarchy)
+      const poeInjector = !pile && /poe/.test(hierarchy)
         && /inyector poe|poe injector|injector poe/.test(source);
 
       if(pile) add('Pilas');
-      if(supply) add('Fuentes y Alimentadores');
-      if(poeInjector) add('Inyectores PoE');
+      else if(poeInjector) add('Inyectores PoE');
+      else if(supply) add('Fuentes y Alimentadores');
     }
 
     if(profile === 'wireless_accessories'){
