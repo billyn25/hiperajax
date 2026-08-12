@@ -4528,27 +4528,19 @@ function guardarUsoProductos206(data){
   try{ localStorage.setItem(STORAGE_USO_PRODUCTOS_206, JSON.stringify(data || {})); }
   catch(e){}
 }
+const HX_MAS_USADOS_DIAS=30;
 function limpiarUsoProductosInexistentes206(lista=productos){
   try{
-    const validas=new Set((Array.isArray(lista)?lista:[])
-      .map(p=>String(p?.name||'').trim().toUpperCase())
-      .filter(Boolean));
-    const data=leerUsoProductos206();
+    const validas=new Set((Array.isArray(lista)?lista:[]).map(p=>String(p?.name||'').trim().toUpperCase()).filter(Boolean));
+    const data=leerUsoProductos206(), ahora=Date.now(), limite=HX_MAS_USADOS_DIAS*24*60*60*1000;
     let cambio=false;
     Object.keys(data).forEach(ref=>{
-      if(!validas.has(String(ref).trim().toUpperCase())){
-        delete data[ref];
-        cambio=true;
-      }
+      const last=Date.parse(String(data[ref]?.last||''))||0;
+      if(!validas.has(String(ref).trim().toUpperCase()) || !last || (ahora-last)>limite){ delete data[ref]; cambio=true; }
     });
     if(cambio) guardarUsoProductos206(data);
     return data;
-  }catch(e){
-    return leerUsoProductos206();
-  }
-}
-function resetearUsoProductos206(){
-  try{ localStorage.removeItem(STORAGE_USO_PRODUCTOS_206); }catch(e){}
+  }catch(e){ return leerUsoProductos206(); }
 }
 function registrarUsoProducto206(p){
   if(!p || !p.name) return;

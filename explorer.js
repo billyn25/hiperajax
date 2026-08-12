@@ -626,52 +626,18 @@
   }
 
   function popularFamily(model){
-    const refMap = new Map(model.allItems.map(item => [clean(item.p?.name).toUpperCase(), item]));
-    const items = [];
-    const seen = new Set();
-
-    // Primero se respetan los productos que realmente usa el usuario.
+    const refMap=new Map(model.allItems.map(item=>[clean(item.p?.name).toUpperCase(),item]));
+    const items=[];
     try{
-      const usage = typeof limpiarUsoProductosInexistentes206 === 'function'
+      const usage=typeof limpiarUsoProductosInexistentes206==='function'
         ? limpiarUsoProductosInexistentes206(currentProducts())
-        : (typeof leerUsoProductos206 === 'function' ? leerUsoProductos206() : {});
-      Object.entries(usage || {})
-        .sort((a,b) => (Number(b[1]?.count)||0) - (Number(a[1]?.count)||0) || String(b[1]?.last||'').localeCompare(String(a[1]?.last||'')))
-        .forEach(([ref]) => {
-          const item = refMap.get(clean(ref).toUpperCase());
-          if(item && !seen.has(item.index) && items.length < 24){
-            seen.add(item.index);
-            items.push(item);
-          }
-        });
+        : (typeof leerUsoProductos206==='function'?leerUsoProductos206():{});
+      Object.entries(usage||{})
+        .sort((a,b)=>(Number(b[1]?.count)||0)-(Number(a[1]?.count)||0)||String(b[1]?.last||'').localeCompare(String(a[1]?.last||'')))
+        .slice(0,24)
+        .forEach(([ref])=>{ const item=refMap.get(clean(ref).toUpperCase()); if(item) items.push(item); });
     }catch(_error){}
-
-    POPULAR_REFS.forEach(ref => {
-      const item = refMap.get(ref);
-      if(item && !seen.has(item.index)){
-        seen.add(item.index);
-        items.push(item);
-      }
-    });
-    if(items.length < 10){
-      model.families.slice(0, 7).forEach(family => {
-        family.items.slice(0, 2).forEach(item => {
-          if(items.length < 20 && !seen.has(item.index)){
-            seen.add(item.index);
-            items.push(item);
-          }
-        });
-      });
-    }
-    return {
-      key:'__popular__',
-      familyTitle:'Más usados',
-      categoryTitle:'Acceso rápido',
-      context:'Referencias habituales',
-      items,
-      count:items.length,
-      popular:true
-    };
+    return {key:'__popular__',familyTitle:'Más usados',categoryTitle:'Acceso rápido',context:'Usados en los últimos 30 días',items,count:items.length,popular:true};
   }
 
   function familyItems(model = buildModel()){
@@ -1843,10 +1809,7 @@
         <div class="hxp-current-family">
           <button type="button" class="hxp-back" data-hxp-home aria-label="Volver a familias">${svgIcon('back')}</button>
           <div><h3>${esc(title)}</h3><p>${esc(context)}</p></div>
-          <div class="hxp-family-head-actions">
-            ${state.familyKey === '__popular__' ? `<button type="button" class="hxp-reset-popular" data-hxp-reset-popular>Restablecer</button>` : ''}
-            ${state.familyKey ? `<button type="button" class="hxp-change-family" data-hxp-home>Cambiar familia</button>` : ''}
-          </div>
+          ${state.familyKey ? `<button type="button" class="hxp-change-family" data-hxp-home>Cambiar familia</button>` : ''}
         </div>
         ${state.familyKey ? quickTypes(quickCounterItems()) : ''}
         <div class="hxp-products-scroll" id="hxpProductsScroll">
@@ -2129,14 +2092,6 @@
         }
       });
     }
-
-    root.querySelector('[data-hxp-reset-popular]')?.addEventListener('click', () => {
-      if(!confirm('¿Restablecer los productos más usados?')) return;
-      try{
-        if(typeof resetearUsoProductos206 === 'function') resetearUsoProductos206();
-      }catch(_error){}
-      render();
-    });
 
     root.querySelector('[data-hxp-clear-search]')?.addEventListener('click', () => {
       state.query = '';

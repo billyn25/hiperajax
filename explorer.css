@@ -1910,3 +1910,13 @@ body.light-mode .hxp-type-scroll{
     font-size:9.5px!important;
   }
 }
+
+@media (max-width:760px){
+  #familiasGrid .hxp-sort select{
+    font-size:16px!important;
+    font-weight:400!important;
+    letter-spacing:normal!important;
+    line-height:normal!important;
+  }
+  #familiasGrid .hxp-sort > span{font-weight:500!important}
+}
