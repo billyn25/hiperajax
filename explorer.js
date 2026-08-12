@@ -1650,7 +1650,8 @@
         if(/\bkeypad\b|\bteclado\b/.test(src)) add('Teclados');
         if(/homesiren|streetsiren|\bsiren\b|\bsirena\b/.test(src)) add('Sirenas');
         if(/\brelay\b|wallswitch|\brel[eé]\b/.test(src)) add('Relés');
-        if(/spacecontrol|doublebutton|(?:^|\s)button(?:\s|$)|\bmando\b|bot[oó]n/.test(src)) add('Botones / Mandos');
+        const isKeypad = /\bkeypad\b|\bkeypadplus\b|\bkeypadcombi\b|\bteclado\b/.test(src);
+        if(!isKeypad && /spacecontrol|doublebutton|(?:^|\s)button(?:\s|$)|\bmando\b|bot[oó]n/.test(src)) add('Botones / Mandos');
         if(/\bsocket\b|\benchufe\b/.test(src)) add('Enchufes');
         if(/waterstop|\bvalve\b|\bv[aá]lvula\b/.test(src)) add('Válvulas');
         if(/(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(src)) add('Repetidores');
