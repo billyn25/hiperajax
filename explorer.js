@@ -88,7 +88,7 @@
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
     wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter'],
-    spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
+    spares:['Brackets','Carcasas','Baterías','PCB','Lentes','Hood / Viseras'],
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
     routers_mobile:['Routers','Licencias'],
@@ -1570,6 +1570,7 @@
       if(/\bpcb\b|printed circuit|placa electronica|placa electrónica|circuit board/.test(src)
         || /pcb\d*|[-_]pcb(?:[-_]|$)/.test(refSpare)) add('PCB');
       if(/\blente\b|\blentes\b|\blens\b|\blenses\b|optica|óptica/.test(src)) add('Lentes');
+      if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
     }
 
     if(profile === 'ups'){
