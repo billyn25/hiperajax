@@ -83,7 +83,7 @@
   // Los productos se asignan dinámicamente desde Tipo/atributos/nombre; nunca por listas de referencias.
   const QUICK_FILTER_ORDER = Object.freeze({
     cameras:['Bullet','Turret','Domo','Cube','PTZ','Soportes'],
-    detectors:['Movimiento','Apertura','Inundación','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio'],
+    detectors:['Movimiento','Apertura','MotionCam','PhOD','Cristal','Inundación','Combi','Exterior','Cortina','Incendio'],
     smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
@@ -1729,18 +1729,22 @@
     const groups = quickGroups(baseItems);
     if(!groups.length) return '';
 
-    return `<div class="hxp-type-strip" aria-label="Filtros rápidos">
-      <button type="button" class="hxp-type-tab ${!state.quickGroup?'is-active':''}" data-hxp-quick="">Todos</button>
-      ${groups.map(group => {
-        const active = state.quickGroup === group.label;
-        const disabled = group.count === 0 && !active;
-        return `<button type="button"
-          class="hxp-type-tab ${active?'is-active':''} ${disabled?'is-disabled':''}"
-          data-hxp-quick="${esc(group.label)}"
-          ${disabled?'disabled aria-disabled="true"':''}>
-          <span>${esc(group.label)}</span><em>${group.count}</em>
-        </button>`;
-      }).join('')}
+    return `<div class="hxp-type-scroll-shell" data-hxp-quick-scroll>
+      <button type="button" class="hxp-type-scroll hxp-type-scroll-left" data-hxp-quick-left aria-label="Ver atajos anteriores">‹</button>
+      <div class="hxp-type-strip" aria-label="Filtros rápidos">
+        <button type="button" class="hxp-type-tab ${!state.quickGroup?'is-active':''}" data-hxp-quick="">Todos</button>
+        ${groups.map(group => {
+          const active = state.quickGroup === group.label;
+          const disabled = group.count === 0 && !active;
+          return `<button type="button"
+            class="hxp-type-tab ${active?'is-active':''} ${disabled?'is-disabled':''}"
+            data-hxp-quick="${esc(group.label)}"
+            ${disabled?'disabled aria-disabled="true"':''}>
+            <span>${esc(group.label)}</span><em>${group.count}</em>
+          </button>`;
+        }).join('')}
+      </div>
+      <button type="button" class="hxp-type-scroll hxp-type-scroll-right" data-hxp-quick-right aria-label="Ver más atajos">›</button>
     </div>`;
   }
 
@@ -2021,8 +2025,40 @@
     bindDynamicResults(byId('familiasGrid'));
   }
 
+  function bindQuickScroll(root){
+    if(!root) return;
+    root.querySelectorAll('[data-hxp-quick-scroll]').forEach(shell => {
+      const strip = shell.querySelector('.hxp-type-strip');
+      const left = shell.querySelector('[data-hxp-quick-left]');
+      const right = shell.querySelector('[data-hxp-quick-right]');
+      if(!strip || !left || !right) return;
+
+      const update = () => {
+        const overflow = strip.scrollWidth > strip.clientWidth + 2;
+        const max = Math.max(0, strip.scrollWidth - strip.clientWidth);
+        shell.classList.toggle('has-overflow', overflow);
+        left.classList.toggle('is-visible', overflow && strip.scrollLeft > 4);
+        right.classList.toggle('is-visible', overflow && strip.scrollLeft < max - 4);
+      };
+
+      if(!shell.dataset.hxpScrollBound){
+        shell.dataset.hxpScrollBound='1';
+        left.addEventListener('click', () => {
+          strip.scrollBy({left:-Math.max(220, strip.clientWidth*.6), behavior:'smooth'});
+        });
+        right.addEventListener('click', () => {
+          strip.scrollBy({left:Math.max(220, strip.clientWidth*.6), behavior:'smooth'});
+        });
+        strip.addEventListener('scroll', update, {passive:true});
+      }
+
+      requestAnimationFrame(update);
+    });
+  }
+
   function bindDynamicResults(root){
     if(!root) return;
+    bindQuickScroll(root);
     root.querySelectorAll('[data-hxp-quick]').forEach(button => {
       if(button.dataset.hxpBound) return;
       button.dataset.hxpBound = '1';
@@ -2046,6 +2082,7 @@
   }
 
   function bind(root){
+    bindQuickScroll(root);
     const search = byId('hxpSearch');
     if(search){
       search.addEventListener('input', event => {
