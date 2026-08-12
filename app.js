@@ -3107,13 +3107,31 @@ function meta182(p){
 const descripcionProducto_PRE182 = descripcionProducto;
 descripcionProducto = function(p){ const m = meta182(p); if(m) return {icon:m.icon,desc:m.desc,family:m.sub?`${m.family} · ${m.sub}`:m.family,official:m.official}; try{return descripcionProducto_PRE182(p);}catch(e){return {icon:'📦',desc:'Producto del catálogo',family:'Producto nuevo',official:ref182(p)};} };
 function textoBusqueda182(p){ const m=meta182(p)||{}; let prev=''; try{const d=descripcionProducto_PRE182(p); prev=[d.desc,d.family,d.official].join(' ');}catch(e){} return normaliza([ref182(p),p&&p.brand,m.family,m.sub,m.desc,m.official,(m.tags||[]).join(' '),prev,p&&p._search175].join(' ')); }
-let recientesSesion182 = [];
-registrarReciente = function(nombre){ const name=String(nombre||'').trim(); if(!name) return; const idx=recientesSesion182.findIndex(x=>x.name===name); if(idx>=0) recientesSesion182[idx].count+=1; else recientesSesion182.unshift({name,count:1}); recientesSesion182=recientesSesion182.sort((a,b)=>b.count-a.count).slice(0,12); renderRecientes(); };
-renderRecientes = function(){
+const HX_RECIENTES_KEY='hiperajax_productos_recientes_v1';
+function leerRecientes(){
+  try{
+    const refs=JSON.parse(localStorage.getItem(HX_RECIENTES_KEY)||'[]');
+    return Array.isArray(refs)?refs.filter(Boolean):[];
+  }catch(_e){ return []; }
+}
+function registrarReciente(nombre){
+  const name=String(nombre||'').trim();
+  if(!name) return;
+  const refs=leerRecientes().filter(ref=>String(ref).toUpperCase()!==name.toUpperCase());
+  refs.unshift(name);
+  try{ localStorage.setItem(HX_RECIENTES_KEY,JSON.stringify(refs.slice(0,6))); }catch(_e){}
+  renderRecientes();
+}
+function renderRecientes(){
   const wrap=document.querySelector('#recentes');
   if(!wrap) return;
-  if(!recientesSesion182.length){ wrap.innerHTML=''; return; }
-  wrap.innerHTML='<span class="recent-label">Atajos:</span>'+recientesSesion182.map(x=>`<button type="button" class="recent-chip" data-name="${escapeHtml(x.name)}">${escapeHtml(x.name)}${x.count>1?' ×'+x.count:''}</button>`).join('');
+  const limite=window.matchMedia('(max-width:760px)').matches?3:6;
+  const refs=leerRecientes()
+    .filter(ref=>findProductoByQuery(ref))
+    .slice(0,limite);
+  if(!refs.length){ wrap.innerHTML=''; wrap.hidden=true; return; }
+  wrap.hidden=false;
+  wrap.innerHTML='<span class="recent-label">Recientes</span>'+refs.map(ref=>`<button type="button" class="recent-chip" data-name="${escapeHtml(ref)}">${escapeHtml(ref)}</button>`).join('');
   wrap.querySelectorAll('.recent-chip').forEach(btn=>btn.addEventListener('click',()=>{
     const p=findProductoByQuery(btn.dataset.name);
     const qty=Number(document.querySelector('#cantidad')?.value)||1;
@@ -3128,7 +3146,7 @@ renderRecientes = function(){
       hxToastGlobal('No se pudo añadir el producto.','error');
     }
   }));
-};
+}
 const guardar_PRE182 = guardar;
 guardar = function(){ if(!Array.isArray(lineas)||lineas.length===0){ alert('Añade al menos un producto antes de guardar el presupuesto.'); return; } return guardar_PRE182(); };
 const pintarResultados_PRE182 = pintarResultados;
