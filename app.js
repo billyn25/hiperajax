@@ -4528,6 +4528,28 @@ function guardarUsoProductos206(data){
   try{ localStorage.setItem(STORAGE_USO_PRODUCTOS_206, JSON.stringify(data || {})); }
   catch(e){}
 }
+function limpiarUsoProductosInexistentes206(lista=productos){
+  try{
+    const validas=new Set((Array.isArray(lista)?lista:[])
+      .map(p=>String(p?.name||'').trim().toUpperCase())
+      .filter(Boolean));
+    const data=leerUsoProductos206();
+    let cambio=false;
+    Object.keys(data).forEach(ref=>{
+      if(!validas.has(String(ref).trim().toUpperCase())){
+        delete data[ref];
+        cambio=true;
+      }
+    });
+    if(cambio) guardarUsoProductos206(data);
+    return data;
+  }catch(e){
+    return leerUsoProductos206();
+  }
+}
+function resetearUsoProductos206(){
+  try{ localStorage.removeItem(STORAGE_USO_PRODUCTOS_206); }catch(e){}
+}
 function registrarUsoProducto206(p){
   if(!p || !p.name) return;
   const key = String(p.name).trim();
@@ -4540,7 +4562,7 @@ function registrarUsoProducto206(p){
   guardarUsoProductos206(data);
 }
 function listaMasUsados206(term=''){
-  const data = leerUsoProductos206();
+  const data = limpiarUsoProductosInexistentes206(productos);
   const q = normaliza(term||'').trim();
   const rows = productos
     .map((p,i)=>({p,i,u:data[p.name]||null,n:normaliza(p.name)}))

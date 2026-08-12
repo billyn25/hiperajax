@@ -1732,3 +1732,110 @@ body.light-mode .hxp-type-scroll{
   color:#243229;
   border-color:rgba(80,100,90,.28);
 }
+
+.hxp-family-head-actions{display:flex;align-items:center;gap:8px}
+.hxp-reset-popular{
+  min-height:34px;
+  padding:0 11px;
+  border-radius:9px;
+  border:1px solid rgba(130,145,137,.35);
+  background:transparent;
+  color:inherit;
+  font-weight:750;
+  cursor:pointer
+}
+.hxp-reset-popular:hover{background:rgba(127,145,136,.10)}
+
+
+/* 7.7.16 · Explorer móvil: un único propietario del scroll vertical */
+@media (max-width:760px){
+  html:has(#familiasModal:not(.hidden)),
+  body:has(#familiasModal:not(.hidden)){
+    overflow:hidden!important;
+    overscroll-behavior:none;
+  }
+
+  #familiasModal{
+    position:fixed!important;
+    inset:0!important;
+    width:100vw!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    padding:0!important;
+    margin:0!important;
+    overflow:hidden!important;
+    overscroll-behavior:none;
+    touch-action:none;
+  }
+
+  #familiasModal > .modal-backdrop{
+    position:absolute!important;
+    inset:0!important;
+    overflow:hidden!important;
+  }
+
+  #familiasModal > .hxp-shell{
+    position:relative!important;
+    width:100%!important;
+    height:100dvh!important;
+    min-height:0!important;
+    max-height:100dvh!important;
+    margin:0!important;
+    overflow:hidden!important;
+    display:flex!important;
+    flex-direction:column!important;
+    touch-action:none;
+  }
+
+  #familiasModal > .hxp-shell > .modal-head{
+    flex:0 0 auto!important;
+  }
+
+  #familiasGrid.hxp-root{
+    flex:1 1 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:hidden!important;
+    overscroll-behavior:none;
+    touch-action:none;
+  }
+
+  #familiasGrid .hxp-products-layout{
+    height:calc(100% - 84px)!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+
+  #familiasGrid .hxp-products-view{
+    height:100%!important;
+    min-height:0!important;
+    overflow:hidden!important;
+    touch-action:none;
+  }
+
+  #familiasGrid .hxp-products-scroll{
+    flex:1 1 0!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+    touch-action:pan-y!important;
+  }
+
+  /* Los atajos conservan exclusivamente su gesto horizontal. */
+  #familiasGrid .hxp-type-scroll-shell,
+  #familiasGrid .hxp-type-strip{
+    touch-action:pan-x!important;
+  }
+
+  /* El panel de filtros, cuando está abierto, es su propio scroll temporal. */
+  #familiasGrid .hxp-filter-drawer,
+  #familiasGrid .hxp-drawer-body{
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y!important;
+  }
+}

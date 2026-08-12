@@ -87,7 +87,7 @@
     smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter','Hood / Viseras','Holder'],
+    wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter / Integración','Hood / Viseras','Holder','SIM'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
@@ -632,7 +632,9 @@
 
     // Primero se respetan los productos que realmente usa el usuario.
     try{
-      const usage = typeof leerUsoProductos206 === 'function' ? leerUsoProductos206() : {};
+      const usage = typeof limpiarUsoProductosInexistentes206 === 'function'
+        ? limpiarUsoProductosInexistentes206(currentProducts())
+        : (typeof leerUsoProductos206 === 'function' ? leerUsoProductos206() : {});
       Object.entries(usage || {})
         .sort((a,b) => (Number(b[1]?.count)||0) - (Number(a[1]?.count)||0) || String(b[1]?.last||'').localeCompare(String(a[1]?.last||'')))
         .forEach(([ref]) => {
@@ -1644,14 +1646,16 @@
       const role = quickProductRole(item);
       const {structuredSource} = quickContext(item);
       const src = structuredSource;
-      if(/\btransmitter\b|\btransmisor\b/.test(src)) add('Transmitter');
+      const isIntegrationModule = /\btransmitter\b|\bmultitransmitter\b|\bvhfbridge\b|\buartbridge\b|\bocbridge\b|\btransmisor\b|modulo de integracion|módulo de integración/.test(src);
+      if(isIntegrationModule) add('Transmitter / Integración');
       if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
-      if(/\bholder\b|\bholders\b|\bsoporte holder\b/.test(src)) add('Holder');
+      if(/\bholder\b|\bholders\b|\bdinholder\b|\bdin holder\b|\bsoporte holder\b/.test(src)) add('Holder');
+      if(/\baj[-_ ]?sim\b|\bsim\b|\bm2m\b|\blxm2m[-_ ]?card[-_ ]?es\b/.test(src)) add('SIM');
       if(!role.accessory){
         if(/\bkeypad\b|\bteclado\b/.test(src)) add('Teclados');
         const isSirenAccessory = /brandplate|brand plate|placa de marca|logo plate|embellecedor/.test(src);
         if(!isSirenAccessory && /homesiren|streetsiren|\bsiren\b|\bsirena\b/.test(src)) add('Sirenas');
-        if(/\brelay\b|wallswitch|\brel[eé]\b/.test(src)) add('Relés');
+        if(!isIntegrationModule && /\brelay\b|wallswitch|\brel[eé]\b/.test(src)) add('Relés');
         const isKeypad = /\bkeypad\b|\bkeypadplus\b|\bkeypadcombi\b|\bteclado\b/.test(src);
         if(!isKeypad && /spacecontrol|doublebutton|(?:^|\s)button(?:\s|$)|\bmando\b|bot[oó]n/.test(src)) add('Botones / Mandos');
         if(/\bsocket\b|\benchufe\b/.test(src)) add('Enchufes');
@@ -1839,7 +1843,10 @@
         <div class="hxp-current-family">
           <button type="button" class="hxp-back" data-hxp-home aria-label="Volver a familias">${svgIcon('back')}</button>
           <div><h3>${esc(title)}</h3><p>${esc(context)}</p></div>
-          ${state.familyKey ? `<button type="button" class="hxp-change-family" data-hxp-home>Cambiar familia</button>` : ''}
+          <div class="hxp-family-head-actions">
+            ${state.familyKey === '__popular__' ? `<button type="button" class="hxp-reset-popular" data-hxp-reset-popular>Restablecer</button>` : ''}
+            ${state.familyKey ? `<button type="button" class="hxp-change-family" data-hxp-home>Cambiar familia</button>` : ''}
+          </div>
         </div>
         ${state.familyKey ? quickTypes(quickCounterItems()) : ''}
         <div class="hxp-products-scroll" id="hxpProductsScroll">
@@ -2036,13 +2043,16 @@
       const update = () => {
         const overflow = strip.scrollWidth > strip.clientWidth + 2;
         const max = Math.max(0, strip.scrollWidth - strip.clientWidth);
+        const pos = Math.max(0, Number(strip.scrollLeft) || 0);
         shell.classList.toggle('has-overflow', overflow);
-        left.classList.toggle('is-visible', overflow && strip.scrollLeft > 4);
-        right.classList.toggle('is-visible', overflow && strip.scrollLeft < max - 4);
+        left.classList.toggle('is-visible', overflow && pos > 12);
+        right.classList.toggle('is-visible', overflow && pos < max - 12);
       };
 
       if(!shell.dataset.hxpScrollBound){
         shell.dataset.hxpScrollBound='1';
+        strip.scrollLeft = 0;
+        left.classList.remove('is-visible');
         left.addEventListener('click', () => {
           strip.scrollBy({left:-Math.max(220, strip.clientWidth*.6), behavior:'smooth'});
         });
@@ -2119,6 +2129,14 @@
         }
       });
     }
+
+    root.querySelector('[data-hxp-reset-popular]')?.addEventListener('click', () => {
+      if(!confirm('¿Restablecer los productos más usados?')) return;
+      try{
+        if(typeof resetearUsoProductos206 === 'function') resetearUsoProductos206();
+      }catch(_error){}
+      render();
+    });
 
     root.querySelector('[data-hxp-clear-search]')?.addEventListener('click', () => {
       state.query = '';
