@@ -1875,3 +1875,38 @@ body.light-mode .hxp-type-scroll{
     touch-action:pan-x pinch-zoom!important;
   }
 }
+
+
+/* 7.7.19 · Explorer móvil: controles de orden/filtros más compactos */
+@media (max-width:760px){
+  #familiasGrid .hxp-sort{
+    gap:3px!important;
+  }
+  #familiasGrid .hxp-sort > span{
+    font-size:9px!important;
+    line-height:1!important;
+    opacity:.72;
+  }
+  #familiasGrid .hxp-sort select{
+    font-size:16px!important; /* evita autozoom de iOS */
+    min-height:34px!important;
+    height:34px!important;
+    padding:0 24px 0 8px!important;
+  }
+
+  #familiasGrid .hxp-filter-button{
+    min-height:34px!important;
+    height:34px!important;
+    padding:0 9px!important;
+    font-size:10px!important;
+    gap:5px!important;
+  }
+
+  #familiasGrid .hxp-toolbar-actions{
+    gap:6px!important;
+  }
+
+  #familiasGrid .hxp-result-count{
+    font-size:9.5px!important;
+  }
+}

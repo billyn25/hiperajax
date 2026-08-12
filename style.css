@@ -7423,3 +7423,14 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
   -webkit-text-fill-color:#18251f!important;
   opacity:1!important;
 }
+
+
+/* 7.7.19 · iPhone: buscador inicial sin autozoom */
+@media (max-width:760px){
+  #buscador,
+  .smart-search input,
+  .product-tools input[type="search"],
+  .product-tools input[type="text"]{
+    font-size:16px!important;
+  }
+}
