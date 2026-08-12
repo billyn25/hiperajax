@@ -1839,3 +1839,39 @@ body.light-mode .hxp-type-scroll{
     touch-action:pan-y!important;
   }
 }
+
+
+/* =====================================================
+   7.7.18 · iPhone: evitar autozoom del buscador y permitir
+   volver a ampliar/reducir con pellizco dentro de Explorer.
+   ===================================================== */
+@media (max-width:760px){
+  /* Safari amplía automáticamente los inputs con fuente inferior a 16 px.
+     Se aplica a búsqueda general, filtro de familias y panel de filtros. */
+  #familiasModal input,
+  #familiasModal select,
+  #familiasModal textarea{
+    font-size:16px!important;
+  }
+
+  /* La corrección de scroll 7.7.16 usaba touch-action:none en ancestros.
+     Eso impedía recuperar el zoom mediante pellizco. Mantenemos un único
+     scroll vertical, pero permitimos explícitamente pinch-zoom. */
+  #familiasModal,
+  #familiasModal > .hxp-shell,
+  #familiasGrid.hxp-root,
+  #familiasGrid .hxp-products-view{
+    touch-action:pan-x pan-y pinch-zoom!important;
+  }
+
+  #familiasGrid .hxp-products-scroll,
+  #familiasGrid .hxp-filter-drawer,
+  #familiasGrid .hxp-drawer-body{
+    touch-action:pan-y pinch-zoom!important;
+  }
+
+  #familiasGrid .hxp-type-scroll-shell,
+  #familiasGrid .hxp-type-strip{
+    touch-action:pan-x pinch-zoom!important;
+  }
+}
