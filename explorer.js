@@ -87,7 +87,7 @@
     smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter','Hood / Viseras'],
+    wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter','Hood / Viseras','Holder'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
@@ -1646,9 +1646,11 @@
       const src = structuredSource;
       if(/\btransmitter\b|\btransmisor\b/.test(src)) add('Transmitter');
       if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
+      if(/\bholder\b|\bholders\b|\bsoporte holder\b/.test(src)) add('Holder');
       if(!role.accessory){
         if(/\bkeypad\b|\bteclado\b/.test(src)) add('Teclados');
-        if(/homesiren|streetsiren|\bsiren\b|\bsirena\b/.test(src)) add('Sirenas');
+        const isSirenAccessory = /brandplate|brand plate|placa de marca|logo plate|embellecedor/.test(src);
+        if(!isSirenAccessory && /homesiren|streetsiren|\bsiren\b|\bsirena\b/.test(src)) add('Sirenas');
         if(/\brelay\b|wallswitch|\brel[eé]\b/.test(src)) add('Relés');
         const isKeypad = /\bkeypad\b|\bkeypadplus\b|\bkeypadcombi\b|\bteclado\b/.test(src);
         if(!isKeypad && /spacecontrol|doublebutton|(?:^|\s)button(?:\s|$)|\bmando\b|bot[oó]n/.test(src)) add('Botones / Mandos');
