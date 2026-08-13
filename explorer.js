@@ -1631,15 +1631,26 @@
       if(isIntegrationModule) add('Transmitter / Integración');
       if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
       if(/\bholder\b|\bholders\b|\bdinholder\b|\bdin holder\b|\bsoporte holder\b/.test(src)) add('Holder');
-      if(/\baj[-_ ]?sim\b|\bsim\b|\bm2m\b|\blxm2m[-_ ]?card[-_ ]?es\b/.test(src)) add('SIM');
-      const isTagCard = /\btag\b|\btags\b|\bcard\b|\bcards\b|\bpass\b|rfid|nfc|tarjeta de proximidad|llavero de proximidad/.test(src);
+      const isSim = /\baj[-_ ]?sim\b|\bsim\b|\bm2m\b|\blxm2m[-_ ]?card[-_ ]?es\b/.test(src);
+      if(isSim) add('SIM');
+      // Clasificar por la identidad del producto, no por prestaciones. Los KeyPad
+      // mencionan Card/Pass/Tag porque los admiten, pero siguen siendo teclados.
+      const accessIdentity = norm([
+        p.name, p.short_description, item?.subcategory,
+        p.subcategory, p.product_type, p.tipo, p.series
+      ].filter(Boolean).join(' '));
+      const isKeypad = /\bkeypad(?:plus|combi|touchscreen)?\b|\bkeypad\b|\bteclado\b/.test(accessIdentity);
+      const isTagCard = !isKeypad && !isSim && (
+        /(?:^|[\s_-])(?:tag|tags|pass|passes)(?:[\s_-]|$)/.test(accessIdentity)
+        || /(?:^|[\s_-])cards?(?:[\s_-]|$)/.test(accessIdentity)
+        || /rfid\s+(?:card|tag)|nfc\s+(?:card|tag)|tarjeta de proximidad|llavero de proximidad/.test(accessIdentity)
+      );
       if(isTagCard) add('Tags/Cards');
       if(!role.accessory){
-        if(!isTagCard && /\bkeypad\b|\bteclado\b/.test(src)) add('Teclados');
+        if(isKeypad) add('Teclados');
         const isSirenAccessory = /brandplate|brand plate|placa de marca|logo plate|embellecedor/.test(src);
         if(!isSirenAccessory && /homesiren|streetsiren|\bsiren\b|\bsirena\b/.test(src)) add('Sirenas');
         if(!isIntegrationModule && /\brelay\b|wallswitch|\brel[eé]\b/.test(src)) add('Relés');
-        const isKeypad = /\bkeypad\b|\bkeypadplus\b|\bkeypadcombi\b|\bteclado\b/.test(src);
         if(!isKeypad && !isTagCard && /spacecontrol|doublebutton|(?:^|\s)button(?:\s|$)|\bmando\b|bot[oó]n/.test(src)) add('Botones / Mandos');
         if(/\bsocket\b|\benchufe\b/.test(src)) add('Enchufes');
         if(/waterstop|\bvalve\b|\bv[aá]lvula\b/.test(src)) add('Válvulas');
