@@ -1652,12 +1652,40 @@
       if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
       if(/\bholder\b|\bholders\b|\bdinholder\b|\bdin holder\b|\bsoporte holder\b/.test(src)) add('Holder');
       if(/\baj[-_ ]?sim\b|\bsim\b|\bm2m\b|\blxm2m[-_ ]?card[-_ ]?es\b/.test(src)) add('SIM');
-      const isActualKeypad = /\bkeypad\b|\bkeypadplus\b|\bkeypadcombi\b|\bteclado\b/.test(src);
-      const isSimProduct = /\bsim\b|\bm2m\b|tarjeta sim|sim card/.test(src);
-      const tagCardByName = /(?:^|[-_\s])(tag|tags|card|cards|pass)(?:[-_\s]|$)/.test(norm(item?.p?.name||''));
-      const tagCardAccessory = role.accessory && /\btag\b|\btags\b|\bcard\b|\bcards\b|\bpass\b|tarjeta de proximidad|llavero de proximidad/.test(src);
-      const isTagCard = !isActualKeypad && !isSimProduct && (tagCardByName || tagCardAccessory);
+      // Clasificación por IDENTIDAD del producto, no por textos de
+      // compatibilidad. Ej.: AJ-PASS menciona "Compatible con KeyPad",
+      // pero sigue siendo una tarjeta de acceso, no un teclado.
+      const pWireless = item?.p || {};
+      const refWireless = norm(pWireless.name || '');
+      const roleWireless = norm([
+        item?.subcategory,
+        pWireless.subcategory,
+        pWireless.product_type,
+        pWireless.tipo,
+        pWireless.family
+      ].filter(Boolean).join(' '));
+
+      const isActualKeypad =
+        /(?:^|[-_\s])keypad(?:plus|combi|outdoor|touchscreen)?(?:[-_\s]|$)/.test(refWireless)
+        || /\bteclado\b|\bkeypad\b/.test(roleWireless);
+
+      const isSimProduct =
+        /(?:^|[-_\s])sim(?:[-_\s]|$)|\bm2m\b/.test(refWireless)
+        || /\bsim\b|\bm2m\b|tarjeta sim|sim card/.test(roleWireless);
+
+      const tagCardByName =
+        /(?:^|[-_\s])(tag|tags|card|cards|pass)(?:[-_\s]|$)/.test(refWireless);
+
+      const tagCardByRole =
+        /tarjeta(?: de acceso| de proximidad)?|llavero(?: de proximidad)?|\btag\b|\bcard\b|\bpass\b|rfid card|nfc card/.test(roleWireless);
+
+      const isTagCard =
+        !isActualKeypad
+        && !isSimProduct
+        && (tagCardByName || tagCardByRole);
+
       if(isTagCard) add('Tags/Cards');
+
       if(!role.accessory){
         if(isActualKeypad) add('Teclados');
         const isSirenAccessory = /brandplate|brand plate|placa de marca|logo plate|embellecedor/.test(src);
