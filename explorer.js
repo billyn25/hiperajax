@@ -1632,15 +1632,18 @@
       if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
       if(/\bholder\b|\bholders\b|\bdinholder\b|\bdin holder\b|\bsoporte holder\b/.test(src)) add('Holder');
       if(/\baj[-_ ]?sim\b|\bsim\b|\bm2m\b|\blxm2m[-_ ]?card[-_ ]?es\b/.test(src)) add('SIM');
-      const isTagCard = /\btag\b|\btags\b|\bcard\b|\bcards\b|\bpass\b|rfid|nfc|tarjeta de proximidad|llavero de proximidad/.test(src);
+      const isActualKeypad = /\bkeypad\b|\bkeypadplus\b|\bkeypadcombi\b|\bteclado\b/.test(src);
+      const isSimProduct = /\bsim\b|\bm2m\b|tarjeta sim|sim card/.test(src);
+      const tagCardByName = /(?:^|[-_\s])(tag|tags|card|cards|pass)(?:[-_\s]|$)/.test(norm(item?.p?.name||''));
+      const tagCardAccessory = role.accessory && /\btag\b|\btags\b|\bcard\b|\bcards\b|\bpass\b|tarjeta de proximidad|llavero de proximidad/.test(src);
+      const isTagCard = !isActualKeypad && !isSimProduct && (tagCardByName || tagCardAccessory);
       if(isTagCard) add('Tags/Cards');
       if(!role.accessory){
-        if(!isTagCard && /\bkeypad\b|\bteclado\b/.test(src)) add('Teclados');
+        if(isActualKeypad) add('Teclados');
         const isSirenAccessory = /brandplate|brand plate|placa de marca|logo plate|embellecedor/.test(src);
         if(!isSirenAccessory && /homesiren|streetsiren|\bsiren\b|\bsirena\b/.test(src)) add('Sirenas');
         if(!isIntegrationModule && /\brelay\b|wallswitch|\brel[eé]\b/.test(src)) add('Relés');
-        const isKeypad = /\bkeypad\b|\bkeypadplus\b|\bkeypadcombi\b|\bteclado\b/.test(src);
-        if(!isKeypad && !isTagCard && /spacecontrol|doublebutton|(?:^|\s)button(?:\s|$)|\bmando\b|bot[oó]n/.test(src)) add('Botones / Mandos');
+        if(!isActualKeypad && !isTagCard && /spacecontrol|doublebutton|(?:^|\s)button(?:\s|$)|\bmando\b|bot[oó]n/.test(src)) add('Botones / Mandos');
         if(/\bsocket\b|\benchufe\b/.test(src)) add('Enchufes');
         if(/waterstop|\bvalve\b|\bv[aá]lvula\b/.test(src)) add('Válvulas');
         if(/(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(src)) add('Repetidores');

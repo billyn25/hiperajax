@@ -175,8 +175,18 @@
   function fieldContains(fieldNorm,fieldTokens,queryNorm){
     if(!fieldNorm || !queryNorm) return false;
     if(fieldNorm===queryNorm || fieldTokens.has(queryNorm)) return true;
-    // Evita falsos positivos de fragmentos cortos: 4g dentro de 64g o
-    // domo dentro de domótica. Para términos largos sí admitimos frase parcial.
+
+    // Desde 2 caracteres admitimos prefijo de palabra de forma genérica.
+    // Ej.: hu -> hub, mo -> motion, ke -> keypad.
+    // No usamos reglas ni alias específicos, y evitamos coincidencias
+    // interiores como "4g" dentro de "64g".
+    if(queryNorm.length >= 2){
+      for(const token of fieldTokens){
+        if(String(token).startsWith(queryNorm)) return true;
+      }
+    }
+
+    // Para cadenas largas mantenemos también la coincidencia parcial clásica.
     return queryNorm.length>=5 && fieldNorm.includes(queryNorm);
   }
 
