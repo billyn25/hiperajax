@@ -1285,18 +1285,38 @@
     return model.allItems.filter(item => {
       const p=item?.p || {};
       const ref=clean(p.name).toUpperCase();
-      const text=norm([
-        p.name,p.short_description,p.description,
+
+      const hierarchy=norm([
         item.category,item.family,item.subcategory,
-        p.product_type,p.family,p.category,p.subcategory
+        p.category,p.family,p.subcategory,p.product_type
       ].filter(Boolean).join(' '));
 
-      const forcedHikvision = ref === 'DS-1280ZJ-XS' || ref === 'DS-1280ZJ-XS-B';
-      const junctionBox = /\bjunction\s*box\b|\bjunctionbox\b|\bcaja de conexiones\b/.test(text);
-      const normalSupport = /soporte|bracket|mount|base/.test(text)
-        && /camara|cámara|cctv|video/.test(text);
+      const identity=norm([
+        p.name,p.short_description,p.product_type
+      ].filter(Boolean).join(' '));
 
-      return forcedHikvision || junctionBox || normalSupport;
+      // Exclusiones claras: no mezclar Domótica/Smart Home ni familias ajenas
+      // aunque la descripción mencione cámara, vídeo, base o soporte.
+      const excludedFamily =
+        /\bdomotica\b|\bsmart home\b|\bsmarthome\b|\bautomatizacion\b|\bautomatización\b|\blightswitch\b|\boutletcore\b|\bwaterstop\b/.test(hierarchy);
+
+      if(excludedFamily) return false;
+
+      // Forzados conocidos de CCTV.
+      if(ref === 'DS-1280ZJ-XS' || ref === 'DS-1280ZJ-XS-B') return true;
+
+      // Junction boxes reales.
+      if(/\bjunction\s*box\b|\bjunctionbox\b|\bcaja de conexiones\b/.test(identity)) return true;
+
+      // Soportes reales: deben estar identificados como accesorio/soporte CCTV
+      // en jerarquía o tipo, no solo mencionarlo en una descripción larga.
+      const supportIdentity =
+        /\bsoporte\b|\bbracket\b|\bmount\b|\bmounting\b|\bbase de camara\b|\bbase cámara\b/.test(identity);
+
+      const cctvHierarchy =
+        /\bcctv\b|\bcamara ip\b|\bcámara ip\b|\bvideovigilancia\b|\bsoportes camaras\b|\bsoportes cámaras\b|\baccesorios cctv\b/.test(hierarchy);
+
+      return supportIdentity && cctvHierarchy;
     });
   }
 
