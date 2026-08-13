@@ -87,7 +87,7 @@
     smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter / Integración','Hood / Viseras','Holder','SIM'],
+    wireless_accessories:['Teclados','Tags/Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter / Integración','Hood / Viseras','Holder','SIM'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
@@ -1282,7 +1282,22 @@
   }
 
   function cameraSupportItems(model = buildModel()){
-    return model.allItems.filter(isCameraSupportItem);
+    return model.allItems.filter(item => {
+      const p=item?.p || {};
+      const ref=clean(p.name).toUpperCase();
+      const text=norm([
+        p.name,p.short_description,p.description,
+        item.category,item.family,item.subcategory,
+        p.product_type,p.family,p.category,p.subcategory
+      ].filter(Boolean).join(' '));
+
+      const forcedHikvision = ref === 'DS-1280ZJ-XS' || ref === 'DS-1280ZJ-XS-B';
+      const junctionBox = /\bjunction\s*box\b|\bjunctionbox\b|\bcaja de conexiones\b/.test(text);
+      const normalSupport = /soporte|bracket|mount|base/.test(text)
+        && /camara|cámara|cctv|video/.test(text);
+
+      return forcedHikvision || junctionBox || normalSupport;
+    });
   }
 
   function isRelatedQuickGroup(quickGroup, family = currentFamily()){
@@ -1617,13 +1632,15 @@
       if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
       if(/\bholder\b|\bholders\b|\bdinholder\b|\bdin holder\b|\bsoporte holder\b/.test(src)) add('Holder');
       if(/\baj[-_ ]?sim\b|\bsim\b|\bm2m\b|\blxm2m[-_ ]?card[-_ ]?es\b/.test(src)) add('SIM');
+      const isTagCard = /\btag\b|\btags\b|\bcard\b|\bcards\b|\bpass\b|rfid|nfc|tarjeta de proximidad|llavero de proximidad/.test(src);
+      if(isTagCard) add('Tags/Cards');
       if(!role.accessory){
-        if(/\bkeypad\b|\bteclado\b/.test(src)) add('Teclados');
+        if(!isTagCard && /\bkeypad\b|\bteclado\b/.test(src)) add('Teclados');
         const isSirenAccessory = /brandplate|brand plate|placa de marca|logo plate|embellecedor/.test(src);
         if(!isSirenAccessory && /homesiren|streetsiren|\bsiren\b|\bsirena\b/.test(src)) add('Sirenas');
         if(!isIntegrationModule && /\brelay\b|wallswitch|\brel[eé]\b/.test(src)) add('Relés');
         const isKeypad = /\bkeypad\b|\bkeypadplus\b|\bkeypadcombi\b|\bteclado\b/.test(src);
-        if(!isKeypad && /spacecontrol|doublebutton|(?:^|\s)button(?:\s|$)|\bmando\b|bot[oó]n/.test(src)) add('Botones / Mandos');
+        if(!isKeypad && !isTagCard && /spacecontrol|doublebutton|(?:^|\s)button(?:\s|$)|\bmando\b|bot[oó]n/.test(src)) add('Botones / Mandos');
         if(/\bsocket\b|\benchufe\b/.test(src)) add('Enchufes');
         if(/waterstop|\bvalve\b|\bv[aá]lvula\b/.test(src)) add('Válvulas');
         if(/(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(src)) add('Repetidores');
