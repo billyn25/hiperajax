@@ -19,9 +19,9 @@
 
   const FAMILY_PRIORITY = [
     // Ajax inalámbrico: mantener el bloque junto.
-    ['central','centrales','hub','hubs'],
     ['detector','detectores','intrusion','intrusión'],
     ['accesorios inalambricos','accesorios inalámbricos','sirena','sirenas','teclado','teclados','mando','mandos'],
+    ['central','centrales','hub','hubs'],
     ['kit inalambrico','kits inalambricos','kit inalámbrico','kits inalámbricos'],
     ['incendio','fuego','fire'],
     ['smart home','smarthome','domotica','domótica','automatizacion','automatización','confort'],
@@ -290,15 +290,17 @@
 
     // Ajax inalámbrico: mantener el bloque junto antes de CCTV.
     if(/ajax inalambrico/.test(category)){
-      if(/^centrales?$|^hubs?$/.test(family)) return 0;
-      if(/^detectores?$/.test(family)) return 10;
-      if(/^accesorios?$/.test(family)) return 20;
+      if(/^detectores?$/.test(family)) return 0;
+      if(/^accesorios?$/.test(family)) return 10;
+      if(/^centrales?$|^hubs?$/.test(family)) return 20;
       if(/^kits?$/.test(family)) return 30;
-      if(/repuesto|repuestos|recambio|recambios/.test(text)) return 40;
+      if(/repuesto|repuestos|recambio|recambios/.test(text)) return 45;
       return 50;
     }
 
-    if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 200;
+    // Domótica va después del bloque inalámbrico y antes de videovigilancia.
+    if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 40;
+
     if(/discos? duros?|disco duro|surveillance/.test(text) && !/nube|cloud|tarjetas? sd/.test(text)) return 210;
     if(/tarjetas? sd|micro ?sd|microsd|sd card|memory card/.test(text)) return 211;
     if(/alimentacion|alimentación/.test(family)) return 212;
@@ -431,6 +433,11 @@
     }
 
     if(/accesorios?/.test(combined) && /cctv|video/.test(combined)){
+      return {category:'Ajax CCTV', family:'Accesorios'};
+    }
+    // Debe evaluarse antes de la regla genérica de Cámaras IP. Una jerarquía
+    // "Soportes Cámaras" es accesorio CCTV, no una familia de cámaras.
+    if(/soportes?\s+(?:de\s+|para\s+)?c[aá]maras?|camera\s+(?:mounts?|brackets?)/.test(fullCombined)){
       return {category:'Ajax CCTV', family:'Accesorios'};
     }
     if(/kits?/.test(combined) && /cctv|video/.test(combined)){
@@ -1259,7 +1266,9 @@
       ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
     ].filter(Boolean).join(' '));
 
-    const accessory = /(?:^|\b)(bracket|soporte|support|holder|mount|cover|tapa|frame|marco|surfacebox|surface box|faceplate|panel|carcasa|housing|adaptador|adapter|fuente|power supply|psu|alimentacion|alimentación|bypass)(?:\b|$)/.test(`${structured} ${name}`);
+    // "Panel" no basta para considerar algo accesorio: KeyPad TouchScreen y
+    // otros equipos finales pueden describirse legítimamente como panel táctil.
+    const accessory = /(?:^|\b)(bracket|soporte|support|holder|mount|cover|tapa|frame|marco|surfacebox|surface box|faceplate|carcasa|housing|adaptador|adapter|fuente|power supply|psu|alimentacion|alimentación|bypass)(?:\b|$)/.test(`${structured} ${name}`);
     const kit = /(?:^|\b)kit(?:\b|$)/.test(`${structured} ${name}`);
     return {accessory,kit,structured,name};
   }
@@ -1285,18 +1294,13 @@
     return model.allItems.filter(item => {
       const p=item?.p || {};
       const ref=clean(p.name).toUpperCase();
-      const text=norm([
-        p.name,p.short_description,p.description,
-        item.category,item.family,item.subcategory,
-        p.product_type,p.family,p.category,p.subcategory
-      ].filter(Boolean).join(' '));
-
       const forcedHikvision = ref === 'DS-1280ZJ-XS' || ref === 'DS-1280ZJ-XS-B';
-      const junctionBox = /\bjunction\s*box\b|\bjunctionbox\b|\bcaja de conexiones\b/.test(text);
-      const normalSupport = /soporte|bracket|mount|base/.test(text)
-        && /camara|cámara|cctv|video/.test(text);
 
-      return forcedHikvision || junctionBox || normalSupport;
+      // El acceso rápido de Cámaras IP solo puede incorporar soportes reales
+      // pertenecientes a la rama CCTV/cámaras. No buscar en descripciones de
+      // todo el catálogo: palabras genéricas como base, vídeo o junction box
+      // arrastraban fuentes, cajas, adaptadores y otros accesorios ajenos.
+      return forcedHikvision || isCameraSupportItem(item);
     });
   }
 
@@ -1640,14 +1644,15 @@
         p.subcategory, p.product_type, p.tipo, p.series
       ].filter(Boolean).join(' '));
       const isKeypad = /\bkeypad(?:plus|combi|touchscreen)?\b|\bkeypad\b|\bteclado\b/.test(accessIdentity);
-      const isTagCard = !isKeypad && !isSim && (
+      const isTagCard = !role.accessory && !isKeypad && !isSim && (
         /(?:^|[\s_-])(?:tag|tags|pass|passes)(?:[\s_-]|$)/.test(accessIdentity)
         || /(?:^|[\s_-])cards?(?:[\s_-]|$)/.test(accessIdentity)
         || /rfid\s+(?:card|tag)|nfc\s+(?:card|tag)|tarjeta de proximidad|llavero de proximidad/.test(accessIdentity)
       );
       if(isTagCard) add('Tags/Cards');
+      // Solo el equipo KeyPad, nunca su cover, holder, carcasa o soporte.
+      if(isKeypad && !role.accessory) add('Teclados');
       if(!role.accessory){
-        if(isKeypad) add('Teclados');
         const isSirenAccessory = /brandplate|brand plate|placa de marca|logo plate|embellecedor/.test(src);
         if(!isSirenAccessory && /homesiren|streetsiren|\bsiren\b|\bsirena\b/.test(src)) add('Sirenas');
         if(!isIntegrationModule && /\brelay\b|wallswitch|\brel[eé]\b/.test(src)) add('Relés');
@@ -2385,6 +2390,6 @@
       searchIndexSignature = '';
       searchIndexCache.clear();
     },
-    version:'7.7.0-catalogo-expandido'
+    version:'7.7.1-clasificacion-auditada'
   };
 })();
