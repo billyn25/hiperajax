@@ -84,10 +84,10 @@
   const QUICK_FILTER_ORDER = Object.freeze({
     cameras:['Bullet','Turret','Domo','Cube','PTZ','Soportes'],
     detectors:['Movimiento / PIR','Apertura','MotionCam','PhOD','Cristal','Inundación','Combi','Exterior','Cortina','Incendio','Hood / Viseras'],
-    smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
+    smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Frames','Cajas superficie','Tapas interruptor','Tapas enchufe'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Tags / Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
+    wireless_accessories:['Teclados','Tags/Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
@@ -107,10 +107,10 @@
   ]);
 
   const SEARCH_ALIAS_RULES = Object.freeze([
-    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'},
+    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'}, 
     {rx:/\b(sirena|sirenas|homesiren|streetsiren)\b/, add:'sirena sirenas homesiren streetsiren accesorios inalambricos'},
     {rx:/\b(teclado|teclados|keypad)\b/, add:'teclado teclados keypad keypadcombi keypadplus touchscreen accesorios inalambricos'},
-    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'},
+    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'}, 
     {rx:/\b(rele|reles|relé|relés|relay|wallswitch|wall switch)\b/, add:'relay wallswitch rele relés domotica smart home'},
     {rx:/\b(keypadcombi|keypad combi|teclado combi)\b/, add:'keypad combi keypadcombi teclado teclados'},
     {rx:/\b(doorbell|timbre|videoportero)\b/, add:'doorbell timbre videoportero smart home'},
@@ -1510,25 +1510,51 @@
     }
 
     if(profile === 'smart_home'){
-      const role = quickProductRole(item);
-      const smartAccessory = role.accessory
-        || /soporte rel[eé]|tapa.*caja|marco|frame|surfacebox|surface box|faceplate|panel|bypass/.test(typeText);
+      const pSmart=item?.p || {};
+      const refSmart=norm(pSmart.name || '');
+      const identitySmart=norm([
+        pSmart.name,pSmart.short_description,pSmart.product_type,pSmart.tipo,
+        item?.subcategory,pSmart.subcategory,pSmart.family
+      ].filter(Boolean).join(' '));
 
-      if(smartAccessory){
-        add('Accesorios');
-      }else{
-        const isRelay = /wallswitch|wall switch|\brelay\b|aj-relay|rel[eé]\s+(?:contacto|tension|tensión)|\brel[eé]s?\b/.test(typeText);
-        const isOutlet = /outletcore|outlet core|socket|enchufe(?: ethernet| inteligente)?|\boutlet\b/.test(typeText);
-        const isSwitch = /lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(typeText);
+      // Accesorios por identidad: no usamos compatibilidades de la descripción larga.
+      const isFrame =
+        /(?:^|[-_\s])frame(?:[-_\s]|$)|\bmarco\b/.test(identitySmart);
 
-        if(/doorbell|timbre|videoportero/.test(typeText)) add('Timbre');
+      const isSurfaceBox =
+        /surface\s*box|surfacebox|caja(?: de)? superficie|caja superficial/.test(identitySmart);
 
-        // Comercialmente Relay/WallSwitch se buscan como interruptores.
+      const isSwitchCover =
+        !isFrame && !isSurfaceBox && (
+          /panel tactil para un interruptor de luz|panel táctil para un interruptor de luz/.test(identitySmart)
+          || /(?:^|[-_\s])button(?:[-_\s]|$)/.test(refSmart)
+             && /interruptor|lightswitch|light switch/.test(identitySmart)
+        );
+
+      const isOutletCover =
+        !isFrame && !isSurfaceBox && (
+          /tapa(?: de| para)? enchufe|cubierta(?: de| para)? enchufe/.test(identitySmart)
+          || /(?:^|[-_\s])cover(?:[-_\s]|$)/.test(refSmart)
+             && /enchufe|outlet|socket/.test(identitySmart)
+        );
+
+      const smartAccessory = isFrame || isSurfaceBox || isSwitchCover || isOutletCover;
+
+      if(isFrame) add('Frames');
+      if(isSurfaceBox) add('Cajas superficie');
+      if(isSwitchCover) add('Tapas interruptor');
+      if(isOutletCover) add('Tapas enchufe');
+
+      if(!smartAccessory){
+        const isRelay = /wallswitch|wall switch|\brelay\b|aj-relay|rel[eé]\s+(?:contacto|tension|tensión)|\brel[eé]s?\b/.test(identitySmart);
+        const isOutlet = /outletcore|outlet core|socket|enchufe(?: ethernet| inteligente)?|\boutlet\b/.test(identitySmart);
+        const isSwitch = /lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(identitySmart);
+
+        if(/doorbell|timbre|videoportero/.test(identitySmart)) add('Timbre');
         if((isSwitch || isRelay) && !isOutlet) add('Interruptores');
-
         if(isOutlet) add('Enchufes');
-        if(/waterstop|electrov[aá]lvula|\bvalve\b/.test(typeText)) add('Válvulas');
-        if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(typeText)) add('Clima / Aire');
+        if(/waterstop|electrov[aá]lvula|\bvalve\b/.test(identitySmart)) add('Válvulas');
+        if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(identitySmart)) add('Clima / Aire');
       }
     }
 
@@ -1709,7 +1735,7 @@
         && !isSimProduct
         && (tagCardByName || tagCardByRole);
 
-      if(isTagCard) add('Tags / Cards');
+      if(isTagCard) add('Tags/Cards');
 
       if(!role.accessory){
         if(isActualKeypad) add('Teclados');
