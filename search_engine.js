@@ -195,6 +195,13 @@
     let score = 0;
     let meaningful = false;
 
+    // SIM: si el propio producto/descripcion se identifica como SIM,
+    // priorizarlo cuando el usuario busca "sim". No cambia familia ni atajos.
+    if(query.norm === 'sim' && /\bsim\b|\bm2m\b/.test(record.unifiedNorm)){
+      score += 210;
+      meaningful=true;
+    }
+
     // Referencia: siempre manda.
     if(record.refCompact === query.compact){ score += 320; meaningful=true; }
     else if(record.refCompact.startsWith(query.compact)){ score += 220; meaningful=true; }

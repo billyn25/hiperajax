@@ -1945,3 +1945,61 @@ body.light-mode .hxp-type-scroll{
     font-size:16px!important;
   }
 }
+
+
+/* 7.7.37 · Resumen discreto del presupuesto dentro de Explorer */
+.hxp-budget-summary{
+  position:absolute;
+  right:18px;
+  bottom:18px;
+  z-index:24;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  pointer-events:none;
+}
+.hxp-budget-pill,.hxp-budget-popover{pointer-events:auto}
+.hxp-budget-pill{
+  min-height:38px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 12px;
+  border:1px solid rgba(105,137,120,.38);
+  border-radius:999px;
+  background:rgba(22,31,27,.96);
+  color:#f4f8f6;
+  box-shadow:0 8px 24px rgba(0,0,0,.24);
+  cursor:pointer;
+}
+.hxp-budget-pill strong{font-size:12px}
+.hxp-budget-pill>span:last-child{font-size:11px;opacity:.82}
+.hxp-budget-cart{font-size:11px;opacity:.8}
+.hxp-budget-popover{
+  width:min(310px,calc(100vw - 32px));
+  margin-bottom:8px;
+  padding:12px;
+  border:1px solid rgba(105,137,120,.35);
+  border-radius:13px;
+  background:#17231d;
+  color:#f4f8f6;
+  box-shadow:0 16px 42px rgba(0,0,0,.34);
+}
+.hxp-budget-popover[hidden]{display:none!important}
+.hxp-budget-popover-head small{display:block;font-size:10px;opacity:.65;text-transform:uppercase;letter-spacing:.05em}
+.hxp-budget-popover-head strong{display:block;margin-top:2px;font-size:13px}
+.hxp-budget-lines{margin-top:9px;padding-top:8px;border-top:1px solid rgba(255,255,255,.1)}
+.hxp-budget-lines div{padding:4px 0;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hxp-budget-more{display:block;margin-top:4px;opacity:.6;font-size:10px}
+.hxp-budget-go{
+  width:100%;min-height:34px;margin-top:10px;border:0;border-radius:9px;
+  background:#238356;color:#fff;font-weight:800;cursor:pointer
+}
+body.light-mode .hxp-budget-pill,body.light-mode .hxp-budget-popover{
+  background:rgba(250,252,251,.98);color:#233229;border-color:rgba(75,110,91,.24)
+}
+@media(max-width:760px){
+  .hxp-budget-summary{right:12px;bottom:12px}
+  .hxp-budget-pill{min-height:36px;padding:0 10px;gap:6px}
+  .hxp-budget-popover{width:min(290px,calc(100vw - 24px))}
+}

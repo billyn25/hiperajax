@@ -84,7 +84,7 @@
   const QUICK_FILTER_ORDER = Object.freeze({
     cameras:['Bullet','Turret','Domo','Cube','PTZ','Soportes'],
     detectors:['Movimiento / PIR','Apertura','MotionCam','PhOD','Cristal','Inundación','Combi','Exterior','Cortina','Incendio','Hood / Viseras'],
-    smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Frames','Cajas superficie','Tapas interruptor','Tapas enchufe'],
+    smart_home:['Interruptores','Enchufes','Timbre / Doorbell','Válvulas','Clima / Aire / LifeQuality','Frames','Cajas superficie','Tapas interruptor','Tapas enchufe'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
     wireless_accessories:['Teclados','Tags/Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
@@ -935,8 +935,8 @@
     // Familias donde comparar precio es más útil comercialmente.
     if(/camara|cámara|detector/.test(text)) return 'price-ref';
 
-    // Smart Home: agrupar por tipo antes de referencia.
-    if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'type-ref-color';
+    // Domótica: mantener juntas las variantes de la misma referencia y color.
+    if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'ref-color';
 
     if(/central|hub|sirena|teclado/.test(text)) return 'ref-color';
 
@@ -1566,11 +1566,11 @@
         const isSwitch =
           /lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(identitySmart);
 
-        if(/doorbell|timbre|videoportero/.test(identitySmart)) add('Timbre');
+        if(/doorbell|timbre|videoportero/.test(identitySmart)) add('Timbre / Doorbell');
         if((isSwitch || isRelay) && !isOutlet) add('Interruptores');
         if(isOutlet) add('Enchufes');
         if(/waterstop|electrov[aá]lvula|\bvalve\b/.test(identitySmart)) add('Válvulas');
-        if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(identitySmart)) add('Clima / Aire');
+        if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(identitySmart)) add('Clima / Aire / LifeQuality');
       }
     }
 
@@ -2005,6 +2005,83 @@
     </div>`;
   }
 
+  function budgetSummaryData(){
+    try{
+      const rows=Array.isArray(window.lineas) ? window.lineas : (typeof lineas !== 'undefined' && Array.isArray(lineas) ? lineas : []);
+      const productRows=rows.filter(row => row && !row.separador && (clean(row.name) || Number(row.pvp)));
+      const units=productRows.reduce((sum,row)=>sum+Math.max(1,Number(row.qty)||1),0);
+      const total=productRows.reduce((sum,row)=>{
+        const qty=Math.max(1,Number(row.qty)||1);
+        const pvp=Number(row.pvp)||0;
+        const dto=Math.max(0,Math.min(100,Number(row.dto)||0));
+        return sum+(pvp*qty*(1-dto/100));
+      },0);
+      return {rows:productRows,units,total};
+    }catch(_error){ return {rows:[],units:0,total:0}; }
+  }
+
+  function budgetSummaryHtml(){
+    const data=budgetSummaryData();
+    if(!data.rows.length) return '';
+    const totalText=typeof fmt?.format === 'function' ? fmt.format(data.total) : `${data.total.toFixed(2)} €`;
+    const recent=data.rows.slice(-5).reverse();
+    return `<div class="hxp-budget-summary" data-hxp-budget-summary>
+      <button type="button" class="hxp-budget-pill" data-hxp-budget-toggle aria-expanded="false">
+        <span class="hxp-budget-cart" aria-hidden="true">▣</span>
+        <strong>${data.units} ud${data.units===1?'':'s'}</strong>
+        <span>${esc(totalText)}</span>
+      </button>
+      <div class="hxp-budget-popover" data-hxp-budget-popover hidden>
+        <div class="hxp-budget-popover-head"><div><small>Presupuesto actual</small><strong>${data.units} ud${data.units===1?'':'s'} · ${esc(totalText)}</strong></div></div>
+        <div class="hxp-budget-lines">
+          ${recent.map(row=>`<div><span>${Math.max(1,Number(row.qty)||1)}× ${esc(row.name||'Producto')}</span></div>`).join('')}
+        </div>
+        ${data.rows.length>5?`<small class="hxp-budget-more">+${data.rows.length-5} líneas más</small>`:''}
+        <button type="button" class="hxp-budget-go" data-hxp-budget-go>Ver presupuesto</button>
+      </div>
+    </div>`;
+  }
+
+  function refreshBudgetSummary(){
+    const root=byId('familiasGrid');
+    if(!root) return;
+    const current=root.querySelector('[data-hxp-budget-summary]');
+    const html=budgetSummaryHtml();
+    if(!html){ current?.remove(); return; }
+    const app=root.querySelector('.hxp-app');
+    if(!app) return;
+    if(current) current.outerHTML=html;
+    else app.insertAdjacentHTML('beforeend',html);
+    bindBudgetSummary(root);
+  }
+
+  function bindBudgetSummary(root){
+    const toggle=root?.querySelector('[data-hxp-budget-toggle]');
+    if(toggle && !toggle.dataset.hxpBound){
+      toggle.dataset.hxpBound='1';
+      toggle.addEventListener('click',event=>{
+        event.stopPropagation();
+        const pop=root.querySelector('[data-hxp-budget-popover]');
+        if(!pop) return;
+        const opening=pop.hidden;
+        pop.hidden=!opening;
+        toggle.setAttribute('aria-expanded',String(opening));
+      });
+    }
+    const go=root?.querySelector('[data-hxp-budget-go]');
+    if(go && !go.dataset.hxpBound){
+      go.dataset.hxpBound='1';
+      go.addEventListener('click',event=>{
+        event.stopPropagation();
+        closeExplorer();
+        requestAnimationFrame(()=>{
+          const budget=document.querySelector('.budget-card');
+          budget?.scrollIntoView?.({behavior:'smooth',block:'start'});
+        });
+      });
+    }
+  }
+
   function render(options = {}){
     const root = byId('familiasGrid');
     if(!root) return;
@@ -2017,8 +2094,9 @@
 
     const showProducts = Boolean(state.familyKey || clean(state.query));
     state.view = showProducts ? 'products' : 'home';
-    root.innerHTML = `<div class="hxp-app">${showProducts ? productsView() : homeView()}${drawerHtml()}</div>`;
+    root.innerHTML = `<div class="hxp-app">${showProducts ? productsView() : homeView()}${drawerHtml()}${budgetSummaryHtml()}</div>`;
     bind(root);
+    bindBudgetSummary(root);
     if(isMobile()) requestAnimationFrame(() => { const strip = root.querySelector('.hxp-type-strip'); if(strip) strip.scrollLeft = quickStripScrollLeft; });
 
     if(options.preserveScroll){
@@ -2105,6 +2183,9 @@
         ? hxAddProductoModal('explorer', Number(index), quantity, card?.dataset.ref, card?.dataset.pvp)
         : false;
     }catch(error){ console.error('[Explorer Pro] no se pudo añadir', error); }
+    if(ok){
+      refreshBudgetSummary();
+    }
     if(ok && trigger){
       const original = trigger.textContent;
       trigger.textContent = 'Añadido';
