@@ -83,7 +83,7 @@
   // Los productos se asignan dinámicamente desde Tipo/atributos/nombre; nunca por listas de referencias.
   const QUICK_FILTER_ORDER = Object.freeze({
     cameras:['Bullet','Turret','Domo','Cube','PTZ','Soportes'],
-    detectors:['Movimiento','Apertura','MotionCam','PhOD','Cristal','Inundación','Combi','Exterior','Cortina','Incendio'],
+    detectors:['Movimiento / PIR','Apertura','MotionCam','PhOD','Cristal','Inundación','Combi','Exterior','Cortina','Incendio','Hood / Viseras'],
     smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
@@ -658,6 +658,14 @@
   }
 
 
+  function longDescription(product){
+    const full=clean(product?.description || '');
+    const short=safeDescription(product);
+    if(!full || norm(full) === norm(short)) return '';
+    return full;
+  }
+
+
   function searchAliases(query){
     const q = norm(query);
     return SEARCH_ALIAS_RULES.filter(entry => entry.rx.test(q)).map(entry => entry.add).join(' ');
@@ -1006,9 +1014,8 @@
   }
 
   function definitionItemsForQuick(quickGroup = state.quickGroup, family = currentFamily(), model = buildModel()){
-    let items = isRelatedQuickGroup(quickGroup, family)
-      ? cameraSupportItems(model)
-      : (family ? family.items.slice() : model.allItems.slice());
+    const related=relatedQuickItems(quickGroup,family,model);
+    let items = Array.isArray(related) ? related.slice() : (family ? family.items.slice() : model.allItems.slice());
     if(clean(state.query)) items = rankedSearch(items, state.query);
     return items;
   }
@@ -1320,8 +1327,26 @@
     });
   }
 
+  function detectorHoodItems(model = buildModel()){
+    return model.allItems.filter(item => {
+      const p=item?.p || {};
+      const identity=norm([
+        p.name,p.short_description,p.product_type,
+        item?.subcategory,p.subcategory,p.family,item?.family
+      ].filter(Boolean).join(' '));
+      return /\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(identity);
+    });
+  }
+
+  function relatedQuickItems(quickGroup, family = currentFamily(), model = buildModel()){
+    const profile=familyQuickProfile(family);
+    if(quickGroup === 'Soportes' && profile === 'cameras') return cameraSupportItems(model);
+    if(quickGroup === 'Hood / Viseras' && profile === 'detectors') return detectorHoodItems(model);
+    return null;
+  }
+
   function isRelatedQuickGroup(quickGroup, family = currentFamily()){
-    return quickGroup === 'Soportes' && familyQuickProfile(family) === 'cameras';
+    return Array.isArray(relatedQuickItems(quickGroup,family,buildModel()));
   }
 
   function sdCapacityLabel(item){
@@ -1472,13 +1497,13 @@
       const outdoor = matches(/\boutdoor\b|\bexterior\b/);
       const motion = matches(/motionprotect|motion protect|\bpir\b|detector(?:\s+de)?\s+movimiento|fotodetector/);
 
-      if(motion) add('Movimiento');
+      if(motion) add('Movimiento / PIR');
       if(door && !fire) add('Apertura');
       if(flood && !fire) add('Inundación');
       if(motioncam) add('MotionCam');
       if(phod && motioncam) add('PhOD');
       if(glass && !fire) add('Cristal');
-      if(combi){ add('Combi'); add('Movimiento'); add('Cristal'); }
+      if(combi){ add('Combi'); add('Movimiento / PIR'); add('Cristal'); }
       if(outdoor && !fire) add('Exterior');
       if(curtain && !fire) add('Cortina');
       if(fire) add('Incendio');
@@ -1733,6 +1758,7 @@
     });
 
     if(profile === 'cameras' && cameraSupportItems(model).length) available.add('Soportes');
+    if(profile === 'detectors' && detectorHoodItems(model).length) available.add('Hood / Viseras');
     return order.filter(label => available.has(label));
   }
 
@@ -1752,13 +1778,14 @@
       });
     });
 
-    // Related camera supports are counted contextually too.
-    if(profile === 'cameras' && counts.has('Soportes')){
-      let supports = cameraSupportItems(model);
-      if(clean(state.query)) supports = rankedSearch(supports, state.query);
-      supports = applyFilters(supports, state.filters);
-      counts.set('Soportes', supports.length);
-    }
+    available.forEach(label => {
+      const related=relatedQuickItems(label,family,model);
+      if(!Array.isArray(related)) return;
+      let relatedItems=related.slice();
+      if(clean(state.query)) relatedItems=rankedSearch(relatedItems,state.query);
+      relatedItems=applyFilters(relatedItems,state.filters);
+      counts.set(label,relatedItems.length);
+    });
 
     return available.map(label => ({label, count:counts.get(label) || 0}));
   }
@@ -1815,6 +1842,7 @@
     const product = item.p || {};
     const price = Number(product.pvp) || 0;
     const description = safeDescription(product) || 'Sin descripción disponible';
+    const fullDescription = longDescription(product);
     const priceText = typeof fmt?.format === 'function' ? fmt.format(price) : `${price.toFixed(2)} €`;
     const isNew = hxIsNewProduct(product);
     const newBadge = isNew ? '<span class="hxp-new-badge">NUEVO</span>' : '';
@@ -1826,6 +1854,7 @@
         <div class="hxp-product-copy">
           <strong class="hxp-product-ref">${esc(product.name || 'Sin referencia')}</strong>
           <span class="hxp-product-description">${esc(description)}</span>
+          ${fullDescription ? `<button type="button" class="hxp-description-toggle" data-hxp-description-toggle aria-expanded="false">Ver detalle</button><div class="hxp-product-long-description" hidden>${esc(fullDescription)}</div>` : ''}
           ${newClass}
           <div class="hxp-product-meta">${stockBadge(product)}${productMeta(product)}</div>
         </div>
@@ -2109,6 +2138,19 @@
         refreshSearchResults();
       });
     });
+    root.querySelectorAll('[data-hxp-description-toggle]').forEach(button => {
+      if(button.dataset.hxpDescriptionBound) return;
+      button.dataset.hxpDescriptionBound='1';
+      button.addEventListener('click', event => {
+        event.stopPropagation();
+        const detail=button.nextElementSibling;
+        if(!detail) return;
+        const opening=detail.hidden;
+        detail.hidden=!opening;
+        button.setAttribute('aria-expanded',String(opening));
+        button.textContent=opening?'Ocultar detalle':'Ver detalle';
+      });
+    });
     root.querySelectorAll('[data-hxp-add]').forEach(button => {
       if(button.dataset.hxpBound) return;
       button.dataset.hxpBound='1';
@@ -2228,6 +2270,19 @@
       render();
     });
 
+    root.querySelectorAll('[data-hxp-description-toggle]').forEach(button => {
+      if(button.dataset.hxpDescriptionBound) return;
+      button.dataset.hxpDescriptionBound='1';
+      button.addEventListener('click', event => {
+        event.stopPropagation();
+        const detail=button.nextElementSibling;
+        if(!detail) return;
+        const opening=detail.hidden;
+        detail.hidden=!opening;
+        button.setAttribute('aria-expanded',String(opening));
+        button.textContent=opening?'Ocultar detalle':'Ver detalle';
+      });
+    });
     root.querySelectorAll('[data-hxp-add]').forEach(button => button.addEventListener('click', event => {
       event.stopPropagation();
       addProduct(Number(button.dataset.hxpAdd), button);

@@ -1920,3 +1920,20 @@ body.light-mode .hxp-type-scroll{
   }
   #familiasGrid .hxp-sort > span{font-weight:500!important}
 }
+
+/* 7.7.29 · Detalle largo opcional sin agrandar todas las tarjetas */
+.hxp-description-toggle{
+  align-self:flex-start;margin-top:2px;padding:0;border:0;background:transparent;
+  color:var(--green,#17834f);font:inherit;font-size:11px;font-weight:700;cursor:pointer
+}
+.hxp-description-toggle:hover{text-decoration:underline}
+.hxp-product-long-description[hidden]{display:none!important}
+.hxp-product-long-description{
+  margin-top:5px;padding:7px 9px;border-radius:8px;
+  background:rgba(90,120,105,.07);border:1px solid rgba(90,120,105,.16);
+  font-size:11px;line-height:1.35;color:inherit;white-space:normal
+}
+@media(max-width:760px){
+  .hxp-description-toggle{font-size:10.5px}
+  .hxp-product-long-description{font-size:10.5px;line-height:1.4;padding:7px 8px}
+}
