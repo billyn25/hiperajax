@@ -7465,15 +7465,125 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
 }
 
 
-/* 7.7.31 · Gestor de presupuestos más amplio en escritorio */
-@media (min-width:761px){
+/* 7.7.32 · Gestor de presupuestos PRO en escritorio
+   Recupera la estructura natural de 3 columnas:
+   navegación | presupuestos | vista previa. */
+@media (min-width:981px){
   #pmModal .pmx-modal-card{
-    width:min(1400px,98vw)!important;
-    max-height:95vh!important;
+    width:min(1360px,96vw)!important;
+    height:min(820px,92vh)!important;
+    max-height:92vh!important;
+    padding:18px!important;
+    gap:12px!important;
+    overflow:hidden!important;
   }
+
+  #pmModal .pmx-head{
+    flex:0 0 auto!important;
+    padding-bottom:11px!important;
+  }
+
+  #pmModal .pmx-toolbar{
+    flex:0 0 auto!important;
+    grid-template-columns:minmax(360px,1fr) 175px 175px 155px!important;
+    gap:9px!important;
+  }
+
+  #pmModal .pmx-filter-notice{
+    flex:0 0 auto!important;
+    min-height:32px!important;
+    margin:0!important;
+  }
+
   #pmModal .pmx-workspace{
-    grid-template-columns:minmax(360px,.9fr) minmax(560px,1.55fr)!important;
-    min-height:560px!important;
+    flex:1 1 auto!important;
+    display:grid!important;
+    grid-template-columns:235px minmax(520px,1.55fr) minmax(300px,.82fr)!important;
+    grid-template-rows:minmax(0,1fr)!important;
+    gap:12px!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+
+  #pmModal .pmx-folders,
+  #pmModal .pmx-browser,
+  #pmModal .pmx-preview{
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    align-self:stretch!important;
+    border-radius:13px!important;
+  }
+
+  #pmModal .pmx-folders{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    padding:9px!important;
+    scrollbar-gutter:stable!important;
+  }
+
+  #pmModal .pmx-browser{
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+  }
+
+  #pmModal .pmx-browser-head{
+    flex:0 0 46px!important;
+    min-height:46px!important;
+    padding:0 15px!important;
+  }
+
+  #pmModal #pmMobileBackFilters,
+  #pmModal #pmBackMobile{
+    display:none!important;
+  }
+
+  #pmModal .pmx-list{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    padding:9px!important;
+  }
+
+  #pmModal .pmx-preview{
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+  }
+
+  #pmModal .pmx-preview-head{
+    flex:0 0 auto!important;
+    min-height:58px!important;
+    padding:10px 12px!important;
+  }
+
+  #pmModal .pmx-preview-body{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    padding:13px!important;
+  }
+
+  #pmModal .pmx-preview-empty{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+  }
+
+  #pmModal .pmx-actions{
+    flex:0 0 auto!important;
+    display:grid!important;
+    grid-template-columns:1fr 1.2fr 1fr 1fr!important;
+    gap:9px!important;
+    margin-top:0!important;
+    padding-top:4px!important;
+  }
+
+  #pmModal .pmx-actions button{
+    min-height:42px!important;
   }
 }
 
