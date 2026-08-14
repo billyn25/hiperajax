@@ -741,21 +741,19 @@
       console.warn('[Explorer Pro] motor común no disponible', error);
     }
 
-    // Fallback CSV-only: mismas reglas básicas que el motor común.
-    const terms=norm(q).split(/\s+/).filter(Boolean);
-    return items.filter(item=>{
-      const p=item.p||{};
-      const fields=[
-        p.name,p.brand,p.short_description,p.description,p.category,p.family,
-        p.subcategory,p.product_type,p.series,p.technology,p.color,p.tags,
-        p.keywords,p.attributes
-      ].map(v=>norm(typeof v==='object'?Object.values(v||{}).join(' '):v||''));
-      return terms.every(term=>fields.some(field=>{
-        const words=field.split(/\s+/).filter(Boolean);
-        if(words.includes(term)) return true;
-        if(term.length>=2 && words.some(word=>word.startsWith(term))) return true;
-        return term.length>=4 && field.includes(term);
-      }));
+    // Fallback mínimo, estricto y local.
+    const needle = norm(q);
+    const compact = needle.replace(/[^a-z0-9]/g,'');
+    return items.filter(item => {
+      const p = item.p || {};
+      const ref = norm(p.name || '');
+      const text = norm([
+        p.name, p.short_description, item.subcategory, p.product_type,
+        p.family, p.category
+      ].filter(Boolean).join(' '));
+      return ref.includes(needle)
+        || ref.replace(/[^a-z0-9]/g,'').includes(compact)
+        || text.includes(needle);
     });
   }
 
