@@ -1,540 +1,228 @@
-/* =============================================================
-   HIPER AJAX · MOTOR ÚNICO DE BÚSQUEDA
-
-   Usado por:
-   - buscador inicial
-   - Catálogo
-   - Explorer
-
-   Criterio, de mayor a menor peso:
-   1. Referencia
-   2. Nombre/familia comercial breve
-   3. Descripción corta
-   4. Descripción completa (peso bajo)
-   5. Diccionario pequeño de alias técnicos
-
-   No usa subsecuencias, distancia de edición, reglas comerciales ni
-   familias cerradas. Una coincidencia débil nunca puede superar a una
-   referencia real.
-   ============================================================= */
 (function(global){
   'use strict';
 
-  const ALIASES = Object.freeze({
-    motcam: ['motioncam'],
-    mcam: ['motioncam'],
-    mocam: ['motioncam'],
-    lte: ['4g'],
-    '4g': ['lte'],
-    'wi fi': ['wifi'],
-    wifi: ['wi fi'],
-    domo: ['domecam', 'turretcam'],
-    torreta: ['turretcam'],
-    pir: ['motionprotect', 'movimiento'],
-    volumetrico: ['motionprotect', 'movimiento'],
-    fotosensor: ['motioncam', 'fotodetector'],
-    fotodetector: ['motioncam'],
-    grabador: ['nvr'],
-    videograbador: ['nvr'],
-    disco: ['hdd', 'disco duro'],
-    microsd: ['micro sd'],
-    teclado: ['keypad'],
-    central: ['hub'],
-    repetidor: ['rex'],
-    inundacion: ['leaksprotect', 'agua'],
-    humo: ['fireprotect', 'incendio'],
-    enchufe: ['socket', 'outlet'],
-    rele: ['relay', 'wallswitch']
-  });
+  const CACHE=new Map();
+  let cachedList=null,cachedSignature='',cachedRecords=[];
 
-  // Reglas de los botones rápidos del Catálogo. Se mantienen aquí,
-  // junto al motor de búsqueda, para evitar filtros repartidos por app.js.
-  const CATALOG_FILTERS = Object.freeze({
-    cam:n=>/bulletcam|domecam|turretcam|indoorcam|doorbell/.test(n),
-    hub:n=>/^aj-hub/.test(n) && !/bracket|batt|battery|dummy|repair|kit/.test(n),
-    det:n=>/motionprotect|motioncam|doorprotect|glassprotect|combiprotect|curtain|outdoorprotect|fireprotect|leaksprotect|lifequality|seismoprotect/.test(n) && !/dummy|lens|bracket/.test(n),
-    sir:n=>/homesiren|streetsiren|speakerss/.test(n) && !/dummy|bracket/.test(n),
-    key:n=>/keypad/.test(n) && !/dummy|bracket/.test(n),
-    dom:n=>/lightcore|lightswitch|centerbutton|sidebutton|solobutton|centercove?r|sidecove?r|solocove?r|coverplate|outletcore|outletbasic|outletlan|socket|wallswitch|relay|multirelay|bypass|frame|surfacebox/.test(n),
-    nvr:n=>/nvr/.test(n),
-    sup:n=>/junctionbox/.test(n),
-    out:n=>/outdoor|street|doorbell|waterstop|curtainoutdoor/.test(n),
-    fire:n=>/fireprotect|manualcallpoint|en54/.test(n)
-  });
-
-  const CACHE = new Map();
-  let cachedSignature = '';
-  let indexedSignature = '';
-  let indexedRecords = [];
-  let indexedProducts = null;
-
-  function normalize(value=''){
-    return String(value)
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, ' ')
-      .trim();
-  }
-  function compact(value=''){ return normalize(value).replace(/\s+/g, ''); }
-  function tokens(value=''){ return normalize(value).split(/\s+/).filter(Boolean); }
-  function unique(values){ return [...new Set(values.filter(Boolean))]; }
-
-  function refParts(ref){
-    const spaced = String(ref||'')
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .replace(/([A-Za-z])([0-9])/g, '$1 $2')
-      .replace(/([0-9])([A-Za-z])/g, '$1 $2');
-    return unique([...tokens(ref), ...tokens(spaced), compact(ref)]);
+  function str(v){
+    if(v===undefined||v===null) return '';
+    if(Array.isArray(v)) return v.map(str).filter(Boolean).join(' ');
+    if(typeof v==='object') return Object.values(v).map(str).filter(Boolean).join(' ');
+    return String(v).trim();
   }
 
-  function shortDescription(product){
-    return String(product && product.short_description || '').trim();
+  function normalize(v=''){
+    return str(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   }
+  function compact(v=''){ return normalize(v).replace(/\s+/g,''); }
+  function tokens(v=''){ return normalize(v).split(/\s+/).filter(Boolean); }
+  function unique(a){ return [...new Set(a.filter(Boolean))]; }
 
-  function commercialName(product){
-    const ref = String(product && product.name || '');
-    const short = shortDescription(product);
-    // El nombre comercial se obtiene de la primera parte útil de la descripción
-    // corta. No se inventan familias fuera de la información ya mantenida.
-    return [ref.replace(/^AJ-/i,'').replace(/-(W|B)$/i,'').replace(/-/g,' '), short].join(' ');
-  }
-
-  function searchValue(value){
-    if(value === undefined || value === null) return '';
-    if(Array.isArray(value)) return value.map(searchValue).filter(Boolean).join(' ');
-    if(typeof value === 'object') return Object.values(value).map(searchValue).filter(Boolean).join(' ');
-    return String(value).trim();
-  }
-
-  function productIdentityFields(product){
-    const p = product || {};
+  // Solo campos reales del catálogo/CSV.
+  function productFields(p){
+    p=p||{};
     return unique([
-      p.name,
-      p.short_description,
-      p.product_type,
-      p.tipo,
-      p.subcategory,
-      p.subcategoria,
-      p.family,
-      p.familia,
-      p.category,
-      p.categoria,
-      p.series,
-      p.serie,
-      p.technology,
-      p.tecnologia,
-      p.tags,
-      p.keywords,
-      p._official,
-      p._family
-    ].map(searchValue));
+      p.name,p.brand,p.marca,p.short_description,p.description,p.desc,
+      p.category,p.categoria,p.family,p.familia,p.subcategory,p.subcategoria,
+      p.product_type,p.tipo,p.series,p.serie,p.technology,p.tecnologia,
+      p.color,p.colour,p.tags,p.keywords,p.attributes,p.atributos
+    ].map(str));
   }
 
-  function productSearchFields(product){
-    const p = product || {};
-    return unique([
-      ...productIdentityFields(p),
-      p.brand,
-      p.description,
-      p.desc,
-      p._desc,
-      p._search175
-    ].map(searchValue));
-  }
-
-  function buildRecord(product, index){
-    const ref = String(product && product.name || '');
-    const short = shortDescription(product);
-    const full = String(product && (product.description || product.desc) || '');
-    const name = commercialName(product);
-    const brand = searchValue(product && (product.brand || product.marca));
-    const family = searchValue(product && (product.family || product.familia || product._family));
-    const category = searchValue(product && (product.category || product.categoria));
-    const tags = searchValue(product && (product.tags || product.keywords));
-    const identityFields = productIdentityFields(product);
-    const identity = identityFields.join(' ');
-    const searchFields = productSearchFields(product);
-    const unified = searchFields.join(' ');
-    return {
-      product, index, ref, short, full, name, brand, family, category, tags, identity, unified,
-      refNorm: normalize(ref), refCompact: compact(ref), refTokens: new Set(refParts(ref)),
-      nameNorm: normalize(name), nameCompact: compact(name), nameTokens: new Set(tokens(name)),
-      shortNorm: normalize(short), shortCompact: compact(short), shortTokens: new Set(tokens(short)),
-      fullNorm: normalize(full), fullCompact: compact(full), fullTokens: new Set(tokens(full)),
-      brandNorm: normalize(brand), brandTokens: new Set(tokens(brand)),
-      familyNorm: normalize(family), familyTokens: new Set(tokens(family)),
-      categoryNorm: normalize(category), categoryTokens: new Set(tokens(category)),
-      tagsNorm: normalize(tags), tagsTokens: new Set(tokens(tags)),
-      identityNorm: normalize(identity), identityCompact: compact(identity), identityTokens: new Set(tokens(identity)),
-      unifiedNorm: normalize(unified), unifiedCompact: compact(unified), unifiedTokens: new Set(tokens(unified)),
-      isAccessory: /DUMMY|BRACKET|HOOD|LENS|COVER|HOLDER|MAGNET|REED|REPAIR|BRANDPLATE|JUNCTIONBOX|SURFACEBOX/i.test(ref),
-      isBundle: /KIT/i.test(ref)
+  function buildRecord(product,index){
+    const p=product||{};
+    const fields={
+      ref:str(p.name),
+      brand:str(p.brand||p.marca),
+      short:str(p.short_description),
+      full:str(p.description||p.desc),
+      category:str(p.category||p.categoria),
+      family:str(p.family||p.familia),
+      subcategory:str(p.subcategory||p.subcategoria),
+      type:str(p.product_type||p.tipo),
+      series:str(p.series||p.serie),
+      technology:str(p.technology||p.tecnologia),
+      color:str(p.color||p.colour),
+      tags:str(p.tags||p.keywords),
+      attrs:str(p.attributes||p.atributos)
     };
+    const norm={},sets={};
+    for(const [k,v] of Object.entries(fields)){
+      norm[k]=normalize(v);
+      sets[k]=new Set(tokens(v));
+    }
+    return {product:p,index,fields,norm,sets,refCompact:compact(fields.ref)};
   }
 
-  function expandedQuery(raw){
-    const norm = normalize(raw);
-    const base = tokens(norm);
-    const additions = [];
-    const directAlias = ALIASES[norm];
-    if(directAlias) additions.push(...directAlias);
-    for(const token of base){
-      if(ALIASES[token]) additions.push(...ALIASES[token]);
+  function signature(list){
+    let h=2166136261;
+    for(const p of list){
+      const t=productFields(p).join('\u001f');
+      for(let i=0;i<t.length;i++){ h^=t.charCodeAt(i); h=Math.imul(h,16777619); }
     }
-    return {norm, compact:compact(norm), base, expanded:unique([...base, ...additions.flatMap(tokens)])};
+    return `${list.length}:${h>>>0}`;
   }
 
-  function fieldTokenHits(queryTokens, fieldTokens){
-    let hits=0;
-    for(const token of queryTokens){ if(fieldTokens.has(token)) hits++; }
-    return hits;
-  }
-
-  function fieldContains(fieldNorm,fieldTokens,queryNorm){
-    if(!fieldNorm || !queryNorm) return false;
-    if(fieldNorm===queryNorm || fieldTokens.has(queryNorm)) return true;
-
-    // Desde 2 caracteres admitimos prefijo de palabra de forma genérica.
-    // Ej.: hu -> hub, mo -> motion, ke -> keypad.
-    // No usamos reglas ni alias específicos, y evitamos coincidencias
-    // interiores como "4g" dentro de "64g".
-    if(queryNorm.length >= 2){
-      for(const token of fieldTokens){
-        if(String(token).startsWith(queryNorm)) return true;
-      }
-    }
-
-    // Para cadenas largas mantenemos también la coincidencia parcial clásica.
-    return queryNorm.length>=5 && fieldNorm.includes(queryNorm);
-  }
-
-  function scoreRecord(record, query){
-    if(!query.norm) return 0;
-    let score = 0;
-    let meaningful = false;
-
-    // Referencia: siempre manda.
-    if(record.refCompact === query.compact){ score += 320; meaningful=true; }
-    else if(record.refCompact.startsWith(query.compact)){ score += 220; meaningful=true; }
-    else if(query.compact.length >= 3 && record.refCompact.includes(query.compact)){ score += 180; meaningful=true; }
-
-    const refHits = fieldTokenHits(query.base, record.refTokens);
-    if(refHits){ score += refHits * 95; meaningful=true; }
-    if(query.base.length > 1 && refHits === query.base.length) score += 70;
-
-    // Nombre/familia comercial.
-    if(fieldContains(record.nameNorm,record.nameTokens,query.norm)){ score += 90; meaningful=true; }
-    const nameHits = fieldTokenHits(query.expanded, record.nameTokens);
-    if(nameHits){ score += nameHits * 45; meaningful=true; }
-
-    // Descripción corta oficial recibida desde el CSV.
-    if(record.shortNorm && (fieldContains(record.shortNorm,record.shortTokens,query.norm) || (query.compact.length>=6 && record.shortCompact.includes(query.compact)))){ score += 70; meaningful=true; }
-    const shortHits = fieldTokenHits(query.expanded, record.shortTokens);
-    if(shortHits){ score += shortHits * 32; meaningful=true; }
-
-    // Familia y categoría son campos propios. Permiten buscar términos como
-    // “domótica”, “sirenas” o “videovigilancia” aunque no aparezcan literalmente
-    // en la descripción comercial. Pesan menos que referencia/descripciones.
-    if(fieldContains(record.familyNorm,record.familyTokens,query.norm)){ score += 52; meaningful=true; }
-    const familyHits = fieldTokenHits(query.expanded, record.familyTokens);
-    if(familyHits){ score += familyHits * 24; meaningful=true; }
-
-    if(fieldContains(record.categoryNorm,record.categoryTokens,query.norm)){ score += 44; meaningful=true; }
-    const categoryHits = fieldTokenHits(query.expanded, record.categoryTokens);
-    if(categoryHits){ score += categoryHits * 20; meaningful=true; }
-
-    if(fieldContains(record.tagsNorm,record.tagsTokens,query.norm)){ score += 30; meaningful=true; }
-    const tagHits = fieldTokenHits(query.expanded, record.tagsTokens);
-    if(tagHits){ score += tagHits * 14; meaningful=true; }
-
-    if(fieldContains(record.brandNorm,record.brandTokens,query.norm)){ score += 16; meaningful=true; }
-
-    // Identidad estructurada del producto:
-    // referencia, descripción corta, tipo, subcategoría, familia, categoría,
-    // serie, tecnología y etiquetas. Tiene más peso que una simple mención
-    // dentro de la descripción larga.
-    if(fieldContains(record.identityNorm,record.identityTokens,query.norm)
-      || (query.compact.length>=4 && record.identityCompact.includes(query.compact))){
-      score += 115;
-      meaningful=true;
-    }
-    const identityHits = fieldTokenHits(query.base, record.identityTokens);
-    if(identityHits){ score += identityHits * 46; meaningful=true; }
-
-    // Índice común para todos los orígenes. Incluye descripción completa,
-    // familia, categoría y etiquetas, sin distinguir entre Visio y manual.
-    if(fieldContains(record.unifiedNorm,record.unifiedTokens,query.norm) || (query.compact.length>=6 && record.unifiedCompact.includes(query.compact))){
-      score += 34;
-      meaningful=true;
-    }
-    const unifiedHits = fieldTokenHits(query.base, record.unifiedTokens);
-    if(unifiedHits){ score += unifiedHits * 10; meaningful=true; }
-
-    // La descripción completa ayuda a ordenar, pero no sustituye a la identidad.
-    // Para consultas cortas de una sola palabra, una mención que aparece SOLO
-    // en descripción larga queda claramente por debajo de un producto cuya
-    // identidad/tipo/subcategoría sí coincide.
-    const identityDirect = fieldContains(record.identityNorm,record.identityTokens,query.norm);
-    const fullDirect = fieldContains(record.fullNorm,record.fullTokens,query.norm);
-    if(fullDirect){
-      score += identityDirect ? 18 : 5;
-      meaningful=true;
-    }
-    const fullHits = fieldTokenHits(query.base, record.fullTokens);
-    if(fullHits){
-      score += fullHits * (identityDirect ? 7 : 2);
-      meaningful=true;
-    }
-
-    // Alias técnicos: ayudan solo cuando encuentran palabras reales.
-    const aliasOnly = query.expanded.filter(t=>!query.base.includes(t));
-    let aliasScore=0;
-    for(const t of aliasOnly){
-      const compactAlias = compact(t);
-      const inReference = record.refTokens.has(t) || (compactAlias.length >= 3 && record.refCompact.includes(compactAlias));
-      const inName = record.nameTokens.has(t) || (compactAlias.length >= 3 && record.nameCompact.includes(compactAlias));
-      const inShort = record.shortTokens.has(t) || (compactAlias.length >= 3 && record.shortCompact.includes(compactAlias));
-      const inUnified = record.unifiedTokens.has(t) || (compactAlias.length >= 3 && record.unifiedCompact.includes(compactAlias));
-      if(inReference || inName) aliasScore += 48;
-      else if(inShort) aliasScore += 36;
-      else if(inUnified) aliasScore += 20;
-    }
-    if(aliasScore){ score += aliasScore; meaningful=true; }
-
-    const asksAccessory = /\b(soporte|caja|carcasa|dummy|repuesto|lente|tapa|bracket|holder|hood|junction|magnet|iman)\b/.test(query.norm);
-    if(record.isAccessory && !asksAccessory) score -= 240;
-    const asksBundle = /\b(kit|pack|starter)\b/.test(query.norm);
-    if(record.isBundle && !asksBundle) score -= 110;
-
-    // En consultas de varias palabras, exige que todos los términos originales
-    // aparezcan en algún campo. Evita listas enormes por una sola palabra común.
-    if(query.base.length > 1){
-      const allFields = new Set([
-        ...record.refTokens, ...record.nameTokens, ...record.shortTokens, ...record.fullTokens,
-        ...record.familyTokens, ...record.categoryTokens, ...record.tagsTokens, ...record.brandTokens,
-        ...record.unifiedTokens
-      ]);
-      const covered = query.base.filter(t=>allFields.has(t)).length;
-      if(covered === query.base.length) score += 45;
-      else score -= (query.base.length-covered) * 45;
-    }
-
-    // Regla base del buscador:
-    // una coincidencia literal en cualquier campo indexado SIEMPRE es válida.
-    // El ranking solo decide el orden; nunca debe eliminar un producto que
-    // contiene literalmente la consulta.
-    const literalMatch =
-      record.refNorm.includes(query.norm)
-      || record.nameNorm.includes(query.norm)
-      || record.shortNorm.includes(query.norm)
-      || record.fullNorm.includes(query.norm)
-      || record.familyNorm.includes(query.norm)
-      || record.categoryNorm.includes(query.norm)
-      || record.tagsNorm.includes(query.norm)
-      || record.unifiedNorm.includes(query.norm);
-
-    if(literalMatch){
-      return Math.max(score, 12);
-    }
-
-    return meaningful && score >= 8 ? score : 0;
-  }
-
-  function catalogSignature(list){
-    // Huella de todo el contenido indexable. Así una actualización del CSV
-    // invalida el índice aunque conserve exactamente el mismo número de filas.
-    let hash=2166136261;
-    for(const product of list){
-      const value=productSearchFields(product).join('\u001f');
-      for(let i=0;i<value.length;i++){
-        hash^=value.charCodeAt(i);
-        hash=Math.imul(hash,16777619);
-      }
-    }
-    return `${list.length}:${hash>>>0}`;
-  }
-
-  function recordsFor(list,signature){
-    if(indexedProducts!==list || indexedSignature!==signature){
-      indexedProducts=list;
-      indexedSignature=signature;
-      indexedRecords=list.map(buildRecord);
+  function getRecords(list){
+    const sig=signature(list);
+    if(cachedList!==list||cachedSignature!==sig){
+      cachedList=list;cachedSignature=sig;
+      cachedRecords=list.map(buildRecord);
       CACHE.clear();
-      cachedSignature=signature;
     }
-    return indexedRecords;
+    return {records:cachedRecords,sig};
   }
 
-  function familyKey(record){
-    return String(record&&record.ref||'').toUpperCase()
-      .replace(/-(?:W|B)(?=-|$)/g,'')
-      .replace(/--+/g,'-').replace(/-$/,'').trim();
+  function queryInfo(raw){
+    const norm=normalize(raw);
+    return {norm,tokens:tokens(norm),compact:compact(norm)};
   }
 
-  function colorOrder(record,query){
-    const ref=String(record&&record.ref||'').toUpperCase();
-    const asksBlack=/\b(?:negro|black)\b/.test(query.norm);
-    if(asksBlack) return /-B(?:-|$)/.test(ref)?0:/-W(?:-|$)/.test(ref)?1:2;
-    return /-W(?:-|$)/.test(ref)?0:/-B(?:-|$)/.test(ref)?1:2;
+  function recordHasExactToken(record,term){
+    for(const set of Object.values(record.sets)){
+      if(set.has(term)) return true;
+    }
+    return false;
   }
 
-  function expandFamilyVariants(ranked,records,query,limit){
-    if(!ranked.length) return ranked;
-    const byFamily=new Map();
-    for(const record of records){
-      const key=familyKey(record);
-      if(!key) continue;
-      if(!byFamily.has(key)) byFamily.set(key,[]);
-      byFamily.get(key).push(record);
+  function fieldScore(record,key,term,weight,exactRequired){
+    const n=record.norm[key],set=record.sets[key];
+    if(!n||!term) return 0;
+
+    if(n===term) return weight*4;
+    if(set.has(term)) return weight*3;
+
+    // Si el término existe como palabra exacta en el catálogo, NO aceptar
+    // coincidencias de prefijo como SIM -> SIMPLE.
+    if(!exactRequired && term.length>=2){
+      for(const word of set){
+        if(word.startsWith(term)) return weight*2;
+      }
     }
-    const rankedByFamily=new Map();
-    for(const item of ranked){
-      const key=familyKey(records[item._hxaIndex]);
-      if(!rankedByFamily.has(key)) rankedByFamily.set(key,[]);
-      rankedByFamily.get(key).push(item);
-    }
-    const out=[];
-    const seen=new Set();
-    for(const item of ranked){
-      const record=records[item._hxaIndex];
-      const key=familyKey(record);
-      if(seen.has(key)) continue;
-      seen.add(key);
-      const present=rankedByFamily.get(key)||[];
-      const best=Math.max(...present.map(x=>x._score),item._score);
-      const presentIndexes=new Set(present.map(x=>x._hxaIndex));
-      const variants=(byFamily.get(key)||[])
-        .filter(r=>!presentIndexes.has(r.index))
-        .sort((a,b)=>colorOrder(a,query)-colorOrder(b,query)||a.ref.localeCompare(b.ref,'es',{numeric:true,sensitivity:'base'}))
-        .map((r,n)=>({
-          ...r.product,_hxaIndex:r.index,_score:Math.max(1,best-(n+1)/1000),
-          _reasons:['variante de familia'],_variantBase:key,
-          _color:/-B(?:-|$)/i.test(r.ref)?'black':/-W(?:-|$)/i.test(r.ref)?'white':''
-        }));
-      out.push(...present.sort((a,b)=>
-        colorOrder(records[a._hxaIndex],query)-colorOrder(records[b._hxaIndex],query)||
-        b._score-a._score||String(a.name||'').localeCompare(String(b.name||''),'es',{numeric:true,sensitivity:'base'})
-      ),...variants);
-      if(out.length>=limit) break;
-    }
-    return out.slice(0,limit);
+
+    // Coincidencia interior solo en términos largos y solo cuando no existe
+    // una palabra exacta global. Evita ruido con consultas cortas.
+    if(!exactRequired && term.length>=4 && n.includes(term)) return weight;
+
+    return 0;
   }
 
-  function rank(products, rawQuery, limit=300){
-    const list = Array.isArray(products) ? products : [];
-    const query = expandedQuery(rawQuery);
+  function scoreRecord(record,query,exactTerms){
+    if(!query.tokens.length) return 0;
+
+    const weights={
+      ref:120,short:90,type:82,subcategory:76,family:64,category:58,
+      brand:52,series:48,technology:46,tags:42,color:34,attrs:26,full:24
+    };
+
+    let score=0,covered=0;
+
+    for(const term of query.tokens){
+      const exactRequired=exactTerms.has(term);
+      let best=0;
+
+      for(const [key,w] of Object.entries(weights)){
+        best=Math.max(best,fieldScore(record,key,term,w,exactRequired));
+      }
+
+      const tc=compact(term);
+      if(record.refCompact===tc) best=Math.max(best,weights.ref*4);
+      else if(record.refCompact.startsWith(tc)) best=Math.max(best,weights.ref*2.2);
+      else if(term.length>=3 && record.refCompact.includes(tc)) best=Math.max(best,weights.ref*1.25);
+
+      if(best>0){ covered++; score+=best; }
+    }
+
+    // Todas las palabras escritas deben estar presentes de verdad.
+    if(covered!==query.tokens.length) return 0;
+
+    const phrase=query.norm;
+    if(record.norm.ref===phrase) score+=500;
+    else if(record.norm.ref.startsWith(phrase)) score+=280;
+
+    for(const key of ['short','type','subcategory','family','category']){
+      const n=record.norm[key];
+      if(!n) continue;
+      if(n===phrase) score+=180;
+      else if(phrase.length>=3 && n.startsWith(phrase)) score+=95;
+      else if(phrase.length>=4 && n.includes(phrase)) score+=45;
+    }
+
+    return score;
+  }
+
+  function rank(products,rawQuery,limit=300){
+    const list=Array.isArray(products)?products:[];
+    const query=queryInfo(rawQuery);
     if(!query.norm) return [];
-    const signature=catalogSignature(list);
-    const key = `${query.norm}|${signature}|${limit}`;
-    const records=recordsFor(list,signature);
+
+    const {records,sig}=getRecords(list);
+    const key=`${query.norm}|${sig}|${limit}`;
     if(CACHE.has(key)) return CACHE.get(key);
 
-    let ranked = records.map(record=>{
-      const product=record.product;
-      const score = scoreRecord(record,query);
-      return score ? {
-        ...product,
-        _hxaIndex: Number.isInteger(product && product._hxaIndex) ? product._hxaIndex : record.index,
-        _score: score,
-        _reasons: [],
-        _variantBase: familyKey(record),
-        _color: /-B(?:-|$)/i.test(record.ref) ? 'black' : /-W(?:-|$)/i.test(record.ref) ? 'white' : ''
-      } : null;
+    // Para cada término, comprobar si existe como palabra exacta en el catálogo.
+    // Si existe, ese término deja de funcionar como prefijo global.
+    const exactTerms=new Set(
+      query.tokens.filter(term=>records.some(record=>recordHasExactToken(record,term)))
+    );
+
+    const ranked=records.map(record=>{
+      const score=scoreRecord(record,query,exactTerms);
+      return score?{...record.product,_hxaIndex:record.index,_score:score}:null;
     }).filter(Boolean).sort((a,b)=>
       b._score-a._score ||
       String(a.name||'').localeCompare(String(b.name||''),'es',{numeric:true,sensitivity:'base'})
-    );
+    ).slice(0,Math.max(1,Number(limit)||300));
 
-    ranked=expandFamilyVariants(ranked,records,query,limit);
-    if(CACHE.size>160) CACHE.clear();
+    if(CACHE.size>120) CACHE.clear();
     CACHE.set(key,ranked);
     return ranked;
   }
 
-  function adapt(products, query, limit=300){
-    return rank(products,query,limit)
-      .map(x=>({p:products[x._hxaIndex],i:x._hxaIndex,score:x._score,reasons:x._reasons||[]}))
+  function adapt(products,q,limit=300){
+    return rank(products,q,limit)
+      .map(x=>({p:products[x._hxaIndex],i:x._hxaIndex,score:x._score}))
       .filter(x=>x.p);
   }
 
-  const engine = {
-    normalize,
-    compact,
-    rank,
-    scoreProduct:(p,q)=>({score:scoreRecord(buildRecord(p,0),expandedQuery(q))}),
-    clearCache:()=>{ CACHE.clear(); cachedSignature=''; indexedSignature=''; indexedRecords=[]; indexedProducts=null; },
-    version:'6.0-indice-unico',
-    catalogFilters:CATALOG_FILTERS
-  };
-  global.HXA_KNOWLEDGE_ENGINE = engine;
-  global.HXA_SEARCH_ENGINE = engine;
-
   function getProducts(){
-    try{ return (typeof productos !== 'undefined' && Array.isArray(productos)) ? productos : []; }
-    catch(e){ return []; }
+    try{ return typeof productos!=='undefined'&&Array.isArray(productos)?productos:[]; }
+    catch(_e){ return []; }
   }
 
   function alphabeticalRows(source){
-    return source.map((p,i)=>({p,i,score:1})).sort((a,b)=>
-      String(a.p.name||'').localeCompare(String(b.p.name||''),'es',{numeric:true,sensitivity:'base'})
-    );
+    return source.map((p,i)=>({p,i,score:1}))
+      .sort((a,b)=>String(a.p?.name||'').localeCompare(String(b.p?.name||''),'es',{numeric:true,sensitivity:'base'}));
   }
 
-  function searchRows(source, term, limit=300){
-    const q=String(term||'').trim();
-    return q ? adapt(source,q,limit) : alphabeticalRows(source);
+  function searchRows(source,term,limit=300){
+    const q=str(term);
+    return q?adapt(source,q,limit):alphabeticalRows(source);
   }
 
-  function applyCatalogQuick(rows, term){
-    let quick='';
-    try{ quick = typeof catalogQuick204 !== 'undefined' ? String(catalogQuick204||'') : ''; }
-    catch(e){}
-    if(!quick) return rows;
+  const engine={
+    normalize,compact,rank,
+    scoreProduct:(p,q)=>{
+      const list=[p],qi=queryInfo(q),record=buildRecord(p,0);
+      const exact=new Set(qi.tokens.filter(t=>recordHasExactToken(record,t)));
+      return {score:scoreRecord(record,qi,exact)};
+    },
+    clearCache:()=>{CACHE.clear();cachedList=null;cachedSignature='';cachedRecords=[];},
+    version:'7.1-csv-only-exact-token'
+  };
 
-    // “Más usados” conserva su aprendizaje real, pero usa el motor común
-    // cuando además hay texto escrito.
-    if(quick==='used'){
-      try{
-        if(typeof listaMasUsados206 === 'function') return listaMasUsados206(term);
-      }catch(e){}
-      return [];
-    }
+  global.HXA_SEARCH_ENGINE=engine;
+  global.HXA_KNOWLEDGE_ENGINE=engine;
 
-    const test=CATALOG_FILTERS[quick];
-    if(typeof test !== 'function') return rows;
-    return rows.filter(x=>{
-      const name=(x.p&&x.p.name)||'';
-      // Los filtros trabajan con la referencia compacta y estable.
-      const catalogName=String(name).toLowerCase();
-      return test(catalogName);
-    });
-  }
-
-  function applyCatalogLetter(rows){
-    let letter='';
-    try{ letter = typeof catalogLetter193 !== 'undefined' ? String(catalogLetter193||'') : ''; }
-    catch(e){}
-    if(!letter) return rows;
-    try{
-      if(typeof catalogLetterOf193 === 'function'){
-        return rows.filter(x=>catalogLetterOf193(x.p)===letter);
-      }
-    }catch(e){}
-    return rows;
-  }
-
-  // Punto único de entrada para Inicio y Catálogo.
-  // El Catálogo añade únicamente sus filtros de navegación sobre el mismo ranking.
-  buscar = function(term){
+  // MISMA entrada textual para Inicio.
+  global.buscar=function(term){
     return searchRows(getProducts(),term,300);
   };
 
-  buscarCatalogo = function(term=''){
-    const source=getProducts();
-    let rows=searchRows(source,term,300);
-    rows=applyCatalogQuick(rows,term);
-    rows=applyCatalogLetter(rows);
-    return rows;
+  // Catálogo usa exactamente el mismo ranking textual.
+  global.buscarCatalogo=function(term=''){
+    return searchRows(getProducts(),term,300);
   };
 
-})(typeof window!=='undefined' ? window : globalThis);
+})(typeof window!=='undefined'?window:globalThis);
