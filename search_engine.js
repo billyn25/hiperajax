@@ -106,23 +106,38 @@
     return String(value).trim();
   }
 
-  function productSearchFields(product){
+  function productIdentityFields(product){
     const p = product || {};
     return unique([
       p.name,
-      p.brand,
       p.short_description,
-      p.description,
-      p.desc,
+      p.product_type,
+      p.tipo,
+      p.subcategory,
+      p.subcategoria,
       p.family,
       p.familia,
       p.category,
       p.categoria,
+      p.series,
+      p.serie,
+      p.technology,
+      p.tecnologia,
       p.tags,
       p.keywords,
-      p._desc,
-      p._family,
       p._official,
+      p._family
+    ].map(searchValue));
+  }
+
+  function productSearchFields(product){
+    const p = product || {};
+    return unique([
+      ...productIdentityFields(p),
+      p.brand,
+      p.description,
+      p.desc,
+      p._desc,
       p._search175
     ].map(searchValue));
   }
@@ -136,10 +151,12 @@
     const family = searchValue(product && (product.family || product.familia || product._family));
     const category = searchValue(product && (product.category || product.categoria));
     const tags = searchValue(product && (product.tags || product.keywords));
+    const identityFields = productIdentityFields(product);
+    const identity = identityFields.join(' ');
     const searchFields = productSearchFields(product);
     const unified = searchFields.join(' ');
     return {
-      product, index, ref, short, full, name, brand, family, category, tags, unified,
+      product, index, ref, short, full, name, brand, family, category, tags, identity, unified,
       refNorm: normalize(ref), refCompact: compact(ref), refTokens: new Set(refParts(ref)),
       nameNorm: normalize(name), nameCompact: compact(name), nameTokens: new Set(tokens(name)),
       shortNorm: normalize(short), shortCompact: compact(short), shortTokens: new Set(tokens(short)),
@@ -148,6 +165,7 @@
       familyNorm: normalize(family), familyTokens: new Set(tokens(family)),
       categoryNorm: normalize(category), categoryTokens: new Set(tokens(category)),
       tagsNorm: normalize(tags), tagsTokens: new Set(tokens(tags)),
+      identityNorm: normalize(identity), identityCompact: compact(identity), identityTokens: new Set(tokens(identity)),
       unifiedNorm: normalize(unified), unifiedCompact: compact(unified), unifiedTokens: new Set(tokens(unified)),
       isAccessory: /DUMMY|BRACKET|HOOD|LENS|COVER|HOLDER|MAGNET|REED|REPAIR|BRANDPLATE|JUNCTIONBOX|SURFACEBOX/i.test(ref),
       isBundle: /KIT/i.test(ref)
@@ -195,13 +213,6 @@
     let score = 0;
     let meaningful = false;
 
-    // SIM: si el propio producto/descripcion se identifica como SIM,
-    // priorizarlo cuando el usuario busca "sim". No cambia familia ni atajos.
-    if(query.norm === 'sim' && /\bsim\b|\bm2m\b/.test(record.unifiedNorm)){
-      score += 210;
-      meaningful=true;
-    }
-
     // Referencia: siempre manda.
     if(record.refCompact === query.compact){ score += 320; meaningful=true; }
     else if(record.refCompact.startsWith(query.compact)){ score += 220; meaningful=true; }
@@ -238,14 +249,26 @@
 
     if(fieldContains(record.brandNorm,record.brandTokens,query.norm)){ score += 16; meaningful=true; }
 
+    // Identidad estructurada del producto:
+    // referencia, descripción corta, tipo, subcategoría, familia, categoría,
+    // serie, tecnología y etiquetas. Tiene más peso que una simple mención
+    // dentro de la descripción larga.
+    if(fieldContains(record.identityNorm,record.identityTokens,query.norm)
+      || (query.compact.length>=4 && record.identityCompact.includes(query.compact))){
+      score += 115;
+      meaningful=true;
+    }
+    const identityHits = fieldTokenHits(query.base, record.identityTokens);
+    if(identityHits){ score += identityHits * 46; meaningful=true; }
+
     // Índice común para todos los orígenes. Incluye descripción completa,
     // familia, categoría y etiquetas, sin distinguir entre Visio y manual.
     if(fieldContains(record.unifiedNorm,record.unifiedTokens,query.norm) || (query.compact.length>=6 && record.unifiedCompact.includes(query.compact))){
-      score += 58;
+      score += 34;
       meaningful=true;
     }
     const unifiedHits = fieldTokenHits(query.base, record.unifiedTokens);
-    if(unifiedHits){ score += unifiedHits * 18; meaningful=true; }
+    if(unifiedHits){ score += unifiedHits * 10; meaningful=true; }
 
     // La descripción completa ayuda a ordenar, pero no sustituye a la referencia.
     if(fieldContains(record.fullNorm,record.fullTokens,query.norm)){ score += 24; meaningful=true; }

@@ -150,6 +150,7 @@
   let drawerQuickDraft = '';
   let lastFocused = null;
   let quickStripScrollLeft = 0;
+  let budgetSummaryDismissed = false;
 
   function freshState(){
     return {
@@ -2022,22 +2023,50 @@
 
   function budgetSummaryHtml(){
     const data=budgetSummaryData();
-    if(!data.rows.length) return '';
+    if(budgetSummaryDismissed || !data.rows.length) return '';
     const totalText=typeof fmt?.format === 'function' ? fmt.format(data.total) : `${data.total.toFixed(2)} €`;
     const recent=data.rows.slice(-5).reverse();
+
     return `<div class="hxp-budget-summary" data-hxp-budget-summary>
-      <button type="button" class="hxp-budget-pill" data-hxp-budget-toggle aria-expanded="false">
-        <span class="hxp-budget-cart" aria-hidden="true">▣</span>
-        <strong>${data.units} ud${data.units===1?'':'s'}</strong>
-        <span>${esc(totalText)}</span>
-      </button>
+      <div class="hxp-budget-dock">
+        <button type="button" class="hxp-budget-pill" data-hxp-budget-toggle aria-expanded="false" aria-label="Abrir resumen del presupuesto">
+          <span class="hxp-budget-cart" aria-hidden="true">${svgIcon('box')}</span>
+          <span class="hxp-budget-pill-copy">
+            <strong>${data.rows.length} línea${data.rows.length===1?'':'s'} · ${data.units} ud${data.units===1?'':'s'}</strong>
+            <small>${esc(totalText)}</small>
+          </span>
+        </button>
+        <button type="button" class="hxp-budget-dismiss" data-hxp-budget-dismiss aria-label="Ocultar resumen">×</button>
+      </div>
+
       <div class="hxp-budget-popover" data-hxp-budget-popover hidden>
-        <div class="hxp-budget-popover-head"><div><small>Presupuesto actual</small><strong>${data.units} ud${data.units===1?'':'s'} · ${esc(totalText)}</strong></div></div>
-        <div class="hxp-budget-lines">
-          ${recent.map(row=>`<div><span>${Math.max(1,Number(row.qty)||1)}× ${esc(row.name||'Producto')}</span></div>`).join('')}
+        <div class="hxp-budget-popover-head">
+          <div>
+            <small>Presupuesto actual</small>
+            <strong>${data.rows.length} línea${data.rows.length===1?'':'s'} · ${data.units} ud${data.units===1?'':'s'}</strong>
+          </div>
+          <b>${esc(totalText)}</b>
         </div>
-        ${data.rows.length>5?`<small class="hxp-budget-more">+${data.rows.length-5} líneas más</small>`:''}
-        <button type="button" class="hxp-budget-go" data-hxp-budget-go>Ver presupuesto</button>
+
+        <div class="hxp-budget-lines">
+          ${recent.map(row=>{
+            const qty=Math.max(1,Number(row.qty)||1);
+            const pvp=Number(row.pvp)||0;
+            const dto=Math.max(0,Math.min(100,Number(row.dto)||0));
+            const rowTotal=pvp*qty*(1-dto/100);
+            const rowTotalText=typeof fmt?.format === 'function' ? fmt.format(rowTotal) : `${rowTotal.toFixed(2)} €`;
+            return `<div class="hxp-budget-line">
+              <span><b>${qty}×</b> ${esc(row.name||'Producto')}</span>
+              <em>${esc(rowTotalText)}</em>
+            </div>`;
+          }).join('')}
+        </div>
+
+        ${data.rows.length>5?`<small class="hxp-budget-more">+${data.rows.length-5} líneas más en el presupuesto</small>`:''}
+
+        <button type="button" class="hxp-budget-go" data-hxp-budget-go>
+          <span>Ver presupuesto</span><span aria-hidden="true">→</span>
+        </button>
       </div>
     </div>`;
   }
@@ -2056,6 +2085,17 @@
   }
 
   function bindBudgetSummary(root){
+    const dismiss=root?.querySelector('[data-hxp-budget-dismiss]');
+    if(dismiss && !dismiss.dataset.hxpBound){
+      dismiss.dataset.hxpBound='1';
+      dismiss.addEventListener('click',event=>{
+        event.preventDefault();
+        event.stopPropagation();
+        budgetSummaryDismissed=true;
+        root.querySelector('[data-hxp-budget-summary]')?.remove();
+      });
+    }
+
     const toggle=root?.querySelector('[data-hxp-budget-toggle]');
     if(toggle && !toggle.dataset.hxpBound){
       toggle.dataset.hxpBound='1';
@@ -2482,6 +2522,7 @@
     if(!modal) return;
     state = freshState();
     drawerDraft = {};
+    budgetSummaryDismissed = false;
     modal.classList.remove('hidden');
     modal.setAttribute('aria-hidden','false');
     document.body.classList.add('modal-open');

@@ -3119,13 +3119,13 @@ function registrarReciente(nombre){
   if(!name) return;
   const refs=leerRecientes().filter(ref=>String(ref).toUpperCase()!==name.toUpperCase());
   refs.unshift(name);
-  try{ localStorage.setItem(HX_RECIENTES_KEY,JSON.stringify(refs.slice(0,6))); }catch(_e){}
+  try{ localStorage.setItem(HX_RECIENTES_KEY,JSON.stringify(refs.slice(0,12))); }catch(_e){}
   renderRecientes();
 }
 function renderRecientes(){
   const wrap=document.querySelector('#recentes');
   if(!wrap) return;
-  const limite=window.matchMedia('(max-width:760px)').matches?3:6;
+  const limite=window.matchMedia('(max-width:760px)').matches?3:8;
   const refs=leerRecientes()
     .filter(ref=>findProductoByQuery(ref))
     .slice(0,limite);
