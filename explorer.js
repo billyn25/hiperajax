@@ -1431,11 +1431,11 @@
           || /barrera[^.]{0,60}(?:cablead[ao]|wired)/.test(sourceBarrier)
         );
 
-      // Compatibilidad no equivale a Apertura: DoorProtect/Transmitters solo
+      // Compatibilidad no equivale a Apertura: DoorProtect/Transmitter solo
       // activa este atajo de integración Ajax.
       const ajaxCompatible =
         /ajax\s+inalambric[ao]|compatible[^.]{0,80}\bajax\b|integracion[^.]{0,80}\bajax\b|integración[^.]{0,80}\bajax\b/.test(sourceBarrier)
-        || /(?:^|[\s_-])Transmitters(?:[\s_-]|$)|\bdoor\s*protect\b|(?:^|[\s_-])doorprotect(?:[\s_-]|$)/.test(sourceBarrier);
+        || /(?:^|[\s_-])transmitter(?:[\s_-]|$)|\bdoor\s*protect\b|(?:^|[\s_-])doorprotect(?:[\s_-]|$)/.test(sourceBarrier);
 
       const solarBarrier =
         /\bsolar\b|panel solar|alimentacion solar|alimentación solar|solar powered|photovoltaic|fotovoltaic[ao]/.test(sourceBarrier);
@@ -1672,7 +1672,7 @@
       const role = quickProductRole(item);
       const {structuredSource} = quickContext(item);
       const src = structuredSource;
-      const isIntegrationModule = /\bTransmitters\b|\bmultiTransmitters\b|\bvhfbridge\b|\buartbridge\b|\bocbridge\b|\btransmisor\b|modulo de integracion|módulo de integración/.test(src);
+      const isIntegrationModule = /\btransmitter\b|\bmultitransmitter\b|\bvhfbridge\b|\buartbridge\b|\bocbridge\b|\btransmisor\b|modulo de integracion|módulo de integración/.test(src);
       if(isIntegrationModule) add('Transmitters');
       if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
       if(/\bholder\b|\bholders\b|\bdinholder\b|\bdin holder\b|\bsoporte holder\b/.test(src)) add('Holder');

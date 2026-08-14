@@ -7463,3 +7463,23 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
     font-size:10px!important;
   }
 }
+
+
+/* 7.7.31 · Gestor de presupuestos más amplio en escritorio */
+@media (min-width:761px){
+  #pmModal .pmx-modal-card{
+    width:min(1400px,98vw)!important;
+    max-height:95vh!important;
+  }
+  #pmModal .pmx-workspace{
+    grid-template-columns:minmax(360px,.9fr) minmax(560px,1.55fr)!important;
+    min-height:560px!important;
+  }
+}
+
+/* 7.7.31 · iPhone: evitar autozoom en buscador del gestor de presupuestos */
+@media (max-width:760px){
+  #pmModal #pmSearch{
+    font-size:16px!important;
+  }
+}

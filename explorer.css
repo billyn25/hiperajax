@@ -1937,3 +1937,11 @@ body.light-mode .hxp-type-scroll{
   .hxp-description-toggle{font-size:10.5px}
   .hxp-product-long-description{font-size:10.5px;line-height:1.4;padding:7px 8px}
 }
+
+
+/* 7.7.31 · iPhone: evitar autozoom al filtrar familias de Explorer */
+@media (max-width:760px){
+  #familiasGrid #hxpFamilyFilter{
+    font-size:16px!important;
+  }
+}
