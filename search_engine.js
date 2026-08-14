@@ -319,6 +319,24 @@
       else score -= (query.base.length-covered) * 45;
     }
 
+    // Regla base del buscador:
+    // una coincidencia literal en cualquier campo indexado SIEMPRE es válida.
+    // El ranking solo decide el orden; nunca debe eliminar un producto que
+    // contiene literalmente la consulta.
+    const literalMatch =
+      record.refNorm.includes(query.norm)
+      || record.nameNorm.includes(query.norm)
+      || record.shortNorm.includes(query.norm)
+      || record.fullNorm.includes(query.norm)
+      || record.familyNorm.includes(query.norm)
+      || record.categoryNorm.includes(query.norm)
+      || record.tagsNorm.includes(query.norm)
+      || record.unifiedNorm.includes(query.norm);
+
+    if(literalMatch){
+      return Math.max(score, 12);
+    }
+
     return meaningful && score >= 8 ? score : 0;
   }
 
