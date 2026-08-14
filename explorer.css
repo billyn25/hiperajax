@@ -2003,3 +2003,30 @@ body.light-mode .hxp-budget-pill,body.light-mode .hxp-budget-popover{
   .hxp-budget-pill{min-height:36px;padding:0 10px;gap:6px}
   .hxp-budget-popover{width:min(290px,calc(100vw - 24px))}
 }
+
+
+/* 7.7.38 · Resumen de presupuesto visible en móvil
+   En móvil se ancla al viewport del modal, no al contenido desplazable. */
+@media(max-width:760px){
+  #familiasModal .hxp-budget-summary{
+    position:fixed!important;
+    right:12px!important;
+    bottom:max(14px, env(safe-area-inset-bottom))!important;
+    z-index:2147482500!important;
+    max-width:calc(100vw - 24px)!important;
+  }
+
+  #familiasModal .hxp-budget-pill{
+    max-width:calc(100vw - 24px)!important;
+  }
+
+  #familiasModal .hxp-budget-popover{
+    position:absolute!important;
+    right:0!important;
+    bottom:calc(100% + 8px)!important;
+    width:min(300px,calc(100vw - 24px))!important;
+    max-height:min(52vh,420px)!important;
+    overflow:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
+}
