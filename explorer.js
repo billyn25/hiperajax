@@ -150,7 +150,7 @@
   let drawerQuickDraft = '';
   let lastFocused = null;
   let quickStripScrollLeft = 0;
-  let budgetSummaryDismissed = false;
+  let budgetSummaryMinimized = false;
 
   function freshState(){
     return {
@@ -2023,9 +2023,18 @@
 
   function budgetSummaryHtml(){
     const data=budgetSummaryData();
-    if(budgetSummaryDismissed || !data.rows.length) return '';
+    if(!data.rows.length) return '';
     const totalText=typeof fmt?.format === 'function' ? fmt.format(data.total) : `${data.total.toFixed(2)} €`;
     const recent=data.rows.slice(-5).reverse();
+
+    if(budgetSummaryMinimized){
+      return `<div class="hxp-budget-summary is-minimized" data-hxp-budget-summary>
+        <button type="button" class="hxp-budget-mini" data-hxp-budget-restore aria-label="Restaurar resumen del presupuesto" title="Restaurar resumen">
+          <span class="hxp-budget-cart" aria-hidden="true">${svgIcon('box')}</span>
+          <b>${data.units}</b>
+        </button>
+      </div>`;
+    }
 
     return `<div class="hxp-budget-summary" data-hxp-budget-summary>
       <div class="hxp-budget-dock">
@@ -2085,14 +2094,25 @@
   }
 
   function bindBudgetSummary(root){
+    const restore=root?.querySelector('[data-hxp-budget-restore]');
+    if(restore && !restore.dataset.hxpBound){
+      restore.dataset.hxpBound='1';
+      restore.addEventListener('click',event=>{
+        event.preventDefault();
+        event.stopPropagation();
+        budgetSummaryMinimized=false;
+        refreshBudgetSummary();
+      });
+    }
+
     const dismiss=root?.querySelector('[data-hxp-budget-dismiss]');
     if(dismiss && !dismiss.dataset.hxpBound){
       dismiss.dataset.hxpBound='1';
       dismiss.addEventListener('click',event=>{
         event.preventDefault();
         event.stopPropagation();
-        budgetSummaryDismissed=true;
-        root.querySelector('[data-hxp-budget-summary]')?.remove();
+        budgetSummaryMinimized=true;
+        refreshBudgetSummary();
       });
     }
 
@@ -2522,7 +2542,7 @@
     if(!modal) return;
     state = freshState();
     drawerDraft = {};
-    budgetSummaryDismissed = false;
+    budgetSummaryMinimized = false;
     modal.classList.remove('hidden');
     modal.setAttribute('aria-hidden','false');
     document.body.classList.add('modal-open');

@@ -2176,3 +2176,53 @@ body.light-mode .hxp-budget-cart{
     flex-basis:30px;
   }
 }
+
+
+/* 7.7.40 · Resumen minimizable en PC y móvil */
+.hxp-budget-summary.is-minimized{
+  pointer-events:auto;
+}
+.hxp-budget-mini{
+  min-width:44px;
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  padding:0 8px;
+  border:1px solid rgba(105,137,120,.36);
+  border-radius:999px;
+  background:rgba(22,31,27,.96);
+  color:#f4f8f6;
+  box-shadow:0 8px 24px rgba(0,0,0,.24);
+  cursor:pointer;
+}
+.hxp-budget-mini .hxp-budget-cart{
+  width:24px;
+  height:24px;
+  flex:0 0 24px;
+  background:transparent;
+}
+.hxp-budget-mini b{
+  min-width:16px;
+  padding:2px 5px;
+  border-radius:999px;
+  background:rgba(255,255,255,.12);
+  font-size:10px;
+  line-height:1.2;
+}
+body.light-mode .hxp-budget-mini{
+  background:rgba(250,252,251,.98);
+  color:#233229;
+  border-color:rgba(75,110,91,.24);
+}
+body.light-mode .hxp-budget-mini b{
+  background:rgba(35,131,86,.10);
+}
+@media(max-width:760px){
+  #familiasModal .hxp-budget-mini{
+    min-width:40px;
+    height:40px;
+    padding:0 6px;
+  }
+}

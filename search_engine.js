@@ -270,10 +270,21 @@
     const unifiedHits = fieldTokenHits(query.base, record.unifiedTokens);
     if(unifiedHits){ score += unifiedHits * 10; meaningful=true; }
 
-    // La descripción completa ayuda a ordenar, pero no sustituye a la referencia.
-    if(fieldContains(record.fullNorm,record.fullTokens,query.norm)){ score += 24; meaningful=true; }
+    // La descripción completa ayuda a ordenar, pero no sustituye a la identidad.
+    // Para consultas cortas de una sola palabra, una mención que aparece SOLO
+    // en descripción larga queda claramente por debajo de un producto cuya
+    // identidad/tipo/subcategoría sí coincide.
+    const identityDirect = fieldContains(record.identityNorm,record.identityTokens,query.norm);
+    const fullDirect = fieldContains(record.fullNorm,record.fullTokens,query.norm);
+    if(fullDirect){
+      score += identityDirect ? 18 : 5;
+      meaningful=true;
+    }
     const fullHits = fieldTokenHits(query.base, record.fullTokens);
-    if(fullHits){ score += fullHits * 10; meaningful=true; }
+    if(fullHits){
+      score += fullHits * (identityDirect ? 7 : 2);
+      meaningful=true;
+    }
 
     // Alias técnicos: ayudan solo cuando encuentran palabras reales.
     const aliasOnly = query.expanded.filter(t=>!query.base.includes(t));
