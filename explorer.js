@@ -87,7 +87,7 @@
     smart_home:['Interruptores','Enchufes','Timbre / Doorbell','Válvulas','Clima / Aire / LifeQuality','Frames','Cajas superficie','Tapas interruptor','Tapas enchufe'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Tags/Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
+    wireless_accessories:['Teclados','Tags / Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
@@ -107,10 +107,10 @@
   ]);
 
   const SEARCH_ALIAS_RULES = Object.freeze([
-    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'}, 
+    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'},
     {rx:/\b(sirena|sirenas|homesiren|streetsiren)\b/, add:'sirena sirenas homesiren streetsiren accesorios inalambricos'},
     {rx:/\b(teclado|teclados|keypad)\b/, add:'teclado teclados keypad keypadcombi keypadplus touchscreen accesorios inalambricos'},
-    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'}, 
+    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'},
     {rx:/\b(rele|reles|relé|relés|relay|wallswitch|wall switch)\b/, add:'relay wallswitch rele relés domotica smart home'},
     {rx:/\b(keypadcombi|keypad combi|teclado combi)\b/, add:'keypad combi keypadcombi teclado teclados'},
     {rx:/\b(doorbell|timbre|videoportero)\b/, add:'doorbell timbre videoportero smart home'},
@@ -1752,7 +1752,7 @@
         && !isSimProduct
         && (tagCardByName || tagCardByRole);
 
-      if(isTagCard) add('Tags/Cards');
+      if(isTagCard) add('Tags / Cards');
 
       if(!role.accessory){
         if(isActualKeypad) add('Teclados');
