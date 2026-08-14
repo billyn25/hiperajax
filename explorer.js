@@ -87,7 +87,7 @@
     smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Tags/Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter','Hood / Viseras','Holder','SIM'],
+    wireless_accessories:['Teclados','Tags / Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
@@ -107,10 +107,10 @@
   ]);
 
   const SEARCH_ALIAS_RULES = Object.freeze([
-    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'}, 
+    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'},
     {rx:/\b(sirena|sirenas|homesiren|streetsiren)\b/, add:'sirena sirenas homesiren streetsiren accesorios inalambricos'},
     {rx:/\b(teclado|teclados|keypad)\b/, add:'teclado teclados keypad keypadcombi keypadplus touchscreen accesorios inalambricos'},
-    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'}, 
+    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'},
     {rx:/\b(rele|reles|relé|relés|relay|wallswitch|wall switch)\b/, add:'relay wallswitch rele relés domotica smart home'},
     {rx:/\b(keypadcombi|keypad combi|teclado combi)\b/, add:'keypad combi keypadcombi teclado teclados'},
     {rx:/\b(doorbell|timbre|videoportero)\b/, add:'doorbell timbre videoportero smart home'},
@@ -1431,11 +1431,11 @@
           || /barrera[^.]{0,60}(?:cablead[ao]|wired)/.test(sourceBarrier)
         );
 
-      // Compatibilidad no equivale a Apertura: DoorProtect/Transmitter solo
+      // Compatibilidad no equivale a Apertura: DoorProtect/Transmitters solo
       // activa este atajo de integración Ajax.
       const ajaxCompatible =
         /ajax\s+inalambric[ao]|compatible[^.]{0,80}\bajax\b|integracion[^.]{0,80}\bajax\b|integración[^.]{0,80}\bajax\b/.test(sourceBarrier)
-        || /(?:^|[\s_-])transmitter(?:[\s_-]|$)|\bdoor\s*protect\b|(?:^|[\s_-])doorprotect(?:[\s_-]|$)/.test(sourceBarrier);
+        || /(?:^|[\s_-])Transmitters(?:[\s_-]|$)|\bdoor\s*protect\b|(?:^|[\s_-])doorprotect(?:[\s_-]|$)/.test(sourceBarrier);
 
       const solarBarrier =
         /\bsolar\b|panel solar|alimentacion solar|alimentación solar|solar powered|photovoltaic|fotovoltaic[ao]/.test(sourceBarrier);
@@ -1672,8 +1672,8 @@
       const role = quickProductRole(item);
       const {structuredSource} = quickContext(item);
       const src = structuredSource;
-      const isIntegrationModule = /\btransmitter\b|\bmultitransmitter\b|\bvhfbridge\b|\buartbridge\b|\bocbridge\b|\btransmisor\b|modulo de integracion|módulo de integración/.test(src);
-      if(isIntegrationModule) add('Transmitter');
+      const isIntegrationModule = /\bTransmitters\b|\bmultiTransmitters\b|\bvhfbridge\b|\buartbridge\b|\bocbridge\b|\btransmisor\b|modulo de integracion|módulo de integración/.test(src);
+      if(isIntegrationModule) add('Transmitters');
       if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
       if(/\bholder\b|\bholders\b|\bdinholder\b|\bdin holder\b|\bsoporte holder\b/.test(src)) add('Holder');
       if(/\baj[-_ ]?sim\b|\bsim\b|\bm2m\b|\blxm2m[-_ ]?card[-_ ]?es\b/.test(src)) add('SIM');
@@ -1709,7 +1709,7 @@
         && !isSimProduct
         && (tagCardByName || tagCardByRole);
 
-      if(isTagCard) add('Tags/Cards');
+      if(isTagCard) add('Tags / Cards');
 
       if(!role.accessory){
         if(isActualKeypad) add('Teclados');
