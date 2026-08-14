@@ -719,7 +719,18 @@
     try{
       const engine = window.HXA_SEARCH_ENGINE || window.HXA_KNOWLEDGE_ENGINE;
       if(engine?.rank){
-        const source = items.map(item => item.p);
+        // IMPORTANTE: cuando buscamos dentro de un atajo/filtro, `items`
+        // es una sublista. Los productos originales pueden conservar un
+        // _hxaIndex global; si se lo pasamos al motor, ese índice ya no
+        // corresponde a la sublista y se pierde el filtro activo.
+        //
+        // Clonamos solo para la búsqueda y retiramos ese índice global.
+        // El motor devuelve así índices locales 0..N de esta sublista.
+        const source = items.map(item => {
+          const product = {...(item.p || {})};
+          delete product._hxaIndex;
+          return product;
+        });
         const ranked = engine.rank(source, q, Math.min(300, source.length));
         return ranked
           .map(product => items[Number(product._hxaIndex)])
@@ -1512,31 +1523,31 @@
     if(profile === 'smart_home'){
       const pSmart=item?.p || {};
       const refSmart=norm(pSmart.name || '');
+      const refCompactSmart=refSmart.replace(/[^a-z0-9]/g,'');
       const identitySmart=norm([
         pSmart.name,pSmart.short_description,pSmart.product_type,pSmart.tipo,
         item?.subcategory,pSmart.subcategory,pSmart.family
       ].filter(Boolean).join(' '));
 
-      // Accesorios por identidad: no usamos compatibilidades de la descripción larga.
+      // Componentes Ajax: la referencia manda.
+      // CENTER/SIDE/SOLOCOVER son tapas de Outlet, nunca Frames.
+      // CENTER/SIDE/SOLOBUTTON son teclas/tapas de LightSwitch.
       const isFrame =
-        /(?:^|[-_\s])frame(?:[-_\s]|$)|\bmarco\b/.test(identitySmart);
+        /(?:^|[-_\s])frame(?:[-_\s]|$)/.test(refSmart)
+        || /^ajframe\d*/.test(refCompactSmart);
 
       const isSurfaceBox =
-        /surface\s*box|surfacebox|caja(?: de)? superficie|caja superficial/.test(identitySmart);
+        /surfacebox/.test(refCompactSmart)
+        || /surface\s*box|caja(?: de)? superficie|caja superficial/.test(identitySmart);
 
       const isSwitchCover =
-        !isFrame && !isSurfaceBox && (
-          /panel tactil para un interruptor de luz|panel táctil para un interruptor de luz/.test(identitySmart)
-          || /(?:^|[-_\s])button(?:[-_\s]|$)/.test(refSmart)
-             && /interruptor|lightswitch|light switch/.test(identitySmart)
-        );
+        /(?:center|side|solo)button/.test(refCompactSmart)
+        || /panel tactil para un interruptor de luz|panel táctil para un interruptor de luz/.test(identitySmart);
 
       const isOutletCover =
-        !isFrame && !isSurfaceBox && (
-          /tapa(?: de| para)? enchufe|cubierta(?: de| para)? enchufe/.test(identitySmart)
-          || /(?:^|[-_\s])cover(?:[-_\s]|$)/.test(refSmart)
-             && /enchufe|outlet|socket/.test(identitySmart)
-        );
+        /(?:center|side|solo)cover/.test(refCompactSmart)
+        || /coverplate/.test(refCompactSmart)
+        || /tapa(?: de| para)? enchufe|cubierta(?: de| para)? enchufe/.test(identitySmart);
 
       const smartAccessory = isFrame || isSurfaceBox || isSwitchCover || isOutletCover;
 
@@ -1546,9 +1557,14 @@
       if(isOutletCover) add('Tapas enchufe');
 
       if(!smartAccessory){
-        const isRelay = /wallswitch|wall switch|\brelay\b|aj-relay|rel[eé]\s+(?:contacto|tension|tensión)|\brel[eé]s?\b/.test(identitySmart);
-        const isOutlet = /outletcore|outlet core|socket|enchufe(?: ethernet| inteligente)?|\boutlet\b/.test(identitySmart);
-        const isSwitch = /lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(identitySmart);
+        const isRelay =
+          /wallswitch|wall switch|\brelay\b|aj-relay|rel[eé]\s+(?:contacto|tension|tensión)|\brel[eé]s?\b/.test(identitySmart);
+
+        const isOutlet =
+          /outletcore|outlet core|socket|enchufe(?: ethernet| inteligente)?|\boutlet\b/.test(identitySmart);
+
+        const isSwitch =
+          /lightswitch|light switch|lightcore|light core|interruptor inteligente/.test(identitySmart);
 
         if(/doorbell|timbre|videoportero/.test(identitySmart)) add('Timbre');
         if((isSwitch || isRelay) && !isOutlet) add('Interruptores');
