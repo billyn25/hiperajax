@@ -87,7 +87,7 @@
     smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Tags / Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
+    wireless_accessories:['Teclados','Tags/Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
@@ -107,10 +107,10 @@
   ]);
 
   const SEARCH_ALIAS_RULES = Object.freeze([
-    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'},
+    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'}, 
     {rx:/\b(sirena|sirenas|homesiren|streetsiren)\b/, add:'sirena sirenas homesiren streetsiren accesorios inalambricos'},
     {rx:/\b(teclado|teclados|keypad)\b/, add:'teclado teclados keypad keypadcombi keypadplus touchscreen accesorios inalambricos'},
-    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'},
+    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'}, 
     {rx:/\b(rele|reles|relé|relés|relay|wallswitch|wall switch)\b/, add:'relay wallswitch rele relés domotica smart home'},
     {rx:/\b(keypadcombi|keypad combi|teclado combi)\b/, add:'keypad combi keypadcombi teclado teclados'},
     {rx:/\b(doorbell|timbre|videoportero)\b/, add:'doorbell timbre videoportero smart home'},
@@ -1709,7 +1709,7 @@
         && !isSimProduct
         && (tagCardByName || tagCardByRole);
 
-      if(isTagCard) add('Tags / Cards');
+      if(isTagCard) add('Tags/Cards');
 
       if(!role.accessory){
         if(isActualKeypad) add('Teclados');
@@ -2102,11 +2102,22 @@
 
       const update = () => {
         const overflow = strip.scrollWidth > strip.clientWidth + 2;
-        const max = Math.max(0, strip.scrollWidth - strip.clientWidth);
-        const pos = Math.max(0, Number(strip.scrollLeft) || 0);
+        const first = strip.firstElementChild;
+        const last = strip.lastElementChild;
+
+        // La visibilidad se decide por lo que realmente se ve en pantalla,
+        // no por scrollLeft. En escritorio algunos navegadores pueden dejar
+        // un scrollLeft residual/fraccional aunque visualmente estemos al inicio.
+        const stripRect = strip.getBoundingClientRect();
+        const firstRect = first?.getBoundingClientRect();
+        const lastRect = last?.getBoundingClientRect();
+
+        const hasHiddenLeft = !!(overflow && firstRect && firstRect.left < stripRect.left - 4);
+        const hasHiddenRight = !!(overflow && lastRect && lastRect.right > stripRect.right + 4);
+
         shell.classList.toggle('has-overflow', overflow);
-        left.classList.toggle('is-visible', overflow && pos > 12);
-        right.classList.toggle('is-visible', overflow && pos < max - 12);
+        left.classList.toggle('is-visible', hasHiddenLeft);
+        right.classList.toggle('is-visible', hasHiddenRight);
       };
 
       if(!shell.dataset.hxpScrollBound){
