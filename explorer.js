@@ -87,7 +87,7 @@
     smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Tags/Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter / Integración','Hood / Viseras','Holder','SIM'],
+    wireless_accessories:['Teclados','Tags/Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitter','Hood / Viseras','Holder','SIM'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
@@ -1673,7 +1673,7 @@
       const {structuredSource} = quickContext(item);
       const src = structuredSource;
       const isIntegrationModule = /\btransmitter\b|\bmultitransmitter\b|\bvhfbridge\b|\buartbridge\b|\bocbridge\b|\btransmisor\b|modulo de integracion|módulo de integración/.test(src);
-      if(isIntegrationModule) add('Transmitter / Integración');
+      if(isIntegrationModule) add('Transmitter');
       if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
       if(/\bholder\b|\bholders\b|\bdinholder\b|\bdin holder\b|\bsoporte holder\b/.test(src)) add('Holder');
       if(/\baj[-_ ]?sim\b|\bsim\b|\bm2m\b|\blxm2m[-_ ]?card[-_ ]?es\b/.test(src)) add('SIM');
@@ -2111,8 +2111,8 @@
 
       if(!shell.dataset.hxpScrollBound){
         shell.dataset.hxpScrollBound='1';
-        strip.scrollLeft = 0;
         left.classList.remove('is-visible');
+
         left.addEventListener('click', () => {
           strip.scrollBy({left:-Math.max(220, strip.clientWidth*.6), behavior:'smooth'});
         });
@@ -2120,9 +2120,16 @@
           strip.scrollBy({left:Math.max(220, strip.clientWidth*.6), behavior:'smooth'});
         });
         strip.addEventListener('scroll', update, {passive:true});
-      }
 
-      requestAnimationFrame(update);
+        requestAnimationFrame(() => {
+          // En escritorio cada nueva tira empieza realmente desde el inicio.
+          // En móvil render() restaura después su posición horizontal guardada.
+          if(!isMobile()) strip.scrollTo({left:0, behavior:'auto'});
+          update();
+        });
+      }else{
+        requestAnimationFrame(update);
+      }
     });
   }
 
