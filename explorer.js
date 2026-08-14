@@ -83,11 +83,11 @@
   // Los productos se asignan dinámicamente desde Tipo/atributos/nombre; nunca por listas de referencias.
   const QUICK_FILTER_ORDER = Object.freeze({
     cameras:['Bullet','Turret','Domo','Cube','PTZ','Soportes'],
-    detectors:['Movimiento / PIR','Apertura','MotionCam','PhOD','Cristal','Inundación','Combi','Exterior','Cortina','Incendio','Hood / Viseras'],
-    smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima / Aire','Accesorios'],
+    detectors:['Movimiento/PIR','Apertura','MotionCam','PhOD','Cristal','Inundación','Combi','Exterior','Cortina','Incendio','Hood/Viseras'],
+    smart_home:['Interruptores','Enchufes','Timbre','Válvulas','Clima/Aire','Accesorios'],
     centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
-    wireless_accessories:['Teclados','Tags/Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
+    wireless_accessories:['Teclados','Tags/Cards','Sirenas','Relés','Botones/Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood/Viseras','Holder','SIM'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
     power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
     ups:['UPS'],
@@ -107,10 +107,10 @@
   ]);
 
   const SEARCH_ALIAS_RULES = Object.freeze([
-    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'}, 
+    {rx:/\b(leak|leaks|leakprotect|inundacion|inundación|fuga|fugas)\b/, add:'leak leakprotect inundacion inundación fuga agua detector'},
     {rx:/\b(sirena|sirenas|homesiren|streetsiren)\b/, add:'sirena sirenas homesiren streetsiren accesorios inalambricos'},
     {rx:/\b(teclado|teclados|keypad)\b/, add:'teclado teclados keypad keypadcombi keypadplus touchscreen accesorios inalambricos'},
-    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'}, 
+    {rx:/\b(button|boton|botón|mando|mandos|spacecontrol|doublebutton)\b/, add:'button boton botón mando mandos spacecontrol doublebutton accesorios inalambricos'},
     {rx:/\b(rele|reles|relé|relés|relay|wallswitch|wall switch)\b/, add:'relay wallswitch rele relés domotica smart home'},
     {rx:/\b(keypadcombi|keypad combi|teclado combi)\b/, add:'keypad combi keypadcombi teclado teclados'},
     {rx:/\b(doorbell|timbre|videoportero)\b/, add:'doorbell timbre videoportero smart home'},
@@ -1341,7 +1341,7 @@
   function relatedQuickItems(quickGroup, family = currentFamily(), model = buildModel()){
     const profile=familyQuickProfile(family);
     if(quickGroup === 'Soportes' && profile === 'cameras') return cameraSupportItems(model);
-    if(quickGroup === 'Hood / Viseras' && profile === 'detectors') return detectorHoodItems(model);
+    if(quickGroup === 'Hood/Viseras' && profile === 'detectors') return detectorHoodItems(model);
     return null;
   }
 
@@ -1497,13 +1497,13 @@
       const outdoor = matches(/\boutdoor\b|\bexterior\b/);
       const motion = matches(/motionprotect|motion protect|\bpir\b|detector(?:\s+de)?\s+movimiento|fotodetector/);
 
-      if(motion) add('Movimiento / PIR');
+      if(motion) add('Movimiento/PIR');
       if(door && !fire) add('Apertura');
       if(flood && !fire) add('Inundación');
       if(motioncam) add('MotionCam');
       if(phod && motioncam) add('PhOD');
       if(glass && !fire) add('Cristal');
-      if(combi){ add('Combi'); add('Movimiento / PIR'); add('Cristal'); }
+      if(combi){ add('Combi'); add('Movimiento/PIR'); add('Cristal'); }
       if(outdoor && !fire) add('Exterior');
       if(curtain && !fire) add('Cortina');
       if(fire) add('Incendio');
@@ -1528,7 +1528,7 @@
 
         if(isOutlet) add('Enchufes');
         if(/waterstop|electrov[aá]lvula|\bvalve\b/.test(typeText)) add('Válvulas');
-        if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(typeText)) add('Clima / Aire');
+        if(/lifequality|monitor.*(?:temperatura|humedad|co2)|calidad.*aire/.test(typeText)) add('Clima/Aire');
       }
     }
 
@@ -1674,7 +1674,7 @@
       const src = structuredSource;
       const isIntegrationModule = /\btransmitter\b|\bmultitransmitter\b|\bvhfbridge\b|\buartbridge\b|\bocbridge\b|\btransmisor\b|modulo de integracion|módulo de integración/.test(src);
       if(isIntegrationModule) add('Transmitters');
-      if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood / Viseras');
+      if(/\bhood\b|\bhoods\b|\bvisera\b|\bviseras\b|sunshield|rainshield/.test(src)) add('Hood/Viseras');
       if(/\bholder\b|\bholders\b|\bdinholder\b|\bdin holder\b|\bsoporte holder\b/.test(src)) add('Holder');
       if(/\baj[-_ ]?sim\b|\bsim\b|\bm2m\b|\blxm2m[-_ ]?card[-_ ]?es\b/.test(src)) add('SIM');
       // Clasificación por IDENTIDAD del producto, no por textos de
@@ -1758,7 +1758,7 @@
     });
 
     if(profile === 'cameras' && cameraSupportItems(model).length) available.add('Soportes');
-    if(profile === 'detectors' && detectorHoodItems(model).length) available.add('Hood / Viseras');
+    if(profile === 'detectors' && detectorHoodItems(model).length) available.add('Hood/Viseras');
     return order.filter(label => available.has(label));
   }
 
