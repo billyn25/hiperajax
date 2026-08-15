@@ -289,35 +289,66 @@ function explorerAffinity(product,query){
 }
 
 
-function explorerClassificationScore(product,query){
+function thematicAffinity(product,query){
   const getClassification=global.HXA_EXPLORER_CLASSIFICATION;
-  if(typeof getClassification!=='function') return 0;
+  const q=normalize(query);
+  const qWords=tokens(q);
+  if(!qWords.length) return 0;
 
-  let classification;
-  try{ classification=getClassification(product); }catch(_e){ return 0; }
-  if(!classification) return 0;
+  let classification=null;
+  if(typeof getClassification==='function'){
+    try{ classification=getClassification(product); }catch(_e){}
+  }
 
-  const q=tokens(query);
-  if(!q.length) return 0;
-
-  const family=normalize([
-    classification.familyKey,
-    classification.familyTitle,
-    classification.profile,
+  // Fallback a campos estructurados si Explorer todavía no ha cargado.
+  const familyText=normalize(classification ? [
     classification.category,
-    classification.subcategory
-  ].filter(Boolean).join(' '));
+    classification.family,
+    classification.subcategory,
+    classification.familyTitle,
+    classification.displayTitle,
+    classification.profile
+  ].filter(Boolean).join(' ') : structuredText(product));
 
-  const quick=normalize((classification.quicks||[]).join(' '));
-  const familyWords=tokens(family);
-  const quickWords=tokens(quick);
+  const quickText=normalize(
+    classification?.quicks?.length
+      ? classification.quicks.join(' ')
+      : ''
+  );
+
+  const familyWords=tokens(familyText);
+  const quickWords=tokens(quickText);
 
   let score=0;
-  for(const term of q){
-    if(familyWords.some(word=>equivalent(word,term))) score+=100;
-    else if(quickWords.some(word=>equivalent(word,term))) score+=80;
-    else if(term.length>=3 && familyWords.some(word=>word.startsWith(term))) score+=60;
-    else if(term.length>=3 && quickWords.some(word=>word.startsWith(term))) score+=50;
+
+  // Consulta directa contra familia/perfil/atajo.
+  for(const term of qWords){
+    if(familyWords.some(word=>equivalent(word,term))) score+=120;
+    if(quickWords.some(word=>equivalent(word,term))) score+=160;
+
+    if(term.length>=3){
+      if(familyWords.some(word=>word.startsWith(term))) score+=70;
+      if(quickWords.some(word=>word.startsWith(term))) score+=100;
+    }
+  }
+
+  // Los aliases ya trabajados en Explorer sirven para traducir intención
+  // (sirenas, teclados, botón, PHOD, etc.) a sus familias/atajos.
+  const meta=global.HXA_EXPLORER_SEARCH_META;
+  if(meta?.aliases){
+    for(const rule of meta.aliases){
+      let rx;
+      try{ rx=new RegExp(rule.source,rule.flags||''); }catch(_e){ continue; }
+      if(!rx.test(q)) continue;
+
+      const aliasTerms=tokens(rule.add||'')
+        .filter(term=>term.length>=3);
+
+      for(const term of aliasTerms){
+        if(familyWords.some(word=>equivalent(word,term))) score+=25;
+        if(quickWords.some(word=>equivalent(word,term))) score+=45;
+      }
+    }
   }
 
   return score;
@@ -349,12 +380,12 @@ function search(products,query,options={}){
 
     result.push({
       product:r.product,index:r.index,
+
+      // Dimensión temática independiente de la coincidencia textual.
+      thematic:thematicAffinity(r.product,query),
+
       worst:Math.max(...infos.map(x=>x.cls)),
       referenceHits,
-
-      // Clasificación FINAL de Explorer: familia/perfil/atajo reales.
-      explorerClassScore:explorerClassificationScore(r.product,query),
-
       explorerAffinity:explorerAffinity(r.product,query),
       secondaryPenalty:secondaryRolePenalty(r.product),
       identityHits:infos.filter(x=>x.cls>=10&&x.cls<=11).length,
@@ -371,15 +402,19 @@ function search(products,query,options={}){
   }
 
   result.sort((a,b)=>
+    // 1) Afinidad temática REAL: familia/perfil/atajo de Explorer.
+    b.thematic-a.thematic ||
+
+    // 2) Calidad textual de la coincidencia.
     a.worst-b.worst ||
     b.referenceHits-a.referenceHits ||
 
-    // Antes de los desempates textuales, manda la clasificación real
-    // que Explorer ya calculó para el producto.
-    b.explorerClassScore-a.explorerClassScore ||
-
-    b.explorerAffinity-a.explorerAffinity ||
+    // 3) Producto funcional antes que kit/accesorio/dummy,
+    //    solo como desempate.
     a.secondaryPenalty-b.secondaryPenalty ||
+
+    // 4) Resto de desempates estables.
+    b.explorerAffinity-a.explorerAffinity ||
     b.identityMatched-a.identityMatched ||
     b.identityStarts-a.identityStarts ||
     a.identityPosition-b.identityPosition ||
@@ -412,7 +447,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'5.0-explorer-classification-trial',
+  version:'5.1-thematic-first-trial',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };

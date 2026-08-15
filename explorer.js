@@ -2718,35 +2718,44 @@
   }
 
 
-  /* Clasificación final de Explorer para el buscador común.
-     No busca productos: solo describe los que el motor ya encontró. */
-  let hxaClassSig = '';
-  let hxaClassByProduct = new WeakMap();
+  /* =====================================================
+     CLASIFICACIÓN TEMÁTICA PARA EL BUSCADOR
+     Fuente: clasificación final y atajos reales de Explorer.
+     Solo ordena candidatos ya encontrados.
+     ===================================================== */
+  let hxaSearchClassSignature = '';
+  let hxaSearchClassByProduct = new WeakMap();
 
-  function hxaRefreshClassification(){
-    const sig = productSignature();
-    if(sig === hxaClassSig) return;
-    hxaClassByProduct = new WeakMap();
+  function hxaRefreshSearchClassification(){
+    const signature = productSignature();
+    if(signature === hxaSearchClassSignature) return;
 
     const model = buildModel();
+    hxaSearchClassByProduct = new WeakMap();
+
     model.allItems.forEach(item => {
       if(!item?.p || typeof item.p !== 'object') return;
+
       const family = model.byFamily.get(item.familyKey);
-      hxaClassByProduct.set(item.p,{
-        familyKey:item.familyKey || '',
-        familyTitle:family?.displayTitle || family?.familyTitle || item.family || '',
-        profile:familyQuickProfile(family),
-        quicks:family ? quickGroupsForItem(item,family) : [],
+      const quicks = family ? quickGroupsForItem(item, family) : [];
+
+      hxaSearchClassByProduct.set(item.p, {
+        category:item.category || '',
+        family:item.family || '',
         subcategory:item.subcategory || '',
-        category:item.category || ''
+        familyTitle:family?.familyTitle || '',
+        displayTitle:family?.displayTitle || '',
+        profile:familyQuickProfile(family),
+        quicks
       });
     });
-    hxaClassSig = sig;
+
+    hxaSearchClassSignature = signature;
   }
 
   window.HXA_EXPLORER_CLASSIFICATION = function(product){
-    hxaRefreshClassification();
-    return hxaClassByProduct.get(product) || null;
+    hxaRefreshSearchClassification();
+    return hxaSearchClassByProduct.get(product) || null;
   };
 
   window.HX_EXPLORER_PRO = {
