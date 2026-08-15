@@ -216,45 +216,76 @@ function matchInfo(r,term,allowPrefix){
 }
 
 
-function productRole(product){
-  // Rol comercial GLOBAL. No conoce referencias ni productos concretos.
-  // Solo sirve para desempatar resultados que YA coinciden con la búsqueda.
-  const structured=normalize([
-    product?.product_type,product?.tipo,
-    product?.subcategory,product?.subcategoria,
-    product?.family,product?.familia,
-    product?.category,product?.categoria
+function structuredText(product){
+  return normalize([
+    product?.product_type, product?.tipo,
+    product?.subcategory, product?.subcategoria, product?.subfamily, product?.subfamilia,
+    product?.family, product?.familia,
+    product?.category, product?.categoria
   ].filter(Boolean).join(' '));
+}
 
-  const fallback=normalize([
-    product?.name,
-    product?.short_description
-  ].filter(Boolean).join(' '));
+function secondaryRolePenalty(product){
+  const structured=structuredText(product);
+  const name=normalize(product?.name||'');
 
-  // 0 = producto funcional / normal
-  // 1 = kit / bundle
-  // 2 = accesorio / repuesto
-  // 3 = dummy / maqueta / carcasa vacía
-  //
-  // Primero campos estructurados; referencia/descripción solo como respaldo
-  // cuando el proveedor no aporta tipo/familia suficiente.
-  const all=`${structured} ${fallback}`;
+  // Solo desempate global; nunca excluye.
+  if(/\bdummy\b|\bmaqueta\b|\bdemo\b/.test(`${structured} ${name}`)) return 30;
+  if(/\b(repuesto|repuestos|recambio|recambios|accesorio|accesorios|soporte|soportes|carcasa|housing|cover|bracket|mount)\b/.test(structured)) return 20;
+  if(/\b(kit|kits|bundle|pack)\b/.test(structured)) return 10;
+  return 0;
+}
 
-  if(/\b(dummy|maqueta|demo)\b|carcasa vacia|sin electronica/.test(all)) return 3;
+function explorerAffinity(product,query){
+  const meta=global.HXA_EXPLORER_SEARCH_META;
+  if(!meta) return 0;
 
-  if(/\b(accesorio|accesorios|repuesto|repuestos|recambio|recambios|soporte|soportes|bracket|mount|carcasa|cover|tapa)\b/.test(structured))
-    return 2;
+  const q=normalize(query);
+  if(!q) return 0;
 
-  if(/\b(kit|kits|bundle|pack)\b/.test(structured))
-    return 1;
+  const qWords=tokens(q);
+  const structured=structuredText(product);
+  const ref=normalize(product?.name||'');
+  const short=normalize(product?.short_description||'');
 
-  // Fallback prudente cuando esos datos estructurados vienen vacíos.
-  if(!structured){
-    if(/\b(kit|bundle)\b/.test(fallback)) return 1;
-    if(/\b(dummy|maqueta)\b/.test(fallback)) return 3;
+  let score=0;
+
+  // Familia/categoría trabajada en Explorer.
+  for(const group of (meta.familyGroups||[])){
+    const queryInGroup=group.some(label =>
+      qWords.some(word => equivalent(word,label)) || q.includes(label)
+    );
+    if(!queryInGroup) continue;
+
+    const productInGroup=group.some(label => structured.includes(label));
+    if(productInGroup) score+=40;
   }
 
-  return 0;
+  // Atajos/aliases: afinidad binaria por campo.
+  // No se acumula por cada palabra para no favorecer variantes largas.
+  for(const rule of (meta.aliases||[])){
+    let rx;
+    try{ rx=new RegExp(rule.source,rule.flags||''); }catch(_e){ continue; }
+    if(!rx.test(q)) continue;
+
+    const terms=tokens(rule.add||'').filter(term=>term.length>=3);
+    const refHit=terms.some(term =>
+      ref.split(/\s+/).some(word => equivalent(word,term)) ||
+      compact(ref).includes(compact(term))
+    );
+    const structuredHit=terms.some(term =>
+      structured.split(/\s+/).some(word => equivalent(word,term))
+    );
+    const shortHit=terms.some(term =>
+      short.split(/\s+/).some(word => equivalent(word,term))
+    );
+
+    if(refHit) score+=8;
+    if(structuredHit) score+=5;
+    if(shortHit) score+=2;
+  }
+
+  return score;
 }
 
 function search(products,query,options={}){
@@ -285,11 +316,8 @@ function search(products,query,options={}){
       product:r.product,index:r.index,
       worst:Math.max(...infos.map(x=>x.cls)),
       referenceHits,
-
-      // Rol comercial genérico del producto. Solo desempata:
-      // funcional -> kit -> accesorio -> dummy.
-      rolePriority:productRole(r.product),
-
+      explorerAffinity:explorerAffinity(r.product,query),
+      secondaryPenalty:secondaryRolePenalty(r.product),
       identityHits:infos.filter(x=>x.cls>=10&&x.cls<=11).length,
       identityMatched:identity.matched,
       identityStarts:identity.starts,
@@ -306,11 +334,8 @@ function search(products,query,options={}){
   result.sort((a,b)=>
     a.worst-b.worst ||
     b.referenceHits-a.referenceHits ||
-
-    // Entre coincidencias fuertes equivalentes, primero el rol comercial
-    // principal del catálogo. No elimina resultados.
-    a.rolePriority-b.rolePriority ||
-
+    b.explorerAffinity-a.explorerAffinity ||
+    a.secondaryPenalty-b.secondaryPenalty ||
     b.identityMatched-a.identityMatched ||
     b.identityStarts-a.identityStarts ||
     a.identityPosition-b.identityPosition ||
@@ -343,7 +368,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'4.7-global-role-tiebreak',
+  version:'4.8-production-family-affinity',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };

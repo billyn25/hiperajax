@@ -21,7 +21,7 @@
     // Ajax inalámbrico: mantener el bloque junto.
     ['central','centrales','hub','hubs'],
     ['detector','detectores','intrusion','intrusión'],
-    ['accesorios inalambricos','accesorios inalámbricos','sirena','sirenas','teclado','teclados','mando','mandos'],
+    ['accesorios inalambricos','accesorios inalámbricos','sirena','sirenas','teclado','teclados','mando','mandos','boton','botón','botones','button','buttons'],
     ['kit inalambrico','kits inalambricos','kit inalámbrico','kits inalámbricos'],
     ['incendio','fuego','fire'],
     ['smart home','smarthome','domotica','domótica','automatizacion','automatización','confort'],
@@ -137,6 +137,17 @@
     : String(value == null ? '' : value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
   const clean = value => String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
   const norm = value => (typeof normaliza === 'function' ? normaliza(value) : clean(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''));
+
+  // Fuente única de metadatos de afinidad para el buscador común.
+  // Solo sirve para ordenar candidatos ya encontrados.
+  window.HXA_EXPLORER_SEARCH_META = Object.freeze({
+    familyGroups:FAMILY_PRIORITY.map(group => group.map(value => norm(value))),
+    aliases:SEARCH_ALIAS_RULES.map(rule => ({
+      source:rule.rx.source,
+      flags:rule.rx.flags,
+      add:norm(rule.add)
+    }))
+  });
   const slug = value => norm(clean(value)).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'otros';
   const byId = id => document.getElementById(id);
 
