@@ -715,37 +715,26 @@
     const q = clean(query);
     if(!q) return items.slice();
 
-    // MISMO BUSCADOR que Inicio: misma API rows(), mismas reglas y mismo orden.
-    // Explorer únicamente limita el conjunto de entrada cuando estamos dentro
-    // de una familia/atajo/filtro.
     const engine = window.HXA_COMMON_SEARCH || window.HXA_SEARCH_ENGINE;
-    if(engine?.rows){
-      const source = items.map(item => {
-        const product = {...(item.p || {})};
-        delete product._hxaIndex;
-        return product;
-      });
-      return engine.rows(source, q, Math.min(300, source.length))
-        .map(row => items[Number(row.i)])
+    if(!engine?.rows) return items.slice();
+
+    const model = buildModel();
+
+    // BÚSQUEDA GLOBAL:
+    // usar EXACTAMENTE el mismo array `productos` que Inicio.
+    // Después convertimos los índices devueltos a items de Explorer.
+    if(!state.familyKey && !state.quickGroup && !Object.keys(state.filters || {}).length){
+      return engine.rows(productos, q, 300)
+        .map(row => model.allItems.find(item => item.index === Number(row.i)))
         .filter(Boolean);
     }
 
-    // Fallback mínimo si el motor común no hubiera cargado.
-    const queryTokens = norm(q).split(/\s+/).filter(Boolean);
-    return items.filter(item => {
-      const p=item.p||{};
-      const fields=[
-        p.name,p.brand,p.short_description,p.description,p.category,p.family,
-        p.subcategory,p.product_type,p.series,p.technology,p.color,p.tags,
-        p.keywords,p.attributes
-      ].map(v=>norm(typeof v==='object'?Object.values(v||{}).join(' '):v||''));
-      return queryTokens.every(term=>fields.some(field=>{
-        const words=field.split(/\s+/).filter(Boolean);
-        return words.includes(term)
-          || (term.length>=2 && words.some(word=>word.startsWith(term)))
-          || (term.length>=5 && field.includes(term));
-      }));
-    });
+    // BÚSQUEDA DENTRO DE CONTEXTO:
+    // mismo motor, pero sobre el subconjunto ya limitado por familia/atajo/filtros.
+    const source = items.map(item => productos[item.index] || item.p).filter(Boolean);
+    return engine.rows(source, q, Math.min(300, source.length))
+      .map(row => items[Number(row.i)])
+      .filter(Boolean);
   }
 
   function modelItemByIndex(index){ return buildModel().allItems.find(item => item.index === Number(index)) || null; }
@@ -2395,11 +2384,26 @@
       });
     }
 
-    root.querySelector('[data-hxp-clear-search]')?.addEventListener('click', () => {
+    root.querySelector('[data-hxp-clear-search]')?.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+
       state.query = '';
+
+      // Limpiar también el valor visible del input actual antes de refrescar.
+      const current = byId('hxpSearch');
+      if(current) current.value = '';
+
       if(byId('hxpProductsScroll')) refreshSearchResults();
       else render();
-      requestAnimationFrame(() => byId('hxpSearch')?.focus());
+
+      requestAnimationFrame(() => {
+        const input = byId('hxpSearch');
+        if(input){
+          input.value = '';
+          input.focus({preventScroll:true});
+        }
+      });
     });
 
     const familyFilter = byId('hxpFamilyFilter');
