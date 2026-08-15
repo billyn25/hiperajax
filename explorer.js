@@ -721,17 +721,28 @@
 
     const model = buildModel();
 
-    // Global: MISMO array y MISMA llamada que Inicio.
+    // Global: mismo array y mismo orden que Inicio.
     if(!state.familyKey && !state.quickGroup && !Object.keys(state.filters || {}).length){
+      const byIndex = new Map(model.allItems.map(item => [Number(item.index), item]));
       return engine.rows(productos, q, 300)
-        .map(row => model.allItems.find(item => item.index === Number(row.i)))
+        .map(row => byIndex.get(Number(row.i)))
         .filter(Boolean);
     }
 
-    // Contexto: mismo motor, pero sobre los candidatos visibles.
-    const source = items.map(item => productos[item.index] || item.p).filter(Boolean);
+    // Contexto: mismo motor sobre el subconjunto visible.
+    // Conservamos un mapa explícito row.i -> item para NO perder el orden.
+    const source = [];
+    const sourceItems = [];
+
+    for(const item of items){
+      const product = productos[item.index] || item.p;
+      if(!product) continue;
+      source.push(product);
+      sourceItems.push(item);
+    }
+
     return engine.rows(source, q, Math.min(300, source.length))
-      .map(row => items[Number(row.i)])
+      .map(row => sourceItems[Number(row.i)])
       .filter(Boolean);
   }
   function modelItemByIndex(index){ return buildModel().allItems.find(item => item.index === Number(index)) || null; }
@@ -1054,13 +1065,9 @@
     let items = filterBaseItems(quickGroup);
     items = applyFilters(items, filters);
 
-    // Búsqueda activa:
-    // el orden pertenece exclusivamente al motor común de relevancia.
-    // Familia, atajo y filtros solo reducen candidatos; nunca reordenan.
+    // Con búsqueda activa, el orden del motor común es final.
     if(clean(state.query)) return items;
 
-    // Navegación sin búsqueda:
-    // aquí sí aplica el orden elegido en Explorer.
     return sortItems(items);
   }
 

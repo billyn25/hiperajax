@@ -161,7 +161,7 @@ function hxProgramarBusquedaInicio(term){
 function resolverDesdeInput(inputOrValue){
   const term = typeof inputOrValue === 'string'
     ? inputOrValue
-    : String(inputOrValue?.value ?? '');
+    : String(inputOrValue?.target?.value ?? inputOrValue?.value ?? '');
 
   clearTimeout(hxSearchInputTimer);
 
