@@ -289,31 +289,38 @@ function explorerAffinity(product,query){
 }
 
 
-function referenceVariantInfo(product,query){
-  const ref=normalize(product?.name||'');
-  const q=normalize(query);
-  const refCompact=compact(ref);
-  const qCompact=compact(q);
+function explorerClassificationScore(product,query){
+  const getClassification=global.HXA_EXPLORER_CLASSIFICATION;
+  if(typeof getClassification!=='function') return 0;
 
-  // Coincidencia directa de referencia.
-  const direct=!!qCompact && refCompact.includes(qCompact);
+  let classification;
+  try{ classification=getClassification(product); }catch(_e){ return 0; }
+  if(!classification) return 0;
 
-  // Tokens genéricos de variante visual. Solo sirven para agrupar B/W/GRA etc.
-  // Nunca deciden si un producto coincide.
-  const tokensRef=ref.split(/[\s\-_\/]+/).filter(Boolean);
-  const variantTokens=new Set([
-    'b','w','g','gra','gray','grey','black','white','blanco','negro','gris',
-    'red','blue','green','yellow','rojo','azul','verde','amarillo'
-  ]);
+  const q=tokens(query);
+  if(!q.length) return 0;
 
-  const baseTokens=tokensRef.filter(t=>!variantTokens.has(t));
-  const baseCompact=compact(baseTokens.join(' '));
+  const family=normalize([
+    classification.familyKey,
+    classification.familyTitle,
+    classification.profile,
+    classification.category,
+    classification.subcategory
+  ].filter(Boolean).join(' '));
 
-  return {
-    direct:direct?1:0,
-    baseCompact,
-    refLength:refCompact.length
-  };
+  const quick=normalize((classification.quicks||[]).join(' '));
+  const familyWords=tokens(family);
+  const quickWords=tokens(quick);
+
+  let score=0;
+  for(const term of q){
+    if(familyWords.some(word=>equivalent(word,term))) score+=100;
+    else if(quickWords.some(word=>equivalent(word,term))) score+=80;
+    else if(term.length>=3 && familyWords.some(word=>word.startsWith(term))) score+=60;
+    else if(term.length>=3 && quickWords.some(word=>word.startsWith(term))) score+=50;
+  }
+
+  return score;
 }
 
 function search(products,query,options={}){
@@ -340,25 +347,16 @@ function search(products,query,options={}){
     const support=supportInfo(r,q);
     const identity=identityDirectness(r,q);
 
-    const variant=referenceVariantInfo(r.product,query);
-
     result.push({
       product:r.product,index:r.index,
       worst:Math.max(...infos.map(x=>x.cls)),
       referenceHits,
 
-      // 1) referencia directa
-      referenceDirect:variant.direct,
+      // Clasificación FINAL de Explorer: familia/perfil/atajo reales.
+      explorerClassScore:explorerClassificationScore(r.product,query),
 
-      // 2) familia/atajo de Explorer ya existente
       explorerAffinity:explorerAffinity(r.product,query),
-
-      // 3) producto funcional frente a derivado
       secondaryPenalty:secondaryRolePenalty(r.product),
-
-      // 4) modelo base para mantener variantes/color juntas
-      baseReference:variant.baseCompact,
-
       identityHits:infos.filter(x=>x.cls>=10&&x.cls<=11).length,
       identityMatched:identity.matched,
       identityStarts:identity.starts,
@@ -376,18 +374,12 @@ function search(products,query,options={}){
     a.worst-b.worst ||
     b.referenceHits-a.referenceHits ||
 
-    // Ranking de prueba sobre la base estable:
-    // referencia -> familia/atajo -> rol -> modelo/variante -> texto.
-    b.referenceDirect-a.referenceDirect ||
+    // Antes de los desempates textuales, manda la clasificación real
+    // que Explorer ya calculó para el producto.
+    b.explorerClassScore-a.explorerClassScore ||
+
     b.explorerAffinity-a.explorerAffinity ||
     a.secondaryPenalty-b.secondaryPenalty ||
-
-    String(a.baseReference||'').localeCompare(
-      String(b.baseReference||''),
-      'es',
-      {numeric:true,sensitivity:'base'}
-    ) ||
-
     b.identityMatched-a.identityMatched ||
     b.identityStarts-a.identityStarts ||
     a.identityPosition-b.identityPosition ||
@@ -420,7 +412,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'4.9-ref-family-variant-trial',
+  version:'5.0-explorer-classification-trial',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };

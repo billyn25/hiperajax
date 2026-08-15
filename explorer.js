@@ -2717,6 +2717,38 @@
     return {family:family.displayTitle,quickGroup,products:applyFilters(quickItems,filters).length,facets};
   }
 
+
+  /* Clasificación final de Explorer para el buscador común.
+     No busca productos: solo describe los que el motor ya encontró. */
+  let hxaClassSig = '';
+  let hxaClassByProduct = new WeakMap();
+
+  function hxaRefreshClassification(){
+    const sig = productSignature();
+    if(sig === hxaClassSig) return;
+    hxaClassByProduct = new WeakMap();
+
+    const model = buildModel();
+    model.allItems.forEach(item => {
+      if(!item?.p || typeof item.p !== 'object') return;
+      const family = model.byFamily.get(item.familyKey);
+      hxaClassByProduct.set(item.p,{
+        familyKey:item.familyKey || '',
+        familyTitle:family?.displayTitle || family?.familyTitle || item.family || '',
+        profile:familyQuickProfile(family),
+        quicks:family ? quickGroupsForItem(item,family) : [],
+        subcategory:item.subcategory || '',
+        category:item.category || ''
+      });
+    });
+    hxaClassSig = sig;
+  }
+
+  window.HXA_EXPLORER_CLASSIFICATION = function(product){
+    hxaRefreshClassification();
+    return hxaClassByProduct.get(product) || null;
+  };
+
   window.HX_EXPLORER_PRO = {
     open:openExplorer,
     close:closeExplorer,
