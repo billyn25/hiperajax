@@ -78,6 +78,47 @@ function wordPosition(field,term){
   }
   return 9999;
 }
+
+function identityDirectness(record, queryTokens){
+  // Evalúa si la consulta está respaldada por los campos que describen QUÉ ES el producto.
+  // No conoce valores concretos: solo presencia, posición y cobertura.
+  const identityFields=[
+    record.identity,
+    record.short
+  ];
+
+  let matched=0;
+  let position=0;
+  let starts=0;
+
+  for(const term of queryTokens){
+    let bestPos=9999;
+    let found=false;
+
+    for(const field of identityFields){
+      const pos=wordPosition(field,term);
+      if(pos!==9999){
+        found=true;
+        bestPos=Math.min(bestPos,pos);
+        if(pos===0) starts++;
+      }
+    }
+
+    if(found){
+      matched++;
+      position+=bestPos;
+    }else{
+      position+=999;
+    }
+  }
+
+  return {
+    matched,
+    starts,
+    position
+  };
+}
+
 function supportInfo(record, queryTokens){
   // Señal secundaria genérica: si varios resultados empatan por referencia,
   // mirar dónde aparece la consulta en los campos reales del producto.
@@ -196,6 +237,7 @@ function search(products,query,options={}){
 
     const referenceHits=infos.filter(x=>x.cls<=3).length;
     const support=supportInfo(r,q);
+    const identity=identityDirectness(r,q);
 
     result.push({
       product:r.product,index:r.index,
@@ -203,9 +245,13 @@ function search(products,query,options={}){
       referenceHits,
       identityHits:infos.filter(x=>x.cls>=10&&x.cls<=11).length,
 
-      // Desempate global de producto:
-      // más términos respaldados por identidad/descripción,
-      // campo más directo y aparición más temprana.
+      // Identidad global del producto: cuanto más directamente describen
+      // la consulta los campos estructurados/cortos, más arriba queda.
+      identityMatched:identity.matched,
+      identityStarts:identity.starts,
+      identityPosition:identity.position,
+
+      // Respaldo textual general.
       supportMatched:support.matched,
       supportPriority:support.priority,
       supportPosition:support.position,
@@ -220,8 +266,12 @@ function search(products,query,options={}){
     a.worst-b.worst ||
     b.referenceHits-a.referenceHits ||
 
-    // Cuando la calidad principal empata, gana el producto cuyo contenido real
+    // Entre referencias equivalentes, primero el producto cuya identidad
     // respalda mejor la consulta.
+    b.identityMatched-a.identityMatched ||
+    b.identityStarts-a.identityStarts ||
+    a.identityPosition-b.identityPosition ||
+
     b.supportMatched-a.supportMatched ||
     a.supportPriority-b.supportPriority ||
     a.supportPosition-b.supportPosition ||
@@ -252,7 +302,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'4.2-global-product-tiebreak',
+  version:'4.3-global-identity-tuned',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };
