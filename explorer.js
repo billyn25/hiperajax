@@ -2758,6 +2758,32 @@
     return hxaSearchClassByProduct.get(product) || null;
   };
 
+  // Orden natural ya existente en Explorer. Se calcula con sortItems()
+  // y solo se usa como desempate dentro de un grupo temático equivalente.
+  window.HXA_EXPLORER_NATURAL_ORDER = function(product){
+    if(!product || typeof product !== 'object') return Number.MAX_SAFE_INTEGER;
+
+    const model = buildModel();
+    const item = model.allItems.find(candidate => candidate.p === product)
+      || model.allItems.find(candidate => norm(candidate.p?.name || '') === norm(product.name || ''));
+
+    if(!item) return Number.MAX_SAFE_INTEGER;
+
+    // El orden por defecto de Explorer es el que ya conoce la app.
+    const previousSort = state.sort;
+    try{
+      // price-ref es el orden natural general que ya usa Explorer en navegación.
+      state.sort = 'price-ref';
+      const familyItems = model.allItems.filter(candidate => candidate.familyKey === item.familyKey);
+      const ordered = sortItems(familyItems);
+      const index = ordered.findIndex(candidate => candidate.index === item.index);
+      return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
+    }finally{
+      state.sort = previousSort;
+    }
+  };
+
+
   window.HX_EXPLORER_PRO = {
     open:openExplorer,
     close:closeExplorer,

@@ -354,6 +354,18 @@ function thematicAffinity(product,query){
   return score;
 }
 
+
+function explorerNaturalOrder(product){
+  const getOrder=global.HXA_EXPLORER_NATURAL_ORDER;
+  if(typeof getOrder!=='function') return Number.MAX_SAFE_INTEGER;
+  try{
+    const value=Number(getOrder(product));
+    return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
+  }catch(_e){
+    return Number.MAX_SAFE_INTEGER;
+  }
+}
+
 function search(products,query,options={}){
   const list=Array.isArray(products)?products:[];
   const q=tokens(query);
@@ -384,6 +396,9 @@ function search(products,query,options={}){
       // Dimensión temática independiente de la coincidencia textual.
       thematic:thematicAffinity(r.product,query),
 
+      // Orden natural de Explorer dentro de la familia ya correcta.
+      explorerOrder:explorerNaturalOrder(r.product),
+
       worst:Math.max(...infos.map(x=>x.cls)),
       referenceHits,
       explorerAffinity:explorerAffinity(r.product,query),
@@ -413,7 +428,10 @@ function search(products,query,options={}){
     //    solo como desempate.
     a.secondaryPenalty-b.secondaryPenalty ||
 
-    // 4) Resto de desempates estables.
+    // 4) Dentro del mismo grupo correcto, heredar el orden natural de Explorer.
+    a.explorerOrder-b.explorerOrder ||
+
+    // 5) Resto de desempates estables.
     b.explorerAffinity-a.explorerAffinity ||
     b.identityMatched-a.identityMatched ||
     b.identityStarts-a.identityStarts ||
@@ -447,7 +465,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'5.1-thematic-first-trial',
+  version:'5.2-thematic-explorer-order',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };
