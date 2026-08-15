@@ -142,46 +142,39 @@ function search(products,query,options={}){
 
   const records=list.map(buildRecord);
   const prefixPolicy=new Map();
-  for(const term of q){
-    prefixPolicy.set(term,!exactExists(records,term));
-  }
+  for(const term of q) prefixPolicy.set(term,!exactExists(records,term));
 
   const result=[];
-
   for(const r of records){
     const infos=[];
     let valid=true;
-
     for(const term of q){
       const info=matchInfo(r,term,prefixPolicy.get(term));
       if(!info){valid=false;break;}
       infos.push(info);
     }
-
     if(!valid)continue;
 
     result.push({
-      product:r.product,
-      index:r.index,
+      product:r.product,index:r.index,
       worst:Math.max(...infos.map(x=>x.cls)),
+      referenceHits:infos.filter(x=>x.cls<=3).length,
+      identityHits:infos.filter(x=>x.cls>=10&&x.cls<=11).length,
       total:infos.reduce((sum,x)=>sum+x.cls,0),
-      position:infos.reduce((sum,x)=>sum+x.pos,0),
+      position:infos.reduce((sum,x)=>sum+(Number.isFinite(x.pos)?x.pos:999),0),
       refLength:r.refCompact.length
     });
   }
 
   result.sort((a,b)=>
     a.worst-b.worst ||
+    b.referenceHits-a.referenceHits ||
+    b.identityHits-a.identityHits ||
     a.total-b.total ||
     a.position-b.position ||
     a.refLength-b.refLength ||
-    String(a.product?.name||'').localeCompare(
-      String(b.product?.name||''),
-      'es',
-      {numeric:true,sensitivity:'base'}
-    )
+    String(a.product?.name||'').localeCompare(String(b.product?.name||''),'es',{numeric:true,sensitivity:'base'})
   );
-
   return result.slice(0,Math.max(1,Number(options.limit)||300));
 }
 
@@ -202,7 +195,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'4.0-common-deterministic',
+  version:'4.1-common-future-tuned',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };
