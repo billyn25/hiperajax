@@ -1,6 +1,7 @@
 /*
- * HXA Common Search Engine 2.1
- * Genérico, reutilizable y sin reglas de negocio.
+ * HXA Common Search Engine 4.0
+ * Motor único, genérico y determinista.
+ * Sin reglas Ajax, sin atajos, sin aliases.
  */
 (function(global){
 'use strict';
@@ -17,8 +18,6 @@ const FIELDS={
   extra:['attributes','atributos']
 };
 
-let cachedList=null,cachedSig='',cachedRecords=[];
-
 function raw(v){
   if(v==null)return '';
   if(Array.isArray(v))return v.map(raw).filter(Boolean).join(' ');
@@ -32,8 +31,9 @@ function normalize(v=''){
 function compact(v=''){return normalize(v).replace(/\s+/g,'');}
 function tokens(v=''){return normalize(v).split(/\s+/).filter(Boolean);}
 
-function forms(token){
-  const t=normalize(token),out=new Set([t]);
+function forms(t){
+  t=normalize(t);
+  const out=new Set([t]);
   if(t.length>=5&&t.endsWith('es'))out.add(t.slice(0,-2));
   if(t.length>=4&&t.endsWith('s'))out.add(t.slice(0,-1));
   return out;
@@ -43,133 +43,172 @@ function equivalent(a,b){
   for(const x of A)if(B.has(x))return true;
   return false;
 }
+
 function readFirst(p,names){
-  for(const n of names){const v=p?.[n];if(v!=null&&raw(v)!=='')return raw(v);}
+  for(const n of names){
+    const v=p?.[n];
+    if(v!=null&&raw(v)!=='')return raw(v);
+  }
   return '';
 }
 function readAll(p,names){
   return names.map(n=>raw(p?.[n])).filter(Boolean).join(' ');
 }
-function info(v){const text=normalize(v);return {text,words:new Set(tokens(text))};}
-function build(p,index){
-  const ref=readFirst(p,FIELDS.reference);
+function fieldInfo(v){
+  const text=normalize(v);
+  return {text,words:tokens(text)};
+}
+
+function buildRecord(product,index){
+  const ref=readFirst(product,FIELDS.reference);
   return {
-    p,index,
-    reference:info(ref),
-    identity:info(readAll(p,FIELDS.identity)),
-    short:info(readAll(p,FIELDS.short)),
-    long:info(readAll(p,FIELDS.long)),
-    extra:info(readAll(p,FIELDS.extra)),
+    product,index,
+    reference:fieldInfo(ref),
+    identity:fieldInfo(readAll(product,FIELDS.identity)),
+    short:fieldInfo(readAll(product,FIELDS.short)),
+    long:fieldInfo(readAll(product,FIELDS.long)),
+    extra:fieldInfo(readAll(product,FIELDS.extra)),
     refCompact:compact(ref)
   };
 }
-function signature(list){
-  let h=2166136261;
-  for(const p of list){
-    const text=[
-      readFirst(p,FIELDS.reference),readAll(p,FIELDS.identity),
-      readAll(p,FIELDS.short),readAll(p,FIELDS.long),readAll(p,FIELDS.extra)
-    ].join('\u001f');
-    for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}
+
+function wordPosition(field,term){
+  for(let i=0;i<field.words.length;i++){
+    if(equivalent(field.words[i],term))return i;
   }
-  return `${list.length}:${h>>>0}`;
+  return 9999;
 }
-function recordsFor(list){
-  const sig=signature(list);
-  if(cachedList!==list||cachedSig!==sig){
-    cachedList=list;cachedSig=sig;cachedRecords=list.map(build);
-  }
-  return cachedRecords;
+function exactWord(field,term){
+  return wordPosition(field,term)!==9999;
 }
-function exact(field,term){
-  for(const w of field.words)if(equivalent(w,term))return true;
-  return false;
-}
-function startsWithEquivalent(field,term){
-  const first=[...field.words][0] || '';
-  return !!first && equivalent(first,term);
-}
-function prefix(field,term){
+function prefixWord(field,term){
   if(term.length<2)return false;
-  for(const w of field.words)if(w.startsWith(term))return true;
-  return false;
-}
-function contains(field,term){return term.length>=5&&field.text.includes(term);}
-function exactExists(records,term){
-  return records.some(r=>exact(r.reference,term)||exact(r.identity,term)||exact(r.short,term)||exact(r.long,term)||exact(r.extra,term));
+  return field.words.some(w=>w.startsWith(term));
 }
 
-/* Menor clase = mejor resultado. No hay puntos. */
-function matchClass(r,term,allowPrefix){
+function exactExists(records,term){
+  return records.some(r =>
+    exactWord(r.reference,term) ||
+    exactWord(r.identity,term) ||
+    exactWord(r.short,term) ||
+    exactWord(r.long,term) ||
+    exactWord(r.extra,term)
+  );
+}
+
+function matchInfo(r,term,allowPrefix){
   const tc=compact(term);
 
-  // Referencia/nombre.
-  if(r.refCompact===tc)return 0;
-  if(exact(r.reference,term))return 1;
-  if(term.length>=3 && r.refCompact.includes(tc))return 2;
-  if(allowPrefix&&prefix(r.reference,term))return 3;
+  // 1. REFERENCIA / NOMBRE: prioridad absoluta.
+  if(r.refCompact===tc) return {cls:0,pos:0};
+  if(exactWord(r.reference,term)) return {cls:1,pos:wordPosition(r.reference,term)};
 
-  // Identidad estructurada.
-  if(startsWithEquivalent(r.identity,term))return 4;
-  if(exact(r.identity,term))return 5;
-  if(allowPrefix&&prefix(r.identity,term))return 6;
+  // término contenido dentro de referencia compuesta:
+  // button -> doublebutton, motion -> motioncam, etc.
+  if(term.length>=3 && r.refCompact.includes(tc))
+    return {cls:2,pos:r.refCompact.indexOf(tc)};
 
-  // Descripción corta: si EMPIEZA por la consulta, es mucho más relevante
-  // que una mención posterior. Regla lingüística genérica, no filtro.
-  if(startsWithEquivalent(r.short,term))return 7;
-  if(exact(r.short,term))return 8;
-  if(allowPrefix&&prefix(r.short,term))return 9;
+  if(allowPrefix&&prefixWord(r.reference,term))
+    return {cls:3,pos:0};
 
-  // Descripción larga / atributos.
-  if(startsWithEquivalent(r.long,term)||startsWithEquivalent(r.extra,term))return 10;
-  if(exact(r.long,term)||exact(r.extra,term))return 11;
+  // 2. IDENTIDAD ESTRUCTURADA.
+  if(exactWord(r.identity,term))
+    return {cls:10,pos:wordPosition(r.identity,term)};
+
+  if(allowPrefix&&prefixWord(r.identity,term))
+    return {cls:11,pos:0};
+
+  // 3. DESCRIPCIÓN CORTA.
+  if(exactWord(r.short,term))
+    return {cls:20,pos:wordPosition(r.short,term)};
+
+  if(allowPrefix&&prefixWord(r.short,term))
+    return {cls:21,pos:0};
+
+  // 4. DESCRIPCIÓN LARGA / EXTRA.
+  if(exactWord(r.long,term))
+    return {cls:30,pos:wordPosition(r.long,term)};
+
+  if(exactWord(r.extra,term))
+    return {cls:31,pos:wordPosition(r.extra,term)};
+
   return null;
 }
+
 function search(products,query,options={}){
   const list=Array.isArray(products)?products:[];
   const q=tokens(query);
   if(!q.length)return [];
-  const records=recordsFor(list);
-  const policy=new Map(q.map(term=>[term,!exactExists(records,term)]));
+
+  const records=list.map(buildRecord);
+  const prefixPolicy=new Map();
+  for(const term of q){
+    prefixPolicy.set(term,!exactExists(records,term));
+  }
+
   const result=[];
 
   for(const r of records){
-    const classes=[];
+    const infos=[];
     let valid=true;
+
     for(const term of q){
-      const cls=matchClass(r,term,policy.get(term));
-      if(cls==null){valid=false;break;}
-      classes.push(cls);
+      const info=matchInfo(r,term,prefixPolicy.get(term));
+      if(!info){valid=false;break;}
+      infos.push(info);
     }
+
     if(!valid)continue;
+
     result.push({
-      product:r.p,index:r.index,
-      worst:Math.max(...classes),
-      total:classes.reduce((a,b)=>a+b,0)
+      product:r.product,
+      index:r.index,
+      worst:Math.max(...infos.map(x=>x.cls)),
+      total:infos.reduce((sum,x)=>sum+x.cls,0),
+      position:infos.reduce((sum,x)=>sum+x.pos,0),
+      refLength:r.refCompact.length
     });
   }
 
   result.sort((a,b)=>
-    a.worst-b.worst||
-    a.total-b.total||
-    String(a.product?.name||'').localeCompare(String(b.product?.name||''),'es',{numeric:true,sensitivity:'base'})
+    a.worst-b.worst ||
+    a.total-b.total ||
+    a.position-b.position ||
+    a.refLength-b.refLength ||
+    String(a.product?.name||'').localeCompare(
+      String(b.product?.name||''),
+      'es',
+      {numeric:true,sensitivity:'base'}
+    )
   );
+
   return result.slice(0,Math.max(1,Number(options.limit)||300));
 }
+
 function rank(products,q,limit=300){
-  return search(products,q,{limit}).map(m=>({...m.product,_hxaIndex:m.index,_matchClass:m.worst}));
+  return search(products,q,{limit}).map(m=>({
+    ...m.product,
+    _hxaIndex:m.index,
+    _matchClass:m.worst
+  }));
 }
+
 function rows(products,q,limit=300){
-  return search(products,q,{limit}).map(m=>({p:m.product,i:m.index,matchClass:m.worst}));
+  return search(products,q,{limit}).map(m=>({
+    p:m.product,
+    i:m.index,
+    matchClass:m.worst
+  }));
 }
 
 const engine={
-  version:'3.5-natural-position',
+  version:'4.0-common-deterministic',
   normalize,compact,search,rank,rows,
-  defaultFields:FIELDS,
-  clearCache:()=>{cachedList=null;cachedSig='';cachedRecords=[];}
+  defaultFields:FIELDS
 };
+
 global.HXA_COMMON_SEARCH=engine;
 global.HXA_SEARCH_ENGINE=engine;
 global.HXA_KNOWLEDGE_ENGINE=engine;
+
 })(typeof window!=='undefined'?window:globalThis);
