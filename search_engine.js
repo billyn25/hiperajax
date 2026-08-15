@@ -103,29 +103,26 @@ function exactExists(records,term){
 function matchClass(r,term,allowPrefix){
   const tc=compact(term);
 
-  // Referencia / código.
+  // Referencia/nombre.
   if(r.refCompact===tc)return 0;
   if(exact(r.reference,term))return 1;
-  if(allowPrefix&&prefix(r.reference,term))return 2;
+  if(term.length>=3 && r.refCompact.includes(tc))return 2;
+  if(allowPrefix&&prefix(r.reference,term))return 3;
 
   // Identidad estructurada.
-  if(startsWithEquivalent(r.identity,term))return 3;
-  if(exact(r.identity,term))return 4;
+  if(startsWithEquivalent(r.identity,term))return 4;
+  if(exact(r.identity,term))return 5;
+  if(allowPrefix&&prefix(r.identity,term))return 6;
 
-  // Descripción corta: "Sirena interior..." debe ir antes que
-  // "Pack de tapas ... para sirena", sin reglas por producto.
-  if(startsWithEquivalent(r.short,term))return 5;
-  if(exact(r.short,term))return 6;
+  // Descripción corta: si EMPIEZA por la consulta, es mucho más relevante
+  // que una mención posterior. Regla lingüística genérica, no filtro.
+  if(startsWithEquivalent(r.short,term))return 7;
+  if(exact(r.short,term))return 8;
+  if(allowPrefix&&prefix(r.short,term))return 9;
 
-  // Prefijos solo cuando no existe una palabra exacta en el catálogo.
-  if(allowPrefix&&prefix(r.identity,term))return 7;
-  if(allowPrefix&&prefix(r.short,term))return 8;
-
-  // Descripción larga / atributos: relacionados, no identidad.
-  if(startsWithEquivalent(r.long,term)||startsWithEquivalent(r.extra,term))return 9;
-  if(exact(r.long,term)||exact(r.extra,term))return 10;
-
-  if(allowPrefix&&(contains(r.identity,term)||contains(r.short,term)||contains(r.long,term)||contains(r.extra,term)))return 11;
+  // Descripción larga / atributos.
+  if(startsWithEquivalent(r.long,term)||startsWithEquivalent(r.extra,term))return 10;
+  if(exact(r.long,term)||exact(r.extra,term))return 11;
   return null;
 }
 function search(products,query,options={}){
@@ -167,7 +164,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'2.2-common-positional',
+  version:'3.5-natural-position',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS,
   clearCache:()=>{cachedList=null;cachedSig='';cachedRecords=[];}

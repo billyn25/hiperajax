@@ -716,27 +716,23 @@
     if(!q) return items.slice();
 
     const engine = window.HXA_COMMON_SEARCH || window.HXA_SEARCH_ENGINE;
-    if(!engine?.rows) return items.slice();
+    if(!engine?.rows) return [];
 
     const model = buildModel();
 
-    // BÚSQUEDA GLOBAL:
-    // usar EXACTAMENTE el mismo array `productos` que Inicio.
-    // Después convertimos los índices devueltos a items de Explorer.
+    // Global: MISMO array y MISMA llamada que Inicio.
     if(!state.familyKey && !state.quickGroup && !Object.keys(state.filters || {}).length){
       return engine.rows(productos, q, 300)
         .map(row => model.allItems.find(item => item.index === Number(row.i)))
         .filter(Boolean);
     }
 
-    // BÚSQUEDA DENTRO DE CONTEXTO:
-    // mismo motor, pero sobre el subconjunto ya limitado por familia/atajo/filtros.
+    // Contexto: mismo motor, pero sobre los candidatos visibles.
     const source = items.map(item => productos[item.index] || item.p).filter(Boolean);
     return engine.rows(source, q, Math.min(300, source.length))
       .map(row => items[Number(row.i)])
       .filter(Boolean);
   }
-
   function modelItemByIndex(index){ return buildModel().allItems.find(item => item.index === Number(index)) || null; }
 
   function stockFacet(product){
@@ -1056,7 +1052,14 @@
   function resultItems(filters = state.filters, quickGroup = state.quickGroup){
     let items = filterBaseItems(quickGroup);
     items = applyFilters(items, filters);
-    if(clean(state.query) && state.sort === 'featured') return items;
+
+    // Búsqueda activa:
+    // el orden pertenece exclusivamente al motor común de relevancia.
+    // Familia, atajo y filtros solo reducen candidatos; nunca reordenan.
+    if(clean(state.query)) return items;
+
+    // Navegación sin búsqueda:
+    // aquí sí aplica el orden elegido en Explorer.
     return sortItems(items);
   }
 
@@ -1092,6 +1095,17 @@
   }
 
   function sortControl(){
+    const searching = Boolean(clean(state.query));
+
+    if(searching){
+      return `<label class="hxp-sort is-search-relevance" title="Durante una búsqueda, los resultados se ordenan por relevancia">
+        <span>Orden</span>
+        <select id="hxpSort" aria-label="Orden de resultados" disabled>
+          <option selected>Relevancia</option>
+        </select>
+      </label>`;
+    }
+
     return `<label class="hxp-sort">
       <span>Orden</span>
       <select id="hxpSort" aria-label="Ordenar productos">
@@ -1108,7 +1122,6 @@
       </select>
     </label>`;
   }
-
   function toolbar(resultCount, options = {}){
     const showTools = options.showTools !== false;
     const filters = activeFilterCount();
@@ -2390,12 +2403,11 @@
 
       state.query = '';
 
-      // Limpiar también el valor visible del input actual antes de refrescar.
       const current = byId('hxpSearch');
       if(current) current.value = '';
 
-      if(byId('hxpProductsScroll')) refreshSearchResults();
-      else render();
+      // Al borrar búsqueda volvemos a navegación normal y desaparecen resultados.
+      render({preserveScroll:false});
 
       requestAnimationFrame(() => {
         const input = byId('hxpSearch');
