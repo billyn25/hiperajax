@@ -220,47 +220,6 @@ function search(products,query,options={}){
   const q=tokens(query);
   if(!q.length)return [];
 
-  const normalizedQuery=normalize(query);
-  const compactQuery=compact(query);
-
-  // UX global de escritura:
-  // 1 carácter: no mostrar ruido.
-  if(compactQuery.length < 2) return [];
-
-  // 2 caracteres: coincidencia fuerte únicamente en referencia/nombre.
-  // Evita resultados casuales mientras el usuario todavía está escribiendo.
-  if(compactQuery.length === 2){
-    const records=list.map(buildRecord);
-    return records
-      .filter(r => r.refCompact.includes(compactQuery))
-      .map(r => ({
-        product:r.product,
-        index:r.index,
-        worst:2,
-        referenceHits:1,
-        identityHits:0,
-        identityMatched:0,
-        identityStarts:0,
-        identityPosition:999,
-        supportMatched:0,
-        supportPriority:99,
-        supportPosition:99999,
-        total:2,
-        position:r.refCompact.indexOf(compactQuery),
-        refLength:r.refCompact.length
-      }))
-      .sort((a,b)=>
-        a.position-b.position ||
-        a.refLength-b.refLength ||
-        String(a.product?.name||'').localeCompare(
-          String(b.product?.name||''),
-          'es',
-          {numeric:true,sensitivity:'base'}
-        )
-      )
-      .slice(0,Math.max(1,Number(options.limit)||300));
-  }
-
   const records=list.map(buildRecord);
   const prefixPolicy=new Map();
   for(const term of q) prefixPolicy.set(term,!exactExists(records,term));
@@ -343,7 +302,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'4.4-global-identity-typing',
+  version:'4.5-clean-unified',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };

@@ -714,6 +714,7 @@
   function rankedSearch(items, query){
     const q = clean(query);
     if(!q) return items.slice();
+    if(q.length < 3) return [];
 
     const engine = window.HXA_COMMON_SEARCH || window.HXA_SEARCH_ENGINE;
     if(!engine?.rows) return [];

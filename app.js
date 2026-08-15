@@ -150,6 +150,7 @@ function hxBuscarComun(term){
 }
 
 let hxSearchInputTimer = null;
+
 function hxProgramarBusquedaInicio(term){
   clearTimeout(hxSearchInputTimer);
   hxSearchInputTimer = setTimeout(() => {
@@ -157,7 +158,21 @@ function hxProgramarBusquedaInicio(term){
   }, 140);
 }
 
+function resolverDesdeInput(inputOrValue){
+  const term = typeof inputOrValue === 'string'
+    ? inputOrValue
+    : String(inputOrValue?.value ?? '');
 
+  clearTimeout(hxSearchInputTimer);
+
+  // Solo UX mientras se escribe. El motor no cambia.
+  if(String(term||'').trim().length < 3){
+    pintarResultados('');
+    return;
+  }
+
+  hxProgramarBusquedaInicio(term);
+}
 function numero(v){
   if(typeof v === 'number') return v;
   const s = String(v||'').replace(/€/g,'').replace(/\s/g,'').replace(/\.(?=\d{3}(\D|$))/g,'').replace(',', '.');
@@ -607,22 +622,6 @@ function seleccionarProductoSeguro(ref, expectedPvp=null, cerrar=false){
   seleccionadoRef=resolved.product.name;
   seleccionadoPvp=Number(resolved.product.pvp);
   return true;
-}
-function resolverDesdeInput(){
-  const term = $('#buscador').value;
-  seleccionado = null;
-  seleccionadoRef = '';
-  seleccionadoPvp = null;
-  $('#producto').value = '';
-  pintarResultados(term);
-
-  const best = buscar(term)[0];
-  if(best){
-    const d = descripcionProducto(best.p);
-    $('#previewProducto').innerHTML = `<b>${escapeHtml(best.p.name)}</b> · ${escapeHtml(d.desc)} · ${fmt.format(best.p.pvp)}`;
-  }else{
-    $('#previewProducto').textContent='Selecciona un producto para ver su precio.';
-  }
 }
 function moverActivo(dir){
   const items = [...document.querySelectorAll('.result-item')]; if(!items.length) return;
@@ -1950,12 +1949,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    Regla principal: TODO lo que esté en el CSV debe salir.
    El conocimiento mejora familia/descripción, pero nunca oculta.
    ===================================================== */
-function textoBusquedaEstable(p){
-  const desc = (typeof descripcionProducto === 'function') ? descripcionProducto(p).desc : '';
-  let extra = '';
-  try{ extra = [textoKnowledgeProducto(p), etiquetasProducto(p).join(' ')].join(' '); }catch(e){ extra=''; }
-  return normaliza([p.name,p.brand,desc,extra].join(' '));
-}
 function esNvrReal(p){ const n=normaliza(p.name); return n.startsWith('aj-nvr') || n.startsWith('nvr') || n.includes('nvrkit'); }
 function esFuenteNvr(p){ const n=normaliza(p.name); return n.includes('psu-nvr') || (n.includes('psu') && n.includes('nvr')) || n.includes('dc12v-psu-nvr'); }
 function esNvrHdmi(p){ const n=normaliza(p.name); if(!esNvrReal(p)) return false; return n.includes('hac') || n.includes('hdc') || n.includes('h2d') || n.includes('hdmi'); }
@@ -3859,38 +3852,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     ensureAlphabet193();
   }catch(e){}
 });
-
-
-const SEARCH_CACHE_194 = new Map();
-const CATALOG_CACHE_194 = new Map();
-function key194(term){ return norm193(String(term || '')).slice(0, 120); }
 const resolverDesdeInput_BASE194 = resolverDesdeInput;
 let searchTimer194 = null;
-resolverDesdeInput = function(){
-  clearTimeout(searchTimer194);
-  const input = $('#buscador');
-  const term = input ? input.value : '';
-  seleccionado = null;
-  seleccionadoRef = '';
-  seleccionadoPvp = null;
-  const sel = $('#producto'); if(sel) sel.value = '';
-  searchTimer194 = setTimeout(()=>{
-    pintarResultados(term);
-    const best = buscar(term)[0];
-    if(best){
-      const d = descripcionProducto(best.p);
-      $('#previewProducto').innerHTML = `<b>${escapeHtml(best.p.name)}</b> · ${escapeHtml(d.desc)} · ${fmt.format(best.p.pvp)}`;
-    }else{
-      $('#previewProducto').textContent='Selecciona un producto para ver su precio.';
-    }
-  }, 55);
-};
 
 // Limpia caches al recargar catálogo y mantiene versión visible simple.
 const cargarCatalogo_BASE194 = cargarCatalogo;
 cargarCatalogo = async function(){
-  SEARCH_CACHE_194.clear();
-  CATALOG_CACHE_194.clear();
   return cargarCatalogo_BASE194.apply(this, arguments);
 };
 
@@ -4134,8 +4101,6 @@ function resumenProducto199(p){
   if(n.endsWith('-b') || n.includes('-b-')) tags.push('negro');
   return [...new Set(tags)].slice(0,5).join(' · ');
 }
-
-const pintarResultados_BASE199 = pintarResultados;
 pintarResultados = function(term){
   const panel = $('#resultados');
   const results = hxBuscarComun(term);
