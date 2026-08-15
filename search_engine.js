@@ -216,7 +216,6 @@ function matchInfo(r,term,allowPrefix){
 }
 
 
-
 function structuredText(product){
   return normalize([
     product?.product_type, product?.tipo,
@@ -226,53 +225,67 @@ function structuredText(product){
   ].filter(Boolean).join(' '));
 }
 
-function fallbackProjectContext(product,query){
-  const structured = structuredText(product);
-  const name = normalize(product?.name || '');
-  const q = normalize(query);
+function secondaryRolePenalty(product){
+  const structured=structuredText(product);
+  const name=normalize(product?.name||'');
 
-  let role = 'product';
-  if(/\b(dummy|dummies|maqueta|maquetas|demo)\b/.test(`${structured} ${name}`)) role = 'dummy';
-  else if(/\b(kit|kits|bundle|pack)\b/.test(`${structured} ${name}`)) role = 'kit';
-  else if(/\b(repuesto|repuestos|recambio|recambios|soporte|soportes|carcasa|housing|cover|bracket|mount|accesorio|accesorios|pila|pilas|bateria|batería|baterias|baterías)\b/.test(structured)) role = 'accessory';
-
-  let intent = 'product';
-  if(/\b(dummy|dummies|maqueta|maquetas|demo)\b/.test(q)) intent = 'dummy';
-  else if(/\b(kit|kits|bundle|pack)\b/.test(q)) intent = 'kit';
-  else if(/\b(soporte|soportes|bracket|brackets|mount|holder|carcasa|carcasas|cover|covers|tapa|tapas|repuesto|repuestos|recambio|recambios|accesorio|accesorios|pila|pilas|bateria|batería|baterias|baterías)\b/.test(q)) intent = 'accessory';
-
-  let groupRank = 1;
-  if(intent === 'product'){
-    groupRank = ({product:1, kit:2, accessory:3, dummy:4})[role] ?? 4;
-  }else if(intent === 'kit'){
-    groupRank = ({kit:0, product:1, accessory:2, dummy:3})[role] ?? 4;
-  }else if(intent === 'accessory'){
-    groupRank = ({accessory:0, dummy:1, product:2, kit:3})[role] ?? 4;
-  }else{
-    groupRank = ({dummy:0, accessory:1, kit:2, product:3})[role] ?? 4;
-  }
-
-  return {groupRank, affinity:0, role};
+  // Solo desempate global; nunca excluye.
+  if(/\bdummy\b|\bmaqueta\b|\bdemo\b/.test(`${structured} ${name}`)) return 30;
+  if(/\b(repuesto|repuestos|recambio|recambios|accesorio|accesorios|soporte|soportes|carcasa|housing|cover|bracket|mount)\b/.test(structured)) return 20;
+  if(/\b(kit|kits|bundle|pack)\b/.test(structured)) return 10;
+  return 0;
 }
 
-function projectContext(product,query){
-  const provider = global.HXA_EXPLORER_PRODUCT_CONTEXT;
-  if(typeof provider === 'function'){
-    try{
-      const context = provider(product,query);
-      if(context && Number.isFinite(Number(context.groupRank))){
-        return {
-          groupRank:Number(context.groupRank),
-          affinity:Number(context.affinity)||0,
-          role:String(context.role||'product')
-        };
-      }
-    }catch(error){
-      console.warn('[HXA Search] No se pudo obtener contexto de Explorer', error);
-    }
+function explorerAffinity(product,query){
+  const meta=global.HXA_EXPLORER_SEARCH_META;
+  if(!meta) return 0;
+
+  const q=normalize(query);
+  if(!q) return 0;
+
+  const qWords=tokens(q);
+  const structured=structuredText(product);
+  const ref=normalize(product?.name||'');
+  const short=normalize(product?.short_description||'');
+
+  let score=0;
+
+  // Familia/categoría trabajada en Explorer.
+  for(const group of (meta.familyGroups||[])){
+    const queryInGroup=group.some(label =>
+      qWords.some(word => equivalent(word,label)) || q.includes(label)
+    );
+    if(!queryInGroup) continue;
+
+    const productInGroup=group.some(label => structured.includes(label));
+    if(productInGroup) score+=40;
   }
 
-  return fallbackProjectContext(product,query);
+  // Atajos/aliases: afinidad binaria por campo.
+  // No se acumula por cada palabra para no favorecer variantes largas.
+  for(const rule of (meta.aliases||[])){
+    let rx;
+    try{ rx=new RegExp(rule.source,rule.flags||''); }catch(_e){ continue; }
+    if(!rx.test(q)) continue;
+
+    const terms=tokens(rule.add||'').filter(term=>term.length>=3);
+    const refHit=terms.some(term =>
+      ref.split(/\s+/).some(word => equivalent(word,term)) ||
+      compact(ref).includes(compact(term))
+    );
+    const structuredHit=terms.some(term =>
+      structured.split(/\s+/).some(word => equivalent(word,term))
+    );
+    const shortHit=terms.some(term =>
+      short.split(/\s+/).some(word => equivalent(word,term))
+    );
+
+    if(refHit) score+=8;
+    if(structuredHit) score+=5;
+    if(shortHit) score+=2;
+  }
+
+  return score;
 }
 
 function search(products,query,options={}){
@@ -298,18 +311,13 @@ function search(products,query,options={}){
     const referenceHits=infos.filter(x=>x.cls<=3).length;
     const support=supportInfo(r,q);
     const identity=identityDirectness(r,q);
-    const project=projectContext(r.product,query);
 
     result.push({
       product:r.product,index:r.index,
       worst:Math.max(...infos.map(x=>x.cls)),
       referenceHits,
-
-      // Agrupación global del proyecto:
-      // producto principal -> otro funcional -> kit -> accesorio -> dummy.
-      projectGroup:project.groupRank,
-      projectAffinity:project.affinity,
-
+      explorerAffinity:explorerAffinity(r.product,query),
+      secondaryPenalty:secondaryRolePenalty(r.product),
       identityHits:infos.filter(x=>x.cls>=10&&x.cls<=11).length,
       identityMatched:identity.matched,
       identityStarts:identity.starts,
@@ -326,11 +334,8 @@ function search(products,query,options={}){
   result.sort((a,b)=>
     a.worst-b.worst ||
     b.referenceHits-a.referenceHits ||
-
-    // Solo cambia el desempate, nunca el conjunto de resultados.
-    a.projectGroup-b.projectGroup ||
-    b.projectAffinity-a.projectAffinity ||
-
+    b.explorerAffinity-a.explorerAffinity ||
+    a.secondaryPenalty-b.secondaryPenalty ||
     b.identityMatched-a.identityMatched ||
     b.identityStarts-a.identityStarts ||
     a.identityPosition-b.identityPosition ||
@@ -363,7 +368,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'4.9-project-groups-trial',
+  version:'4.8-production-family-affinity',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };
