@@ -78,6 +78,45 @@ function wordPosition(field,term){
   }
   return 9999;
 }
+function supportInfo(record, queryTokens){
+  // Señal secundaria genérica: si varios resultados empatan por referencia,
+  // mirar dónde aparece la consulta en los campos reales del producto.
+  // No interpreta tipos concretos ni sufijos de referencia.
+  const fields=[
+    {field:record.identity,priority:0},
+    {field:record.short,priority:1},
+    {field:record.long,priority:2},
+    {field:record.extra,priority:3}
+  ];
+
+  let matched=0;
+  let priority=99;
+  let position=99999;
+
+  for(const term of queryTokens){
+    let best=null;
+
+    for(const entry of fields){
+      const pos=wordPosition(entry.field,term);
+      if(pos===9999) continue;
+
+      const candidate={priority:entry.priority,position:pos};
+      if(!best
+        || candidate.priority<best.priority
+        || (candidate.priority===best.priority && candidate.position<best.position)){
+        best=candidate;
+      }
+    }
+
+    if(best){
+      matched++;
+      priority=Math.min(priority,best.priority);
+      position=Math.min(position,best.position);
+    }
+  }
+
+  return {matched,priority,position};
+}
 function exactWord(field,term){
   return wordPosition(field,term)!==9999;
 }
@@ -155,11 +194,22 @@ function search(products,query,options={}){
     }
     if(!valid)continue;
 
+    const referenceHits=infos.filter(x=>x.cls<=3).length;
+    const support=supportInfo(r,q);
+
     result.push({
       product:r.product,index:r.index,
       worst:Math.max(...infos.map(x=>x.cls)),
-      referenceHits:infos.filter(x=>x.cls<=3).length,
+      referenceHits,
       identityHits:infos.filter(x=>x.cls>=10&&x.cls<=11).length,
+
+      // Desempate global de producto:
+      // más términos respaldados por identidad/descripción,
+      // campo más directo y aparición más temprana.
+      supportMatched:support.matched,
+      supportPriority:support.priority,
+      supportPosition:support.position,
+
       total:infos.reduce((sum,x)=>sum+x.cls,0),
       position:infos.reduce((sum,x)=>sum+(Number.isFinite(x.pos)?x.pos:999),0),
       refLength:r.refCompact.length
@@ -169,6 +219,13 @@ function search(products,query,options={}){
   result.sort((a,b)=>
     a.worst-b.worst ||
     b.referenceHits-a.referenceHits ||
+
+    // Cuando la calidad principal empata, gana el producto cuyo contenido real
+    // respalda mejor la consulta.
+    b.supportMatched-a.supportMatched ||
+    a.supportPriority-b.supportPriority ||
+    a.supportPosition-b.supportPosition ||
+
     b.identityHits-a.identityHits ||
     a.total-b.total ||
     a.position-b.position ||
@@ -195,7 +252,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'4.1-common-future-tuned',
+  version:'4.2-global-product-tiebreak',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };
