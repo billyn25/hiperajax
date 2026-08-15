@@ -580,6 +580,7 @@ function buscarCatalogo(term=''){ return hxBuscarComun(term); }
 
 function pintarResultados(term){
   const panel = $('#resultados');
+  if(panel) panel.scrollTop = 0;
   const results = hxBuscarComun(term);
   activeIndex = -1;
   if(!term.trim() || !results.length){

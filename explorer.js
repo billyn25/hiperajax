@@ -722,6 +722,11 @@
     return searchIndexCache;
   }
 
+  function resetSearchResultsScroll(){
+    const scroller = byId('hxpProductsScroll');
+    if(scroller) scroller.scrollTop = 0;
+  }
+
   function rankedSearch(items, query){
     const q = clean(query);
     if(!q) return items.slice();
@@ -2383,6 +2388,7 @@
     if(search){
       search.addEventListener('input', event => {
         state.query = event.target.value;
+        resetSearchResultsScroll();
         clearTimeout(searchTimer);
 
         // No sustituir el input mientras el usuario está escribiendo.
@@ -2411,6 +2417,7 @@
         if(event.key === 'Escape' && state.query){
           event.preventDefault();
           state.query = '';
+      resetSearchResultsScroll();
           render();
         }
       });
