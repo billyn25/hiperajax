@@ -215,6 +215,48 @@ function matchInfo(r,term,allowPrefix){
   return null;
 }
 
+
+function productRole(product){
+  // Rol comercial GLOBAL. No conoce referencias ni productos concretos.
+  // Solo sirve para desempatar resultados que YA coinciden con la búsqueda.
+  const structured=normalize([
+    product?.product_type,product?.tipo,
+    product?.subcategory,product?.subcategoria,
+    product?.family,product?.familia,
+    product?.category,product?.categoria
+  ].filter(Boolean).join(' '));
+
+  const fallback=normalize([
+    product?.name,
+    product?.short_description
+  ].filter(Boolean).join(' '));
+
+  // 0 = producto funcional / normal
+  // 1 = kit / bundle
+  // 2 = accesorio / repuesto
+  // 3 = dummy / maqueta / carcasa vacía
+  //
+  // Primero campos estructurados; referencia/descripción solo como respaldo
+  // cuando el proveedor no aporta tipo/familia suficiente.
+  const all=`${structured} ${fallback}`;
+
+  if(/\b(dummy|maqueta|demo)\b|carcasa vacia|sin electronica/.test(all)) return 3;
+
+  if(/\b(accesorio|accesorios|repuesto|repuestos|recambio|recambios|soporte|soportes|bracket|mount|carcasa|cover|tapa)\b/.test(structured))
+    return 2;
+
+  if(/\b(kit|kits|bundle|pack)\b/.test(structured))
+    return 1;
+
+  // Fallback prudente cuando esos datos estructurados vienen vacíos.
+  if(!structured){
+    if(/\b(kit|bundle)\b/.test(fallback)) return 1;
+    if(/\b(dummy|maqueta)\b/.test(fallback)) return 3;
+  }
+
+  return 0;
+}
+
 function search(products,query,options={}){
   const list=Array.isArray(products)?products:[];
   const q=tokens(query);
@@ -243,19 +285,18 @@ function search(products,query,options={}){
       product:r.product,index:r.index,
       worst:Math.max(...infos.map(x=>x.cls)),
       referenceHits,
-      identityHits:infos.filter(x=>x.cls>=10&&x.cls<=11).length,
 
-      // Identidad global del producto: cuanto más directamente describen
-      // la consulta los campos estructurados/cortos, más arriba queda.
+      // Rol comercial genérico del producto. Solo desempata:
+      // funcional -> kit -> accesorio -> dummy.
+      rolePriority:productRole(r.product),
+
+      identityHits:infos.filter(x=>x.cls>=10&&x.cls<=11).length,
       identityMatched:identity.matched,
       identityStarts:identity.starts,
       identityPosition:identity.position,
-
-      // Respaldo textual general.
       supportMatched:support.matched,
       supportPriority:support.priority,
       supportPosition:support.position,
-
       total:infos.reduce((sum,x)=>sum+x.cls,0),
       position:infos.reduce((sum,x)=>sum+(Number.isFinite(x.pos)?x.pos:999),0),
       refLength:r.refCompact.length
@@ -266,16 +307,16 @@ function search(products,query,options={}){
     a.worst-b.worst ||
     b.referenceHits-a.referenceHits ||
 
-    // Entre referencias equivalentes, primero el producto cuya identidad
-    // respalda mejor la consulta.
+    // Entre coincidencias fuertes equivalentes, primero el rol comercial
+    // principal del catálogo. No elimina resultados.
+    a.rolePriority-b.rolePriority ||
+
     b.identityMatched-a.identityMatched ||
     b.identityStarts-a.identityStarts ||
     a.identityPosition-b.identityPosition ||
-
     b.supportMatched-a.supportMatched ||
     a.supportPriority-b.supportPriority ||
     a.supportPosition-b.supportPosition ||
-
     b.identityHits-a.identityHits ||
     a.total-b.total ||
     a.position-b.position ||
@@ -302,7 +343,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'4.5-clean-unified',
+  version:'4.7-global-role-tiebreak',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };
