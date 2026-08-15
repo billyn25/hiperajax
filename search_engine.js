@@ -226,7 +226,19 @@ function searchRows(source,q,limit=300){
     String(a.p?.name||'').localeCompare(String(b.p?.name||''),'es',{numeric:true,sensitivity:'base'}));
 }
 
-const engine={normalize:norm,compact,rank,clearCache:()=>{CACHE.clear();cachedList=null;cachedSignature='';cachedRecords=[];},version:'9.0-identity-first'};
+function rows(products,term,limit=300){
+  const source=Array.isArray(products)?products:[];
+  const q=str(term);
+  if(!q){
+    return source.map((p,i)=>({p,i,score:1})).sort((a,b)=>
+      String(a.p?.name||'').localeCompare(String(b.p?.name||''),'es',{numeric:true,sensitivity:'base'}));
+  }
+  return rank(source,q,limit)
+    .map(x=>({p:source[x._hxaIndex],i:x._hxaIndex,score:x._score}))
+    .filter(x=>x.p);
+}
+
+const engine={normalize:norm,compact,rank,rows,clearCache:()=>{CACHE.clear();cachedList=null;cachedSignature='';cachedRecords=[];},version:'10.0-identity-first-unified'};
 global.HXA_SEARCH_ENGINE=engine;
 global.HXA_KNOWLEDGE_ENGINE=engine;
 global.buscar=function(term){return searchRows(getProducts(),term,300);};

@@ -138,6 +138,12 @@ function hxAddProductoSeguro(ref, qty=1, dto=null, expectedPvp=null){
 
 function normaliza(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 
+function hxBuscarComun(term){
+  const engine=window.HXA_SEARCH_ENGINE;
+  if(!engine || typeof engine.rows!=='function') return [];
+  return engine.rows(productos,String(term||''),300);
+}
+
 function busquedaForzada(term){
   const t = normaliza(term).trim();
   const mapa = {
@@ -601,35 +607,11 @@ function scoreProducto(p, term){
   if(indice.includes(t)) score += 80;
   return score;
 }
-function buscar(term){
-  const forzada = busquedaForzada(term);
-  if(forzada) return forzada;
-  const t = normaliza(term);
-  if(!t) return [];
-  const base = productos
-    .map((p,i)=>({p,i,score:scoreProducto(p,term), n:normaliza(p.name), b:normaliza(p.brand)}))
-    .filter(x=>x.score>0);
+function buscar(term){ return hxBuscarComun(term); }
 
-  // PRO: si el texto aparece literalmente en referencia/nombre, esos productos van SIEMPRE primero.
-  // Corrige casos como "nvr" o "motion", donde antes podían quedar mezclados con resultados semánticos.
-  const exactos = base
-    .filter(x=>x.n.includes(t) || x.b.includes(t))
-    .sort((a,b)=>{
-      const ap = a.n.startsWith(t) ? 0 : 1;
-      const bp = b.n.startsWith(t) ? 0 : 1;
-      return ap-bp || a.p.name.localeCompare(b.p.name,'es');
-    });
-  const resto = base
-    .filter(x=>!(x.n.includes(t) || x.b.includes(t)))
-    .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
-
-  // Para búsquedas cortas de familias (nvr, hub, rex, poe, etc.) no recortamos demasiado.
-  const limite = t.length <= 6 ? 160 : 90;
-  return [...exactos, ...resto].slice(0, limite);
-}
 function pintarResultados(term){
   const panel = $('#resultados');
-  const results = buscar(term);
+  const results = hxBuscarComun(term);
   activeIndex = -1;
   if(!term.trim() || !results.length){
     panel.classList.add('hidden');
@@ -699,18 +681,8 @@ function registrarReciente(nombre){ /* desactivado para no arrastrar productos e
 
 function renderRecientes(){ const wrap=$('#recentes'); if(wrap) wrap.innerHTML=''; }
 
-function buscarCatalogo(term=''){
-  const limpio = String(term||'').trim();
-  if(!limpio){
-    return productos.map((p,i)=>({p,i,score:1})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-  }
-  const forzada = busquedaForzada(limpio);
-  if(forzada) return forzada;
-  return productos
-    .map((p,i)=>({p,i,score:scoreProducto(p,limpio)}))
-    .filter(x=>x.score>0)
-    .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
-}
+function buscarCatalogo(term=''){ return hxBuscarComun(term); }
+
 const HX_MODAL_QTY = { catalog:new Map(), explorer:new Map() };
 const HX_MODAL_LINE = { catalog:new Map(), explorer:new Map() };
 let HX_MODAL_LINE_SEQ = 0;
@@ -4380,7 +4352,7 @@ function resumenProducto199(p){
 const pintarResultados_BASE199 = pintarResultados;
 pintarResultados = function(term){
   const panel = $('#resultados');
-  const results = buscar(term);
+  const results = hxBuscarComun(term);
   activeIndex = -1;
   if(!term.trim() || !results.length){
     panel.classList.add('hidden');
@@ -6316,7 +6288,7 @@ descripcionProducto = function(p){
   pintarResultados = function(term){
     const panel = document.querySelector('#resultados');
     if(!panel) return;
-    const results = buscar(term);
+    const results = hxBuscarComun(term);
     activeIndex = -1;
     if(!String(term||'').trim() || !results.length){
       panel.classList.add('hidden');
