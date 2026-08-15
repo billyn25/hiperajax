@@ -138,46 +138,17 @@ function hxAddProductoSeguro(ref, qty=1, dto=null, expectedPvp=null){
 
 function normaliza(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 
+/* =====================================================
+   BUSCADOR COMÚN
+   Única entrada de búsqueda de producto para Inicio y Catálogo.
+   Explorer usa el mismo HXA_COMMON_SEARCH.rank() sobre su subconjunto.
+   ===================================================== */
 function hxBuscarComun(term){
-  const engine=window.HXA_SEARCH_ENGINE;
+  const engine=window.HXA_COMMON_SEARCH || window.HXA_SEARCH_ENGINE;
   if(!engine || typeof engine.rows!=='function') return [];
   return engine.rows(productos,String(term||''),300);
 }
 
-function busquedaForzada(term){
-  const t = normaliza(term).trim();
-  const mapa = {
-    'rele':['relay'], 'reles':['relay'], 'relé':['relay'], 'relés':['relay'],
-    'sirena':['homesiren','streetsiren'], 'sirenas':['homesiren','streetsiren'],
-    'grabador':['nvr'], 'grabadores':['nvr'], 'videograbador':['nvr'], 'videograbadores':['nvr'],
-    'camara':['bulletcam','domecam','turretcam','indoorcam','doorbell'],
-    'camaras':['bulletcam','domecam','turretcam','indoorcam','doorbell'],
-    'cámara':['bulletcam','domecam','turretcam','indoorcam','doorbell'],
-    'cámaras':['bulletcam','domecam','turretcam','indoorcam','doorbell'],
-    'fuente':['psu','dc12','dc1224','ac220'], 'fuentes':['psu','dc12','dc1224','ac220'],
-    'alimentador':['psu','dc12','dc1224','ac220'], 'alimentadores':['psu','dc12','dc1224','ac220'],
-    'soporte':['mountcam','bracket','holder'], 'soportes':['mountcam','bracket','holder'],
-    'caja':['junctionbox','surfacebox'], 'cajas':['junctionbox','surfacebox'],
-    'fuga':['leaksprotect','waterstop'], 'fugas':['leaksprotect','waterstop'],
-    'inundacion':['leaksprotect','waterstop'], 'inundaciones':['leaksprotect','waterstop'],
-    'motion':['motionprotect','motioncam','outdoorprotect','curtainprotect','curtainoutdoor','dualcurtain'],
-    'movimiento':['motionprotect','motioncam','outdoorprotect','curtainprotect','curtainoutdoor','dualcurtain']
-  };
-  const claves = mapa[t];
-  if(!claves) return null;
-  return productos
-    .map((p,i)=>({p,i,n:normaliza(p.name)}))
-    .filter(x=>claves.some(k=>x.n.includes(k)))
-    .filter(x=>!/(dummy|lens|hood|bracket|repairkit)/i.test(x.p.name||''))
-    .map(x=>({p:x.p,i:x.i,score:9999}))
-    .sort((a,b)=>{
-      if(t==='motion' || t==='movimiento'){
-        const rank=n=> n.includes('motionprotect')&&!n.includes('plus') ? 0 : n.includes('motionprotectplus') ? 1 : n.includes('motioncam-hdr')&&!n.includes('phod') ? 2 : n.includes('motioncam-hdr-phod') ? 3 : n.includes('motioncamoutdoor') ? 4 : n.includes('curtain') ? 5 : 9;
-        const d=rank(a.n)-rank(b.n); if(d) return d;
-      }
-      return a.p.name.localeCompare(b.p.name,'es');
-    });
-}
 
 function numero(v){
   if(typeof v === 'number') return v;
@@ -475,9 +446,6 @@ function etiquetasProducto(p){
 
   return [...new Set(tags)].filter(Boolean);
 }
-function textoBusquedaProducto(p){
-  return normaliza([p.name, p.brand, descripcionProducto(p).desc, textoKnowledgeProducto(p), etiquetasProducto(p).join(' ')].join(' '));
-}
 function descripcionProductoBase(p){
   const n = normaliza((p && p.name) || '');
 
@@ -584,30 +552,8 @@ function alternarTema(){
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
-function scoreProducto(p, term){
-  const t = normaliza(term);
-  if(!t) return 0;
-  const n = normaliza(p.name), b = normaliza(p.brand), indice = textoBusquedaProducto(p);
-  const tokensNombre = n.split(/[^a-z0-9]+/).filter(Boolean);
-  let score = 0;
-  const parts = t.split(/\s+/).filter(Boolean);
-  for(const part of parts){
-    // Prioridad alta para coincidencias reales en nombre/referencia.
-    // Ejemplo: al escribir "nvr" deben salir todos los AJ-NVR..., antes que cámaras relacionadas por etiquetas.
-    if(tokensNombre.includes(part)) score += 520;
-    else if(n === part) score += 500;
-    else if(n.startsWith(part)) score += 260;
-    else if(n.includes(part)) score += 180;
-    if(b.includes(part)) score += 12;
-    if(indice.includes(part)) score += 55;
-  }
-  if(n === t) score += 600;
-  if(tokensNombre.includes(t)) score += 520;
-  if(n.includes(t)) score += 220;
-  if(indice.includes(t)) score += 80;
-  return score;
-}
 function buscar(term){ return hxBuscarComun(term); }
+function buscarCatalogo(term=''){ return hxBuscarComun(term); }
 
 function pintarResultados(term){
   const panel = $('#resultados');
@@ -680,8 +626,6 @@ function moverActivo(dir){
 function registrarReciente(nombre){ /* desactivado para no arrastrar productos en búsquedas */ }
 
 function renderRecientes(){ const wrap=$('#recentes'); if(wrap) wrap.innerHTML=''; }
-
-function buscarCatalogo(term=''){ return hxBuscarComun(term); }
 
 const HX_MODAL_QTY = { catalog:new Map(), explorer:new Map() };
 const HX_MODAL_LINE = { catalog:new Map(), explorer:new Map() };
@@ -3611,15 +3555,6 @@ descripcionProducto = function(p){
   if(door) return door;
   return descripcionProducto_PRE190(p);
 };
-function specialResults190(term){
-  const q = q187 ? q187(term) : normaliza(term).trim();
-  const wantsCurtain = q && (q.includes('curtain') || q.includes('cortina') || q.includes('barrera cortina') || q.includes('tipo cortina'));
-  if(!wantsCurtain) return null;
-  return productos
-    .map((p,i)=>({p,i,score:scoreProducto(p,q)}))
-    .filter(x=>x.score>0 && isCurtainAjax190(x.p))
-    .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
-}
 function ref191(p){ return String((p && p.name) || '').trim(); }
 function n191(p){ return normaliza(ref191(p)); }
 function color191(n){
@@ -3893,71 +3828,6 @@ function tokens193(s){
   return norm193(s).split(/\s+/).filter(Boolean);
 }
 function ref193(p){ return String((p && p.name) || '').trim(); }
-function n193(p){ return norm193(ref193(p)); }
-function hasTok193(term, word){ return tokens193(term).includes(word); }
-function isAjaxRef193(name){ return /^AJ-/i.test(String(name || '').trim()); }
-function catalogLetterOf193(p){
-  let r = ref193(p).toUpperCase().trim();
-  if(r.startsWith('AJ-')) r = r.slice(3);
-  const m = r.match(/[A-ZÑ]/);
-  return m ? m[0] : '#';
-}
-function setCatalogLetter193(letter){
-  catalogLetter193 = letter || '';
-  document.querySelectorAll('.az-chip').forEach(b => b.classList.toggle('active', b.dataset.letter === catalogLetter193));
-  pintarCatalogPanel($('#catalogFilter')?.value || catalogTerm || '');
-}
-function ensureAlphabet193(){
-  const modal = $('#catalogModal');
-  const row = modal ? modal.querySelector('.modal-search-row') : null;
-  if(!row || document.getElementById('catalogAZ')) return;
-  const az = document.createElement('div');
-  az.id = 'catalogAZ';
-  az.className = 'catalog-az';
-  const letters = ['','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','#'];
-  az.innerHTML = letters.map(l => `<button type="button" class="az-chip${l===''?' active':''}" data-letter="${l}">${l || 'Todos'}</button>`).join('');
-  row.insertAdjacentElement('afterend', az);
-  az.addEventListener('click', e => {
-    const btn = e.target.closest('.az-chip');
-    if(!btn) return;
-    setCatalogLetter193(btn.dataset.letter || '');
-  });
-}
-function busquedaIntencion193(term){
-  const tks = tokens193(term);
-  const exact = (w) => tks.includes(w);
-  let predicate = null;
-  let strong = false;
-
-  // Coincidencias por palabra completa para evitar domo dentro de domótica.
-  if(exact('domo') || exact('dome')){
-    predicate = p => { const n=n193(p); return n.includes('domecam') || n.includes('turretcam'); };
-    strong = true;
-  }else if(exact('turret')){
-    predicate = p => n193(p).includes('turretcam');
-    strong = true;
-  }else if(exact('bullet') || exact('bala')){
-    predicate = p => n193(p).includes('bulletcam');
-    strong = true;
-  }else if(exact('street')){
-    predicate = p => n193(p).includes('streetsiren');
-    strong = true;
-  }else if(exact('homesiren')){
-    predicate = p => n193(p).includes('homesiren');
-    strong = true;
-  }else if(exact('fotosensor') || (exact('foto') && exact('detector')) || exact('fotodetector') || exact('fotoverificacion') || exact('fotoverificacion') || exact('phod')){
-    predicate = p => { const n=n193(p); return n.includes('motioncam') || n.includes('curtaincam') || n.includes('phod'); };
-    strong = true;
-  }
-
-  if(!predicate) return null;
-  const rows = productos
-    .map((p,i)=>({p,i,score:scoreProducto(p, term)}))
-    .filter(x => predicate(x.p))
-    .map(x => ({...x, score: Math.max(x.score, 1000000)}))
-    .sort((a,b)=>b.score-a.score || a.p.name.localeCompare(b.p.name,'es'));
-  return strong ? rows : null;
-}
 const pintarCatalogPanel_PRE193 = pintarCatalogPanel;
 pintarCatalogPanel = function(term=catalogTerm){
   ensureAlphabet193();
@@ -4136,20 +4006,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 
-const busquedaForzada_BASE197 = busquedaForzada;
-busquedaForzada = function(term){
-  const t = normaliza(term).trim();
-  if(['exterior','exteriores','outdoor','intemperie','perimetral'].includes(t)){
-    return productos
-      .map((p,i)=>({p,i,n:normaliza(p.name)}))
-      .filter(x => x.n.includes('outdoor'))
-      .map(x=>({p:x.p,i:x.i,score:9999}))
-      .sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-  }
-  return busquedaForzada_BASE197.apply(this, arguments);
-};
-
-
 function camaraDesc198(p, base){
   const n = normaliza((p && p.name) || '');
   if(!(n.includes('bulletcam') || n.includes('domecam') || n.includes('turretcam'))) return null;
@@ -4230,84 +4086,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 function ref199(p){ return normaliza((p && p.name) || ''); }
 function contiene199(n, arr){ return arr.some(k => n.includes(k)); }
-
-function resultadoForzado199(term){
-  const q = normaliza(term).trim().replace(/\s+/g,'');
-  const rules = {
-    // Centrales
-    'h2p': n => n.includes('hub2plus'),
-    'h2plus': n => n.includes('hub2plus'),
-    'h2': n => n.includes('hub2') && !n.includes('hub2plus') && !n.includes('hub2kit'),
-    'h24g': n => n.includes('hub2') && n.includes('4g') && !n.includes('kit'),
-    'hbp': n => n.includes('hubbp'),
-    'bp': n => n.includes('hubbp'),
-    'kit': n => n.includes('kit') && (n.includes('hub') || n.includes('starter')),
-    'hubkit': n => n.includes('hubkit') || n.includes('hub2kit'),
-
-    // Intrusión
-    'mp': n => n.includes('motionprotect') && !n.includes('motioncam'),
-    'mpp': n => n.includes('motionprotectplus'),
-    'mc': n => n.includes('motioncam'),
-    'mco': n => n.includes('motioncamoutdoor') || n.includes('curtaincamoutdoor'),
-    'phod': n => n.includes('phod'),
-    'dp': n => n.includes('doorprotect') && !n.includes('doorprotectplus'),
-    'dpp': n => n.includes('doorprotectplus'),
-    'gp': n => n.includes('glassprotect'),
-    'cp': n => n.includes('combiprotect'),
-    'cur': n => n.includes('curtain'),
-
-    // Incendio / agua / aire
-    'fp': n => n.includes('fireprotect'),
-    'fp2': n => n.includes('fireprotect2'),
-    'lq': n => n.includes('lifequality'),
-    'lp': n => n.includes('leaksprotect'),
-    'ws': n => n.includes('waterstop'),
-
-    // Sirenas / mandos / teclados
-    'ss': n => n.includes('streetsiren'),
-    'hs': n => n.includes('homesiren'),
-    'kp': n => n.includes('keypad'),
-    'kpt': n => n.includes('keypadtouchscreen'),
-    'sc': n => n.includes('spacecontrol'),
-    'db': n => n.includes('doublebutton') || n.includes('doorbell'),
-
-    // Vídeo
-    'bc': n => n.includes('bulletcam'),
-    'bc5': n => n.includes('bulletcam') && n.includes('-5'),
-    'bc8': n => n.includes('bulletcam') && n.includes('-8'),
-    'dc': n => n.includes('domecam'),
-    'dc5': n => n.includes('domecam') && n.includes('-5'),
-    'dc8': n => n.includes('domecam') && n.includes('-8'),
-    'tc': n => n.includes('turretcam'),
-    'tc5': n => n.includes('turretcam') && n.includes('-5'),
-    'tc8': n => n.includes('turretcam') && n.includes('-8'),
-    'ic': n => n.includes('indoorcam'),
-    'nvr8': n => n.includes('nvr108') || n.includes('nvr208') || n.includes('8-ch') || n.includes('8p'),
-    'nvr16': n => n.includes('nvr116') || n.includes('nvr216') || n.includes('16-ch') || n.includes('16p'),
-    'nvr32': n => n.includes('nvr232') || n.includes('32-ch'),
-
-    // Domótica / módulos
-    'rl': n => n.includes('relay') || n.includes('wallswitch') || n.includes('multirelay'),
-    'sw': n => n.includes('switch') || n.includes('lightcore') || n.includes('button') || n.includes('cover'),
-    'sk': n => n.includes('socket'),
-    'psu': n => n.includes('psu') || n.includes('pcb') || n.includes('dc12') || n.includes('ac220'),
-    'rex': n => n.includes('rex')
-  };
-  const rule = rules[q];
-  if(!rule) return null;
-  return productos
-    .map((p,i)=>({p,i,n:ref199(p)}))
-    .filter(x => rule(x.n))
-    .map(x=>({p:x.p,i:x.i,score:999999}))
-    .sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
-}
-
-const busquedaForzada_BASE199 = busquedaForzada;
-busquedaForzada = function(term){
-  const forced = resultadoForzado199(term);
-  if(forced) return forced;
-  return busquedaForzada_BASE199.apply(this, arguments);
-};
 
 function resumenProducto199(p){
   const n = ref199(p);
