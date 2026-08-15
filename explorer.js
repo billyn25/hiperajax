@@ -2760,27 +2760,69 @@
 
   // Orden natural ya existente en Explorer. Se calcula con sortItems()
   // y solo se usa como desempate dentro de un grupo temático equivalente.
+  function hxaSearchVariantInfo(item){
+    const product=item?.p || {};
+    const reference=norm(product.name || '');
+    const color=norm(colorFacet(product));
+
+    // Tokens visuales/color genéricos; no contiene modelos concretos.
+    const colorTokens=new Set([
+      'b','w','g','gra','gray','grey','gris',
+      'black','negro','white','blanco',
+      'red','rojo','blue','azul','green','verde','yellow','amarillo'
+    ]);
+
+    const parts=reference.split(/[\s\-_\/]+/).filter(Boolean);
+    const withoutColor=parts.filter(part=>!colorTokens.has(part));
+
+    // Modelo base: primer bloque de identidad antes de variantes técnicas.
+    // Mantiene juntas las parejas normales B/W cuando el precio empata.
+    const base=withoutColor.length ? withoutColor[0] : reference;
+
+    const special=withoutColor.slice(1).join('-');
+
+    const colorRank=(()=>{
+      if(color.includes('blanco') || color.includes('white')) return 1;
+      if(color.includes('negro') || color.includes('black')) return 0;
+      if(color.includes('gris') || color.includes('grey') || color.includes('gray')) return 2;
+      return color ? 3 : 9;
+    })();
+
+    return {base,special,colorRank,reference};
+  }
+
   window.HXA_EXPLORER_NATURAL_ORDER = function(product){
     if(!product || typeof product !== 'object') return Number.MAX_SAFE_INTEGER;
 
-    const model = buildModel();
-    const item = model.allItems.find(candidate => candidate.p === product)
-      || model.allItems.find(candidate => norm(candidate.p?.name || '') === norm(product.name || ''));
+    const model=buildModel();
+    const item=model.allItems.find(candidate=>candidate.p===product)
+      || model.allItems.find(candidate=>norm(candidate.p?.name||'')===norm(product.name||''));
 
     if(!item) return Number.MAX_SAFE_INTEGER;
 
-    // El orden por defecto de Explorer es el que ya conoce la app.
-    const previousSort = state.sort;
-    try{
-      // price-ref es el orden natural general que ya usa Explorer en navegación.
-      state.sort = 'price-ref';
-      const familyItems = model.allItems.filter(candidate => candidate.familyKey === item.familyKey);
-      const ordered = sortItems(familyItems);
-      const index = ordered.findIndex(candidate => candidate.index === item.index);
-      return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
-    }finally{
-      state.sort = previousSort;
-    }
+    const familyItems=model.allItems.filter(candidate=>candidate.familyKey===item.familyKey);
+
+    // Orden natural del buscador dentro de la familia:
+    // precio -> modelo base -> variante normal/color -> variante especial -> referencia.
+    const ordered=familyItems.slice().sort((a,b)=>{
+      const ap=Number(a.p?.pvp)||0;
+      const bp=Number(b.p?.pvp)||0;
+      if(!ap && bp) return 1;
+      if(ap && !bp) return -1;
+      if(ap!==bp) return ap-bp;
+
+      const av=hxaSearchVariantInfo(a);
+      const bv=hxaSearchVariantInfo(b);
+
+      return collator.compare(av.base,bv.base)
+        || av.special.length-bv.special.length
+        || av.colorRank-bv.colorRank
+        || collator.compare(av.special,bv.special)
+        || collator.compare(av.reference,bv.reference);
+    });
+
+    const index=ordered.findIndex(candidate=>candidate.index===item.index);
+    return index>=0 ? index : Number.MAX_SAFE_INTEGER;
   };
 
 
