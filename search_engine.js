@@ -288,6 +288,34 @@ function explorerAffinity(product,query){
   return score;
 }
 
+
+function referenceVariantInfo(product,query){
+  const ref=normalize(product?.name||'');
+  const q=normalize(query);
+  const refCompact=compact(ref);
+  const qCompact=compact(q);
+
+  // Coincidencia directa de referencia.
+  const direct=!!qCompact && refCompact.includes(qCompact);
+
+  // Tokens genéricos de variante visual. Solo sirven para agrupar B/W/GRA etc.
+  // Nunca deciden si un producto coincide.
+  const tokensRef=ref.split(/[\s\-_\/]+/).filter(Boolean);
+  const variantTokens=new Set([
+    'b','w','g','gra','gray','grey','black','white','blanco','negro','gris',
+    'red','blue','green','yellow','rojo','azul','verde','amarillo'
+  ]);
+
+  const baseTokens=tokensRef.filter(t=>!variantTokens.has(t));
+  const baseCompact=compact(baseTokens.join(' '));
+
+  return {
+    direct:direct?1:0,
+    baseCompact,
+    refLength:refCompact.length
+  };
+}
+
 function search(products,query,options={}){
   const list=Array.isArray(products)?products:[];
   const q=tokens(query);
@@ -312,12 +340,25 @@ function search(products,query,options={}){
     const support=supportInfo(r,q);
     const identity=identityDirectness(r,q);
 
+    const variant=referenceVariantInfo(r.product,query);
+
     result.push({
       product:r.product,index:r.index,
       worst:Math.max(...infos.map(x=>x.cls)),
       referenceHits,
+
+      // 1) referencia directa
+      referenceDirect:variant.direct,
+
+      // 2) familia/atajo de Explorer ya existente
       explorerAffinity:explorerAffinity(r.product,query),
+
+      // 3) producto funcional frente a derivado
       secondaryPenalty:secondaryRolePenalty(r.product),
+
+      // 4) modelo base para mantener variantes/color juntas
+      baseReference:variant.baseCompact,
+
       identityHits:infos.filter(x=>x.cls>=10&&x.cls<=11).length,
       identityMatched:identity.matched,
       identityStarts:identity.starts,
@@ -334,8 +375,19 @@ function search(products,query,options={}){
   result.sort((a,b)=>
     a.worst-b.worst ||
     b.referenceHits-a.referenceHits ||
+
+    // Ranking de prueba sobre la base estable:
+    // referencia -> familia/atajo -> rol -> modelo/variante -> texto.
+    b.referenceDirect-a.referenceDirect ||
     b.explorerAffinity-a.explorerAffinity ||
     a.secondaryPenalty-b.secondaryPenalty ||
+
+    String(a.baseReference||'').localeCompare(
+      String(b.baseReference||''),
+      'es',
+      {numeric:true,sensitivity:'base'}
+    ) ||
+
     b.identityMatched-a.identityMatched ||
     b.identityStarts-a.identityStarts ||
     a.identityPosition-b.identityPosition ||
@@ -368,7 +420,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'4.8-production-family-affinity',
+  version:'4.9-ref-family-variant-trial',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };
