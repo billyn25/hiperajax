@@ -85,6 +85,10 @@ function exact(field,term){
   for(const w of field.words)if(equivalent(w,term))return true;
   return false;
 }
+function startsWithEquivalent(field,term){
+  const first=[...field.words][0] || '';
+  return !!first && equivalent(first,term);
+}
 function prefix(field,term){
   if(term.length<2)return false;
   for(const w of field.words)if(w.startsWith(term))return true;
@@ -98,15 +102,30 @@ function exactExists(records,term){
 /* Menor clase = mejor resultado. No hay puntos. */
 function matchClass(r,term,allowPrefix){
   const tc=compact(term);
+
+  // Referencia / código.
   if(r.refCompact===tc)return 0;
   if(exact(r.reference,term))return 1;
   if(allowPrefix&&prefix(r.reference,term))return 2;
-  if(exact(r.identity,term))return 3;
-  if(exact(r.short,term))return 4;
-  if(allowPrefix&&prefix(r.identity,term))return 5;
-  if(allowPrefix&&prefix(r.short,term))return 6;
-  if(exact(r.long,term)||exact(r.extra,term))return 7;
-  if(allowPrefix&&(contains(r.identity,term)||contains(r.short,term)||contains(r.long,term)||contains(r.extra,term)))return 8;
+
+  // Identidad estructurada.
+  if(startsWithEquivalent(r.identity,term))return 3;
+  if(exact(r.identity,term))return 4;
+
+  // Descripción corta: "Sirena interior..." debe ir antes que
+  // "Pack de tapas ... para sirena", sin reglas por producto.
+  if(startsWithEquivalent(r.short,term))return 5;
+  if(exact(r.short,term))return 6;
+
+  // Prefijos solo cuando no existe una palabra exacta en el catálogo.
+  if(allowPrefix&&prefix(r.identity,term))return 7;
+  if(allowPrefix&&prefix(r.short,term))return 8;
+
+  // Descripción larga / atributos: relacionados, no identidad.
+  if(startsWithEquivalent(r.long,term)||startsWithEquivalent(r.extra,term))return 9;
+  if(exact(r.long,term)||exact(r.extra,term))return 10;
+
+  if(allowPrefix&&(contains(r.identity,term)||contains(r.short,term)||contains(r.long,term)||contains(r.extra,term)))return 11;
   return null;
 }
 function search(products,query,options={}){
@@ -148,7 +167,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'2.1-common-clean',
+  version:'2.2-common-positional',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS,
   clearCache:()=>{cachedList=null;cachedSig='';cachedRecords=[];}
