@@ -2226,3 +2226,15 @@ body.light-mode .hxp-budget-mini b{
     padding:0 6px;
   }
 }
+
+
+/* Explorer: una sola X de limpieza. Se conserva la X propia funcional. */
+#familiasGrid #hxpSearch::-webkit-search-cancel-button,
+#familiasGrid #hxpSearch::-webkit-search-decoration{
+  -webkit-appearance:none;
+  appearance:none;
+  display:none;
+}
+#familiasGrid #hxpSearch{
+  appearance:textfield;
+}

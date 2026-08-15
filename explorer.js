@@ -715,45 +715,36 @@
     const q = clean(query);
     if(!q) return items.slice();
 
-    // MISMO MOTOR que Inicio/Catálogo, pero limitado al conjunto recibido.
-    // Si estamos dentro de una familia, 'items' contiene solo esa familia.
-    try{
-      const engine = window.HXA_SEARCH_ENGINE || window.HXA_KNOWLEDGE_ENGINE;
-      if(engine?.rank){
-        // IMPORTANTE: cuando buscamos dentro de un atajo/filtro, `items`
-        // es una sublista. Los productos originales pueden conservar un
-        // _hxaIndex global; si se lo pasamos al motor, ese índice ya no
-        // corresponde a la sublista y se pierde el filtro activo.
-        //
-        // Clonamos solo para la búsqueda y retiramos ese índice global.
-        // El motor devuelve así índices locales 0..N de esta sublista.
-        const source = items.map(item => {
-          const product = {...(item.p || {})};
-          delete product._hxaIndex;
-          return product;
-        });
-        const ranked = engine.rank(source, q, Math.min(300, source.length));
-        return ranked
-          .map(product => items[Number(product._hxaIndex)])
-          .filter(Boolean);
-      }
-    }catch(error){
-      console.warn('[Explorer Pro] motor común no disponible', error);
+    // MISMO BUSCADOR que Inicio: misma API rows(), mismas reglas y mismo orden.
+    // Explorer únicamente limita el conjunto de entrada cuando estamos dentro
+    // de una familia/atajo/filtro.
+    const engine = window.HXA_COMMON_SEARCH || window.HXA_SEARCH_ENGINE;
+    if(engine?.rows){
+      const source = items.map(item => {
+        const product = {...(item.p || {})};
+        delete product._hxaIndex;
+        return product;
+      });
+      return engine.rows(source, q, Math.min(300, source.length))
+        .map(row => items[Number(row.i)])
+        .filter(Boolean);
     }
 
-    // Fallback mínimo, estricto y local.
-    const needle = norm(q);
-    const compact = needle.replace(/[^a-z0-9]/g,'');
+    // Fallback mínimo si el motor común no hubiera cargado.
+    const queryTokens = norm(q).split(/\s+/).filter(Boolean);
     return items.filter(item => {
-      const p = item.p || {};
-      const ref = norm(p.name || '');
-      const text = norm([
-        p.name, p.short_description, item.subcategory, p.product_type,
-        p.family, p.category
-      ].filter(Boolean).join(' '));
-      return ref.includes(needle)
-        || ref.replace(/[^a-z0-9]/g,'').includes(compact)
-        || text.includes(needle);
+      const p=item.p||{};
+      const fields=[
+        p.name,p.brand,p.short_description,p.description,p.category,p.family,
+        p.subcategory,p.product_type,p.series,p.technology,p.color,p.tags,
+        p.keywords,p.attributes
+      ].map(v=>norm(typeof v==='object'?Object.values(v||{}).join(' '):v||''));
+      return queryTokens.every(term=>fields.some(field=>{
+        const words=field.split(/\s+/).filter(Boolean);
+        return words.includes(term)
+          || (term.length>=2 && words.some(word=>word.startsWith(term)))
+          || (term.length>=5 && field.includes(term));
+      }));
     });
   }
 
@@ -2577,6 +2568,29 @@
     byId('familiasBackdrop')?.addEventListener('click', event => {
       event.preventDefault();
       closeExplorer();
+    }, true);
+
+    // Resumen del presupuesto: la X minimiza, nunca cierra Explorer.
+    // Captura evita que un tap móvil alcance listeners de cierre del modal.
+    byId('familiasGrid')?.addEventListener('click', event => {
+      const dismiss = event.target.closest?.('[data-hxp-budget-dismiss]');
+      if(!dismiss) return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      budgetSummaryMinimized = true;
+      refreshBudgetSummary();
+    }, true);
+
+    // La burbuja minimizada restaura el resumen.
+    byId('familiasGrid')?.addEventListener('click', event => {
+      const restore = event.target.closest?.('[data-hxp-budget-restore]');
+      if(!restore) return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      budgetSummaryMinimized = false;
+      refreshBudgetSummary();
     }, true);
 
     // Navegación interna robusta: funciona aunque render() sustituya los botones.
