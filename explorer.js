@@ -2381,7 +2381,7 @@
               next?.focus({preventScroll:true});
               if(next) next.setSelectionRange(next.value.length,next.value.length);
             });
-          }, 320);
+          }, 140);
           return;
         }
 

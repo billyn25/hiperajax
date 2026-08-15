@@ -149,6 +149,14 @@ function hxBuscarComun(term){
   return engine.rows(productos,String(term||''),300);
 }
 
+let hxSearchInputTimer = null;
+function hxProgramarBusquedaInicio(term){
+  clearTimeout(hxSearchInputTimer);
+  hxSearchInputTimer = setTimeout(() => {
+    pintarResultados(term);
+  }, 140);
+}
+
 
 function numero(v){
   if(typeof v === 'number') return v;
