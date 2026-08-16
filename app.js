@@ -580,7 +580,6 @@ function buscarCatalogo(term=''){ return hxBuscarComun(term); }
 
 function pintarResultados(term){
   const panel = $('#resultados');
-  if(panel) panel.scrollTop = 0;
   const results = hxBuscarComun(term);
   activeIndex = -1;
   if(!term.trim() || !results.length){
@@ -6056,7 +6055,6 @@ descripcionProducto = function(p){
         <div class="result-price">${fmt.format(x.p.pvp)}</div>
       </div>`;
     }).join('');
-    panel.scrollTop=0;
     hxBindProductImages(panel);
     panel.querySelectorAll('.result-item').forEach(el=>{
       el.addEventListener('mouseenter',()=>{ activeIndex=Number(el.dataset.k); });
@@ -6064,5 +6062,16 @@ descripcionProducto = function(p){
       el.addEventListener('dblclick',()=>{ seleccionarProductoSeguro(el.dataset.ref,el.dataset.pvp,true); addLinea(); });
     });
     panel.classList.remove('hidden');
+
+    const resetPanelScroll=()=>{
+      panel.scrollTop=0;
+      try{ panel.scrollTo({top:0,left:0,behavior:'auto'}); }catch(_error){}
+    };
+    resetPanelScroll();
+    requestAnimationFrame(() => {
+      resetPanelScroll();
+      requestAnimationFrame(resetPanelScroll);
+    });
+    setTimeout(resetPanelScroll,60);
   };
 })();

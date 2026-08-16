@@ -85,7 +85,7 @@
     cameras:['Bullet','Turret','Domo','Cube','PTZ','Soportes'],
     detectors:['Movimiento / PIR','Apertura','MotionCam','PhOD','Cristal','Inundación','Combi','Exterior','Cortina','Incendio','Hood / Viseras'],
     smart_home:['Interruptores','Enchufes','Timbre / Doorbell','Válvulas','Clima / Aire / LifeQuality','Frames','Cajas superficie','Tapas interruptor','Tapas enchufe'],
-    centrals:['Hub','Hub 2','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
+    centrals:['Hub','Hub 2','HUBBP','4G / LTE','Wi‑Fi','Hub Plus','Hybrid','Repetidores'],
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
     wireless_accessories:['Teclados','Tags / Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
@@ -720,11 +720,6 @@
     });
     searchIndexSignature = signature;
     return searchIndexCache;
-  }
-
-  function resetSearchResultsScroll(){
-    const scroller = byId('hxpProductsScroll');
-    if(scroller) scroller.scrollTop = 0;
   }
 
   function rankedSearch(items, query){
@@ -1623,6 +1618,7 @@
     }
 
     if(profile === 'centrals'){
+      if(/hubbp/.test(source)) add('HUBBP');
       const {structuredSource} = quickContext(item);
       const src = structuredSource;
       const secondary = /modulo|módulo|alimentacion|alimentación|power supply|fuente|bracket|soporte|tapa|cover/.test(src);
@@ -1667,6 +1663,7 @@
     }
 
     if(profile === 'routers_mobile'){
+      if(/\bindustrial\b/.test(source)) add('Industrial');
       const pRouter = item?.p || {};
       const {source} = quickContext(item);
       const textRouter = norm(`${pRouter.name||''} ${pRouter.short_description||''} ${pRouter.description||''} ${source}`);
@@ -1701,6 +1698,7 @@
     }
 
     if(profile === 'power_supply'){
+      if(/\b(?:formato\s+din|carril\s+din|din\s+rail|din)\b/.test(source)) add('Formato DIN');
       const pPower = item?.p || {};
       const {source} = quickContext(item);
       const hierarchy = norm([
@@ -2236,7 +2234,7 @@
     state.sort = defaultSortForFamily(key);
     state.drawerOpen = false;
     render();
-    requestAnimationFrame(() => byId('hxpProductsScroll')?.scrollTo({top:0}));
+    requestAnimationFrame(resetSearchResultsScroll);
   }
 
   function goHome(){
@@ -2271,6 +2269,23 @@
     }
   }
 
+  function resetSearchResultsScroll(){
+    const reset = () => {
+      const scroller=byId('hxpProductsScroll');
+      if(!scroller) return;
+      scroller.scrollTop=0;
+      try{ scroller.scrollTo({top:0,left:0,behavior:'auto'}); }catch(_error){}
+    };
+
+    // Safari/iOS puede restaurar el scroll con inercia tras sustituir la lista.
+    reset();
+    requestAnimationFrame(() => {
+      reset();
+      requestAnimationFrame(reset);
+    });
+    setTimeout(reset,60);
+  }
+
   function refreshSearchResults(){
     const scroller = byId('hxpProductsScroll');
 
@@ -2282,7 +2297,7 @@
 
     const items = resultItems();
     scroller.innerHTML = items.map(productCard).join('') || `<div class="hxp-empty hxp-empty-products"><strong>No hay productos con esta búsqueda.</strong></div>`;
-    scroller.scrollTop = 0;
+    resetSearchResultsScroll();
 
     const count = document.querySelector('#familiasGrid .hxp-result-count');
     if(count) count.innerHTML = `<strong>${items.length}</strong> producto${items.length===1?'':'s'}`;
@@ -2388,7 +2403,6 @@
     if(search){
       search.addEventListener('input', event => {
         state.query = event.target.value;
-        resetSearchResultsScroll();
         clearTimeout(searchTimer);
 
         // No sustituir el input mientras el usuario está escribiendo.
@@ -2402,6 +2416,7 @@
             if(!clean(state.query) || byId('hxpProductsScroll')) return;
             render();
             requestAnimationFrame(() => {
+              resetSearchResultsScroll();
               const next = byId('hxpSearch');
               next?.focus({preventScroll:true});
               if(next) next.setSelectionRange(next.value.length,next.value.length);
@@ -2417,7 +2432,6 @@
         if(event.key === 'Escape' && state.query){
           event.preventDefault();
           state.query = '';
-      resetSearchResultsScroll();
           render();
         }
       });
@@ -2810,8 +2824,19 @@
     const familyItems=model.allItems.filter(candidate=>candidate.familyKey===item.familyKey);
 
     // Orden natural del buscador dentro de la familia:
-    // precio -> modelo base -> variante normal/color -> variante especial -> referencia.
+    // prioridad comercial CSV -> precio -> modelo base -> color -> variante -> referencia.
     const ordered=familyItems.slice().sort((a,b)=>{
+      // Prioridad comercial mantenible desde catalogo_manual.csv (campo order).
+      // Solo actúa dentro del grupo temático ya correcto.
+      const commercialOrder = product => {
+        const value=Number(product?.order);
+        return Number.isFinite(value) && value>0 ? value : Number.MAX_SAFE_INTEGER;
+      };
+
+      const ao=commercialOrder(a.p);
+      const bo=commercialOrder(b.p);
+      if(ao!==bo) return ao-bo;
+
       const ap=Number(a.p?.pvp)||0;
       const bp=Number(b.p?.pvp)||0;
       if(!ap && bp) return 1;
