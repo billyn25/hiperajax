@@ -1618,14 +1618,15 @@
     }
 
     if(profile === 'centrals'){
-      if(/hubbp/.test(source)) add('HUBBP');
       const {structuredSource} = quickContext(item);
       const src = structuredSource;
       const secondary = /modulo|módulo|alimentacion|alimentación|power supply|fuente|bracket|soporte|tapa|cover/.test(src);
       const repeater = !secondary && /(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(src);
       const hubPlus = /hub\s*2\s*plus|hub2plus|hub plus|hubplus/.test(src);
 
-      if(/\bhub\s*2\b|\bhub2\b/.test(src)) add('Hub 2');
+      const hubBp = /\bhubbp\b/.test(src);
+      if(hubBp) add('HUBBP');
+      else if(/\bhub\s*2\b|\bhub2\b/.test(src)) add('Hub 2');
       else if(/\bhub\b/.test(src) && !/\bhubkit\b/.test(src)) add('Hub');
       if(/\b4g\b|\blte\b/.test(src)) add('4G / LTE');
       if(/\bwi[ -]?fi\b|\bwlan\b/.test(src) || hubPlus) add('Wi‑Fi');
@@ -1663,9 +1664,9 @@
     }
 
     if(profile === 'routers_mobile'){
-      if(/\bindustrial\b/.test(source)) add('Industrial');
       const pRouter = item?.p || {};
       const {source} = quickContext(item);
+      if(/\bindustrial\b/.test(source)) add('Industrial');
       const textRouter = norm(`${pRouter.name||''} ${pRouter.short_description||''} ${pRouter.description||''} ${source}`);
       const isLicense = /licencia|license|licence|suscripcion|suscripción|subscription/.test(textRouter);
       if(isLicense) add('Licencias');
@@ -1698,9 +1699,9 @@
     }
 
     if(profile === 'power_supply'){
-      if(/\b(?:formato\s+din|carril\s+din|din\s+rail|din)\b/.test(source)) add('Formato DIN');
       const pPower = item?.p || {};
       const {source} = quickContext(item);
+      if(/\b(?:formato\s+din|carril\s+din|din\s+rail|din)\b/.test(source)) add('Formato DIN');
       const hierarchy = norm([
         pPower.category, pPower.family, pPower.subcategory, pPower.product_type,
         item?.category, item?.family, item?.subcategory
