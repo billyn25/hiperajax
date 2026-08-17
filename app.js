@@ -174,16 +174,23 @@ function hxResolvedRelated(product){
 }
 
 function hxRelatedCategory(product){
+  const ref = normaliza(String(product?.name||''));
   const text = normaliza([
     product?.category, product?.category_parent, product?.family,
     product?.subcategory, product?.product_type,
     product?.short_description, product?.description, product?.name
   ].filter(Boolean).join(' '));
 
-  if(/soporte|bracket|mount|junction|junctionbox|caja de conexiones|caja conexiones/.test(text)) return 0;
-  if(/alimentacion|alimentación|fuente|power supply|adaptador|adapter|poe|inyector/.test(text)) return 1;
-  if(/disco|hdd|ssd|almacenamiento|storage|tarjeta sd|micro ?sd/.test(text)) return 2;
-  if(/repuesto|recambio|dummy|carcasa|cover|tapa/.test(text)) return 4;
+  // Soporte/montaje SOLO si el propio producto es físicamente un soporte,
+  // bracket, junction box, mount, holder o caja de conexiones.
+  if(
+    /\b(bracket|mountcam|mount|junctionbox|junction box|holder|soporte|caja de conexiones|caja conexiones)\b/.test(text)
+    || /(?:^|[-_])(bracket|mount|holder)(?:[-_]|$)/.test(ref)
+  ) return 0;
+
+  if(/\b(alimentacion|fuente|power supply|adaptador|adapter|poe|inyector)\b/.test(text)) return 1;
+  if(/\b(disco|hdd|ssd|almacenamiento|storage|tarjeta sd|micro ?sd)\b/.test(text)) return 2;
+  if(/\b(repuesto|recambio|dummy|carcasa|cover|tapa|pcb|bateria|pila)\b/.test(text)) return 4;
   return 3;
 }
 
