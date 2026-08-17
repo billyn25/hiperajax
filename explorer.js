@@ -2860,6 +2860,41 @@
   };
 
 
+
+  function hxaDecorateCompatibles(){
+    const api=window.HX_COMPATIBLES;
+    if(!api) return;
+    document.querySelectorAll('[data-hxp-add]').forEach(addButton=>{
+      if(addButton.dataset.hxCompatDecorated==='1') return;
+      const index=Number(addButton.getAttribute('data-hxp-add'));
+      const product=Number.isFinite(index) ? productos[index] : null;
+      if(!product) return;
+      const count=api.count(product);
+      if(!count) return;
+
+      addButton.dataset.hxCompatDecorated='1';
+      const button=document.createElement('button');
+      button.type='button';
+      button.className='hx-compat-btn hxp-compatible-btn';
+      button.textContent=`Compatibles (${count})`;
+      button.addEventListener('click',event=>{
+        event.preventDefault();
+        event.stopPropagation();
+        api.open(product);
+      });
+      addButton.parentNode?.insertBefore(button,addButton);
+    });
+  }
+
+  const hxaCompatObserver=new MutationObserver(()=>requestAnimationFrame(hxaDecorateCompatibles));
+  function hxaStartCompatibles(){
+    const root=byId('hxpRoot') || document.body;
+    hxaCompatObserver.observe(root,{childList:true,subtree:true});
+    requestAnimationFrame(hxaDecorateCompatibles);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',hxaStartCompatibles,{once:true});
+  else hxaStartCompatibles();
+
   window.HX_EXPLORER_PRO = {
     open:openExplorer,
     close:closeExplorer,

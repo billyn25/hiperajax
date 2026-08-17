@@ -1327,11 +1327,17 @@ function activarArrastreLineas(){
 }
 
 
+window.HX_COMPATIBLES = Object.freeze({
+  count(product){ return hxResolvedRelated(product).length; },
+  open(product){ return hxOpenCompatibles(product); },
+  list(product){ return hxSortedRelated(product).slice(); }
+});
+
 function hxDecorateCompatButtons(){
-  document.querySelectorAll('[data-index]').forEach(row=>{
+  document.querySelectorAll('[data-linea-index]').forEach(row=>{
     if(row.querySelector('.hx-compat-btn')) return;
 
-    const indexRaw = row.getAttribute('data-index');
+    const indexRaw = row.getAttribute('data-linea-index');
     const index = Number(indexRaw);
     const line = Number.isFinite(index) ? lineas?.[index] : null;
     const ref = line?.ref || line?.name || line?.referencia || '';
@@ -1341,8 +1347,8 @@ function hxDecorateCompatButtons(){
     const count = hxResolvedRelated(product).length;
     if(!count) return;
 
-    const target = row.querySelector('.line-desc, .desc, .item-desc, .ref-desc, .product-desc')
-      || row.querySelector('.line-main, .item-main')
+    const target = row.querySelector('.desc-cell')
+      || row.querySelector('td:nth-child(2)')
       || row;
 
     const button = document.createElement('button');

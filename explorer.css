@@ -2238,3 +2238,12 @@ body.light-mode .hxp-budget-mini b{
 #familiasGrid #hxpSearch{
   appearance:textfield;
 }
+
+.hxp-compatible-btn{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  margin-right:6px;
+  white-space:nowrap;
+}
