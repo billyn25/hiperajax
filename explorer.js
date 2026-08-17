@@ -2110,6 +2110,14 @@
     bindBudgetSummary(root);
   }
 
+
+  window.addEventListener('hxa:budget-updated',()=>{
+    try{
+      budgetSummaryMinimized=false;
+      refreshBudgetSummary();
+    }catch(_error){}
+  });
+
   function bindBudgetSummary(root){
     const restore=root?.querySelector('[data-hxp-budget-restore]');
     if(restore && !restore.dataset.hxpBound){
@@ -2894,6 +2902,8 @@
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',hxaStartCompatibles,{once:true});
   else hxaStartCompatibles();
+
+  window.HX_EXPLORER_REFRESH_BUDGET = ()=>{ try{ budgetSummaryMinimized=false; refreshBudgetSummary(); }catch(_error){} };
 
   window.HX_EXPLORER_PRO = {
     open:openExplorer,

@@ -314,6 +314,11 @@ const groups=[['Todos',null,'⊞'],['Soportes',0,'⌘'],['Alimentación',1,'ϟ']
           addLinea();
         }
       }
+      try{
+        window.dispatchEvent(new CustomEvent('hxa:budget-updated',{
+          detail:{source:'compatibles',product:p,quantity:qty}
+        }));
+      }catch(_error){}
       btn.textContent='✓ Añadido';
       btn.disabled=true;
     }));

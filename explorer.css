@@ -2331,3 +2331,204 @@ body.light-mode .hxp-budget-mini b{
     min-width:0!important;
   }
 }
+
+
+/* =========================================================
+   EXPLORER MÓVIL — TARJETA COMPACTA Y SIN COLAPSOS
+   ========================================================= */
+@media(max-width:640px){
+  .hxp-products-scroll{
+    padding:10px 10px 120px!important;
+  }
+
+  .hxp-product{
+    display:grid!important;
+    grid-template-columns:78px minmax(0,1fr)!important;
+    grid-template-areas:
+      "media copy"
+      "meta meta"
+      "commerce commerce"!important;
+    gap:8px 11px!important;
+    padding:11px!important;
+    border-radius:16px!important;
+    align-items:start!important;
+  }
+
+  .hxp-product-main{
+    display:contents!important;
+  }
+
+  .hxp-product-media{
+    grid-area:media!important;
+    width:78px!important;
+    min-width:78px!important;
+    height:78px!important;
+    margin:0!important;
+    align-self:start!important;
+  }
+
+  .hxp-product-media img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+  }
+
+  .hxp-product-copy{
+    grid-area:copy!important;
+    min-width:0!important;
+    padding:0!important;
+  }
+
+  .hxp-product-ref{
+    margin:1px 0 4px!important;
+    font-size:15px!important;
+    line-height:1.15!important;
+    font-weight:800!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  .hxp-product-description{
+    margin:0!important;
+    font-size:11.5px!important;
+    line-height:1.32!important;
+    color:var(--muted,#60736a)!important;
+    display:-webkit-box!important;
+    -webkit-line-clamp:2!important;
+    -webkit-box-orient:vertical!important;
+    overflow:hidden!important;
+  }
+
+  .hxp-description-toggle{
+    display:inline-flex!important;
+    align-items:center!important;
+    margin-top:5px!important;
+    padding:0!important;
+    min-height:0!important;
+    border:0!important;
+    background:transparent!important;
+    color:#0c7045!important;
+    font-size:10.5px!important;
+    font-weight:800!important;
+    line-height:1.1!important;
+    box-shadow:none!important;
+  }
+
+  .hxp-product-long-description{
+    margin-top:6px!important;
+    font-size:10.5px!important;
+    line-height:1.35!important;
+  }
+
+  .hxp-product-meta{
+    grid-area:meta!important;
+    display:flex!important;
+    flex-wrap:wrap!important;
+    align-items:center!important;
+    gap:5px!important;
+    margin:0!important;
+    padding-left:89px!important;
+    min-height:24px!important;
+  }
+
+  .hxp-product-meta>*{
+    margin:0!important;
+  }
+
+  .hxp-product-commerce{
+    grid-area:commerce!important;
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr)!important;
+    grid-template-areas:
+      "price price"
+      "actions actions"!important;
+    gap:7px!important;
+    margin:1px 0 0!important;
+    padding:0!important;
+    align-items:center!important;
+    width:100%!important;
+  }
+
+  .hxp-price{
+    grid-area:price!important;
+    justify-self:end!important;
+    margin:0!important;
+    font-size:17px!important;
+    line-height:1!important;
+  }
+
+  .hxp-product-actions{
+    grid-area:actions!important;
+    display:grid!important;
+    grid-template-columns:minmax(108px,1fr) auto minmax(82px,auto)!important;
+    gap:7px!important;
+    width:100%!important;
+    align-items:center!important;
+    justify-content:stretch!important;
+  }
+
+  .hxp-product-actions .hx-qty-control,
+  .hxp-product-actions [class*="qty"]{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:38px!important;
+  }
+
+  #hxpRoot .hxp-compatible-btn,
+  .hxp-shell .hxp-compatible-btn,
+  button.hxp-compatible-btn{
+    min-width:64px!important;
+    width:auto!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:0 9px!important;
+    border-radius:10px!important;
+    font-size:10.5px!important;
+    font-weight:800!important;
+    background:#fff!important;
+    color:#24543f!important;
+    border:1px solid #8eaa9b!important;
+  }
+
+  .hxp-add{
+    min-width:82px!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:0 12px!important;
+    border-radius:10px!important;
+    font-size:12px!important;
+    font-weight:800!important;
+  }
+}
+
+@media(max-width:390px){
+  .hxp-product{
+    grid-template-columns:68px minmax(0,1fr)!important;
+    gap:7px 9px!important;
+    padding:10px!important;
+  }
+  .hxp-product-media{
+    width:68px!important;
+    min-width:68px!important;
+    height:68px!important;
+  }
+  .hxp-product-meta{
+    padding-left:77px!important;
+  }
+  .hxp-product-actions{
+    grid-template-columns:minmax(96px,1fr) 60px 76px!important;
+    gap:6px!important;
+  }
+  #hxpRoot .hxp-compatible-btn,
+  .hxp-shell .hxp-compatible-btn,
+  button.hxp-compatible-btn{
+    min-width:60px!important;
+    padding:0 6px!important;
+    font-size:10px!important;
+  }
+  .hxp-add{
+    min-width:76px!important;
+    padding:0 9px!important;
+    font-size:11px!important;
+  }
+}
