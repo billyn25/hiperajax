@@ -2333,9 +2333,6 @@ body.light-mode .hxp-budget-mini b{
 }
 
 
-/* Detalle Explorer — única implementación */
-.hxp-product-refline{display:flex;align-items:center;gap:6px;min-width:0}.hxp-detail-ref{flex:0 0 20px;width:20px;height:20px;margin:0;padding:0;display:grid;place-items:center;border:1px solid #cbd9d1;border-radius:7px;background:#fff;color:#26704d;font-size:12px;font-weight:900;cursor:pointer}.hxp-product-long-description{display:none}.hxp-product.is-detail-open .hxp-product-long-description{display:block}
-
 
 /* Compatible Explorer — única regla */
 #familiasGrid .hxp-product-actions .hxp-compatible-btn{
@@ -2364,3 +2361,6 @@ body.light-mode .hxp-budget-mini b{
   border-color:#4c9370;
   color:#0b6c40;
 }
+
+/* Detalle Explorer — única implementación */
+.hxp-product-refline{display:flex;align-items:center;gap:6px;min-width:0}.hxp-detail-ref{flex:0 0 20px;width:20px;height:20px;margin:0;padding:0;display:grid;place-items:center;border:1px solid #cbd9d1;border-radius:7px;background:#fff;color:#26704d;font-size:12px;font-weight:900;cursor:pointer}.hxp-product-long-description{display:none}.hxp-product.is-detail-open .hxp-product-long-description{display:block}

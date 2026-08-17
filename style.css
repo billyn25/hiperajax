@@ -6159,34 +6159,7 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
     text-overflow:clip!important;
     line-height:1.15!important;
   }
-}
-
-
-
-
-.hx-product-thumb{
-  flex:0 0 44px;
-  width:44px;
-  height:44px;
-  padding:3px;
-  margin:0;
-  border:1px solid var(--border,rgba(127,127,127,.25));
-  border-radius:8px;
-  background:#fff;
-  overflow:hidden;
-  box-sizing:border-box;
-  cursor:zoom-in;
-}
-.hx-product-thumb img{
-  display:block;
-  width:100%;
-  height:100%;
-  max-width:100%;
-  max-height:100%;
-  object-fit:contain;
-}
-.hx-product-thumb.hx-image-error{display:none}
-.hx-image-preview{
+}.hx-image-preview{
   position:fixed;
   inset:0;
   z-index:2147483600;
@@ -6222,15 +6195,7 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
   color:#111;
   cursor:pointer;
 }
-@media(max-width:760px){
-
-  .hx-product-thumb{
-    flex-basis:38px;
-    width:38px;
-    height:38px;
-    border-radius:7px;
-  }
-}
+@media(max-width:760px){}
 
 @media(max-width:760px){
 
@@ -6272,22 +6237,8 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-}
-.result-item-visual .hx-product-thumb{
-  flex:0 0 32px;
-  width:32px;
-  height:32px;
-  padding:2px;
-  border-radius:6px;
-}
-@media(max-width:760px){
-  .result-item-visual{gap:8px;padding:8px 9px}
-  .result-item-visual .hx-product-thumb{
-    flex-basis:30px;
-    width:30px;
-    height:30px;
-  }
-  .result-item-visual .hx-product-copy span{
+}@media(max-width:760px){
+  .result-item-visual{gap:8px;padding:8px 9px}.result-item-visual .hx-product-copy span{
     display:block;
     white-space:nowrap;
   }
@@ -6439,41 +6390,14 @@ body.light-mode .header-toolbar > .header-theme:hover,body.light-mode .header-to
 @media(max-width:760px){
 
 
-}
-
-
-/* =====================================================
-   EXPLORER 2.0.1 - Fondo uniforme para fotografías
-   Afecta a las miniaturas de producto en toda la app.
-   ===================================================== */
-.hx-product-thumb{
-  background:linear-gradient(145deg,#e8edf1,#dbe2e7)!important;
-  border-color:#8d9ba5!important;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.42)!important;
-}
-body.light-mode .hx-product-thumb,
-body.light .hx-product-thumb,
-body.claro .hx-product-thumb{
-  background:linear-gradient(145deg,#f0f3f5,#e2e7ea)!important;
-  border-color:#b4c0c7!important;
-}
-.hx-image-preview img{
+}.hx-image-preview img{
   background:linear-gradient(145deg,#e8edf1,#dbe2e7)!important;
 }
 body.light-mode .hx-image-preview img,
 body.light .hx-image-preview img,
 body.claro .hx-image-preview img{
   background:linear-gradient(145deg,#f3f5f6,#e5e9ec)!important;
-}
-.hx-product-thumb:hover,button.hx-product-thumb:hover{background:#333a41!important;border-color:#69747e!important;transform:none!important;}
-.hx-product-thumb img{background:transparent!important;}
-.hx-image-preview img{background:#2a3036!important;background-image:none!important;border:1px solid #515b64!important;}
-body.light-mode .hx-product-thumb,
-body.light-mode button.hx-product-thumb,
-body.light .hx-product-thumb,
-body.claro .hx-product-thumb{background:#eef1f3!important;background-image:none!important;border-color:#c4ccd2!important;}
-body.light-mode .hx-product-thumb:hover,body.light-mode button.hx-product-thumb:hover{background:#e4e9ec!important;border-color:#aeb9c1!important;}
-body.light-mode .hx-image-preview img,body.light .hx-image-preview img,body.claro .hx-image-preview img{background:#eef1f3!important;background-image:none!important;border-color:#c4ccd2!important;}
+}.hx-image-preview img{background:#2a3036!important;background-image:none!important;border:1px solid #515b64!important;}body.light-mode .hx-image-preview img,body.light .hx-image-preview img,body.claro .hx-image-preview img{background:#eef1f3!important;background-image:none!important;border-color:#c4ccd2!important;}
 
 /* =====================================================
    EXPLORER 3.0.3 — tercer nivel compacto
@@ -7659,6 +7583,21 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
 #hxCompatModal .hx-compat-added-notice,
 #hxCompatModal .hx-compat-note{flex:0 0 auto}
 
+
+#hxCompatModal .hx-compat-control{
+  user-select:none;
+  -webkit-user-select:none;
+  cursor:pointer;
+}
+#hxCompatModal .hx-compat-close,
+#hxCompatModal .hx-compat-tab,
+#hxCompatModal .hx-compat-step,
+#hxCompatModal .hx-compat-add{
+  background:#fff;
+  background-image:none;
+  color:#203f32;
+  box-shadow:none;
+}
 #hxCompatModal .hx-compat-header{
   display:flex;
   align-items:center;
@@ -7772,7 +7711,7 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
   background:#fff;
 }
 #hxCompatModal .hx-compat-tabs::-webkit-scrollbar{display:none}
-#hxCompatModal .hx-compat-tabs button{
+#hxCompatModal .hx-compat-tab{
   --hx-tab-accent:#0d8a50;
   --hx-tab-soft:#eef8f3;
   flex:1 0 120px;
@@ -7796,25 +7735,25 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
   transition:background .15s ease,color .15s ease;
 
   background-image:none;}
-#hxCompatModal .hx-compat-tabs button:last-child{border-right:0}
-#hxCompatModal .hx-compat-tabs button.is-active{
-  color:var(--hx-tab-accent);
-  background:var(--hx-tab-soft);
-  box-shadow:inset 0 -3px 0 var(--hx-tab-accent);
+#hxCompatModal .hx-compat-tab:last-child{border-right:0}
+#hxCompatModal .hx-compat-tab.is-active{
+  color:#245440;
+  background:#eef4f1;
+  box-shadow:inset 0 -3px 0 #8aaa99;
 }
-#hxCompatModal .hx-compat-tabs button:not(.is-active):hover{
+#hxCompatModal .hx-compat-tab:not(.is-active):hover{
   background:var(--hx-tab-soft);
   color:var(--hx-tab-accent);
 }
-#hxCompatModal .hx-compat-tabs button.tone-amber{--hx-tab-accent:#b7791f;--hx-tab-soft:#fff7e6}
-#hxCompatModal .hx-compat-tabs button.tone-blue{--hx-tab-accent:#3978a8;--hx-tab-soft:#edf6fc}
-#hxCompatModal .hx-compat-tabs button.tone-violet{--hx-tab-accent:#7453ad;--hx-tab-soft:#f4effb}
-#hxCompatModal .hx-compat-tabs button.tone-orange{--hx-tab-accent:#b96728;--hx-tab-soft:#fff2e8}
-#hxCompatModal .hx-compat-tabs button.tone-slate{--hx-tab-accent:#526a60;--hx-tab-soft:#f0f4f2}
-#hxCompatModal .hx-compat-tabs button.tone-rose{--hx-tab-accent:#a95568;--hx-tab-soft:#fbeff2}
-#hxCompatModal .hx-compat-tabs button.tone-cyan{--hx-tab-accent:#347f89;--hx-tab-soft:#edf8f9}
-#hxCompatModal .hx-compat-tabs button.tone-yellow{--hx-tab-accent:#9a7a13;--hx-tab-soft:#fff9df}
-#hxCompatModal .hx-compat-tabs button.tone-neutral{--hx-tab-accent:#66756e;--hx-tab-soft:#f3f5f4}
+#hxCompatModal .hx-compat-tab.tone-amber{--hx-tab-accent:#b7791f;--hx-tab-soft:#fff7e6}
+#hxCompatModal .hx-compat-tab.tone-blue{--hx-tab-accent:#3978a8;--hx-tab-soft:#edf6fc}
+#hxCompatModal .hx-compat-tab.tone-violet{--hx-tab-accent:#7453ad;--hx-tab-soft:#f4effb}
+#hxCompatModal .hx-compat-tab.tone-orange{--hx-tab-accent:#b96728;--hx-tab-soft:#fff2e8}
+#hxCompatModal .hx-compat-tab.tone-slate{--hx-tab-accent:#526a60;--hx-tab-soft:#f0f4f2}
+#hxCompatModal .hx-compat-tab.tone-rose{--hx-tab-accent:#a95568;--hx-tab-soft:#fbeff2}
+#hxCompatModal .hx-compat-tab.tone-cyan{--hx-tab-accent:#347f89;--hx-tab-soft:#edf8f9}
+#hxCompatModal .hx-compat-tab.tone-yellow{--hx-tab-accent:#9a7a13;--hx-tab-soft:#fff9df}
+#hxCompatModal .hx-compat-tab.tone-neutral{--hx-tab-accent:#66756e;--hx-tab-soft:#f3f5f4}
 #hxCompatModal .hx-tab-icon{
   font-size:16px;
   line-height:18px;
@@ -7950,7 +7889,7 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
   overflow:hidden;
   background:#fff;
 }
-#hxCompatModal .hx-compat-qty button,
+#hxCompatModal .hx-compat-step,
 #hxCompatModal .hx-compat-qty span{
   display:grid;
   place-items:center;
@@ -7962,11 +7901,11 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
   font-weight:800;
 
   background-image:none;}
-#hxCompatModal .hx-compat-qty button{
+#hxCompatModal .hx-compat-step{
   cursor:pointer;
   transition:background .15s ease,color .15s ease;
 }
-#hxCompatModal .hx-compat-qty button:hover{
+#hxCompatModal .hx-compat-step:hover{
   background:#f1f6f3;
   color:#0b6c40;
 }
@@ -8012,7 +7951,7 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
 
 #hxCompatModal .hx-compat-close,
 #hxCompatModal .hx-compat-tabs button,
-#hxCompatModal .hx-compat-qty button,
+#hxCompatModal .hx-compat-step,
 #hxCompatModal .hx-compat-qty span,
 #hxCompatModal .hx-compat-add{
   background:#fff;
@@ -8021,11 +7960,11 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
 #hxCompatModal .hx-compat-close{
   border:1px solid #d3ded8;
 }
-#hxCompatModal .hx-compat-tabs button{
+#hxCompatModal .hx-compat-tab{
   border-top:0;
   border-bottom:0;
 }
-#hxCompatModal .hx-compat-qty button,
+#hxCompatModal .hx-compat-step,
 #hxCompatModal .hx-compat-qty span{
   border:0;
 }
@@ -8033,7 +7972,7 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
   border:1px solid #62a07f;
   color:#167347;
 }
-#hxCompatModal .hx-compat-tabs button.is-active{
+#hxCompatModal .hx-compat-tab.is-active{
   color:var(--hx-tab-accent);
   background:var(--hx-tab-soft);
 }
@@ -8084,7 +8023,7 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
     min-height:66px;
     margin:0 9px 7px;
   }
-  #hxCompatModal .hx-compat-tabs button{
+  #hxCompatModal .hx-compat-tab{
     flex:0 0 112px;
     min-width:112px;
     height:66px;
@@ -8149,3 +8088,87 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
     font-size:8.8px;
   }
 }
+
+
+/* BUSCADOR — fotos restauradas desde base buena */
+
+
+
+
+
+.hx-product-thumb{
+  flex:0 0 44px;
+  width:44px;
+  height:44px;
+  padding:3px;
+  margin:0;
+  border:1px solid var(--border,rgba(127,127,127,.25));
+  border-radius:8px;
+  background:#fff;
+  overflow:hidden;
+  box-sizing:border-box;
+  cursor:zoom-in;
+}
+
+.hx-product-thumb img{
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+
+.hx-product-thumb.hx-image-error{display:none}
+
+
+  .hx-product-thumb{
+    flex-basis:38px;
+    width:38px;
+    height:38px;
+    border-radius:7px;
+  }
+
+.result-item-visual .hx-product-thumb{
+  flex:0 0 32px;
+  width:32px;
+  height:32px;
+  padding:2px;
+  border-radius:6px;
+}
+
+  .result-item-visual .hx-product-thumb{
+    flex-basis:30px;
+    width:30px;
+    height:30px;
+  }
+
+
+
+/* =====================================================
+   EXPLORER 2.0.1 - Fondo uniforme para fotografías
+   Afecta a las miniaturas de producto en toda la app.
+   ===================================================== */
+.hx-product-thumb{
+  background:linear-gradient(145deg,#e8edf1,#dbe2e7)!important;
+  border-color:#8d9ba5!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.42)!important;
+}
+
+body.light-mode .hx-product-thumb,
+body.light .hx-product-thumb,
+body.claro .hx-product-thumb{
+  background:linear-gradient(145deg,#f0f3f5,#e2e7ea)!important;
+  border-color:#b4c0c7!important;
+}
+
+.hx-product-thumb:hover,button.hx-product-thumb:hover{background:#333a41!important;border-color:#69747e!important;transform:none!important;}
+
+.hx-product-thumb img{background:transparent!important;}
+
+body.light-mode .hx-product-thumb,
+body.light-mode button.hx-product-thumb,
+body.light .hx-product-thumb,
+body.claro .hx-product-thumb{background:#eef1f3!important;background-image:none!important;border-color:#c4ccd2!important;}
+
+body.light-mode .hx-product-thumb:hover,body.light-mode button.hx-product-thumb:hover{background:#e4e9ec!important;border-color:#aeb9c1!important;}

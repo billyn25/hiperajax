@@ -298,7 +298,7 @@ function hxEnsureCompatModal(){
   if(modal)return modal;
   modal=document.createElement('div');modal.id='hxCompatModal';modal.className='hx-compat-modal hidden';
   modal.innerHTML=`<div class="hx-compat-backdrop" data-hx-compat-close></div><section class="hx-compat-dialog" role="dialog" aria-modal="true">
-  <header class="hx-compat-header"><div class="hx-compat-heading"><strong id="hxCompatTitle">Compatibles</strong><span id="hxCompatOfficial" class="hx-compat-official"></span></div><button type="button" class="hx-compat-close" data-hx-compat-close>×</button></header>
+  <header class="hx-compat-header"><div class="hx-compat-heading"><strong id="hxCompatTitle">Compatibles</strong><span id="hxCompatOfficial" class="hx-compat-official"></span></div><span class="hx-compat-close hx-compat-control" role="button" tabindex="0" data-hx-compat-close>×</span></header>
   <div id="hxCompatOrigin" class="hx-compat-origin"></div>
   <nav id="hxCompatTabs" class="hx-compat-tabs"></nav>
   <div class="hx-compat-results-head"><strong id="hxCompatCount"></strong></div>
@@ -307,6 +307,13 @@ function hxEnsureCompatModal(){
   <div class="hx-compat-note"><strong>Relaciones oficiales del catálogo de Visiotech Connect.</strong><span>Mostramos solo compatibles que existen en nuestro catálogo.</span></div></section>`;
   document.body.appendChild(modal);
   modal.addEventListener('click',ev=>{if(ev.target.closest('[data-hx-compat-close]'))modal.classList.add('hidden')});
+  modal.addEventListener('keydown',ev=>{
+    if(ev.key!=='Enter' && ev.key!==' ') return;
+    const control=ev.target.closest('.hx-compat-control');
+    if(!control) return;
+    ev.preventDefault();
+    control.click();
+  });
   return modal;
 }
 function hxOpenCompatibles(product){
@@ -328,7 +335,7 @@ const functionalOrder=['detectores','baterias','valvulas','teclados','mandos','s
   let active='todos';
   function paint(){
     const shown=active==='todos'?all:all.filter(p=>hxCompatFunctionalType(p).key===active);
-    tabs.innerHTML=groups.map(group=>`<button type="button" class="${active===group.key?'is-active':''} tone-${group.tone||'neutral'}" data-hx-tab="${group.key}"><span class="hx-tab-icon">${group.icon}</span><span>${group.label} <em>(${group.count})</em></span></button>`).join('');
+    tabs.innerHTML=groups.map(group=>`<span class="hx-compat-tab hx-compat-control ${active===group.key?'is-active':''} tone-${group.tone||'neutral'}" role="button" tabindex="0" data-hx-tab="${group.key}"><span class="hx-tab-icon">${group.icon}</span><span>${group.label} <em>(${group.count})</em></span></span>`).join('');
     count.textContent=`${shown.length} producto${shown.length===1?'':'s'} compatible${shown.length===1?'':'s'}`;
     list.innerHTML=shown.map((p,i)=>{const image=hxCompatImage(p),desc=(p?.short_description||p?.description||'').trim(),stock=hxCompatStock(p),price=Number(p?.pvp??p?.PVP??p?.precio_venta_cliente_final??0);return `<article class="hx-compat-item" data-hx-compat-row="${i}">
   <div class="hx-compat-photo">${image?`<img src="${escapeHtml(image)}" alt="">`:''}</div>
@@ -346,11 +353,11 @@ const functionalOrder=['detectores','baterias','valvulas','teclados','mandos','s
   <div class="hx-compat-commerce">
     <strong>${price?fmt.format(price):''}</strong>
     <div class="hx-compat-qty" aria-label="Cantidad">
-      <button type="button" data-hx-compat-minus="${i}">−</button>
+      <span class="hx-compat-step hx-compat-control" role="button" tabindex="0" data-hx-compat-minus="${i}">−</span>
       <span data-hx-compat-qty="${i}">1</span>
-      <button type="button" data-hx-compat-plus="${i}">+</button>
+      <span class="hx-compat-step hx-compat-control" role="button" tabindex="0" data-hx-compat-plus="${i}">+</span>
     </div>
-    <button type="button" class="hx-compat-add" data-hx-compat-add="${i}">Añadir</button>
+    <span class="hx-compat-add hx-compat-control" role="button" tabindex="0" data-hx-compat-add="${i}">Añadir</span>
   </div>
 </article>`}).join('');
     tabs.querySelectorAll('[data-hx-tab]').forEach(b=>b.addEventListener('click',()=>{active=b.dataset.hxTab;paint()}));
