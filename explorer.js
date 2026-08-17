@@ -1912,7 +1912,7 @@
       <div class="hxp-product-main">
         ${productImage(product)}
         <div class="hxp-product-copy">
-          <div class="hxp-product-refline"><strong class="hxp-product-ref">${esc(product.name || 'Sin referencia')}</strong>${fullDescription ? `<button type="button" class="hxp-description-toggle hxp-detail-ref" data-hxp-description-toggle aria-expanded="false" aria-label="Ver detalle">▾</button>` : ''}</div>
+          <div class="hxp-product-refline"><strong class="hxp-product-ref">${esc(product.name || 'Sin referencia')}</strong>${fullDescription ? `<span class="hxp-description-toggle hxp-detail-ref" role="button" tabindex="0" data-hxp-description-toggle aria-expanded="false" aria-label="Ver detalle"><span class="hxp-detail-icon" aria-hidden="true">⌄</span></span>` : ''}</div>
           <span class="hxp-product-description">${esc(description)}</span>
           ${fullDescription ? `<div class="hxp-product-long-description">${esc(fullDescription)}</div>` : ''}
           ${newClass}
@@ -2432,7 +2432,15 @@
         button.setAttribute('aria-expanded',String(opening));
         button.setAttribute('aria-label',opening?'Ocultar detalle':'Ver detalle');
         button.setAttribute('title',opening?'Ocultar detalle':'Ver detalle');
-        button.textContent=opening?'▴':'▾';
+        const icon=button.querySelector('.hxp-detail-icon');
+        if(icon) icon.textContent=opening?'⌃':'⌄';
+      });
+      root.addEventListener('keydown', event => {
+        if(event.key!=='Enter' && event.key!==' ') return;
+        const control=event.target.closest('[data-hxp-description-toggle]');
+        if(!control || !root.contains(control)) return;
+        event.preventDefault();
+        control.click();
       });
     }
     const search = byId('hxpSearch');

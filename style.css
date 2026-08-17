@@ -6238,7 +6238,7 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
   overflow:hidden;
   text-overflow:ellipsis;
 }@media(max-width:760px){
-  .result-item-visual{gap:8px;padding:8px 9px}.result-item-visual .hx-product-copy span{
+  .result-item-visual{gap:10px;padding:7px 9px;min-height:62px}.result-item-visual .hx-product-copy span{
     display:block;
     white-space:nowrap;
   }
@@ -7583,9 +7583,9 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
     border-radius:7px;
   }
 
-.result-item-visual .hx-product-thumb{flex:0 0 42px;width:42px;height:42px;padding:3px;border-radius:8px;}
+.result-item-visual .hx-product-thumb{flex:0 0 54px;width:54px;height:54px;padding:3px;border-radius:9px;}
 
-  .result-item-visual .hx-product-thumb{flex:0 0 42px;width:42px;height:42px;padding:3px;border-radius:8px;}
+  .result-item-visual .hx-product-thumb{flex:0 0 54px;width:54px;height:54px;padding:3px;border-radius:9px;}
 
 
 

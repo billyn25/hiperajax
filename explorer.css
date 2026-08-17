@@ -2336,44 +2336,6 @@ body.light-mode .hxp-budget-mini b{
 
 
 
-/* Detalle Explorer — única implementación */
-.hxp-product-refline{display:flex;align-items:center;gap:6px;min-width:0}
- .hxp-detail-ref{
-  flex:0 0 20px;
-  width:20px;
-  height:20px;
-  min-width:20px;
-  min-height:20px;
-  display:inline-grid;
-  place-items:center;
-  margin:0;
-  padding:0;
-  border:1px solid #bfcac4;
-  border-radius:7px;
-  background:#ffffff;
-  background-image:none;
-  color:#42564d;
-  box-shadow:none;
-  font-size:0;
-  font-weight:700;
-  line-height:1;
-  text-align:center;
-  cursor:pointer;
-}
-.hxp-detail-ref::before{
-  content:'▾';
-  display:block;
-  color:#42564d;
-  font-size:11px;
-  line-height:1;
-  transform:translateY(-1px);
-}
-.hxp-detail-ref[aria-expanded="true"]::before{
-  content:'▴';
-}
-
-
-.hxp-product-long-description{display:none}.hxp-product.is-detail-open .hxp-product-long-description{display:block}
 
 /* Compatible Explorer — única regla */
 #familiasGrid .hxp-product-actions .hxp-compatible-btn{display:inline-flex;align-items:center;justify-content:center;height:30px;min-height:30px;min-width:auto;padding:0 9px;margin:0;border:1px solid #7ea692;border-radius:9px;background:#fff;background-image:none;color:#245440;box-shadow:none;font-size:10px;font-weight:800;line-height:1;white-space:nowrap;cursor:pointer}
@@ -2417,3 +2379,19 @@ body.light-mode .hxp-budget-mini b{
   background:#eef2f0;
   color:#435149;
 }
+
+/* Detalle Explorer — icono neutro */
+.hxp-product-refline{display:flex;align-items:center;gap:6px;min-width:0}
+.hxp-detail-ref{flex:0 0 20px;width:20px;height:20px;min-width:20px;min-height:20px;display:inline-grid;place-items:center;box-sizing:border-box;margin:0;padding:0;border:1px solid #c3cec8;border-radius:7px;background:#fff;color:#465a50;box-shadow:none;cursor:pointer;user-select:none}
+.hxp-detail-icon{display:block;width:100%;text-align:center;font-size:14px;font-weight:700;line-height:16px;transform:translateY(-1px)}
+.hxp-detail-ref:hover{background:#f3f6f4;border-color:#98aaa0;color:#273b31}
+.hxp-product-long-description{display:none}.hxp-product.is-detail-open .hxp-product-long-description{display:block}
+body:not(.light-mode) .hxp-detail-ref{border-color:#53675d;background:rgba(255,255,255,.035);color:#c8d4ce}
+body:not(.light-mode) .hxp-detail-ref:hover{background:rgba(255,255,255,.08);border-color:#71877b;color:#fff}
+
+/* Resumen presupuesto Explorer — neutro definitivo */
+#familiasModal .hxp-budget-pill,#familiasModal .hxp-budget-dismiss,#familiasModal .hxp-budget-mini{background:#f8faf9;background-image:none;color:#34443c;border-color:#cfd9d4;box-shadow:0 6px 18px rgba(30,50,40,.12)}
+#familiasModal .hxp-budget-cart{background:#eef2f0;color:#4b5d54}
+#familiasModal .hxp-budget-mini b{background:#e9efec;color:#435149}
+body:not(.light-mode) #familiasModal .hxp-budget-pill,body:not(.light-mode) #familiasModal .hxp-budget-dismiss,body:not(.light-mode) #familiasModal .hxp-budget-mini{background:#222925;background-image:none;color:#edf2ef;border-color:#536159}
+body:not(.light-mode) #familiasModal .hxp-budget-cart{background:#303a35;color:#dbe5e0}
