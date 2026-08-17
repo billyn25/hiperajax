@@ -7902,3 +7902,113 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
     font-size:10px!important;
   }
 }
+
+
+/* Compatibles tabs stable */
+#hxCompatModal .hx-compat-tabs{
+  display:grid!important;
+  grid-auto-flow:column!important;
+  grid-auto-columns:minmax(112px,1fr)!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scrollbar-width:none!important;
+  scroll-snap-type:x proximity!important;
+}
+#hxCompatModal .hx-compat-tabs::-webkit-scrollbar{display:none!important}
+#hxCompatModal .hx-compat-tabs button{
+  min-width:112px!important;
+  scroll-snap-align:start!important;
+  flex:none!important;
+}
+@media(max-width:640px){
+  #hxCompatModal .hx-compat-tabs{
+    grid-auto-columns:108px!important;
+  }
+  #hxCompatModal .hx-compat-tabs button{
+    min-width:108px!important;
+  }
+}
+
+
+/* Compatibles móvil compactación final */
+@media(max-width:640px){
+  #hxCompatModal .hx-compat-list{padding-bottom:4px!important}
+  #hxCompatModal .hx-compat-item{
+    grid-template-columns:62px minmax(0,1fr)!important;
+    grid-template-areas:
+      "photo main"
+      "commerce commerce"!important;
+    gap:7px 9px!important;
+    padding:8px!important;
+    margin-bottom:6px!important;
+    border-radius:12px!important;
+  }
+  #hxCompatModal .hx-compat-photo{
+    width:62px!important;height:62px!important;border-radius:9px!important;
+  }
+  #hxCompatModal .hx-compat-refline>strong{
+    font-size:12px!important;
+  }
+  #hxCompatModal .hx-compat-refline>span{
+    font-size:7.5px!important;
+    padding:2px 5px!important;
+  }
+  #hxCompatModal .hx-compat-main p{
+    margin:3px 0 4px!important;
+    font-size:9.2px!important;
+    line-height:1.28!important;
+    -webkit-line-clamp:3!important;
+  }
+  #hxCompatModal .hx-compat-meta small{
+    font-size:8px!important;
+    padding:3px 5px!important;
+  }
+  #hxCompatModal .hx-compat-commerce{
+    grid-template-columns:auto minmax(108px,1fr) 82px!important;
+    grid-template-areas:"price qty add"!important;
+    gap:6px!important;
+    margin-top:0!important;
+  }
+  #hxCompatModal .hx-compat-commerce>strong{
+    font-size:13.5px!important;
+  }
+  #hxCompatModal .hx-compat-qty{
+    height:34px!important;
+    grid-template-columns:30px minmax(34px,1fr) 30px!important;
+  }
+  #hxCompatModal button.hx-compat-add{
+    height:34px!important;
+    min-width:82px!important;
+    padding:0 8px!important;
+    font-size:10px!important;
+  }
+  #hxCompatModal .hx-compat-origin{
+    grid-template-columns:62px minmax(0,1fr)!important;
+    padding:8px!important;
+    margin-bottom:6px!important;
+  }
+  #hxCompatModal .hx-compat-origin>img{
+    width:62px!important;height:62px!important;
+  }
+  #hxCompatModal .hx-compat-origin-title strong{
+    font-size:12px!important;
+  }
+  #hxCompatModal .hx-compat-origin-copy>span{
+    font-size:9.2px!important;
+    line-height:1.28!important;
+    -webkit-line-clamp:2!important;
+  }
+  #hxCompatModal .hx-compat-note{
+    padding:7px 9px!important;
+    font-size:8.5px!important;
+  }
+}
+@media(max-width:390px){
+  #hxCompatModal .hx-compat-commerce{
+    grid-template-columns:auto minmax(100px,1fr) 76px!important;
+  }
+  #hxCompatModal button.hx-compat-add{
+    min-width:76px!important;
+    padding:0 6px!important;
+  }
+}

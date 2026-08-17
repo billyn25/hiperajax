@@ -2532,3 +2532,86 @@ body.light-mode .hxp-budget-mini b{
     font-size:11px!important;
   }
 }
+
+
+/* Explorer móvil compactación final */
+@media(max-width:640px){
+  .hxp-products-scroll{padding-top:8px!important}
+  .hxp-product{
+    gap:6px 10px!important;
+    padding:9px 10px!important;
+    border-radius:14px!important;
+  }
+  .hxp-product-media{
+    width:72px!important;
+    min-width:72px!important;
+    height:72px!important;
+  }
+  .hxp-product-ref{
+    font-size:14px!important;
+    margin:0 0 3px!important;
+  }
+  .hxp-product-description{
+    font-size:11px!important;
+    line-height:1.28!important;
+    -webkit-line-clamp:2!important;
+  }
+  .hxp-description-toggle{
+    margin-top:3px!important;
+    font-size:10px!important;
+  }
+  .hxp-product-meta{
+    padding-left:82px!important;
+    min-height:20px!important;
+    gap:4px!important;
+    margin-top:-2px!important;
+  }
+  .hxp-product-commerce{
+    margin-top:0!important;
+    gap:5px!important;
+  }
+  .hxp-price{
+    font-size:16px!important;
+    margin-bottom:0!important;
+  }
+  .hxp-product-actions{
+    grid-template-columns:minmax(104px,1fr) 66px 80px!important;
+    gap:6px!important;
+  }
+  .hxp-product-actions .hx-qty-control,
+  .hxp-product-actions [class*="qty"]{
+    height:36px!important;
+    min-height:36px!important;
+  }
+  #hxpRoot .hxp-compatible-btn,
+  .hxp-shell .hxp-compatible-btn,
+  button.hxp-compatible-btn{
+    height:36px!important;
+    min-height:36px!important;
+    min-width:66px!important;
+    padding:0 7px!important;
+    font-size:10px!important;
+  }
+  .hxp-add{
+    height:36px!important;
+    min-height:36px!important;
+    min-width:80px!important;
+    padding:0 10px!important;
+    font-size:11px!important;
+  }
+}
+@media(max-width:390px){
+  .hxp-product{
+    grid-template-columns:64px minmax(0,1fr)!important;
+    gap:6px 8px!important;
+    padding:9px!important;
+  }
+  .hxp-product-media{
+    width:64px!important;min-width:64px!important;height:64px!important;
+  }
+  .hxp-product-meta{padding-left:72px!important}
+  .hxp-product-actions{
+    grid-template-columns:minmax(94px,1fr) 60px 74px!important;
+    gap:5px!important;
+  }
+}

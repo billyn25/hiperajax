@@ -179,17 +179,42 @@ function hxRelatedCategory(product){
     product?.category, product?.category_parent, product?.family,
     product?.subcategory, product?.product_type
   ].filter(Boolean).join(' '));
-  const short = normaliza([product?.name, product?.short_description].filter(Boolean).join(' '));
+  const short = normaliza(String(product?.short_description||''));
 
+  const own = `${ref} ${taxonomy} ${short}`;
+
+  // 0 Soportes / montaje: el producto ES físicamente un soporte, holder,
+  // bracket, junction box o elemento de montaje.
   if(
-    /(?:^|[-_])(bracket|mount|holder|junctionbox|junction)(?:[-_]|$)/.test(ref)
-    || /\b(bracket|mount|holder|junction ?box|caja de conexiones|caja conexiones|soporte para|soporte de montaje)\b/.test(short)
-    || /\b(soportes?|montaje|junction ?box|cajas? de conexiones)\b/.test(taxonomy)
+    /(?:^|[-_])(bracket|mount|holder|junctionbox|junction|dinholder)(?:[-_]|$)/.test(ref)
+    || /\b(bracket|mount|holder|junction ?box|caja de conexiones|caja conexiones|soporte para|soporte de montaje|soporte pared|soporte techo|soporte poste)\b/.test(own)
   ) return 0;
 
-  if(/\b(alimentacion|fuentes?|power supply|adaptador|adapter|poe|inyector)\b/.test(taxonomy+' '+short)) return 1;
-  if(/\b(disco|hdd|ssd|almacenamiento|storage|tarjeta sd|micro ?sd)\b/.test(taxonomy+' '+short)) return 2;
-  if(/\b(repuesto|recambio|dummy|carcasa|cover|tapa|pcb|bateria|pila)\b/.test(taxonomy+' '+short)) return 4;
+  // 1 Alimentación: el producto ES una pila/batería/fuente/adaptador/inyector.
+  // No clasificar equipos que simplemente "se alimentan con" una pila.
+  if(
+    /^(?:\d+x)?batt[-_]/.test(ref)
+    || /(?:^|[-_])(battery|bateria|pila|psu|power|adapter|adaptador|injector|inyector)(?:[-_]|$)/.test(ref)
+    || /\b(pila|bateria|batería|fuente de alimentacion|fuente de alimentación|alimentador|adaptador de corriente|inyector poe|power supply)\b/.test(taxonomy)
+    || /^\s*(pila|bateria|batería|fuente|alimentador|adaptador|inyector)\b/.test(short)
+  ) return 1;
+
+  // 2 Almacenamiento: el producto ES almacenamiento.
+  if(
+    /(?:^|[-_])(hdd|ssd|sd|microsd)(?:[-_]|$)/.test(ref)
+    || /\b(discos? duros?|hdd|ssd|almacenamiento|tarjetas? sd|micro ?sd|storage)\b/.test(taxonomy)
+    || /^\s*(disco|hdd|ssd|tarjeta sd|micro ?sd)\b/.test(short)
+  ) return 2;
+
+  // 4 Repuestos: el producto ES un repuesto/carcasa/dummy/PCB/lente/cubierta.
+  if(
+    /(?:^|[-_])(dummy|pcb|cover|lens|carcasa|repuesto)(?:[-_]|$)/.test(ref)
+    || /\b(repuestos?|recambio|dummy|carcasa|cover|tapa|pcb|lente)\b/.test(taxonomy)
+    || /^\s*(repuesto|recambio|carcasa|tapa|pcb|lente)\b/.test(short)
+  ) return 4;
+
+  // Todo lo demás es un compatible funcional, aunque su ficha mencione
+  // alimentación, montaje o baterías.
   return 3;
 }
 
