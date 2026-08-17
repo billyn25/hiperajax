@@ -2366,3 +2366,46 @@ body.light-mode .hxp-budget-mini b{
     text-align:center;
   }
 }
+
+
+/* Detalle integrado: mismo comportamiento, menos espacio */
+.hxp-description-info{
+  display:inline-grid!important;
+  place-items:center!important;
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  min-height:22px!important;
+  margin:4px 0 0!important;
+  padding:0!important;
+  border:1px solid #c9d8d0!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#23704c!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  font-family:Georgia,serif!important;
+  font-style:italic!important;
+  line-height:1!important;
+  box-shadow:none!important;
+  vertical-align:middle!important;
+}
+.hxp-description-info:hover{
+  background:#eef8f3!important;
+  border-color:#8fbaa3!important;
+}
+.hxp-description-info[aria-expanded="true"]{
+  font-family:inherit!important;
+  font-style:normal!important;
+  background:#eef8f3!important;
+}
+@media(max-width:640px){
+  .hxp-description-info{
+    width:20px!important;
+    height:20px!important;
+    min-width:20px!important;
+    min-height:20px!important;
+    margin-top:3px!important;
+    font-size:11px!important;
+  }
+}

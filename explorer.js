@@ -1914,7 +1914,7 @@
         <div class="hxp-product-copy">
           <strong class="hxp-product-ref">${esc(product.name || 'Sin referencia')}</strong>
           <span class="hxp-product-description">${esc(description)}</span>
-          ${fullDescription ? `<button type="button" class="hxp-description-toggle" data-hxp-description-toggle aria-expanded="false">Ver detalle</button><div class="hxp-product-long-description" hidden>${esc(fullDescription)}</div>` : ''}
+          ${fullDescription ? `<button type="button" class="hxp-description-toggle hxp-description-info" data-hxp-description-toggle aria-expanded="false" aria-label="Ver detalle" title="Ver detalle">i</button><div class="hxp-product-long-description" hidden>${esc(fullDescription)}</div>` : ''}
           ${newClass}
           <div class="hxp-product-meta">${stockBadge(product)}${productMeta(product)}</div>
         </div>
@@ -2412,7 +2412,9 @@
         const opening=detail.hidden;
         detail.hidden=!opening;
         button.setAttribute('aria-expanded',String(opening));
-        button.textContent=opening?'Ocultar detalle':'Ver detalle';
+        button.textContent=opening?'×':'i';
+        button.setAttribute('aria-label',opening?'Ocultar detalle':'Ver detalle');
+        button.setAttribute('title',opening?'Ocultar detalle':'Ver detalle');
       });
     });
     root.querySelectorAll('[data-hxp-add]').forEach(button => {

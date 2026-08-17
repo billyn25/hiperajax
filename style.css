@@ -7978,3 +7978,84 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
     margin-top:auto!important;
   }
 }
+
+
+/* Aviso interno del modal de Compatibles */
+#hxCompatModal .hx-compat-added-notice{
+  flex:0 0 auto!important;
+  margin:2px 18px 5px!important;
+  min-height:0!important;
+  max-height:0!important;
+  padding:0 11px!important;
+  overflow:hidden!important;
+  border:1px solid transparent!important;
+  border-radius:10px!important;
+  background:#eef8f3!important;
+  color:#176e45!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  line-height:1.25!important;
+  opacity:0!important;
+  transform:translateY(3px)!important;
+  transition:opacity .16s ease,transform .16s ease,max-height .16s ease,padding .16s ease!important;
+  pointer-events:none!important;
+}
+#hxCompatModal .hx-compat-added-notice.is-visible{
+  max-height:42px!important;
+  padding:7px 11px!important;
+  border-color:#c9e7d7!important;
+  opacity:1!important;
+  transform:translateY(0)!important;
+}
+#hxCompatModal button.hx-compat-add.is-added{
+  background:#eef8f3!important;
+  border-color:#7ab697!important;
+  color:#126c42!important;
+}
+@media(max-width:640px){
+  #hxCompatModal .hx-compat-added-notice{
+    margin:2px 9px 5px!important;
+    font-size:9.5px!important;
+  }
+}
+
+
+/* Compatibles — filtros funcionales + modal fijo en móvil */
+#hxCompatModal .hx-compat-tabs button{--hx-tab-accent:#0d8a50;--hx-tab-soft:#eef8f3}
+#hxCompatModal .hx-compat-tabs button.tone-amber{--hx-tab-accent:#b7791f;--hx-tab-soft:#fff7e6}
+#hxCompatModal .hx-compat-tabs button.tone-blue{--hx-tab-accent:#3978a8;--hx-tab-soft:#edf6fc}
+#hxCompatModal .hx-compat-tabs button.tone-violet{--hx-tab-accent:#7453ad;--hx-tab-soft:#f4effb}
+#hxCompatModal .hx-compat-tabs button.tone-orange{--hx-tab-accent:#b96728;--hx-tab-soft:#fff2e8}
+#hxCompatModal .hx-compat-tabs button.tone-slate{--hx-tab-accent:#526a60;--hx-tab-soft:#f0f4f2}
+#hxCompatModal .hx-compat-tabs button.tone-rose{--hx-tab-accent:#a95568;--hx-tab-soft:#fbeff2}
+#hxCompatModal .hx-compat-tabs button.tone-cyan{--hx-tab-accent:#347f89;--hx-tab-soft:#edf8f9}
+#hxCompatModal .hx-compat-tabs button.tone-yellow{--hx-tab-accent:#9a7a13;--hx-tab-soft:#fff9df}
+#hxCompatModal .hx-compat-tabs button.tone-neutral{--hx-tab-accent:#66756e;--hx-tab-soft:#f3f5f4}
+#hxCompatModal .hx-compat-tabs button.is-active{color:var(--hx-tab-accent)!important;background:var(--hx-tab-soft)!important;box-shadow:inset 0 -3px 0 var(--hx-tab-accent)!important}
+#hxCompatModal .hx-compat-tabs button:not(.is-active):hover{background:var(--hx-tab-soft)!important;color:var(--hx-tab-accent)!important}
+#hxCompatModal .hx-compat-tabs button .hx-tab-icon{color:var(--hx-tab-accent)!important}
+
+@media(max-width:640px){
+  #hxCompatModal .hx-compat-dialog{
+    height:calc(100dvh - 122px)!important;
+    min-height:calc(100dvh - 122px)!important;
+    max-height:calc(100dvh - 122px)!important;
+  }
+  @supports not (height:100dvh){
+    #hxCompatModal .hx-compat-dialog{
+      height:calc(100vh - 122px)!important;
+      min-height:calc(100vh - 122px)!important;
+      max-height:calc(100vh - 122px)!important;
+    }
+  }
+  #hxCompatModal .hx-compat-header,#hxCompatModal .hx-compat-origin,#hxCompatModal .hx-compat-tabs,
+  #hxCompatModal .hx-compat-results-head,#hxCompatModal .hx-compat-added-notice,#hxCompatModal .hx-compat-note{
+    flex:0 0 auto!important;
+  }
+  #hxCompatModal .hx-compat-list{
+    flex:1 1 0!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+  }
+}

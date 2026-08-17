@@ -263,9 +263,33 @@ function hxCompatStock(product){
   return {text:'', cls:''};
 }
 
-function hxCompatCategoryLabel(product){
-  return ['Soporte / montaje','Alimentación','Almacenamiento','Compatible','Repuesto'][hxRelatedCategory(product)]||'Compatible';
+
+function hxCompatFunctionalType(product){
+  const ref=normaliza(String(product?.name||''));
+  const taxonomy=normaliza([product?.category,product?.category_parent,product?.family,product?.subcategory,product?.product_type].filter(Boolean).join(' '));
+  const short=normaliza(String(product?.short_description||''));
+  const own=`${ref} ${taxonomy} ${short}`;
+
+  if(/^(?:\d+x)?batt[-_]/.test(ref) || /\b(pila|pilas|bateria|baterias|batería|baterías|battery|batteries)\b/.test(taxonomy) || /^\s*(pila|bateria|batería|pack de .*pilas|pack de .*baterias)\b/.test(short))
+    return {key:'baterias',label:'Pilas / Baterías',icon:'▯',tone:'amber'};
+  if(/waterstop|valve|valvula|válvula|electrovalvula|electroválvula/.test(own))
+    return {key:'valvulas',label:'Válvulas',icon:'◉',tone:'blue'};
+  if(/keypad|teclado|touchscreen/.test(own))
+    return {key:'teclados',label:'Teclados',icon:'⌨',tone:'violet'};
+  if(/spacecontrol|doublebutton|button|boton|botón|mando/.test(own))
+    return {key:'mandos',label:'Mandos / Botones',icon:'●',tone:'orange'};
+  if(/(?:^|[-_])(bracket|mount|holder|junctionbox|junction|dinholder)(?:[-_]|$)/.test(ref) || /\b(bracket|mount|holder|junction ?box|caja de conexiones|soporte para|soporte de montaje|soporte pared|soporte techo|soporte poste)\b/.test(own))
+    return {key:'soportes',label:'Soportes',icon:'⌘',tone:'slate'};
+  if(/(?:^|[-_])(dummy|pcb|cover|lens|carcasa|repuesto)(?:[-_]|$)/.test(ref) || /\b(repuestos?|recambio|dummy|carcasa|cover|tapa|pcb|lente)\b/.test(taxonomy) || /^\s*(repuesto|recambio|carcasa|tapa|pcb|lente)\b/.test(short))
+    return {key:'repuestos',label:'Repuestos',icon:'↻',tone:'rose'};
+  if(/(?:^|[-_])(hdd|ssd|sd|microsd)(?:[-_]|$)/.test(ref) || /\b(discos? duros?|hdd|ssd|almacenamiento|tarjetas? sd|micro ?sd|storage)\b/.test(taxonomy) || /^\s*(disco|hdd|ssd|tarjeta sd|micro ?sd)\b/.test(short))
+    return {key:'almacenamiento',label:'Almacenamiento',icon:'◇',tone:'cyan'};
+  if(/\b(fuente de alimentacion|fuente de alimentación|alimentador|adaptador de corriente|inyector poe|power supply)\b/.test(taxonomy) || /(?:^|[-_])(psu|power|adapter|adaptador|injector|inyector)(?:[-_]|$)/.test(ref))
+    return {key:'alimentacion',label:'Alimentación',icon:'ϟ',tone:'yellow'};
+  return {key:'otros',label:'Otros',icon:'•••',tone:'neutral'};
 }
+
+function hxCompatCategoryLabel(product){ return hxCompatFunctionalType(product).label; }
 function hxEnsureCompatModal(){
   let modal=document.getElementById('hxCompatModal');
   if(modal)return modal;
@@ -273,6 +297,7 @@ function hxEnsureCompatModal(){
   modal.innerHTML=`<div class="hx-compat-backdrop" data-hx-compat-close></div><section class="hx-compat-dialog" role="dialog" aria-modal="true">
   <header class="hx-compat-header"><div class="hx-compat-heading"><strong id="hxCompatTitle">Compatibles</strong><span id="hxCompatOfficial" class="hx-compat-official"></span></div><button type="button" class="hx-compat-close" data-hx-compat-close>×</button></header>
   <div id="hxCompatOrigin" class="hx-compat-origin"></div><nav id="hxCompatTabs" class="hx-compat-tabs"></nav><div class="hx-compat-results-head"><strong id="hxCompatCount"></strong></div><div id="hxCompatList" class="hx-compat-list"></div>
+  <div id="hxCompatAddedNotice" class="hx-compat-added-notice" aria-live="polite"></div>
   <div class="hx-compat-note"><strong>Relaciones oficiales del catálogo de Visiotech Connect.</strong><span>Mostramos solo compatibles que existen en nuestro catálogo.</span></div></section>`;
   document.body.appendChild(modal);
   modal.addEventListener('click',ev=>{if(ev.target.closest('[data-hx-compat-close]'))modal.classList.add('hidden')});
@@ -284,11 +309,20 @@ function hxOpenCompatibles(product){
   title.textContent=`Compatibles con ${product?.name||''}`;official.textContent=`${all.length} compatible${all.length===1?'':'s'} oficial${all.length===1?'':'es'}`;
   const oi=hxCompatImage(product),od=(product?.short_description||product?.description||'').trim();
   origin.innerHTML=`${oi?`<img src="${escapeHtml(oi)}" alt="">`:''}<div class="hx-compat-origin-copy"><div class="hx-compat-origin-title"><strong>${escapeHtml(product?.name||'')}</strong><em>✓ Producto actual</em></div><span>${escapeHtml(od)}</span></div>`;
-const groups=[['Todos',null,'⊞'],['Soportes',0,'⌘'],['Alimentación',1,'ϟ'],['Almacenamiento',2,'◇'],['Otros',3,'•••'],['Repuestos',4,'↻']];
-  const counts=Object.fromEntries(groups.map(([l,c])=>[l,c===null?all.length:all.filter(p=>hxRelatedCategory(p)===c).length]));let active='Todos';
+const functionalOrder=['baterias','valvulas','teclados','mandos','soportes','alimentacion','almacenamiento','repuestos','otros'];
+  const discovered=new Map();
+  all.forEach(p=>{ const t=hxCompatFunctionalType(p); if(!discovered.has(t.key)) discovered.set(t.key,t); });
+  const groups=[
+    {key:'todos',label:'Todos',icon:'⊞',tone:'green',count:all.length},
+    ...functionalOrder.filter(key=>discovered.has(key)).map(key=>{
+      const t=discovered.get(key);
+      return {...t,count:all.filter(p=>hxCompatFunctionalType(p).key===key).length};
+    })
+  ];
+  let active='todos';
   function paint(){
-    const found=groups.find(x=>x[0]===active),shown=active==='Todos'?all:all.filter(p=>hxRelatedCategory(p)===found?.[1]);
-    tabs.innerHTML=groups.filter(([l])=>l==='Todos'||counts[l]>0).map(([l,c,icon])=>`<button type="button" class="${active===l?'is-active':''}" data-hx-tab="${l}"><span class="hx-tab-icon">${icon}</span><span>${l} <em>(${counts[l]})</em></span></button>`).join('');
+    const shown=active==='todos'?all:all.filter(p=>hxCompatFunctionalType(p).key===active);
+    tabs.innerHTML=groups.map(group=>`<button type="button" class="${active===group.key?'is-active':''} tone-${group.tone||'neutral'}" data-hx-tab="${group.key}"><span class="hx-tab-icon">${group.icon}</span><span>${group.label} <em>(${group.count})</em></span></button>`).join('');
     count.textContent=`${shown.length} producto${shown.length===1?'':'s'} compatible${shown.length===1?'':'s'}`;
     list.innerHTML=shown.map((p,i)=>{const image=hxCompatImage(p),desc=(p?.short_description||p?.description||'').trim(),stock=hxCompatStock(p),price=Number(p?.pvp??p?.PVP??p?.precio_venta_cliente_final??0);return `<article class="hx-compat-item" data-hx-compat-row="${i}">
   <div class="hx-compat-photo">${image?`<img src="${escapeHtml(image)}" alt="">`:''}</div>
@@ -352,12 +386,25 @@ const groups=[['Todos',null,'⊞'],['Soportes',0,'⌘'],['Alimentación',1,'ϟ']
         window.dispatchEvent(new CustomEvent('hxa:budget-updated',{
           detail:{source:'compatibles',product:p,quantity:qty}
         }));
-        window.dispatchEvent(new CustomEvent('hxa:product-added',{
-          detail:{source:'compatibles',name:String(p?.name||''),quantity:qty}
-        }));
       }catch(_error){}
+      try{
+        const notice=modal.querySelector('#hxCompatAddedNotice');
+        if(notice){
+          notice.textContent=`✓ ${qty}× ${String(p?.name||'Producto')} añadido al presupuesto`;
+          notice.classList.add('is-visible');
+          clearTimeout(modal.__hxCompatNoticeTimer);
+          modal.__hxCompatNoticeTimer=setTimeout(()=>notice.classList.remove('is-visible'),1800);
+        }
+      }catch(_error){}
+      const originalText=btn.dataset.hxOriginalText || btn.textContent || 'Añadir';
+      btn.dataset.hxOriginalText=originalText;
       btn.textContent='✓ Añadido';
-      btn.disabled=true;
+      btn.classList.add('is-added');
+      clearTimeout(btn.__hxCompatAddedTimer);
+      btn.__hxCompatAddedTimer=setTimeout(()=>{
+        btn.textContent=btn.dataset.hxOriginalText || 'Añadir';
+        btn.classList.remove('is-added');
+      },900);
     }));
   }paint();modal.classList.remove('hidden');
 }
@@ -6136,7 +6183,7 @@ window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
     hxDeleting416=true;
     window.HX_LOADING_SHOW?.('Eliminando presupuesto...');
     const btn=$416('pmDelete');
-    if(btn) btn.disabled=true;
+    if(btn) 
     try{
       const res=await fetch(HX_DELETE_416,{
         method:'POST',
