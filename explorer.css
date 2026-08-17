@@ -2369,5 +2369,9 @@ body.light-mode .hxp-budget-mini b{
 
 .hxp-product-refline{display:flex!important;align-items:center!important;gap:6px!important;min-width:0!important}.hxp-product-refline .hxp-product-ref{min-width:0!important;margin:0!important}.hxp-detail-ref{flex:0 0 20px!important;width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;border:1px solid #cbd9d1!important;border-radius:7px!important;background:#fff!important;color:#26704d!important;font-size:12px!important;font-weight:900!important;line-height:1!important;box-shadow:none!important}.hxp-detail-ref:hover{background:#eef8f3!important}@media(max-width:640px){.hxp-detail-ref{width:19px!important;height:19px!important;min-width:19px!important;min-height:19px!important;font-size:11px!important}}
 
-.hxp-product-refline{position:relative!important;z-index:2!important}
-.hxp-detail-ref{position:relative!important;z-index:3!important;pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important}
+/* Flecha detalle: apertura fiable sin cambiar diseño */
+.hxp-product-copy .hxp-product-long-description[hidden]{display:none!important}
+.hxp-product-copy:has(.hxp-detail-ref[aria-expanded="true"]) .hxp-product-long-description:not([hidden]){
+  display:block!important;
+}
+.hxp-detail-ref{pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important}

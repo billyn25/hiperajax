@@ -371,7 +371,19 @@ const functionalOrder=['detectores','baterias','valvulas','teclados','mandos','s
       const qty=Math.max(1,Number(qtyEl?.textContent||1));
       const ix=productos.indexOf(p);
       if(ix>=0){
-        hxAddProductoModal('compatibles', ix, qty, p?.name, p?.pvp);
+        seleccionarProducto(ix,true);
+        addLinea();
+        try{
+          const rows=Array.isArray(window.lineas)?window.lineas:(typeof lineas!=='undefined'&&Array.isArray(lineas)?lineas:[]);
+          for(let j=rows.length-1;j>=0;j--){
+            const row=rows[j];
+            if(row && String(row.name||'').trim()===String(p?.name||'').trim()){
+              row.qty=qty;
+              break;
+            }
+          }
+          if(typeof render==='function') render();
+        }catch(_error){}
       }
       try{
         window.dispatchEvent(new CustomEvent('hxa:budget-updated',{
@@ -381,9 +393,7 @@ const functionalOrder=['detectores','baterias','valvulas','teclados','mandos','s
       try{
         const notice=modal.querySelector('#hxCompatAddedNotice');
         if(notice){
-          const merged=lineas.slice().reverse().find(row=>row && String(row.name||'').trim()===String(p?.name||'').trim());
-          const totalQty=Math.max(qty,Number(merged?.qty)||qty);
-          notice.textContent=`✓ ${String(p?.name||'Producto')} · cantidad ${totalQty}`;
+          notice.textContent=`✓ ${qty}× ${String(p?.name||'Producto')} añadido al presupuesto`;
           notice.classList.add('is-visible');
           clearTimeout(modal.__hxCompatNoticeTimer);
           modal.__hxCompatNoticeTimer=setTimeout(()=>notice.classList.remove('is-visible'),1800);
@@ -914,7 +924,7 @@ function hxAddProductoModal(scope, idx, qty, ref=null, expectedPvp=null){
   if(!resolved.ok){ hxToastGlobal(resolved.error,'error'); return false; }
   const p = resolved.product;
 
-  const map = HX_MODAL_LINE[scope] || (HX_MODAL_LINE[scope]=new Map());
+  const map = HX_MODAL_LINE[scope];
   const key = hxRefProducto(p.name);
   const lineId = map?.get(key);
   const existing = lineId ? lineas.find(l=>l && l._hxModalLineId===lineId) : null;
@@ -923,7 +933,7 @@ function hxAddProductoModal(scope, idx, qty, ref=null, expectedPvp=null){
     const anterior = Math.max(1, Number(existing.qty)||1);
     existing.qty = anterior + cantidad;
     render();
-    if(scope!=='compatibles') hxToastGlobal(`${p.name} · cantidad ${anterior} → ${existing.qty}`, 'ok');
+    hxToastGlobal(`${p.name} · cantidad ${anterior} → ${existing.qty}`, 'ok');
     return true;
   }
 
@@ -934,7 +944,7 @@ function hxAddProductoModal(scope, idx, qty, ref=null, expectedPvp=null){
     map?.set(key, created._hxModalLineId);
   }
   render();
-  if(scope!=='compatibles') hxToastGlobal(cantidad > 1 ? `${p.name} · ${cantidad} unidades añadidas` : `${p.name} añadido`, 'ok');
+  hxToastGlobal(cantidad > 1 ? `${p.name} · ${cantidad} unidades añadidas` : `${p.name} añadido`, 'ok');
   return true;
 }
 function hxQtyControlHtml(scope, idx){
