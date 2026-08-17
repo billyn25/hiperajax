@@ -2876,7 +2876,7 @@
       const button=document.createElement('button');
       button.type='button';
       button.className='hx-compat-btn hxp-compatible-btn';
-      button.textContent=`Compatibles (${count})`;
+      button.textContent=`Comp. (${count})`;
       button.addEventListener('click',event=>{
         event.preventDefault();
         event.stopPropagation();

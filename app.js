@@ -195,83 +195,42 @@ function hxSortedRelated(product){
   );
 }
 
+function hxCompatImage(product){
+  try{ if(typeof hxImagenProducto==='function') return hxImagenProducto(product)||''; }catch(_e){}
+  return String(product?.image||product?.image_path||'').trim();
+}
+function hxCompatCategoryLabel(product){
+  return ['Soporte / montaje','Alimentación','Almacenamiento','Compatible','Repuesto'][hxRelatedCategory(product)]||'Compatible';
+}
 function hxEnsureCompatModal(){
-  let modal = document.getElementById('hxCompatModal');
-  if(modal) return modal;
-
-  modal = document.createElement('div');
-  modal.id = 'hxCompatModal';
-  modal.className = 'hx-compat-modal hidden';
-  modal.innerHTML = `
-    <div class="hx-compat-backdrop" data-hx-compat-close></div>
-    <section class="hx-compat-dialog" role="dialog" aria-modal="true" aria-labelledby="hxCompatTitle">
-      <header class="hx-compat-header">
-        <div>
-          <strong id="hxCompatTitle">Compatibles</strong>
-          <div id="hxCompatSubtitle" class="hx-compat-subtitle"></div>
-        </div>
-        <button type="button" class="hx-compat-close" data-hx-compat-close aria-label="Cerrar">×</button>
-      </header>
-      <div id="hxCompatList" class="hx-compat-list"></div>
-    </section>`;
+  let modal=document.getElementById('hxCompatModal');
+  if(modal)return modal;
+  modal=document.createElement('div');modal.id='hxCompatModal';modal.className='hx-compat-modal hidden';
+  modal.innerHTML=`<div class="hx-compat-backdrop" data-hx-compat-close></div><section class="hx-compat-dialog" role="dialog" aria-modal="true">
+  <header class="hx-compat-header"><div class="hx-compat-heading"><strong id="hxCompatTitle">Compatibles</strong><span id="hxCompatOfficial" class="hx-compat-official"></span></div><button type="button" class="hx-compat-close" data-hx-compat-close>×</button></header>
+  <div id="hxCompatOrigin" class="hx-compat-origin"></div><nav id="hxCompatTabs" class="hx-compat-tabs"></nav><div class="hx-compat-results-head"><strong id="hxCompatCount"></strong></div><div id="hxCompatList" class="hx-compat-list"></div>
+  <div class="hx-compat-note"><strong>Relaciones oficiales del catálogo de Visiotech Connect.</strong><span>Mostramos solo compatibles que existen en nuestro catálogo.</span></div></section>`;
   document.body.appendChild(modal);
-
-  modal.addEventListener('click', e => {
-    if(e.target.closest('[data-hx-compat-close]')) modal.classList.add('hidden');
-  });
-
+  modal.addEventListener('click',ev=>{if(ev.target.closest('[data-hx-compat-close]'))modal.classList.add('hidden')});
   return modal;
 }
-
 function hxOpenCompatibles(product){
-  const related = hxSortedRelated(product);
-  if(!related.length) return;
-
-  const modal = hxEnsureCompatModal();
-  const title = modal.querySelector('#hxCompatTitle');
-  const subtitle = modal.querySelector('#hxCompatSubtitle');
-  const list = modal.querySelector('#hxCompatList');
-
-  title.textContent = `Compatibles (${related.length})`;
-  subtitle.textContent = String(product?.name || '');
-
-  list.innerHTML = related.map((p,index)=>{
-    const d = typeof descripcionProducto === 'function' ? descripcionProducto(p) : {desc:p.short_description||''};
-    const stock = typeof hxEstadoStock === 'function' ? hxEstadoStock(p?.stock) : {texto:'',clase:''};
-    const price = Number(p?.pvp ?? p?.PVP ?? p?.precio_venta_cliente_final ?? 0);
-    return `<article class="hx-compat-item">
-      <div class="hx-compat-main">
-        <strong>${escapeHtml(p.name||'')}</strong>
-        <span>${escapeHtml(d?.desc || p.short_description || '')}</span>
-        <small>${escapeHtml(stock?.texto || '')}</small>
-      </div>
-      <div class="hx-compat-actions">
-        <strong>${price ? fmt.format(price) : ''}</strong>
-        <button type="button" data-hx-compat-add="${index}">Añadir</button>
-      </div>
-    </article>`;
-  }).join('');
-
-  list.querySelectorAll('[data-hx-compat-add]').forEach(button=>{
-    button.addEventListener('click',()=>{
-      const p = related[Number(button.dataset.hxCompatAdd)];
-      if(!p) return;
-
-      // Usar el mismo flujo normal del presupuestador.
-      const idx = productos.indexOf(p);
-      if(idx >= 0){
-        seleccionarProducto(idx, true);
-        addLinea();
-      }
-
-      button.textContent = 'Añadido';
-      button.disabled = true;
-    });
-  });
-
-  modal.classList.remove('hidden');
+  const all=hxSortedRelated(product);if(!all.length)return;
+  const modal=hxEnsureCompatModal(), title=modal.querySelector('#hxCompatTitle'), official=modal.querySelector('#hxCompatOfficial'), origin=modal.querySelector('#hxCompatOrigin'), tabs=modal.querySelector('#hxCompatTabs'), count=modal.querySelector('#hxCompatCount'), list=modal.querySelector('#hxCompatList');
+  title.textContent=`Compatibles con ${product?.name||''}`;official.textContent=`${all.length} compatible${all.length===1?'':'s'} oficial${all.length===1?'':'es'}`;
+  const oi=hxCompatImage(product),od=(product?.short_description||product?.description||'').trim();
+  origin.innerHTML=`${oi?`<img src="${escapeHtml(oi)}" alt="">`:''}<div><strong>${escapeHtml(product?.name||'')}</strong><span>${escapeHtml(od)}</span></div>`;
+  const groups=[['Todos',null],['Soportes',0],['Alimentación',1],['Almacenamiento',2],['Otros',3],['Repuestos',4]];
+  const counts=Object.fromEntries(groups.map(([l,c])=>[l,c===null?all.length:all.filter(p=>hxRelatedCategory(p)===c).length]));let active='Todos';
+  function paint(){
+    const found=groups.find(x=>x[0]===active),shown=active==='Todos'?all:all.filter(p=>hxRelatedCategory(p)===found?.[1]);
+    tabs.innerHTML=groups.filter(([l])=>l==='Todos'||counts[l]>0).map(([l])=>`<button type="button" class="${active===l?'is-active':''}" data-hx-tab="${l}">${l} <em>${counts[l]}</em></button>`).join('');
+    count.textContent=`${shown.length} producto${shown.length===1?'':'s'} compatible${shown.length===1?'':'s'}`;
+    list.innerHTML=shown.map((p,i)=>{const image=hxCompatImage(p),desc=(p?.short_description||p?.description||'').trim(),stock=hxEstadoStock(p?.stock),price=Number(p?.pvp??p?.PVP??p?.precio_venta_cliente_final??0);return `<article class="hx-compat-item"><div class="hx-compat-photo">${image?`<img src="${escapeHtml(image)}" alt="">`:''}</div><div class="hx-compat-main"><div class="hx-compat-refline"><strong>${escapeHtml(p.name||'')}</strong><span>${escapeHtml(hxCompatCategoryLabel(p))}</span></div><p>${escapeHtml(desc)}</p><small>${escapeHtml(stock?.texto||'')}</small></div><div class="hx-compat-commerce"><strong>${price?fmt.format(price):''}</strong><button type="button" data-hx-compat-add="${i}">＋ Añadir</button></div></article>`}).join('');
+    tabs.querySelectorAll('[data-hx-tab]').forEach(b=>b.addEventListener('click',()=>{active=b.dataset.hxTab;paint()}));
+    list.querySelectorAll('[data-hx-compat-add]').forEach(b=>b.addEventListener('click',()=>{const p=shown[Number(b.dataset.hxCompatAdd)];if(!p)return;const ix=productos.indexOf(p);if(ix>=0){seleccionarProducto(ix,true);addLinea()}b.textContent='✓ Añadido';b.disabled=true}));
+  }paint();modal.classList.remove('hidden');
 }
-
 function hxCompatButton(product){
   const count = hxResolvedRelated(product).length;
   if(!count) return '';
