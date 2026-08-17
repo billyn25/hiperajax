@@ -1912,9 +1912,9 @@
       <div class="hxp-product-main">
         ${productImage(product)}
         <div class="hxp-product-copy">
-          <strong class="hxp-product-ref">${esc(product.name || 'Sin referencia')}</strong>
+          <div class="hxp-product-refline"><strong class="hxp-product-ref">${esc(product.name || 'Sin referencia')}</strong>${fullDescription ? `<button type="button" class="hxp-description-toggle hxp-detail-ref" data-hxp-description-toggle aria-expanded="false" aria-label="Ver detalle">▾</button>` : ''}</div>
           <span class="hxp-product-description">${esc(description)}</span>
-          ${fullDescription ? `<button type="button" class="hxp-description-toggle" data-hxp-description-toggle aria-expanded="false">Ver detalle</button><div class="hxp-product-long-description" hidden>${esc(fullDescription)}</div>` : ''}
+          ${fullDescription ? `<div class="hxp-product-long-description" hidden>${esc(fullDescription)}</div>` : ''}
           ${newClass}
           <div class="hxp-product-meta">${stockBadge(product)}${productMeta(product)}</div>
         </div>
@@ -2109,6 +2109,35 @@
     else app.insertAdjacentHTML('beforeend',html);
     bindBudgetSummary(root);
   }
+
+
+
+  window.addEventListener('hxa:product-added',event=>{
+    try{
+      const detail=event?.detail||{};
+      const root=byId('familiasGrid');
+      if(!root) return;
+      let toast=root.querySelector('[data-hxp-added-toast]');
+      if(!toast){
+        toast=document.createElement('div');
+        toast.className='hxp-added-toast';
+        toast.setAttribute('data-hxp-added-toast','');
+        root.appendChild(toast);
+      }
+      const qty=Math.max(1,Number(detail.quantity)||1);
+      toast.textContent=`✓ ${qty}× ${detail.name||'Producto'} añadido al presupuesto`;
+      toast.classList.add('is-visible');
+      clearTimeout(window.__hxpAddedToastTimer);
+      window.__hxpAddedToastTimer=setTimeout(()=>toast.classList.remove('is-visible'),1800);
+    }catch(_error){}
+  });
+
+  window.addEventListener('hxa:budget-updated',()=>{
+    try{
+      budgetSummaryMinimized=false;
+      refreshBudgetSummary();
+    }catch(_error){}
+  });
 
   function bindBudgetSummary(root){
     const restore=root?.querySelector('[data-hxp-budget-restore]');
@@ -2364,6 +2393,25 @@
   function bindDynamicResults(root){
     if(!root) return;
     bindQuickScroll(root);
+
+    if(!root.dataset.hxpDetailDelegateBound){
+      root.dataset.hxpDetailDelegateBound='1';
+      root.addEventListener('click', event => {
+        const button=event.target.closest('[data-hxp-description-toggle]');
+        if(!button || !root.contains(button)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const detail=button.closest('.hxp-product-copy')?.querySelector('.hxp-product-long-description');
+        if(!detail) return;
+        const opening=detail.hasAttribute('hidden');
+        if(opening) detail.removeAttribute('hidden');
+        else detail.setAttribute('hidden','');
+        button.setAttribute('aria-expanded',String(opening));
+        button.setAttribute('aria-label',opening?'Ocultar detalle':'Ver detalle');
+        button.setAttribute('title',opening?'Ocultar detalle':'Ver detalle');
+        button.textContent=opening?'▴':'▾';
+      });
+    }
     root.querySelectorAll('[data-hxp-quick]').forEach(button => {
       if(button.dataset.hxpBound) return;
       button.dataset.hxpBound = '1';
@@ -2373,19 +2421,7 @@
         refreshSearchResults();
       });
     });
-    root.querySelectorAll('[data-hxp-description-toggle]').forEach(button => {
-      if(button.dataset.hxpDescriptionBound) return;
-      button.dataset.hxpDescriptionBound='1';
-      button.addEventListener('click', event => {
-        event.stopPropagation();
-        const detail=button.nextElementSibling;
-        if(!detail) return;
-        const opening=detail.hidden;
-        detail.hidden=!opening;
-        button.setAttribute('aria-expanded',String(opening));
-        button.textContent=opening?'Ocultar detalle':'Ver detalle';
-      });
-    });
+    
     root.querySelectorAll('[data-hxp-add]').forEach(button => {
       if(button.dataset.hxpBound) return;
       button.dataset.hxpBound='1';
@@ -2894,6 +2930,8 @@
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',hxaStartCompatibles,{once:true});
   else hxaStartCompatibles();
+
+  window.HX_EXPLORER_REFRESH_BUDGET = ()=>{ try{ budgetSummaryMinimized=false; refreshBudgetSummary(); }catch(_error){} };
 
   window.HX_EXPLORER_PRO = {
     open:openExplorer,
