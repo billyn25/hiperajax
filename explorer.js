@@ -1921,7 +1921,7 @@
       </div>
       <div class="hxp-product-commerce">
         <b class="hxp-price">${esc(priceText)}</b>
-        <div class="hxp-product-actions">
+        <div class="hxp-product-actions hxp-product-actions-with-compat">
           ${typeof hxQtyControlHtml === 'function' ? hxQtyControlHtml('explorer', item.index) : ''}
           <button type="button" class="hxp-add" data-hxp-add="${item.index}">Añadir</button>
         </div>
@@ -2876,7 +2876,7 @@
       const button=document.createElement('button');
       button.type='button';
       button.className='hx-compat-btn hxp-compatible-btn';
-      button.textContent=`Comp. (${count})`;
+      button.textContent=`Comp. ${count}`;
       button.addEventListener('click',event=>{
         event.preventDefault();
         event.stopPropagation();

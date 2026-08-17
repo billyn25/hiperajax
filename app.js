@@ -226,9 +226,58 @@ function hxOpenCompatibles(product){
     const found=groups.find(x=>x[0]===active),shown=active==='Todos'?all:all.filter(p=>hxRelatedCategory(p)===found?.[1]);
     tabs.innerHTML=groups.filter(([l])=>l==='Todos'||counts[l]>0).map(([l])=>`<button type="button" class="${active===l?'is-active':''}" data-hx-tab="${l}">${l} <em>${counts[l]}</em></button>`).join('');
     count.textContent=`${shown.length} producto${shown.length===1?'':'s'} compatible${shown.length===1?'':'s'}`;
-    list.innerHTML=shown.map((p,i)=>{const image=hxCompatImage(p),desc=(p?.short_description||p?.description||'').trim(),stock=hxEstadoStock(p?.stock),price=Number(p?.pvp??p?.PVP??p?.precio_venta_cliente_final??0);return `<article class="hx-compat-item"><div class="hx-compat-photo">${image?`<img src="${escapeHtml(image)}" alt="">`:''}</div><div class="hx-compat-main"><div class="hx-compat-refline"><strong>${escapeHtml(p.name||'')}</strong><span>${escapeHtml(hxCompatCategoryLabel(p))}</span></div><p>${escapeHtml(desc)}</p><small>${escapeHtml(stock?.texto||'')}</small></div><div class="hx-compat-commerce"><strong>${price?fmt.format(price):''}</strong><button type="button" data-hx-compat-add="${i}">＋ Añadir</button></div></article>`}).join('');
+    list.innerHTML=shown.map((p,i)=>{const image=hxCompatImage(p),desc=(p?.short_description||p?.description||'').trim(),stock=hxEstadoStock(p?.stock),price=Number(p?.pvp??p?.PVP??p?.precio_venta_cliente_final??0);return `<article class="hx-compat-item" data-hx-compat-row="${i}">
+  <div class="hx-compat-photo">${image?`<img src="${escapeHtml(image)}" alt="">`:''}</div>
+  <div class="hx-compat-main">
+    <div class="hx-compat-refline">
+      <strong>${escapeHtml(p.name||'')}</strong>
+      <span>${escapeHtml(hxCompatCategoryLabel(p))}</span>
+    </div>
+    <p>${escapeHtml(desc)}</p>
+    <div class="hx-compat-meta">
+      <small>${escapeHtml(stock?.texto||'')}</small>
+      ${String(p?.stock||'').trim()?`<small class="hx-compat-stockraw">Stock: ${escapeHtml(String(p.stock))}</small>`:''}
+    </div>
+  </div>
+  <div class="hx-compat-commerce">
+    <strong>${price?fmt.format(price):''}</strong>
+    <div class="hx-compat-qty" aria-label="Cantidad">
+      <button type="button" data-hx-compat-minus="${i}">−</button>
+      <span data-hx-compat-qty="${i}">1</span>
+      <button type="button" data-hx-compat-plus="${i}">+</button>
+    </div>
+    <button type="button" class="hx-compat-add" data-hx-compat-add="${i}">Añadir</button>
+  </div>
+</article>`}).join('');
     tabs.querySelectorAll('[data-hx-tab]').forEach(b=>b.addEventListener('click',()=>{active=b.dataset.hxTab;paint()}));
-    list.querySelectorAll('[data-hx-compat-add]').forEach(b=>b.addEventListener('click',()=>{const p=shown[Number(b.dataset.hxCompatAdd)];if(!p)return;const ix=productos.indexOf(p);if(ix>=0){seleccionarProducto(ix,true);addLinea()}b.textContent='✓ Añadido';b.disabled=true}));
+    list.querySelectorAll('[data-hx-compat-minus]').forEach(btn=>btn.addEventListener('click',()=>{
+      const i=Number(btn.dataset.hxCompatMinus);
+      const qtyEl=list.querySelector(`[data-hx-compat-qty="${i}"]`);
+      if(!qtyEl)return;
+      qtyEl.textContent=String(Math.max(1,Number(qtyEl.textContent||1)-1));
+    }));
+    list.querySelectorAll('[data-hx-compat-plus]').forEach(btn=>btn.addEventListener('click',()=>{
+      const i=Number(btn.dataset.hxCompatPlus);
+      const qtyEl=list.querySelector(`[data-hx-compat-qty="${i}"]`);
+      if(!qtyEl)return;
+      qtyEl.textContent=String(Math.min(99,Number(qtyEl.textContent||1)+1));
+    }));
+    list.querySelectorAll('[data-hx-compat-add]').forEach(btn=>btn.addEventListener('click',()=>{
+      const i=Number(btn.dataset.hxCompatAdd);
+      const p=shown[i];
+      if(!p)return;
+      const qtyEl=list.querySelector(`[data-hx-compat-qty="${i}"]`);
+      const qty=Math.max(1,Number(qtyEl?.textContent||1));
+      const ix=productos.indexOf(p);
+      if(ix>=0){
+        for(let n=0;n<qty;n++){
+          seleccionarProducto(ix,true);
+          addLinea();
+        }
+      }
+      btn.textContent='✓ Añadido';
+      btn.disabled=true;
+    }));
   }paint();modal.classList.remove('hidden');
 }
 function hxCompatButton(product){
