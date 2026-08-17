@@ -2334,67 +2334,20 @@ body.light-mode .hxp-budget-mini b{
 
 
 
-/* Compatible Explorer — única regla */
-#familiasGrid .hxp-product-actions .hxp-compatible-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  height:30px;
-  min-height:30px;
-  min-width:auto;
-  padding:0 9px;
-  margin:0;
-  border:1px solid #7ea692;
-  border-radius:9px;
-  background:#fff;
-  background-image:none;
-  color:#245440;
-  box-shadow:none;
-  font-size:10px;
-  font-weight:800;
-  line-height:1;
-  white-space:nowrap;
-  cursor:pointer;
-}
-#familiasGrid .hxp-product-actions .hxp-compatible-btn:hover{
-  background:#eef8f3;
-  border-color:#4c9370;
-  color:#0b6c40;
-}
+
 
 /* Detalle Explorer — única implementación */
-.hxp-product-refline{display:flex;align-items:center;gap:6px;min-width:0}.hxp-detail-ref{
-  flex:0 0 20px;
-  width:20px;
-  height:20px;
-  min-width:20px;
-  min-height:20px;
-  margin:0;
-  padding:0;
-  display:grid;
-  place-items:center;
-  border:1px solid #cbd9d1;
-  border-radius:7px;
-  background:#fff;
-  background-image:none;
-  color:#4a6156;
-  box-shadow:none;
-  font-size:11px;
-  font-weight:800;
-  line-height:1;
-  cursor:pointer;
-}.hxp-product-long-description{display:none}.hxp-product.is-detail-open .hxp-product-long-description{display:block}
+.hxp-product-refline{display:flex;align-items:center;gap:6px;min-width:0}
+.hxp-detail-ref{flex:0 0 20px;width:20px;height:20px;min-width:20px;min-height:20px;display:grid;place-items:center;margin:0;padding:0;border:1px solid #b9c9c0;border-radius:7px;background:#fff;background-image:none;color:#435a4f;box-shadow:none;font-size:11px;font-weight:800;line-height:20px;text-align:center;cursor:pointer}
+.hxp-detail-ref:hover{border-color:#8fa89b;background:#f2f6f4;color:#243e32}
+.hxp-product-long-description{display:none}.hxp-product.is-detail-open .hxp-product-long-description{display:block}
 
-/* Comp. Explorer — noche discreto */
-body:not(.light-mode):not(.light):not(.claro) #familiasGrid .hxp-compatible-btn{
-  background:rgba(255,255,255,.035);
-  background-image:none;
-  border-color:#5d786b;
-  color:#c8d7d0;
-  box-shadow:none;
-}
-body:not(.light-mode):not(.light):not(.claro) #familiasGrid .hxp-compatible-btn:hover{
-  background:rgba(95,155,124,.12);
-  border-color:#6f9a83;
-  color:#eef7f2;
-}
+/* Compatible Explorer — única regla */
+#familiasGrid .hxp-product-actions .hxp-compatible-btn{display:inline-flex;align-items:center;justify-content:center;height:30px;min-height:30px;min-width:auto;padding:0 9px;margin:0;border:1px solid #7ea692;border-radius:9px;background:#fff;background-image:none;color:#245440;box-shadow:none;font-size:10px;font-weight:800;line-height:1;white-space:nowrap;cursor:pointer}
+#familiasGrid .hxp-product-actions .hxp-compatible-btn:hover{background:#eef8f3;border-color:#4c9370;color:#0b6c40}
+body:not(.light-mode) #familiasGrid .hxp-product-actions .hxp-compatible-btn{background:rgba(255,255,255,.035);border-color:#566c61;color:#c5d2cc}
+body:not(.light-mode) #familiasGrid .hxp-product-actions .hxp-compatible-btn:hover{background:rgba(105,145,124,.12);border-color:#718f80;color:#eef6f2}
+
+/* Resumen presupuesto Explorer — neutro */
+.hxp-budget-pill,.hxp-budget-dismiss,.hxp-budget-mini{background:rgba(27,34,31,.96);color:#eef3f0;border-color:rgba(124,139,132,.32)}
+body.light-mode .hxp-budget-pill,body.light-mode .hxp-budget-popover,body.light-mode .hxp-budget-dismiss,body.light-mode .hxp-budget-mini{background:rgba(250,252,251,.98);color:#233229;border-color:rgba(90,108,98,.22)}
