@@ -2409,8 +2409,11 @@
         event.stopPropagation();
         const detail=button.closest('.hxp-product-copy')?.querySelector('.hxp-product-long-description');
         if(!detail) return;
-        const opening=detail.hidden; detail.hidden=!opening;
+        const opening=detail.hasAttribute('hidden');
+        if(opening) detail.removeAttribute('hidden');
+        else detail.setAttribute('hidden','');
         button.setAttribute('aria-expanded',String(opening));
+        button.setAttribute('aria-label',opening?'Ocultar detalle':'Ver detalle');
         button.textContent=opening?'▴':'▾';
       });
     });
