@@ -199,6 +199,39 @@ function hxCompatImage(product){
   try{ if(typeof hxImagenProducto==='function') return hxImagenProducto(product)||''; }catch(_e){}
   return String(product?.image||product?.image_path||'').trim();
 }
+
+function hxCompatStock(product){
+  const raw = product?.stock;
+  try{
+    const state = hxEstadoStock(raw);
+    const text = String(state?.texto || '').trim();
+    if(text && !/^(high|none|low|medium)$/i.test(text)){
+      return {text, cls:String(state?.clase||'')};
+    }
+  }catch(_e){}
+
+  const n = normaliza(String(raw ?? ''));
+  if(!n || n==='none' || n==='0' || n==='sin stock' || n==='out of stock'){
+    return {text:'Sin stock', cls:'is-out'};
+  }
+  if(n==='high' || n==='alto' || n==='available' || n==='disponible'){
+    return {text:'Disponible', cls:'is-ok'};
+  }
+  if(n==='medium' || n==='medio'){
+    return {text:'Stock medio', cls:'is-mid'};
+  }
+  if(n==='low' || n==='bajo'){
+    return {text:'Stock limitado', cls:'is-low'};
+  }
+  const num = Number(String(raw).replace(',','.'));
+  if(Number.isFinite(num)){
+    if(num <= 0) return {text:'Sin stock', cls:'is-out'};
+    if(num <= 3) return {text:'Stock limitado', cls:'is-low'};
+    return {text:'Disponible', cls:'is-ok'};
+  }
+  return {text:'', cls:''};
+}
+
 function hxCompatCategoryLabel(product){
   return ['Soporte / montaje','Alimentación','Almacenamiento','Compatible','Repuesto'][hxRelatedCategory(product)]||'Compatible';
 }
@@ -219,15 +252,14 @@ function hxOpenCompatibles(product){
   const modal=hxEnsureCompatModal(), title=modal.querySelector('#hxCompatTitle'), official=modal.querySelector('#hxCompatOfficial'), origin=modal.querySelector('#hxCompatOrigin'), tabs=modal.querySelector('#hxCompatTabs'), count=modal.querySelector('#hxCompatCount'), list=modal.querySelector('#hxCompatList');
   title.textContent=`Compatibles con ${product?.name||''}`;official.textContent=`${all.length} compatible${all.length===1?'':'s'} oficial${all.length===1?'':'es'}`;
   const oi=hxCompatImage(product),od=(product?.short_description||product?.description||'').trim();
-  origin.innerHTML=`${oi?`<img src="${escapeHtml(oi)}" alt="">`:''}<div class="hx-compat-origin-copy"><div class="hx-compat-origin-title"><strong>${escapeHtml(product?.name||'')}</strong><em>✓ Producto actual</em></div><span>${escapeHtml(od)}</span><button type="button" class="hx-compat-view-current">Ver producto</button></div>`;
-  origin.querySelector('.hx-compat-view-current')?.addEventListener('click',()=>modal.classList.add('hidden'));
-  const groups=[['Todos',null,'⊞'],['Soportes',0,'⌘'],['Alimentación',1,'ϟ'],['Almacenamiento',2,'◇'],['Otros',3,'•••'],['Repuestos',4,'↻']];
+  origin.innerHTML=`${oi?`<img src="${escapeHtml(oi)}" alt="">`:''}<div class="hx-compat-origin-copy"><div class="hx-compat-origin-title"><strong>${escapeHtml(product?.name||'')}</strong><em>✓ Producto actual</em></div><span>${escapeHtml(od)}</span></div>`;
+const groups=[['Todos',null,'⊞'],['Soportes',0,'⌘'],['Alimentación',1,'ϟ'],['Almacenamiento',2,'◇'],['Otros',3,'•••'],['Repuestos',4,'↻']];
   const counts=Object.fromEntries(groups.map(([l,c])=>[l,c===null?all.length:all.filter(p=>hxRelatedCategory(p)===c).length]));let active='Todos';
   function paint(){
     const found=groups.find(x=>x[0]===active),shown=active==='Todos'?all:all.filter(p=>hxRelatedCategory(p)===found?.[1]);
     tabs.innerHTML=groups.filter(([l])=>l==='Todos'||counts[l]>0).map(([l,c,icon])=>`<button type="button" class="${active===l?'is-active':''}" data-hx-tab="${l}"><span class="hx-tab-icon">${icon}</span><span>${l} <em>(${counts[l]})</em></span></button>`).join('');
     count.textContent=`${shown.length} producto${shown.length===1?'':'s'} compatible${shown.length===1?'':'s'}`;
-    list.innerHTML=shown.map((p,i)=>{const image=hxCompatImage(p),desc=(p?.short_description||p?.description||'').trim(),stock=hxEstadoStock(p?.stock),price=Number(p?.pvp??p?.PVP??p?.precio_venta_cliente_final??0);return `<article class="hx-compat-item" data-hx-compat-row="${i}">
+    list.innerHTML=shown.map((p,i)=>{const image=hxCompatImage(p),desc=(p?.short_description||p?.description||'').trim(),stock=hxCompatStock(p),price=Number(p?.pvp??p?.PVP??p?.precio_venta_cliente_final??0);return `<article class="hx-compat-item" data-hx-compat-row="${i}">
   <div class="hx-compat-photo">${image?`<img src="${escapeHtml(image)}" alt="">`:''}</div>
   <div class="hx-compat-main">
     <div class="hx-compat-refline">
@@ -236,8 +268,8 @@ function hxOpenCompatibles(product){
     </div>
     <p>${escapeHtml(desc)}</p>
     <div class="hx-compat-meta">
-      <small>${escapeHtml(stock?.texto||'')}</small>
-      ${String(p?.stock||'').trim()?`<small class="hx-compat-stockraw">Stock: ${escapeHtml(String(p.stock))}</small>`:''}
+      <small>${escapeHtml(stock?.text||'')}</small>
+      
     </div>
   </div>
   <div class="hx-compat-commerce">

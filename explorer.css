@@ -2248,9 +2248,7 @@ body.light-mode .hxp-budget-mini b{
   white-space:nowrap;
 }
 
-/* =========================================================
-   Explorer + Compatibles — ajuste móvil producción
-   ========================================================= */
+
 .hxp-product-actions-with-compat{
   display:flex;
   align-items:center;
