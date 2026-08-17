@@ -96,7 +96,8 @@ const FILTER_FIELDS = [
 
 const OUTPUT_FIELDS = [
   "name", "brand", "pvp", "description", "short_description", "image", "stock", "precio_neto_compra",
-  "category", "family", "subcategory", ...FILTER_FIELDS.map((field) => field.key), "attributes_json"
+  "category", "family", "subcategory", "related_products",
+  ...FILTER_FIELDS.map((field) => field.key), "attributes_json"
 ];
 
 const NON_FILTER_HEADER = /(name|nombre|reference|referencia|codigo|code|sku|brand|marca|manufacturer|fabricante|description|descripcion|shortdesc|image|imagen|photo(url|path)?|url|link|document|manual|datasheet|ficha|price|precio|pvp|tarifa|cost|coste|neto|stock|quantity|cantidad|existencia|ean|upc|isbn|weight|peso|height|alto|width|ancho|depth|profundidad|dimension|package|embalaje|minimo|minimum|tax|iva)/;
@@ -124,6 +125,7 @@ function cabecerasReservadas(classificationFields = {}) {
     "pvp", "recommendedretailprice", "retailprice", "precioventa", "tarifa", "description", "descripcion",
     "shortdescription", "shortdesc", "descriptionshort", "descripcioncorta", "imagepath", "image", "imagen", "photourl",
     "stocklabel", "stock", "quantity", "availablestock", "stockavailable", "existencias", "precionetocompra",
+    "relatedproducts", "related", "productosrelacionados",
   ]);
   Object.values(classificationFields || {}).forEach((value) => {
     if (typeof value === "string" && value) keys.add(normalizarClave(value));
@@ -441,6 +443,10 @@ async function crearCatalogoAjax(response) {
       category: classification.category,
       family: classification.family,
       subcategory: classification.subcategory,
+      related_products: String(primerValor(row, [
+        "related_products", "relatedproducts", "related",
+        "productos_relacionados", "productosrelacionados"
+      ])).trim(),
       ...filterValues,
       attributes_json: Object.keys(dynamicAttributes).length ? JSON.stringify(dynamicAttributes) : "",
     });
