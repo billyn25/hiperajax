@@ -2366,3 +2366,7 @@ body.light-mode .hxp-budget-mini b{
     min-width:0!important;
   }
 }
+
+/* Explorer compatible button: same visual language on mobile */
+.hxp-compatible-btn{height:30px!important;min-height:30px!important;padding:0 9px!important;border-radius:10px!important;background:#fff!important;color:#1b5c40!important;border:1px solid #8cad9b!important;font-size:11px!important;font-weight:700!important;box-shadow:none!important}
+@media(max-width:640px){.hxp-compatible-btn{height:34px!important;min-height:34px!important;padding:0 9px!important}}
