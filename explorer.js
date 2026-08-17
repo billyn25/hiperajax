@@ -1914,7 +1914,7 @@
         <div class="hxp-product-copy">
           <div class="hxp-product-refline"><strong class="hxp-product-ref">${esc(product.name || 'Sin referencia')}</strong>${fullDescription ? `<button type="button" class="hxp-description-toggle hxp-detail-ref" data-hxp-description-toggle aria-expanded="false" aria-label="Ver detalle">▾</button>` : ''}</div>
           <span class="hxp-product-description">${esc(description)}</span>
-          ${fullDescription ? `<div class="hxp-product-long-description" hidden>${esc(fullDescription)}</div>` : ''}
+          ${fullDescription ? `<div class="hxp-product-long-description">${esc(fullDescription)}</div>` : ''}
           ${newClass}
           <div class="hxp-product-meta">${stockBadge(product)}${productMeta(product)}</div>
         </div>
@@ -2402,25 +2402,6 @@
         refreshSearchResults();
       });
     });
-    root.querySelectorAll('[data-hxp-description-toggle]').forEach(button => {
-      if(button.dataset.hxpDescriptionBound) return;
-      button.dataset.hxpDescriptionBound='1';
-      button.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-        const copy=button.closest('.hxp-product-copy');
-        const detail=copy ? copy.querySelector('.hxp-product-long-description') : null;
-        if(!detail) return;
-
-        const opening = detail.hidden === true || detail.hasAttribute('hidden');
-        detail.hidden = !opening;
-
-        button.setAttribute('aria-expanded', String(opening));
-        button.setAttribute('aria-label', opening ? 'Ocultar detalle' : 'Ver detalle');
-        button.setAttribute('title', opening ? 'Ocultar detalle' : 'Ver detalle');
-        button.textContent = opening ? '▴' : '▾';
-      });
-    });
     root.querySelectorAll('[data-hxp-add]').forEach(button => {
       if(button.dataset.hxpBound) return;
       button.dataset.hxpBound='1';
@@ -2436,6 +2417,24 @@
 
   function bind(root){
     bindQuickScroll(root);
+
+    if(!root.dataset.hxpDetailDelegateBound){
+      root.dataset.hxpDetailDelegateBound='1';
+      root.addEventListener('click', event => {
+        const button=event.target.closest('[data-hxp-description-toggle]');
+        if(!button || !root.contains(button)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const card=button.closest('.hxp-product');
+        if(!card) return;
+        const opening=!card.classList.contains('is-detail-open');
+        card.classList.toggle('is-detail-open',opening);
+        button.setAttribute('aria-expanded',String(opening));
+        button.setAttribute('aria-label',opening?'Ocultar detalle':'Ver detalle');
+        button.setAttribute('title',opening?'Ocultar detalle':'Ver detalle');
+        button.textContent=opening?'▴':'▾';
+      });
+    }
     const search = byId('hxpSearch');
     if(search){
       search.addEventListener('input', event => {
@@ -2555,19 +2554,6 @@
       render();
     });
 
-    root.querySelectorAll('[data-hxp-description-toggle]').forEach(button => {
-      if(button.dataset.hxpDescriptionBound) return;
-      button.dataset.hxpDescriptionBound='1';
-      button.addEventListener('click', event => {
-        event.stopPropagation();
-        const detail=button.nextElementSibling;
-        if(!detail) return;
-        const opening=detail.hidden;
-        detail.hidden=!opening;
-        button.setAttribute('aria-expanded',String(opening));
-        button.textContent=opening?'Ocultar detalle':'Ver detalle';
-      });
-    });
     root.querySelectorAll('[data-hxp-add]').forEach(button => button.addEventListener('click', event => {
       event.stopPropagation();
       addProduct(Number(button.dataset.hxpAdd), button);

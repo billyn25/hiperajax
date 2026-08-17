@@ -299,8 +299,11 @@ function hxEnsureCompatModal(){
   modal=document.createElement('div');modal.id='hxCompatModal';modal.className='hx-compat-modal hidden';
   modal.innerHTML=`<div class="hx-compat-backdrop" data-hx-compat-close></div><section class="hx-compat-dialog" role="dialog" aria-modal="true">
   <header class="hx-compat-header"><div class="hx-compat-heading"><strong id="hxCompatTitle">Compatibles</strong><span id="hxCompatOfficial" class="hx-compat-official"></span></div><button type="button" class="hx-compat-close" data-hx-compat-close>×</button></header>
-  <div id="hxCompatOrigin" class="hx-compat-origin"></div><nav id="hxCompatTabs" class="hx-compat-tabs"></nav><div class="hx-compat-results-head"><strong id="hxCompatCount"></strong></div><div id="hxCompatList" class="hx-compat-list"></div>
+  <div id="hxCompatOrigin" class="hx-compat-origin"></div>
+  <nav id="hxCompatTabs" class="hx-compat-tabs"></nav>
+  <div class="hx-compat-results-head"><strong id="hxCompatCount"></strong></div>
   <div id="hxCompatAddedNotice" class="hx-compat-added-notice" aria-live="polite"></div>
+  <div id="hxCompatList" class="hx-compat-list"></div>
   <div class="hx-compat-note"><strong>Relaciones oficiales del catálogo de Visiotech Connect.</strong><span>Mostramos solo compatibles que existen en nuestro catálogo.</span></div></section>`;
   document.body.appendChild(modal);
   modal.addEventListener('click',ev=>{if(ev.target.closest('[data-hx-compat-close]'))modal.classList.add('hidden')});

@@ -2333,45 +2333,5 @@ body.light-mode .hxp-budget-mini b{
 }
 
 
-/* Aviso al añadir desde Compatibles */
-.hxp-added-toast{
-  position:fixed;
-  left:50%;
-  bottom:92px;
-  z-index:2147483645;
-  transform:translate(-50%,12px);
-  opacity:0;
-  pointer-events:none;
-  max-width:min(90vw,520px);
-  padding:9px 13px;
-  border:1px solid #b9dcc9;
-  border-radius:11px;
-  background:#f1faf5;
-  color:#176e45;
-  font-size:11px;
-  font-weight:800;
-  box-shadow:0 8px 28px rgba(0,0,0,.14);
-  transition:opacity .18s ease,transform .18s ease;
-}
-.hxp-added-toast.is-visible{
-  opacity:1;
-  transform:translate(-50%,0);
-}
-@media(max-width:640px){
-  .hxp-added-toast{
-    bottom:82px;
-    width:max-content;
-    max-width:88vw;
-    font-size:10.5px;
-    text-align:center;
-  }
-}
-
-.hxp-product-refline{display:flex!important;align-items:center!important;gap:6px!important;min-width:0!important}.hxp-product-refline .hxp-product-ref{min-width:0!important;margin:0!important}.hxp-detail-ref{flex:0 0 20px!important;width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;border:1px solid #cbd9d1!important;border-radius:7px!important;background:#fff!important;color:#26704d!important;font-size:12px!important;font-weight:900!important;line-height:1!important;box-shadow:none!important}.hxp-detail-ref:hover{background:#eef8f3!important}@media(max-width:640px){.hxp-detail-ref{width:19px!important;height:19px!important;min-width:19px!important;min-height:19px!important;font-size:11px!important}}
-
-/* Flecha detalle: apertura fiable sin cambiar diseño */
-.hxp-product-copy .hxp-product-long-description[hidden]{display:none!important}
-.hxp-product-copy:has(.hxp-detail-ref[aria-expanded="true"]) .hxp-product-long-description:not([hidden]){
-  display:block!important;
-}
-.hxp-detail-ref{pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important}
+/* Detalle Explorer — única implementación */
+.hxp-product-refline{display:flex;align-items:center;gap:6px;min-width:0}.hxp-detail-ref{flex:0 0 20px;width:20px;height:20px;margin:0;padding:0;display:grid;place-items:center;border:1px solid #cbd9d1;border-radius:7px;background:#fff;color:#26704d;font-size:12px;font-weight:900;cursor:pointer}.hxp-product-long-description{display:none}.hxp-product.is-detail-open .hxp-product-long-description{display:block}
