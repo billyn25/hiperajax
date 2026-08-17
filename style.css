@@ -7676,3 +7676,25 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
  #hxCompatModal button.hx-compat-add{justify-self:end!important;min-width:82px!important}
  #hxCompatModal .hx-compat-note{margin:3px 10px 10px!important}
 }
+
+
+/* Compatibles visual/classification fixes */
+#hxCompatModal .hx-compat-meta small.is-ok{background:#e7f6ee!important;color:#147447!important;border:1px solid #c6ead6!important}
+#hxCompatModal .hx-compat-meta small.is-low{background:#fff0b8!important;color:#7c5a00!important;border:1px solid #f0d47e!important}
+#hxCompatModal .hx-compat-meta small.is-mid{background:#fff5cf!important;color:#7b6510!important;border:1px solid #eadb9b!important}
+#hxCompatModal .hx-compat-meta small.is-out{background:#fde4e6!important;color:#b5202d!important;border:1px solid #f3bfc4!important}
+#hxCompatModal button.hx-compat-add{transition:background .15s ease,color .15s ease,border-color .15s ease,transform .15s ease!important}
+#hxCompatModal button.hx-compat-add:hover:not(:disabled){background:#edf8f2!important;color:#0b6c40!important;border-color:#288b5d!important;transform:translateY(-1px)!important}
+#hxCompatModal .hx-compat-qty button:hover{background:#f1f6f3!important;color:#0b6c40!important}
+#hxCompatModal button.hx-compat-close:hover{background:#f3f6f4!important;border-color:#b9c9c0!important}
+#hxCompatModal .hx-compat-tabs button{min-width:126px!important;padding:11px 12px 12px!important;gap:7px!important;line-height:1.15!important}
+#hxCompatModal .hx-tab-icon{display:block!important;min-height:18px!important;font-size:16px!important;line-height:18px!important;margin-bottom:1px!important}
+#hxCompatModal .hx-compat-tabs button>span:last-child{display:block!important;white-space:nowrap!important}
+#hxpRoot .hxp-compatible-btn,.hxp-shell .hxp-compatible-btn,button.hxp-compatible-btn{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;opacity:1!important;visibility:visible!important;
+ color:#235440!important;background:#fff!important;border:1px solid #8faf9f!important;border-radius:9px!important;
+ min-width:58px!important;height:30px!important;min-height:30px!important;padding:0 8px!important;font-size:10px!important;font-weight:800!important;
+ text-shadow:none!important;box-shadow:none!important;transition:background .15s ease,border-color .15s ease,color .15s ease!important}
+#hxpRoot .hxp-compatible-btn:hover,.hxp-shell .hxp-compatible-btn:hover,button.hxp-compatible-btn:hover{
+ background:#edf8f2!important;border-color:#4f9471!important;color:#0b6c40!important}
+@media(max-width:640px){#hxCompatModal .hx-compat-tabs button{min-width:100px!important;padding:9px 9px 10px!important;gap:5px!important}}

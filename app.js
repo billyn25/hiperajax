@@ -175,22 +175,21 @@ function hxResolvedRelated(product){
 
 function hxRelatedCategory(product){
   const ref = normaliza(String(product?.name||''));
-  const text = normaliza([
+  const taxonomy = normaliza([
     product?.category, product?.category_parent, product?.family,
-    product?.subcategory, product?.product_type,
-    product?.short_description, product?.description, product?.name
+    product?.subcategory, product?.product_type
   ].filter(Boolean).join(' '));
+  const short = normaliza([product?.name, product?.short_description].filter(Boolean).join(' '));
 
-  // Soporte/montaje SOLO si el propio producto es físicamente un soporte,
-  // bracket, junction box, mount, holder o caja de conexiones.
   if(
-    /\b(bracket|mountcam|mount|junctionbox|junction box|holder|soporte|caja de conexiones|caja conexiones)\b/.test(text)
-    || /(?:^|[-_])(bracket|mount|holder)(?:[-_]|$)/.test(ref)
+    /(?:^|[-_])(bracket|mount|holder|junctionbox|junction)(?:[-_]|$)/.test(ref)
+    || /\b(bracket|mount|holder|junction ?box|caja de conexiones|caja conexiones|soporte para|soporte de montaje)\b/.test(short)
+    || /\b(soportes?|montaje|junction ?box|cajas? de conexiones)\b/.test(taxonomy)
   ) return 0;
 
-  if(/\b(alimentacion|fuente|power supply|adaptador|adapter|poe|inyector)\b/.test(text)) return 1;
-  if(/\b(disco|hdd|ssd|almacenamiento|storage|tarjeta sd|micro ?sd)\b/.test(text)) return 2;
-  if(/\b(repuesto|recambio|dummy|carcasa|cover|tapa|pcb|bateria|pila)\b/.test(text)) return 4;
+  if(/\b(alimentacion|fuentes?|power supply|adaptador|adapter|poe|inyector)\b/.test(taxonomy+' '+short)) return 1;
+  if(/\b(disco|hdd|ssd|almacenamiento|storage|tarjeta sd|micro ?sd)\b/.test(taxonomy+' '+short)) return 2;
+  if(/\b(repuesto|recambio|dummy|carcasa|cover|tapa|pcb|bateria|pila)\b/.test(taxonomy+' '+short)) return 4;
   return 3;
 }
 
@@ -275,7 +274,7 @@ const groups=[['Todos',null,'⊞'],['Soportes',0,'⌘'],['Alimentación',1,'ϟ']
     </div>
     <p>${escapeHtml(desc)}</p>
     <div class="hx-compat-meta">
-      <small>${escapeHtml(stock?.text||'')}</small>
+      <small class="${escapeHtml(stock?.cls||'')}">${escapeHtml(stock?.text||'')}</small>
       
     </div>
   </div>

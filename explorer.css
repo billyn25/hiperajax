@@ -2237,36 +2237,12 @@ body.light-mode .hxp-budget-mini b{
 }
 #familiasGrid #hxpSearch{
   appearance:textfield;
-}
-
-.hxp-compatible-btn{
-  display:inline-flex!important;
-  align-items:center;
-  justify-content:center;
-  min-height:34px;
-  margin-right:6px;
-  white-space:nowrap;
-}
-
-
-.hxp-product-actions-with-compat{
+}.hxp-product-actions-with-compat{
   display:flex;
   align-items:center;
   gap:7px;
   flex-wrap:nowrap;
-}
-.hxp-compatible-btn{
-  flex:0 0 auto!important;
-  min-height:30px!important;
-  height:30px!important;
-  padding:0 9px!important;
-  border-radius:10px!important;
-  font-size:11px!important;
-  font-weight:700!important;
-  background:transparent!important;
-  box-shadow:none!important;
-}
-@media (max-width:640px){
+}@media (max-width:640px){
   .hxp-product{
     padding:12px 12px 11px!important;
   }
@@ -2328,16 +2304,7 @@ body.light-mode .hxp-budget-mini b{
   .hxp-product-actions .hx-qty-control,
   .hxp-product-actions [class*="qty"]{
     min-width:112px!important;
-  }
-  .hxp-compatible-btn{
-    min-width:68px!important;
-    height:34px!important;
-    min-height:34px!important;
-    padding:0 9px!important;
-    font-size:11px!important;
-    border-radius:10px!important;
-  }
-  .hxp-add{
+  }.hxp-add{
     min-width:84px!important;
     min-height:38px!important;
     padding:0 13px!important;
