@@ -7639,8 +7639,8 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
 #hxCompatModal .hx-compat-dialog{
   position:relative;
   z-index:1;
-  width:min(900px,96vw);
-  height:min(82vh,760px);
+  width:min(1080px,96vw);
+  height:min(88vh,840px);
   display:flex;
   flex-direction:column;
   overflow:hidden;
@@ -7651,6 +7651,16 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
   box-shadow:0 26px 80px rgba(0,0,0,.24);
   font-size:13px;
 }
+
+#hxCompatModal button{
+  appearance:none;
+  -webkit-appearance:none;
+  background:#fff;
+  background-image:none;
+  color:#1f3f31;
+  box-shadow:none;
+}
+
 #hxCompatModal .hx-compat-header,
 #hxCompatModal .hx-compat-origin,
 #hxCompatModal .hx-compat-tabs,
