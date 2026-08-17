@@ -2331,3 +2331,38 @@ body.light-mode .hxp-budget-mini b{
     min-width:0!important;
   }
 }
+
+
+/* Aviso al añadir desde Compatibles */
+.hxp-added-toast{
+  position:fixed;
+  left:50%;
+  bottom:92px;
+  z-index:2147483645;
+  transform:translate(-50%,12px);
+  opacity:0;
+  pointer-events:none;
+  max-width:min(90vw,520px);
+  padding:9px 13px;
+  border:1px solid #b9dcc9;
+  border-radius:11px;
+  background:#f1faf5;
+  color:#176e45;
+  font-size:11px;
+  font-weight:800;
+  box-shadow:0 8px 28px rgba(0,0,0,.14);
+  transition:opacity .18s ease,transform .18s ease;
+}
+.hxp-added-toast.is-visible{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+@media(max-width:640px){
+  .hxp-added-toast{
+    bottom:82px;
+    width:max-content;
+    max-width:88vw;
+    font-size:10.5px;
+    text-align:center;
+  }
+}

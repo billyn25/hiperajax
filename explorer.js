@@ -2111,6 +2111,27 @@
   }
 
 
+
+  window.addEventListener('hxa:product-added',event=>{
+    try{
+      const detail=event?.detail||{};
+      const root=byId('familiasGrid');
+      if(!root) return;
+      let toast=root.querySelector('[data-hxp-added-toast]');
+      if(!toast){
+        toast=document.createElement('div');
+        toast.className='hxp-added-toast';
+        toast.setAttribute('data-hxp-added-toast','');
+        root.appendChild(toast);
+      }
+      const qty=Math.max(1,Number(detail.quantity)||1);
+      toast.textContent=`✓ ${qty}× ${detail.name||'Producto'} añadido al presupuesto`;
+      toast.classList.add('is-visible');
+      clearTimeout(window.__hxpAddedToastTimer);
+      window.__hxpAddedToastTimer=setTimeout(()=>toast.classList.remove('is-visible'),1800);
+    }catch(_error){}
+  });
+
   window.addEventListener('hxa:budget-updated',()=>{
     try{
       budgetSummaryMinimized=false;

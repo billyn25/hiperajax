@@ -334,14 +334,26 @@ const groups=[['Todos',null,'⊞'],['Soportes',0,'⌘'],['Alimentación',1,'ϟ']
       const qty=Math.max(1,Number(qtyEl?.textContent||1));
       const ix=productos.indexOf(p);
       if(ix>=0){
-        for(let n=0;n<qty;n++){
-          seleccionarProducto(ix,true);
-          addLinea();
-        }
+        seleccionarProducto(ix,true);
+        addLinea();
+        try{
+          const rows=Array.isArray(window.lineas)?window.lineas:(typeof lineas!=='undefined'&&Array.isArray(lineas)?lineas:[]);
+          for(let j=rows.length-1;j>=0;j--){
+            const row=rows[j];
+            if(row && String(row.name||'').trim()===String(p?.name||'').trim()){
+              row.qty=qty;
+              break;
+            }
+          }
+          if(typeof render==='function') render();
+        }catch(_error){}
       }
       try{
         window.dispatchEvent(new CustomEvent('hxa:budget-updated',{
           detail:{source:'compatibles',product:p,quantity:qty}
+        }));
+        window.dispatchEvent(new CustomEvent('hxa:product-added',{
+          detail:{source:'compatibles',name:String(p?.name||''),quantity:qty}
         }));
       }catch(_error){}
       btn.textContent='✓ Añadido';
