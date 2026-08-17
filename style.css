@@ -7593,10 +7593,27 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
 #hxCompatModal .hx-compat-tab,
 #hxCompatModal .hx-compat-step,
 #hxCompatModal .hx-compat-add{
+  grid-area:add;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  width:82px;
+  height:34px;
+  min-width:82px;
+  padding:0 10px;
+  border:1px solid #78a18d;
+  border-radius:9px;
   background:#fff;
   background-image:none;
-  color:#203f32;
+  color:#245440;
   box-shadow:none;
+  font-size:10px;
+  font-weight:800;
+  line-height:1;
+  text-align:center;
+  white-space:nowrap;
+  cursor:pointer;
 }
 #hxCompatModal .hx-compat-header{
   display:flex;
@@ -7924,15 +7941,14 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
 
   background-image:none;}
 #hxCompatModal .hx-compat-add:hover{
-  background:#edf8f2;
-  border-color:#288b5d;
-  color:#0b6c40;
-  transform:translateY(-1px);
+  background:#eef6f2;
+  border-color:#4f8f70;
+  color:#174d35;
 }
 #hxCompatModal .hx-compat-add.is-added{
-  background:#eef8f3;
-  border-color:#7ab697;
-  color:#126c42;
+  background:#f0f6f3;
+  border-color:#8aaf9c;
+  color:#176e45;
 }
 
 #hxCompatModal .hx-compat-note{
@@ -8172,3 +8188,33 @@ body.light .hx-product-thumb,
 body.claro .hx-product-thumb{background:#eef1f3!important;background-image:none!important;border-color:#c4ccd2!important;}
 
 body.light-mode .hx-product-thumb:hover,body.light-mode button.hx-product-thumb:hover{background:#e4e9ec!important;border-color:#aeb9c1!important;}
+
+/* Botón modo — contenedor recuperado */
+#themeToggle{
+  width:42px;
+  height:42px;
+  min-width:42px;
+  min-height:42px;
+  display:inline-grid;
+  place-items:center;
+  padding:0;
+  border:1px solid #cfd9d4;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 3px 10px rgba(30,60,45,.10);
+}
+#themeToggle:hover{
+  background:#f5f8f6;
+  border-color:#aebfb6;
+  box-shadow:0 4px 12px rgba(30,60,45,.14);
+}
+body:not(.light-mode):not(.light):not(.claro) #themeToggle{
+  border-color:#4d5c54;
+  background:#18211d;
+  box-shadow:0 3px 12px rgba(0,0,0,.28);
+}
+body:not(.light-mode):not(.light):not(.claro) #themeToggle:hover{
+  background:#202b26;
+  border-color:#64746b;
+  box-shadow:0 4px 14px rgba(0,0,0,.34);
+}

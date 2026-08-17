@@ -2363,4 +2363,38 @@ body.light-mode .hxp-budget-mini b{
 }
 
 /* Detalle Explorer — única implementación */
-.hxp-product-refline{display:flex;align-items:center;gap:6px;min-width:0}.hxp-detail-ref{flex:0 0 20px;width:20px;height:20px;margin:0;padding:0;display:grid;place-items:center;border:1px solid #cbd9d1;border-radius:7px;background:#fff;color:#26704d;font-size:12px;font-weight:900;cursor:pointer}.hxp-product-long-description{display:none}.hxp-product.is-detail-open .hxp-product-long-description{display:block}
+.hxp-product-refline{display:flex;align-items:center;gap:6px;min-width:0}.hxp-detail-ref{
+  flex:0 0 20px;
+  width:20px;
+  height:20px;
+  min-width:20px;
+  min-height:20px;
+  margin:0;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border:1px solid #cbd9d1;
+  border-radius:7px;
+  background:#fff;
+  background-image:none;
+  color:#4a6156;
+  box-shadow:none;
+  font-size:11px;
+  font-weight:800;
+  line-height:1;
+  cursor:pointer;
+}.hxp-product-long-description{display:none}.hxp-product.is-detail-open .hxp-product-long-description{display:block}
+
+/* Comp. Explorer — noche discreto */
+body:not(.light-mode):not(.light):not(.claro) #familiasGrid .hxp-compatible-btn{
+  background:rgba(255,255,255,.035);
+  background-image:none;
+  border-color:#5d786b;
+  color:#c8d7d0;
+  box-shadow:none;
+}
+body:not(.light-mode):not(.light):not(.claro) #familiasGrid .hxp-compatible-btn:hover{
+  background:rgba(95,155,124,.12);
+  border-color:#6f9a83;
+  color:#eef7f2;
+}
