@@ -7700,8 +7700,11 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
 @media(max-width:640px){#hxCompatModal .hx-compat-tabs button{min-width:100px!important;padding:9px 9px 10px!important;gap:5px!important}}
 
 
+
+
 /* =========================================================
-   COMPATIBLES MÓVIL — TARJETAS EN DOS BLOQUES
+   COMPATIBLES MÓVIL — ESTRUCTURA ESTABLE
+   Cabecera, producto y pestañas fijas. Solo la lista hace scroll.
    ========================================================= */
 @media(max-width:640px){
   #hxCompatModal.hx-compat-modal{
@@ -7712,25 +7715,28 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
   #hxCompatModal .hx-compat-dialog{
     width:100%!important;
     max-height:93vh!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
     border-radius:18px 18px 8px 8px!important;
+  }
+
+  #hxCompatModal .hx-compat-header,
+  #hxCompatModal .hx-compat-origin,
+  #hxCompatModal .hx-compat-tabs,
+  #hxCompatModal .hx-compat-results-head,
+  #hxCompatModal .hx-compat-note{
+    flex:0 0 auto!important;
+    flex-shrink:0!important;
   }
 
   #hxCompatModal .hx-compat-header{
     padding:12px 12px 9px 14px!important;
   }
 
-  #hxCompatModal .hx-compat-heading{
-    gap:4px!important;
-  }
-
   #hxCompatModal .hx-compat-heading>strong{
     font-size:15px!important;
     line-height:1.15!important;
-  }
-
-  #hxCompatModal .hx-compat-official{
-    font-size:8.5px!important;
-    padding:3px 7px!important;
   }
 
   #hxCompatModal .hx-compat-origin{
@@ -7755,258 +7761,133 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
     -webkit-line-clamp:2!important;
   }
 
+  /* Tabs nunca encogen. Si hay muchos, scroll horizontal. */
   #hxCompatModal .hx-compat-tabs{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    width:auto!important;
+    min-height:66px!important;
+    max-height:66px!important;
     margin:0 9px 7px!important;
+    padding:0!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    scroll-snap-type:x proximity!important;
+  }
+
+  #hxCompatModal .hx-compat-tabs::-webkit-scrollbar{
+    display:none!important;
   }
 
   #hxCompatModal .hx-compat-tabs button{
-    min-width:92px!important;
-    padding:8px 8px 9px!important;
-    gap:4px!important;
+    flex:0 0 120px!important;
+    width:120px!important;
+    min-width:120px!important;
+    max-width:120px!important;
+    height:66px!important;
+    min-height:66px!important;
+    max-height:66px!important;
+    padding:8px 8px 15px!important;
+    margin:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:5px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+    scroll-snap-align:start!important;
   }
 
   #hxCompatModal .hx-tab-icon{
-    font-size:14px!important;
-    line-height:16px!important;
-    min-height:16px!important;
+    display:block!important;
+    flex:0 0 18px!important;
+    height:18px!important;
+    min-height:18px!important;
+    line-height:18px!important;
+    margin:0!important;
   }
 
   #hxCompatModal .hx-compat-tabs button>span:last-child{
-    font-size:9px!important;
+    display:block!important;
+    flex:0 0 15px!important;
+    min-height:15px!important;
+    line-height:15px!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
   }
 
   #hxCompatModal .hx-compat-results-head{
-    padding:1px 11px 6px!important;
+    padding:2px 11px 6px!important;
     font-size:11px!important;
   }
 
+  /* SOLO la lista crece y hace scroll */
   #hxCompatModal .hx-compat-list{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
     padding:0 9px 6px!important;
+    -webkit-overflow-scrolling:touch!important;
   }
 
-  #hxCompatModal .hx-compat-item{
-    display:grid!important;
-    grid-template-columns:70px minmax(0,1fr)!important;
-    grid-template-areas:
-      "photo main"
-      "commerce commerce"!important;
-    gap:8px 10px!important;
-    padding:9px!important;
-    margin-bottom:7px!important;
-    align-items:start!important;
-  }
-
-  #hxCompatModal .hx-compat-photo{
-    grid-area:photo!important;
-    width:70px!important;
-    height:70px!important;
-  }
-
-  #hxCompatModal .hx-compat-main{
-    grid-area:main!important;
-    min-width:0!important;
-  }
-
-  #hxCompatModal .hx-compat-refline{
-    gap:5px!important;
-  }
-
-  #hxCompatModal .hx-compat-refline>strong{
-    font-size:12.5px!important;
-    line-height:1.15!important;
-  }
-
-  #hxCompatModal .hx-compat-refline>span{
-    font-size:8px!important;
-    padding:2px 5px!important;
-  }
-
-  #hxCompatModal .hx-compat-main p{
-    margin:4px 0 5px!important;
-    font-size:9.5px!important;
-    line-height:1.32!important;
-    -webkit-line-clamp:3!important;
-  }
-
-  #hxCompatModal .hx-compat-meta{
-    gap:5px!important;
-  }
-
-  #hxCompatModal .hx-compat-meta small{
-    padding:3px 6px!important;
-    font-size:8.5px!important;
-  }
-
+  /* Tarjeta compatible: mantener diseño actual, qty más pequeño */
   #hxCompatModal .hx-compat-commerce{
-    grid-area:commerce!important;
-    display:grid!important;
-    grid-template-columns:auto minmax(112px,1fr) minmax(86px,auto)!important;
+    grid-template-columns:auto 90px 82px!important;
     grid-template-areas:"price qty add"!important;
     gap:7px!important;
-    align-items:center!important;
-    width:100%!important;
-    justify-content:stretch!important;
-    margin-top:1px!important;
-  }
-
-  #hxCompatModal .hx-compat-commerce>strong{
-    grid-area:price!important;
-    justify-self:start!important;
-    font-size:14px!important;
-    white-space:nowrap!important;
   }
 
   #hxCompatModal .hx-compat-qty{
-    grid-area:qty!important;
-    width:100%!important;
-    grid-template-columns:32px minmax(36px,1fr) 32px!important;
-    height:36px!important;
+    width:90px!important;
+    min-width:90px!important;
+    max-width:90px!important;
+    height:34px!important;
+    grid-template-columns:27px 36px 27px!important;
+  }
+
+  #hxCompatModal .hx-compat-qty button,
+  #hxCompatModal .hx-compat-qty span{
+    min-width:0!important;
+    padding:0!important;
   }
 
   #hxCompatModal button.hx-compat-add{
-    grid-area:add!important;
-    width:100%!important;
-    min-width:86px!important;
-    height:36px!important;
-    padding:0 10px!important;
-    justify-self:stretch!important;
+    min-width:82px!important;
+    height:34px!important;
+    padding:0 8px!important;
   }
 
   #hxCompatModal .hx-compat-note{
     margin:3px 9px 9px!important;
     padding:8px 10px!important;
-    font-size:8.8px!important;
   }
 }
 
 @media(max-width:390px){
-  #hxCompatModal .hx-compat-item{
-    grid-template-columns:62px minmax(0,1fr)!important;
-    gap:7px 9px!important;
-    padding:8px!important;
-  }
-
-  #hxCompatModal .hx-compat-photo{
-    width:62px!important;
-    height:62px!important;
-  }
-
-  #hxCompatModal .hx-compat-commerce{
-    grid-template-columns:auto minmax(100px,1fr) 78px!important;
-    gap:6px!important;
-  }
-
-  #hxCompatModal button.hx-compat-add{
-    min-width:78px!important;
-    padding:0 7px!important;
-    font-size:10px!important;
-  }
-}
-
-
-/* Compatibles tabs stable */
-#hxCompatModal .hx-compat-tabs{
-  display:grid!important;
-  grid-auto-flow:column!important;
-  grid-auto-columns:minmax(112px,1fr)!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  scrollbar-width:none!important;
-  scroll-snap-type:x proximity!important;
-}
-#hxCompatModal .hx-compat-tabs::-webkit-scrollbar{display:none!important}
-#hxCompatModal .hx-compat-tabs button{
-  min-width:112px!important;
-  scroll-snap-align:start!important;
-  flex:none!important;
-}
-@media(max-width:640px){
-  #hxCompatModal .hx-compat-tabs{
-    grid-auto-columns:108px!important;
-  }
   #hxCompatModal .hx-compat-tabs button{
-    min-width:108px!important;
+    flex-basis:112px!important;
+    width:112px!important;
+    min-width:112px!important;
+    max-width:112px!important;
   }
-}
 
-
-/* Compatibles móvil compactación final */
-@media(max-width:640px){
-  #hxCompatModal .hx-compat-list{padding-bottom:4px!important}
-  #hxCompatModal .hx-compat-item{
-    grid-template-columns:62px minmax(0,1fr)!important;
-    grid-template-areas:
-      "photo main"
-      "commerce commerce"!important;
-    gap:7px 9px!important;
-    padding:8px!important;
-    margin-bottom:6px!important;
-    border-radius:12px!important;
-  }
-  #hxCompatModal .hx-compat-photo{
-    width:62px!important;height:62px!important;border-radius:9px!important;
-  }
-  #hxCompatModal .hx-compat-refline>strong{
-    font-size:12px!important;
-  }
-  #hxCompatModal .hx-compat-refline>span{
-    font-size:7.5px!important;
-    padding:2px 5px!important;
-  }
-  #hxCompatModal .hx-compat-main p{
-    margin:3px 0 4px!important;
-    font-size:9.2px!important;
-    line-height:1.28!important;
-    -webkit-line-clamp:3!important;
-  }
-  #hxCompatModal .hx-compat-meta small{
-    font-size:8px!important;
-    padding:3px 5px!important;
-  }
   #hxCompatModal .hx-compat-commerce{
-    grid-template-columns:auto minmax(108px,1fr) 82px!important;
-    grid-template-areas:"price qty add"!important;
-    gap:6px!important;
-    margin-top:0!important;
+    grid-template-columns:auto 86px 76px!important;
   }
-  #hxCompatModal .hx-compat-commerce>strong{
-    font-size:13.5px!important;
-  }
+
   #hxCompatModal .hx-compat-qty{
-    height:34px!important;
-    grid-template-columns:30px minmax(34px,1fr) 30px!important;
+    width:86px!important;
+    min-width:86px!important;
+    max-width:86px!important;
+    grid-template-columns:26px 34px 26px!important;
   }
-  #hxCompatModal button.hx-compat-add{
-    height:34px!important;
-    min-width:82px!important;
-    padding:0 8px!important;
-    font-size:10px!important;
-  }
-  #hxCompatModal .hx-compat-origin{
-    grid-template-columns:62px minmax(0,1fr)!important;
-    padding:8px!important;
-    margin-bottom:6px!important;
-  }
-  #hxCompatModal .hx-compat-origin>img{
-    width:62px!important;height:62px!important;
-  }
-  #hxCompatModal .hx-compat-origin-title strong{
-    font-size:12px!important;
-  }
-  #hxCompatModal .hx-compat-origin-copy>span{
-    font-size:9.2px!important;
-    line-height:1.28!important;
-    -webkit-line-clamp:2!important;
-  }
-  #hxCompatModal .hx-compat-note{
-    padding:7px 9px!important;
-    font-size:8.5px!important;
-  }
-}
-@media(max-width:390px){
-  #hxCompatModal .hx-compat-commerce{
-    grid-template-columns:auto minmax(100px,1fr) 76px!important;
-  }
+
   #hxCompatModal button.hx-compat-add{
     min-width:76px!important;
     padding:0 6px!important;
