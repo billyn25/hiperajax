@@ -2382,7 +2382,7 @@ body.light-mode .hxp-budget-mini b{
 
 /* Detalle Explorer — icono neutro */
 .hxp-product-refline{display:flex;align-items:center;gap:6px;min-width:0}
-.hxp-detail-ref{flex:0 0 20px;width:20px;height:20px;min-width:20px;min-height:20px;display:inline-grid;place-items:center;box-sizing:border-box;margin:0;padding:0;border:1px solid #c3cec8;border-radius:7px;background:#fff;color:#465a50;box-shadow:none;cursor:pointer;user-select:none}
+.hxp-detail-ref{flex:0 0 20px;width:20px;height:20px;min-width:20px;min-height:20px;display:inline-grid;place-items:center;box-sizing:border-box;margin:0;padding:0;border:1px solid #c3cec8;border-radius:7px;background:#fff;color:#465a50;box-shadow:0 2px 6px rgba(25,45,35,.16);cursor:pointer;user-select:none}
 .hxp-detail-icon{display:block;width:100%;text-align:center;font-size:14px;font-weight:700;line-height:16px;transform:translateY(-1px)}
 .hxp-detail-ref:hover{background:#f3f6f4;border-color:#98aaa0;color:#273b31}
 .hxp-product-long-description{display:none}.hxp-product.is-detail-open .hxp-product-long-description{display:block}
@@ -2396,18 +2396,21 @@ body:not(.light-mode) .hxp-detail-ref:hover{background:rgba(255,255,255,.08);bor
 body:not(.light-mode) #familiasModal .hxp-budget-pill,body:not(.light-mode) #familiasModal .hxp-budget-dismiss,body:not(.light-mode) #familiasModal .hxp-budget-mini{background:#222925;background-image:none;color:#edf2ef;border-color:#536159}
 body:not(.light-mode) #familiasModal .hxp-budget-cart{background:#303a35;color:#dbe5e0}
 
+
+
 @media(max-width:640px){
   .hxp-detail-ref{
-    flex-basis:28px;
-    width:28px;
-    height:28px;
-    min-width:28px;
-    min-height:28px;
-    border-radius:8px;
+    flex:0 0 30px;
+    width:30px;
+    height:30px;
+    min-width:30px;
+    min-height:30px;
+    border-radius:9px;
+    box-shadow:0 3px 9px rgba(20,40,30,.20);
   }
   .hxp-detail-icon{
-    font-size:18px;
-    line-height:22px;
-    transform:translateY(-1px);
+    font-size:19px;
+    line-height:24px;
+    font-weight:800;
   }
 }
