@@ -2397,6 +2397,7 @@ function parseCSVRobusto175(txt){
   let idxPower = -1;
   let idxAttributes = -1;
   let idxOrder = -1;
+  let idxRelatedProducts = -1;
 
   if(hasHeader){
     idxName = find(['name','nombre','producto','referencia','codigo','ref','sku']);
@@ -2437,6 +2438,9 @@ function parseCSVRobusto175(txt){
     idxPower = find(['power','alimentacion','voltage','voltaje','powersupply','fuentealimentacion']);
     idxAttributes = find(['attributes','attributesjson','filterattributes','atributos','atributosjson']);
     idxOrder = find(['order','orden','sortorder','priority','prioridad']);
+    idxRelatedProducts = find([
+      'relatedproducts','related','productosrelacionados','productosrelacionados'
+    ]);
     if(idxName < 0) idxName = 0;
   }
 
@@ -2444,7 +2448,7 @@ function parseCSVRobusto175(txt){
     idxName,idxBrand,idxPvp,idxDescription,idxShortDescription,idxImage,idxStock,idxCost,
     idxCategory,idxFamily,idxSubcategory,idxProductType,idxSeries,idxTechnology,idxProtocol,
     idxColor,idxConnectivity,idxResolution,idxEnvironment,idxPhoto,idxPoe,idxWifi,idxLte4g,
-    idxCompatibility,idxChannels,idxLens,idxMounting,idxPower,idxAttributes,idxOrder
+    idxCompatibility,idxChannels,idxLens,idxMounting,idxPower,idxAttributes,idxOrder,idxRelatedProducts
   ].filter(i => i >= 0));
 
   const isUsefulDynamicHeader = key => {
@@ -2519,6 +2523,7 @@ function parseCSVRobusto175(txt){
       lens:read(idxLens),
       mounting:read(idxMounting),
       power:read(idxPower),
+      related_products:read(idxRelatedProducts),
       attributes,
       order:idxOrder >= 0 ? numero(cols[idxOrder]) : 0,
       raw:cols
@@ -2777,8 +2782,8 @@ function hxUnirCatalogos(base, manual){
   return [...mapa.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
 }
 
-const HX_CATALOGO_LOCAL_KEY='hx_catalogo_remoto_csv_v4';
-const HX_CATALOGO_LOCAL_OLD_KEYS=['hx_catalogo_remoto_csv_v1','hx_catalogo_remoto_csv_v2','hx_catalogo_remoto_csv_v3'];
+const HX_CATALOGO_LOCAL_KEY='hx_catalogo_remoto_csv_v5_related';
+const HX_CATALOGO_LOCAL_OLD_KEYS=['hx_catalogo_remoto_csv_v1','hx_catalogo_remoto_csv_v2','hx_catalogo_remoto_csv_v3','hx_catalogo_remoto_csv_v4'];
 const HX_CATALOGO_LOCAL_TTL=48*60*60*1000;
 
 const HX_CATALOGO_BASELINE_KEY='hx_catalogo_refs_baseline_v1';
@@ -2905,7 +2910,7 @@ async function cargarCatalogo(){
   try{
     let baseTxt = '';
     try{
-      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v=212');
+      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v=213-related');
     }catch(errorRemoto){
       console.warn('Catálogo remoto no disponible; se usa la copia local.', errorRemoto);
       baseTxt = await hxLeerCSV(CSV_URL);
@@ -2919,6 +2924,15 @@ async function cargarCatalogo(){
     const base = parseCSVRobusto175(baseTxt);
     const manual = manualTxt ? parseCSVRobusto175(manualTxt) : [];
     productos = hxUnirCatalogos(base, manual);
+    try{
+      const conRelacionados = productos.filter(p=>String(p?.related_products||'').trim()).length;
+      window.HX_RELATED_DIAGNOSTIC = {
+        total: productos.length,
+        conRelacionados,
+        ejemplo: productos.find(p=>String(p?.related_products||'').trim())?.name || ''
+      };
+      console.info('[Compatibles] related_products cargados:', window.HX_RELATED_DIAGNOSTIC);
+    }catch(_error){}
     hxActualizarProductosNuevos(productos);
     if(!productos.length) throw new Error('Catálogo vacío o columnas no reconocidas');
     try{
