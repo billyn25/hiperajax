@@ -2406,21 +2406,19 @@
       if(button.dataset.hxpDescriptionBound) return;
       button.dataset.hxpDescriptionBound='1';
       button.addEventListener('click', event => {
+        event.preventDefault();
         event.stopPropagation();
         const copy=button.closest('.hxp-product-copy');
-        const detail=copy?.querySelector('.hxp-product-long-description');
+        const detail=copy ? copy.querySelector('.hxp-product-long-description') : null;
         if(!detail) return;
-        const opening=detail.hasAttribute('hidden');
-        if(opening){
-          detail.removeAttribute('hidden');
-          detail.style.display='block';
-        }else{
-          detail.setAttribute('hidden','');
-          detail.style.display='none';
-        }
-        button.setAttribute('aria-expanded',String(opening));
-        button.setAttribute('aria-label',opening?'Ocultar detalle':'Ver detalle');
-        button.textContent=opening?'▴':'▾';
+
+        const opening = detail.hidden === true || detail.hasAttribute('hidden');
+        detail.hidden = !opening;
+
+        button.setAttribute('aria-expanded', String(opening));
+        button.setAttribute('aria-label', opening ? 'Ocultar detalle' : 'Ver detalle');
+        button.setAttribute('title', opening ? 'Ocultar detalle' : 'Ver detalle');
+        button.textContent = opening ? '▴' : '▾';
       });
     });
     root.querySelectorAll('[data-hxp-add]').forEach(button => {

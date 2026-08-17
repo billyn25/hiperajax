@@ -8064,3 +8064,12 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
   --hx-tab-accent:#b34b55;
   --hx-tab-soft:#fdf0f1;
 }
+
+/* Aviso de añadido siempre dentro y por delante del modal */
+#hxCompatModal .hx-compat-added-notice{
+  position:relative!important;
+  z-index:5!important;
+}
+#hxCompatModal .hx-compat-dialog{
+  isolation:isolate!important;
+}
