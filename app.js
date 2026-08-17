@@ -276,6 +276,9 @@ function hxCompatFunctionalType(product){
     return {key:'valvulas',label:'Válvulas',icon:'◉',tone:'blue'};
   if(/keypad|teclado|touchscreen/.test(own))
     return {key:'teclados',label:'Teclados',icon:'⌨',tone:'violet'};
+
+  if(/motionprotect|doorprotect|leaksprotect|fireprotect|glassprotect|combiprotect|motioncam|curtain|outdoorprotect|detector|fotodetector|contacto magnetico|contacto magnético|inundacion|inundación/.test(own))
+    return {key:'detectores',label:'Detectores',icon:'◎',tone:'red'};
   if(/spacecontrol|doublebutton|button|boton|botón|mando/.test(own))
     return {key:'mandos',label:'Mandos / Botones',icon:'●',tone:'orange'};
   if(/(?:^|[-_])(bracket|mount|holder|junctionbox|junction|dinholder)(?:[-_]|$)/.test(ref) || /\b(bracket|mount|holder|junction ?box|caja de conexiones|soporte para|soporte de montaje|soporte pared|soporte techo|soporte poste)\b/.test(own))
@@ -309,7 +312,7 @@ function hxOpenCompatibles(product){
   title.textContent=`Compatibles con ${product?.name||''}`;official.textContent=`${all.length} compatible${all.length===1?'':'s'} oficial${all.length===1?'':'es'}`;
   const oi=hxCompatImage(product),od=(product?.short_description||product?.description||'').trim();
   origin.innerHTML=`${oi?`<img src="${escapeHtml(oi)}" alt="">`:''}<div class="hx-compat-origin-copy"><div class="hx-compat-origin-title"><strong>${escapeHtml(product?.name||'')}</strong><em>✓ Producto actual</em></div><span>${escapeHtml(od)}</span></div>`;
-const functionalOrder=['baterias','valvulas','teclados','mandos','soportes','alimentacion','almacenamiento','repuestos','otros'];
+const functionalOrder=['detectores','baterias','valvulas','teclados','mandos','soportes','alimentacion','almacenamiento','repuestos','otros'];
   const discovered=new Map();
   all.forEach(p=>{ const t=hxCompatFunctionalType(p); if(!discovered.has(t.key)) discovered.set(t.key,t); });
   const groups=[

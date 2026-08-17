@@ -8059,3 +8059,8 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
     overscroll-behavior:contain!important;
   }
 }
+
+#hxCompatModal .hx-compat-tabs button.tone-red{
+  --hx-tab-accent:#b34b55;
+  --hx-tab-soft:#fdf0f1;
+}

@@ -1912,9 +1912,9 @@
       <div class="hxp-product-main">
         ${productImage(product)}
         <div class="hxp-product-copy">
-          <strong class="hxp-product-ref">${esc(product.name || 'Sin referencia')}</strong>
+          <div class="hxp-product-refline"><strong class="hxp-product-ref">${esc(product.name || 'Sin referencia')}</strong>${fullDescription ? `<button type="button" class="hxp-description-toggle hxp-detail-ref" data-hxp-description-toggle aria-expanded="false" aria-label="Ver detalle">▾</button>` : ''}</div>
           <span class="hxp-product-description">${esc(description)}</span>
-          ${fullDescription ? `<button type="button" class="hxp-description-toggle hxp-description-info" data-hxp-description-toggle aria-expanded="false" aria-label="Ver detalle" title="Ver detalle">i</button><div class="hxp-product-long-description" hidden>${esc(fullDescription)}</div>` : ''}
+          ${fullDescription ? `<div class="hxp-product-long-description" hidden>${esc(fullDescription)}</div>` : ''}
           ${newClass}
           <div class="hxp-product-meta">${stockBadge(product)}${productMeta(product)}</div>
         </div>
@@ -2407,14 +2407,11 @@
       button.dataset.hxpDescriptionBound='1';
       button.addEventListener('click', event => {
         event.stopPropagation();
-        const detail=button.nextElementSibling;
+        const detail=button.closest('.hxp-product-copy')?.querySelector('.hxp-product-long-description');
         if(!detail) return;
-        const opening=detail.hidden;
-        detail.hidden=!opening;
+        const opening=detail.hidden; detail.hidden=!opening;
         button.setAttribute('aria-expanded',String(opening));
-        button.textContent=opening?'×':'i';
-        button.setAttribute('aria-label',opening?'Ocultar detalle':'Ver detalle');
-        button.setAttribute('title',opening?'Ocultar detalle':'Ver detalle');
+        button.textContent=opening?'▴':'▾';
       });
     });
     root.querySelectorAll('[data-hxp-add]').forEach(button => {
