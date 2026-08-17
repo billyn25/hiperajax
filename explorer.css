@@ -2395,3 +2395,19 @@ body:not(.light-mode) .hxp-detail-ref:hover{background:rgba(255,255,255,.08);bor
 #familiasModal .hxp-budget-mini b{background:#e9efec;color:#435149}
 body:not(.light-mode) #familiasModal .hxp-budget-pill,body:not(.light-mode) #familiasModal .hxp-budget-dismiss,body:not(.light-mode) #familiasModal .hxp-budget-mini{background:#222925;background-image:none;color:#edf2ef;border-color:#536159}
 body:not(.light-mode) #familiasModal .hxp-budget-cart{background:#303a35;color:#dbe5e0}
+
+@media(max-width:640px){
+  .hxp-detail-ref{
+    flex-basis:28px;
+    width:28px;
+    height:28px;
+    min-width:28px;
+    min-height:28px;
+    border-radius:8px;
+  }
+  .hxp-detail-icon{
+    font-size:18px;
+    line-height:22px;
+    transform:translateY(-1px);
+  }
+}
