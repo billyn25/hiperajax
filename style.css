@@ -7893,3 +7893,88 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
     padding:0 6px!important;
   }
 }
+
+
+/* =========================================================
+   COMPATIBLES PC — TABS VISIBLES + MODAL DE ALTURA ESTABLE
+   No altera móvil.
+   ========================================================= */
+@media(min-width:641px){
+  #hxCompatModal .hx-compat-dialog{
+    height:min(82vh,760px)!important;
+    min-height:min(82vh,760px)!important;
+    max-height:min(82vh,760px)!important;
+  }
+
+  #hxCompatModal .hx-compat-header,
+  #hxCompatModal .hx-compat-origin,
+  #hxCompatModal .hx-compat-tabs,
+  #hxCompatModal .hx-compat-results-head,
+  #hxCompatModal .hx-compat-note{
+    flex:0 0 auto!important;
+    flex-shrink:0!important;
+  }
+
+  #hxCompatModal .hx-compat-tabs{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    min-height:58px!important;
+    height:58px!important;
+    max-height:58px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:none!important;
+  }
+
+  #hxCompatModal .hx-compat-tabs::-webkit-scrollbar{
+    display:none!important;
+  }
+
+  #hxCompatModal .hx-compat-tabs button{
+    flex:1 0 120px!important;
+    min-width:120px!important;
+    height:58px!important;
+    min-height:58px!important;
+    max-height:58px!important;
+    padding:8px 10px 12px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:4px!important;
+    overflow:visible!important;
+    white-space:nowrap!important;
+    line-height:1.1!important;
+  }
+
+  #hxCompatModal .hx-tab-icon{
+    display:block!important;
+    flex:0 0 16px!important;
+    height:16px!important;
+    min-height:16px!important;
+    line-height:16px!important;
+    margin:0!important;
+  }
+
+  #hxCompatModal .hx-compat-tabs button>span:last-child{
+    display:block!important;
+    flex:0 0 auto!important;
+    min-height:14px!important;
+    line-height:14px!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+
+  #hxCompatModal .hx-compat-list{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+
+  #hxCompatModal .hx-compat-note{
+    margin-top:auto!important;
+  }
+}
