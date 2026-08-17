@@ -202,18 +202,6 @@ function hxCompatImage(product){
 function hxCompatCategoryLabel(product){
   return ['Soporte / montaje','Alimentación','Almacenamiento','Compatible','Repuesto'][hxRelatedCategory(product)]||'Compatible';
 }
-
-function hxCompatTabIcon(type){
-  const icons={
-    grid:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>',
-    mount:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v5M17 4v5M5 9h14M8 9v5a4 4 0 0 0 8 0V9M12 18v2"/></svg>',
-    power:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 6 13h5l-1 9 8-12h-5z"/></svg>',
-    storage:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"/><path d="M8 8h8v5H8zM8 16h.01M11 16h5"/></svg>',
-    more:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>',
-    parts:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3 2 2-4 4-2-2 4-4Zm6 6 4 4-2 2-4-4 2-2ZM8 14l2 2-5 5H3v-2l5-5Zm8-10 5 5-2 2-5-5 2-2Z"/></svg>'
-  };
-  return icons[type] || icons.more;
-}
 function hxEnsureCompatModal(){
   let modal=document.getElementById('hxCompatModal');
   if(modal)return modal;
@@ -231,19 +219,13 @@ function hxOpenCompatibles(product){
   const modal=hxEnsureCompatModal(), title=modal.querySelector('#hxCompatTitle'), official=modal.querySelector('#hxCompatOfficial'), origin=modal.querySelector('#hxCompatOrigin'), tabs=modal.querySelector('#hxCompatTabs'), count=modal.querySelector('#hxCompatCount'), list=modal.querySelector('#hxCompatList');
   title.textContent=`Compatibles con ${product?.name||''}`;official.textContent=`${all.length} compatible${all.length===1?'':'s'} oficial${all.length===1?'':'es'}`;
   const oi=hxCompatImage(product),od=(product?.short_description||product?.description||'').trim();
-  origin.innerHTML=`${oi?`<img src="${escapeHtml(oi)}" alt="">`:''}<div><strong>${escapeHtml(product?.name||'')}</strong><span>${escapeHtml(od)}</span></div>`;
-  const groups=[
-    ['Todos',null,'grid'],
-    ['Soportes',0,'mount'],
-    ['Alimentación',1,'power'],
-    ['Almacenamiento',2,'storage'],
-    ['Otros',3,'more'],
-    ['Repuestos',4,'parts']
-  ];
+  origin.innerHTML=`${oi?`<img src="${escapeHtml(oi)}" alt="">`:''}<div class="hx-compat-origin-copy"><div class="hx-compat-origin-title"><strong>${escapeHtml(product?.name||'')}</strong><em>✓ Producto actual</em></div><span>${escapeHtml(od)}</span><button type="button" class="hx-compat-view-current">Ver producto</button></div>`;
+  origin.querySelector('.hx-compat-view-current')?.addEventListener('click',()=>modal.classList.add('hidden'));
+  const groups=[['Todos',null,'⊞'],['Soportes',0,'⌘'],['Alimentación',1,'ϟ'],['Almacenamiento',2,'◇'],['Otros',3,'•••'],['Repuestos',4,'↻']];
   const counts=Object.fromEntries(groups.map(([l,c])=>[l,c===null?all.length:all.filter(p=>hxRelatedCategory(p)===c).length]));let active='Todos';
   function paint(){
     const found=groups.find(x=>x[0]===active),shown=active==='Todos'?all:all.filter(p=>hxRelatedCategory(p)===found?.[1]);
-    tabs.innerHTML=groups.filter(([l])=>l==='Todos'||counts[l]>0).map(([l,_cat,icon])=>`<button type="button" class="${active===l?'is-active':''}" data-hx-tab="${l}"><span class="hx-compat-tab-icon">${hxCompatTabIcon(icon)}</span><span class="hx-compat-tab-label">${l} <em>${counts[l]}</em></span></button>`).join('');
+    tabs.innerHTML=groups.filter(([l])=>l==='Todos'||counts[l]>0).map(([l,c,icon])=>`<button type="button" class="${active===l?'is-active':''}" data-hx-tab="${l}"><span class="hx-tab-icon">${icon}</span><span>${l} <em>(${counts[l]})</em></span></button>`).join('');
     count.textContent=`${shown.length} producto${shown.length===1?'':'s'} compatible${shown.length===1?'':'s'}`;
     list.innerHTML=shown.map((p,i)=>{const image=hxCompatImage(p),desc=(p?.short_description||p?.description||'').trim(),stock=hxEstadoStock(p?.stock),price=Number(p?.pvp??p?.PVP??p?.precio_venta_cliente_final??0);return `<article class="hx-compat-item" data-hx-compat-row="${i}">
   <div class="hx-compat-photo">${image?`<img src="${escapeHtml(image)}" alt="">`:''}</div>
