@@ -89,9 +89,9 @@
     nvr:['4 canales','8 canales','16 canales','32+ canales','HDMI'],
     wireless_accessories:['Teclados','Tags / Cards','Sirenas','Relés','Botones / Mandos','Enchufes','Válvulas','Repetidores','LifeQuality','Transmitters','Hood / Viseras','Holder','SIM'],
     spares:['Brackets','Carcasas','Baterías','PCB','Lentes'],
-    power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE'],
+    power_supply:['Pilas','Fuentes y Alimentadores','Inyectores PoE','Formato DIN'],
     ups:['UPS'],
-    routers_mobile:['Routers','Licencias'],
+    routers_mobile:['Routers','Licencias','Industrial'],
     unmanaged_switches:['4 puertos','5 puertos','8 puertos','16 puertos','24 puertos','48 puertos','PoE'],
     infrared_barriers:['Cableadas','Inalámbricas','Híbridas','Compatible Ajax','Solares']
   });
@@ -1666,8 +1666,8 @@
     if(profile === 'routers_mobile'){
       const pRouter = item?.p || {};
       const {source} = quickContext(item);
-      if(/\bindustrial\b/.test(source)) add('Industrial');
       const textRouter = norm(`${pRouter.name||''} ${pRouter.short_description||''} ${pRouter.description||''} ${source}`);
+      if(/\bindustrial\b/.test(textRouter)) add('Industrial');
       const isLicense = /licencia|license|licence|suscripcion|suscripción|subscription/.test(textRouter);
       if(isLicense) add('Licencias');
       else add('Routers');
@@ -1701,11 +1701,12 @@
     if(profile === 'power_supply'){
       const pPower = item?.p || {};
       const {source} = quickContext(item);
-      if(/\b(?:formato\s+din|carril\s+din|din\s+rail|din)\b/.test(source)) add('Formato DIN');
       const hierarchy = norm([
         pPower.category, pPower.family, pPower.subcategory, pPower.product_type,
         item?.category, item?.family, item?.subcategory
       ].filter(Boolean).join(' '));
+      const dinText = norm(`${pPower.name||''} ${pPower.short_description||''} ${pPower.description||''} ${hierarchy} ${source}`);
+      if(/\b(?:formato\s+din|carril\s+din|din\s+rail|din)\b/.test(dinText)) add('Formato DIN');
       const compact = norm(pPower.name || '').replace(/[^a-z0-9]/g,'');
       const excludedPack = /batterybox|batterykit|batterypack|batteryholder|batterycase|powerbank|acumulador|accumulator|modulobateria|batterymodule/.test(compact);
       const pile = /baterias? y pilas|batteries and cells/.test(hierarchy)

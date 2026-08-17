@@ -149,6 +149,135 @@ function hxBuscarComun(term){
   return engine.rows(productos,String(term||''),300);
 }
 
+
+/* =====================================================
+   COMPATIBLES OFICIALES (related_products)
+   Prueba: no añade nada automáticamente.
+   ===================================================== */
+function hxRelatedRefs(product){
+  const raw = String(product?.related_products || '').trim();
+  if(!raw) return [];
+  return [...new Set(raw.split(/[,;|]+/).map(v=>v.trim()).filter(Boolean))];
+}
+
+function hxProductByRef(reference){
+  const wanted = String(reference||'').trim().toLowerCase();
+  if(!wanted) return null;
+  return productos.find(p => String(p?.name||'').trim().toLowerCase() === wanted) || null;
+}
+
+function hxResolvedRelated(product){
+  return hxRelatedRefs(product)
+    .map(ref => hxProductByRef(ref))
+    .filter(Boolean)
+    .filter((p,idx,arr) => arr.findIndex(x => String(x.name).toLowerCase() === String(p.name).toLowerCase()) === idx);
+}
+
+function hxRelatedCategory(product){
+  const text = normaliza([
+    product?.category, product?.category_parent, product?.family,
+    product?.subcategory, product?.product_type,
+    product?.short_description, product?.description, product?.name
+  ].filter(Boolean).join(' '));
+
+  if(/soporte|bracket|mount|junction|junctionbox|caja de conexiones|caja conexiones/.test(text)) return 0;
+  if(/alimentacion|alimentación|fuente|power supply|adaptador|adapter|poe|inyector/.test(text)) return 1;
+  if(/disco|hdd|ssd|almacenamiento|storage|tarjeta sd|micro ?sd/.test(text)) return 2;
+  if(/repuesto|recambio|dummy|carcasa|cover|tapa/.test(text)) return 4;
+  return 3;
+}
+
+function hxSortedRelated(product){
+  return hxResolvedRelated(product).sort((a,b)=>
+    hxRelatedCategory(a)-hxRelatedCategory(b)
+    || (Number(a?.pvp)||Number(a?.PVP)||0) - (Number(b?.pvp)||Number(b?.PVP)||0)
+    || String(a?.name||'').localeCompare(String(b?.name||''),'es',{numeric:true,sensitivity:'base'})
+  );
+}
+
+function hxEnsureCompatModal(){
+  let modal = document.getElementById('hxCompatModal');
+  if(modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'hxCompatModal';
+  modal.className = 'hx-compat-modal hidden';
+  modal.innerHTML = `
+    <div class="hx-compat-backdrop" data-hx-compat-close></div>
+    <section class="hx-compat-dialog" role="dialog" aria-modal="true" aria-labelledby="hxCompatTitle">
+      <header class="hx-compat-header">
+        <div>
+          <strong id="hxCompatTitle">Compatibles</strong>
+          <div id="hxCompatSubtitle" class="hx-compat-subtitle"></div>
+        </div>
+        <button type="button" class="hx-compat-close" data-hx-compat-close aria-label="Cerrar">×</button>
+      </header>
+      <div id="hxCompatList" class="hx-compat-list"></div>
+    </section>`;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', e => {
+    if(e.target.closest('[data-hx-compat-close]')) modal.classList.add('hidden');
+  });
+
+  return modal;
+}
+
+function hxOpenCompatibles(product){
+  const related = hxSortedRelated(product);
+  if(!related.length) return;
+
+  const modal = hxEnsureCompatModal();
+  const title = modal.querySelector('#hxCompatTitle');
+  const subtitle = modal.querySelector('#hxCompatSubtitle');
+  const list = modal.querySelector('#hxCompatList');
+
+  title.textContent = `Compatibles (${related.length})`;
+  subtitle.textContent = String(product?.name || '');
+
+  list.innerHTML = related.map((p,index)=>{
+    const d = typeof descripcionProducto === 'function' ? descripcionProducto(p) : {desc:p.short_description||''};
+    const stock = typeof hxEstadoStock === 'function' ? hxEstadoStock(p?.stock) : {texto:'',clase:''};
+    const price = Number(p?.pvp ?? p?.PVP ?? p?.precio_venta_cliente_final ?? 0);
+    return `<article class="hx-compat-item">
+      <div class="hx-compat-main">
+        <strong>${escapeHtml(p.name||'')}</strong>
+        <span>${escapeHtml(d?.desc || p.short_description || '')}</span>
+        <small>${escapeHtml(stock?.texto || '')}</small>
+      </div>
+      <div class="hx-compat-actions">
+        <strong>${price ? fmt.format(price) : ''}</strong>
+        <button type="button" data-hx-compat-add="${index}">Añadir</button>
+      </div>
+    </article>`;
+  }).join('');
+
+  list.querySelectorAll('[data-hx-compat-add]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      const p = related[Number(button.dataset.hxCompatAdd)];
+      if(!p) return;
+
+      // Usar el mismo flujo normal del presupuestador.
+      const idx = productos.indexOf(p);
+      if(idx >= 0){
+        seleccionarProducto(idx, true);
+        addLinea();
+      }
+
+      button.textContent = 'Añadido';
+      button.disabled = true;
+    });
+  });
+
+  modal.classList.remove('hidden');
+}
+
+function hxCompatButton(product){
+  const count = hxResolvedRelated(product).length;
+  if(!count) return '';
+  return `<button type="button" class="hx-compat-btn" data-hx-compatible="${escapeHtml(product?.name||'')}">Compatibles (${count})</button>`;
+}
+
 let hxSearchInputTimer = null;
 
 function hxProgramarBusquedaInicio(term){
@@ -1195,6 +1324,40 @@ function activarArrastreLineas(){
     if(!filaOrigen || e.pointerId!==pointerId) return;
     limpiar();
   });
+}
+
+
+function hxDecorateCompatButtons(){
+  document.querySelectorAll('[data-index]').forEach(row=>{
+    if(row.querySelector('.hx-compat-btn')) return;
+
+    const indexRaw = row.getAttribute('data-index');
+    const index = Number(indexRaw);
+    const line = Number.isFinite(index) ? lineas?.[index] : null;
+    const ref = line?.ref || line?.name || line?.referencia || '';
+    const product = hxProductByRef(ref);
+    if(!product) return;
+
+    const count = hxResolvedRelated(product).length;
+    if(!count) return;
+
+    const target = row.querySelector('.line-desc, .desc, .item-desc, .ref-desc, .product-desc')
+      || row.querySelector('.line-main, .item-main')
+      || row;
+
+    const button = document.createElement('button');
+    button.type='button';
+    button.className='hx-compat-btn';
+    button.textContent=`Compatibles (${count})`;
+    button.addEventListener('click',event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      hxOpenCompatibles(product);
+    });
+    target.appendChild(button);
+  });
+
+  requestAnimationFrame(hxDecorateCompatButtons);
 }
 
 function render(){
