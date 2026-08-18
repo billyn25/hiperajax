@@ -315,3 +315,77 @@ body:not(.light-mode) .hx-tools-group{
   background:rgba(20,30,25,.58);
 }
 body:not(.light-mode) .hx-tools-group-title{color:#9aaba2}
+
+
+/* HXQ v11 — cierre responsive de Búsqueda / Acciones */
+@media(max-width:1180px){
+  .product-tools-pro{
+    display:block!important;
+  }
+  .hx-tools-group{
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .hx-tools-search{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px!important;
+    padding:22px 0 0!important;
+    border:0!important;
+    background:transparent!important;
+  }
+  .hx-tools-search .quick-main{
+    grid-column:1 / -1!important;
+    width:100%!important;
+  }
+  .hx-tools-search .quick-qty{
+    grid-column:1!important;
+    width:100%!important;
+  }
+  .hx-tools-search .quick-add{
+    grid-column:2!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  .hx-tools-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px!important;
+    margin-top:16px!important;
+    padding:22px 0 0!important;
+    border:0!important;
+    background:transparent!important;
+  }
+  .hx-tools-actions .quick-manual{grid-column:1!important}
+  .hx-tools-actions .quick-separator{grid-column:2!important}
+  .hx-tools-actions .hxq-home{grid-column:1!important}
+  .hx-tools-actions .quick-explorer{grid-column:2!important}
+  .hx-tools-actions .quick-manual,
+  .hx-tools-actions .quick-separator,
+  .hx-tools-actions .hxq-entry,
+  .hx-tools-actions .quick-explorer .explorer-entry-btn{
+    width:100%!important;
+    min-width:0!important;
+    height:44px!important;
+    min-height:44px!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+  }
+  .hx-tools-actions .hxq-home>label,
+  .hx-tools-actions .quick-explorer>label{
+    height:18px!important;
+    margin:0 0 5px!important;
+    line-height:18px!important;
+  }
+  .hx-tools-group-title{
+    top:0!important;
+    left:0!important;
+    font-size:10px!important;
+    line-height:16px!important;
+  }
+}
+@media(min-width:1181px){
+  .hx-tools-search .quick-main>.search-wrap{
+    width:100%!important;
+  }
+}

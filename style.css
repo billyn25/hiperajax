@@ -7673,3 +7673,58 @@ body.light-mode #themeToggle:hover{border-color:#d7b64a;background:#fff8dd;color
     box-shadow:none!important;
   }
 }
+
+
+/* Recientes — secundarios, más aire y menos peso visual */
+@media(max-width:760px){
+  .recentes-wrap,
+  .recent-products,
+  .recentes,
+  .recent-list,
+  .recentes-list{
+    margin-bottom:12px!important;
+  }
+}
+.recent-chip,
+.recentes-chip,
+.quick-recent,
+.quick-recent-chip,
+.recent-products .chip,
+.recent-products button,
+.recentes button,
+.recentes .btn{
+  min-height:26px!important;
+  height:26px!important;
+  padding:0 8px!important;
+  border:1px solid rgba(45,116,82,.20)!important;
+  border-radius:8px!important;
+  background:rgba(45,116,82,.08)!important;
+  background-image:none!important;
+  color:#315c48!important;
+  box-shadow:none!important;
+  font-size:9px!important;
+  font-weight:750!important;
+}
+.recent-chip:hover,
+.recentes-chip:hover,
+.quick-recent:hover,
+.quick-recent-chip:hover,
+.recent-products .chip:hover,
+.recent-products button:hover,
+.recentes button:hover,
+.recentes .btn:hover{
+  background:rgba(45,116,82,.14)!important;
+  border-color:rgba(45,116,82,.32)!important;
+}
+body:not(.light-mode) .recent-chip,
+body:not(.light-mode) .recentes-chip,
+body:not(.light-mode) .quick-recent,
+body:not(.light-mode) .quick-recent-chip,
+body:not(.light-mode) .recent-products .chip,
+body:not(.light-mode) .recent-products button,
+body:not(.light-mode) .recentes button,
+body:not(.light-mode) .recentes .btn{
+  background:rgba(92,145,119,.10)!important;
+  border-color:rgba(130,170,150,.22)!important;
+  color:#b8cec2!important;
+}
