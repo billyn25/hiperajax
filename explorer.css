@@ -91,7 +91,7 @@ body.light-mode #familiasModal .modal-backdrop{background:rgba(20,37,28,.46)}
   line-height:1.2;
 }
 #familiasModal .hxp-shell .modal-close{
-  flex:0 0 36px;
+  flex:0 0 34px;
   width:36px;
   min-width:36px;
   height:36px;
