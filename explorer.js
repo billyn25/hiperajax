@@ -2948,7 +2948,37 @@
     quickData(familyNames=[]){
       const model=buildModel();
       const wanted=(Array.isArray(familyNames)?familyNames:[]).map(value=>norm(value));
-      return model.families.filter(family=>!wanted.length || wanted.some(name=>norm(family.displayTitle)===name || norm(family.displayTitle).includes(name))).map(family=>({family:family.displayTitle,key:family.key,products:family.items.map(item=>({index:item.index,reference:item.p?.name||'',description:safeDescription(item.p),price:Number(item.p?.pvp)||0,stock:item.p?.stock??'',image:item.p?.image||item.p?.image_url||item.p?.imagen||''}))}));
+      return model.families
+        .filter(family=>!wanted.length || wanted.some(name=>norm(family.displayTitle)===name || norm(family.displayTitle).includes(name)))
+        .map(family=>{
+          const groups=quickGroups(family.items,family);
+          return {
+            family:family.displayTitle,
+            key:family.key,
+            quickGroups:groups.map(group=>({
+              name:group.label,
+              count:group.count,
+              products:family.items
+                .filter(item=>quickGroupsForItem(item,family).includes(group.label))
+                .map(item=>({
+                  index:item.index,
+                  reference:item.p?.name||'',
+                  description:safeDescription(item.p),
+                  price:Number(item.p?.pvp)||0,
+                  stock:item.p?.stock??'',
+                  image:item.p?.image||item.p?.image_url||item.p?.imagen||''
+                }))
+            })),
+            products:family.items.map(item=>({
+              index:item.index,
+              reference:item.p?.name||'',
+              description:safeDescription(item.p),
+              price:Number(item.p?.pvp)||0,
+              stock:item.p?.stock??'',
+              image:item.p?.image||item.p?.image_url||item.p?.imagen||''
+            }))
+          };
+        });
     },
     resetCache(){
       modelCache = null;
