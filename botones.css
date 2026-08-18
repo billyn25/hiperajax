@@ -203,9 +203,9 @@ body.light-mode .line-qty-btn{
 .modal-close{
   display:inline-grid!important;
   place-items:center!important;
-  width:38px!important;
-  min-width:38px!important;
-  height:38px!important;
+  width:34px!important;
+  min-width:34px!important;
+  height:34px!important;
   padding:0!important;
   border-radius:11px!important;
   font-size:0!important;
