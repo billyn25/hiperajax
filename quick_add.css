@@ -92,3 +92,98 @@ body:not(.light-mode) .hxq-family>h2::after{
 body:not(.light-mode) .hx-tools-group{border-color:#33453c;background:rgba(20,30,25,.58)}
 body:not(.light-mode) .hx-tools-group-title{color:#9aaba2}
 body:not(.light-mode) .hx-tools-actions .quick-manual,body:not(.light-mode) .hx-tools-actions .quick-separator,body:not(.light-mode) .hx-tools-actions .hxq-entry{background:#131d23!important;color:#dce5e9!important;border-color:#566c61!important}
+
+
+/* =========================================================
+   MOBILE FINAL — solo <=760px
+   Búsqueda arriba; Acciones debajo; 2x2 cómodo
+   ========================================================= */
+@media(max-width:760px){
+  .product-tools-pro{
+    display:block!important;
+  }
+
+  .hx-tools-group{
+    position:relative!important;
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    border:0!important;
+    background:transparent!important;
+    padding:24px 0 0!important;
+    margin:0!important;
+  }
+
+  .hx-tools-group-title{
+    position:absolute!important;
+    top:0!important;
+    left:0!important;
+    font-size:10px!important;
+    line-height:16px!important;
+    font-weight:850!important;
+    color:#63766c!important;
+    text-transform:uppercase!important;
+  }
+
+  .hx-tools-search{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:10px!important;
+  }
+  .hx-tools-search .quick-main{
+    grid-column:1 / -1!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  .hx-tools-search .quick-qty{
+    grid-column:1!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  .hx-tools-search .quick-add{
+    grid-column:2!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+
+  .hx-tools-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:10px!important;
+    margin-top:20px!important;
+  }
+  .hx-tools-actions .quick-manual{grid-column:1!important}
+  .hx-tools-actions .quick-separator{grid-column:2!important}
+  .hx-tools-actions .hxq-home{grid-column:1!important}
+  .hx-tools-actions .quick-explorer{grid-column:2!important}
+
+  .hx-tools-actions .quick-manual,
+  .hx-tools-actions .quick-separator,
+  .hx-tools-actions .hxq-entry,
+  .hx-tools-actions .quick-explorer .explorer-entry-btn{
+    width:100%!important;
+    min-width:0!important;
+    height:46px!important;
+    min-height:46px!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    padding:0 9px!important;
+    font-size:12px!important;
+    font-weight:800!important;
+    white-space:nowrap!important;
+  }
+
+  .hx-tools-actions .hxq-home,
+  .hx-tools-actions .quick-explorer{
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+
+  /* evita que los iconos se coman el texto */
+  .hx-tools-actions .ui-btn-icon,
+  .hx-tools-actions .hxq-entry-plus,
+  .hx-tools-actions .hxq-entry-bolt{
+    flex:0 0 auto!important;
+  }
+}
