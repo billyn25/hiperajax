@@ -2909,9 +2909,10 @@
       button.title=`${count} compatible${count===1?'':'s'}`;
       button.innerHTML=`<span class="hxp-compatible-mark" aria-hidden="true">
         <svg class="hxp-compatible-icon" viewBox="0 0 24 24">
-          <rect x="3.5" y="7" width="7.5" height="10" rx="2"></rect>
-          <rect x="13" y="7" width="7.5" height="10" rx="2"></rect>
-          <path d="M11 10.2h2M11 13.8h2"></path>
+          <rect x="3.5" y="6.5" width="6.5" height="11" rx="2"></rect>
+          <rect x="14" y="6.5" width="6.5" height="11" rx="2"></rect>
+          <path d="M9.8 9.5h1.7c1.1 0 2 .9 2 2v1c0 1.1-.9 2-2 2H9.8"></path>
+          <path d="M14.2 9.5h-1.7c-1.1 0-2 .9-2 2v1c0 1.1.9 2 2 2h1.7"></path>
         </svg>
         <span class="hxp-compatible-count">${count}</span>
       </span>`;
