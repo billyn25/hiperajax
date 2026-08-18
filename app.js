@@ -136,14 +136,24 @@ function hxAddProductoSeguro(ref, qty=1, dto=null, expectedPvp=null){
   return addProductoObj(resolved.product, qty, dto);
 }
 
-window.hxAddProductoSeguro = hxAddProductoSeguro;
 function hxQuickAddSumar(ref,qty=1,expectedPvp=null){
-  const resolved=hxResolverProductoExacto(ref,expectedPvp);if(!resolved.ok){hxToastGlobal(resolved.error,'error');return false;}
-  const product=resolved.product,cantidad=Math.max(1,Number(qty)||1),key=hxRefProducto(product.name),existing=lineas.find(line=>hxRefProducto(line?.name)===key);
-  if(existing){existing.qty=Math.max(1,Number(existing.qty)||1)+cantidad;registrarReciente(product.name);hxBajarUltimaLineaPresupuesto();}else addProductoObj(product,cantidad,null);
-  try{render();}catch(_error){}return true;
+  const resolved=hxResolverProductoExacto(ref,expectedPvp);
+  if(!resolved.ok){ hxToastGlobal(resolved.error,'error'); return false; }
+  const product=resolved.product;
+  const cantidad=Math.max(1,Number(qty)||1);
+  const key=hxRefProducto(product.name);
+  const existing=lineas.find(line=>hxRefProducto(line?.name)===key);
+  if(existing){
+    existing.qty=Math.max(1,Number(existing.qty)||1)+cantidad;
+    registrarReciente(product.name);
+    hxBajarUltimaLineaPresupuesto();
+  }else{
+    addProductoObj(product,cantidad,null);
+  }
+  try{ render(); }catch(_error){}
+  return true;
 }
-window.HX_QUICK_ADD_PRODUCT=hxQuickAddSumar;
+window.HXQ_ADD_PRODUCT=hxQuickAddSumar;
 
 function normaliza(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 

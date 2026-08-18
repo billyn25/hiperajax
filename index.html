@@ -4,12 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Presupuestador de AJAX · Hiper Antena</title>
-  <link rel="stylesheet" href="style.css?v=QUICK-SIDEPANEL-52">
-  <link rel="stylesheet" href="explorer.css?v=QUICK-SIDEPANEL-52">
+  <link rel="stylesheet" href="style.css?v=HXQ-54">
+  <link rel="stylesheet" href="explorer.css?v=HXQ-54">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="botones.css?v=QUICK-SIDEPANEL-52">
+  <link rel="stylesheet" href="botones.css?v=HXQ-54">
+  <link rel="stylesheet" href="quick_add.css?v=HXQ-1">
 </head>
 <body>
   <header class="header">
@@ -77,12 +78,17 @@
         <button id="add" class="add-btn quick-add"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span>Añadir</span></button>
         <button id="btnManual" class="secondary manual-btn quick-manual"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg></span><span>Línea vacía</span></button>
         <button id="btnSeparador" class="secondary separator-btn quick-separator"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><path d="M8 12h8"/></svg></span><span>Separador</span></button>
-        <div class="normal-select custom-select-box quick-explorer quick-product-tools">
+        <div class="hxq-home">
+          <label>Rápido</label>
+          <button type="button" id="hxqOpen" class="hxq-entry">
+            <span class="hxq-entry-plus">+</span>
+            <span class="hxq-entry-bolt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2.8 5.8 13h5.1l-.5 8.2L18.2 11h-5.1z"/></svg></span>
+            <span>Rápido</span>
+          </button>
+        </div>
+        <div class="normal-select custom-select-box quick-explorer">
           <label>Productos</label>
-          <div class="quick-product-actions">
-            <button type="button" id="btnQuickAdd" class="family-btn quick-add-entry-btn"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2.8 5.8 13h5.1l-.5 8.2L18.2 11h-5.1z"/></svg></span><span>Añadir rápido</span></button>
-            <button type="button" id="btnFamilias" class="family-btn explorer-entry-btn"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg></span><span>Explorer</span></button>
-          </div>
+          <button type="button" id="btnFamilias" class="family-btn explorer-entry-btn"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg></span><span>Explorer</span></button>
           <button type="button" id="btnCatalogo" class="catalog-btn" hidden aria-hidden="true" tabindex="-1"><span>Catálogo</span></button>
           <select id="producto" class="native-hidden"><option value="">Cargando catálogo...</option></select>
         </div>
@@ -158,8 +164,19 @@
   </div>
 
 
-  <div id="quickAddModal" class="quick-add-modal hidden" aria-hidden="true"><div class="quick-add-backdrop" data-quick-add-close></div><section class="quick-add-dialog" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle"><header class="quick-add-header"><div class="quick-add-heading"><span class="quick-add-heading-icon"><svg viewBox="0 0 24 24"><path d="M13.5 2.8 5.8 13h5.1l-.5 8.2L18.2 11h-5.1z"/></svg></span><div><strong id="quickAddTitle">Añadir rápido</strong><span>Productos habituales para añadir directamente al presupuesto</span></div></div><button type="button" class="quick-add-close" data-quick-add-close aria-label="Cerrar">×</button></header><div id="quickAddContent" class="quick-add-content"></div></section></div>
-
+  <div id="hxqModal" class="hxq-modal hxq-hidden" aria-hidden="true">
+  <div class="hxq-backdrop" data-hxq-close></div>
+  <aside class="hxq-drawer" role="dialog" aria-modal="true" aria-labelledby="hxqTitle">
+    <header class="hxq-header">
+      <div class="hxq-heading">
+        <span class="hxq-heading-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2.8 5.8 13h5.1l-.5 8.2L18.2 11h-5.1z"/></svg></span>
+        <div><strong id="hxqTitle">Añadir rápido</strong><span>Productos habituales</span></div>
+      </div>
+      <button type="button" class="hxq-close" data-hxq-close aria-label="Cerrar">×</button>
+    </header>
+    <div id="hxqContent" class="hxq-content"></div>
+  </aside>
+</div>
 <div id="familiasModal" class="modal hidden" aria-hidden="true">
     <div class="modal-backdrop" id="familiasBackdrop"></div>
     <div class="modal-card hxp-shell" role="dialog" aria-modal="true" aria-labelledby="familiasTitle">
@@ -245,9 +262,9 @@
     </div>
   </div>
 
-  <script src="app.js?v=QUICK-SIDEPANEL-52"></script>
-  <script src="search_engine.js?v=QUICK-SIDEPANEL-52"></script>
-  <script src="explorer.js?v=QUICK-SIDEPANEL-52"></script>
-  <script src="quick_add.js?v=QUICK-SIDEPANEL-52"></script>
+  <script src="app.js?v=HXQ-54"></script>
+  <script src="search_engine.js?v=HXQ-54"></script>
+  <script src="explorer.js?v=HXQ-54"></script>
+  <script src="quick_add.js?v=HXQ-1"></script>
 </body>
 </html>
