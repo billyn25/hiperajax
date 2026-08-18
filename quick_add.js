@@ -24,8 +24,8 @@ function sortPirProducts(list){
 
 function sortRemoteButtons(list){
  return list.slice().sort((a,b)=>
-   collator.compare(baseRef(a.reference),baseRef(b.reference)) ||
    (Number(a.price)||0)-(Number(b.price)||0) ||
+   collator.compare(baseRef(a.reference),baseRef(b.reference)) ||
    collator.compare(a.reference||'',b.reference||'')
  );
 }

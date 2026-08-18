@@ -10,7 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="botones.css?v=HXQ-54">
-  <link rel="stylesheet" href="quick_add.css?v=HXQ-60">
+  <link rel="stylesheet" href="quick_add.css?v=HXQ-62">
 </head>
 <body>
   <header class="header">
@@ -67,18 +67,23 @@
       <div id="recentes" class="recentes"></div>
 
       <div class="product-tools product-tools-pro">
-        <div class="smart-search quick-main">
+        <div class="hx-tools-group hx-tools-search">
+          <span class="hx-tools-group-title">Búsqueda</span>
+<div class="smart-search quick-main">
           <label>Búsqueda rápida</label>
           <div class="search-wrap">
             <input id="buscador" autocomplete="off" placeholder="Buscar por referencia o descripción…">
             <div id="resultados" class="results-panel hidden"></div>
           </div>
         </div>
-        <label class="qty-field quick-qty">Cant.<input id="cantidad" type="number" min="1" value="1"></label>
-        <button id="add" class="add-btn quick-add"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span>Añadir</span></button>
-        <button id="btnManual" class="secondary manual-btn quick-manual"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg></span><span>Línea vacía</span></button>
-        <button id="btnSeparador" class="secondary separator-btn quick-separator"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><path d="M8 12h8"/></svg></span><span>Separador</span></button>
-        <div class="hxq-home">
+<label class="qty-field quick-qty">Cant.<input id="cantidad" type="number" min="1" value="1"></label>
+<button id="add" class="add-btn quick-add"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span>Añadir</span></button>
+        </div>
+        <div class="hx-tools-group hx-tools-actions">
+          <span class="hx-tools-group-title">Acciones</span>
+<button id="btnManual" class="secondary manual-btn quick-manual"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg></span><span>Línea vacía</span></button>
+<button id="btnSeparador" class="secondary separator-btn quick-separator"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><path d="M8 12h8"/></svg></span><span>Separador</span></button>
+<div class="hxq-home">
           <label>Rápido</label>
           <span id="hxqOpen" class="hxq-entry" role="button" tabindex="0">
             <span class="hxq-entry-plus">+</span>
@@ -86,13 +91,13 @@
             <span>Rápido</span>
           </span>
         </div>
-        <div class="normal-select custom-select-box quick-explorer">
+<div class="normal-select custom-select-box quick-explorer">
           <label>Productos</label>
           <button type="button" id="btnFamilias" class="family-btn explorer-entry-btn"><span class="ui-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg></span><span>Explorer</span></button>
           <button type="button" id="btnCatalogo" class="catalog-btn" hidden aria-hidden="true" tabindex="-1"><span>Catálogo</span></button>
           <select id="producto" class="native-hidden"><option value="">Cargando catálogo...</option></select>
         </div>
-      </div>
+        </div>      </div>
 
       <div class="preview-line">
         <span id="previewProducto">Selecciona un producto para ver su precio.</span>
@@ -265,6 +270,6 @@
   <script src="app.js?v=HXQ-58"></script>
   <script src="search_engine.js?v=HXQ-54"></script>
   <script src="explorer.js?v=HXQ-54"></script>
-  <script src="quick_add.js?v=HXQ-60"></script>
+  <script src="quick_add.js?v=HXQ-61"></script>
 </body>
 </html>
