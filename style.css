@@ -3220,7 +3220,7 @@ body.light #pmModal .pmx-actions button:hover:not(:disabled),body.light-mode #pm
 #pmModal .modal-close{
   width:36px!important;
   height:36px!important;
-  min-width:36px!important;
+  min-width:34px!important;
   padding:0!important;
   display:grid!important;
   place-items:center!important;
@@ -4309,8 +4309,8 @@ body.light .hx-modal-qty-value{color:#173126;}
 }
 #pmModal .modal-close{
   flex:0 0 auto!important;
-  width:38px!important;
-  height:38px!important;
+  width:34px!important;
+  height:34px!important;
   margin:0!important;
   border-radius:10px!important;
 }
