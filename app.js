@@ -136,6 +136,7 @@ function hxAddProductoSeguro(ref, qty=1, dto=null, expectedPvp=null){
   return addProductoObj(resolved.product, qty, dto);
 }
 
+window.hxAddProductoSeguro = hxAddProductoSeguro;
 function normaliza(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 
 /* =====================================================
