@@ -2959,7 +2959,8 @@
               .map(item=>({
                 reference:item.p?.name||'',
                 image:item.p?.image||item.p?.image_url||item.p?.imagen||'',
-                price:Number(item.p?.pvp)||0
+                price:Number(item.p?.pvp)||0,
+                color:colorFacet(item.p)||''
               }))
           }))
         }));
