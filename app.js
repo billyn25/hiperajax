@@ -898,9 +898,7 @@ function moverActivo(dir){
   items[activeIndex].classList.add('active'); items[activeIndex].scrollIntoView({block:'nearest'});
 }
 
-function registrarReciente(nombre){ /* desactivado para no arrastrar productos en búsquedas */ }
 
-function renderRecientes(){ const wrap=$('#recentes'); if(wrap) wrap.innerHTML=''; }
 
 const HX_MODAL_QTY = { catalog:new Map(), explorer:new Map() };
 const HX_MODAL_LINE = { catalog:new Map(), explorer:new Map() };

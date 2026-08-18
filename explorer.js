@@ -2905,7 +2905,16 @@
       const button=document.createElement('button');
       button.type='button';
       button.className='hx-compat-btn hxp-compatible-btn';
-      button.textContent=`Comp. ${count}`;
+      button.setAttribute('aria-label',`Ver ${count} compatibles`);
+      button.title=`${count} compatible${count===1?'':'s'}`;
+      button.innerHTML=`<span class="hxp-compatible-mark" aria-hidden="true">
+        <svg class="hxp-compatible-icon" viewBox="0 0 24 24">
+          <rect x="3.5" y="7" width="7.5" height="10" rx="2"></rect>
+          <rect x="13" y="7" width="7.5" height="10" rx="2"></rect>
+          <path d="M11 10.2h2M11 13.8h2"></path>
+        </svg>
+        <span class="hxp-compatible-count">${count}</span>
+      </span>`;
       button.addEventListener('click',event=>{
         event.preventDefault();
         event.stopPropagation();

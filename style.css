@@ -3703,7 +3703,7 @@ body.light-mode #tbody tr.row-drag-target284>td{
 }
 body.hx-arrastrando-linea,
 body.hx-arrastrando-linea *{cursor:grabbing!important;}
-nn/* 3.0.0 - Arrastre sin parpadeos */
+/* 3.0.0 - Arrastre sin parpadeos */
 #tbody tr[data-linea-index]{
   transition:opacity 120ms ease, filter 120ms ease!important;
 }
@@ -4849,7 +4849,7 @@ body.light #pmModal .pmx-folder.is-active::after,
 body.light-mode #pmModal .pmx-folder.is-active::after{color:#28414d}
 body.light #pmModal .pmx-row-side,
 body.light-mode #pmModal .pmx-row-side{border-top-color:rgba(36,55,65,.12)!important}
-nn/* =====================================================
+/* =====================================================
    v4.1.3 · Corrección definitiva gestor presupuestos
    ===================================================== */
 #pmModal button.pmx-folder[data-pm-active="true"]{
@@ -7600,11 +7600,25 @@ body:not(.light-mode) .hx-compat-note{background:#19242b;color:#b9c5ca}
     border-radius:7px;
   }
 
-.result-item-visual .hx-product-thumb{flex:0 0 52px;width:52px;height:52px;padding:1px;border-radius:8px;background:transparent;}
 
-  .result-item-visual .hx-product-thumb{flex:0 0 52px;width:52px;height:52px;padding:1px;border-radius:8px;background:transparent;}
-
-
+.result-item-visual .hx-product-thumb{
+  flex:0 0 52px;
+  width:52px;
+  height:52px;
+  padding:0;
+  border-radius:8px;
+  overflow:hidden;
+  background:transparent;
+}
+.result-item-visual .hx-product-thumb img{
+  width:100%;
+  height:100%;
+  max-width:none;
+  max-height:none;
+  object-fit:contain;
+  transform:scale(1.18);
+  transform-origin:center;
+}
 
 /* =====================================================
    EXPLORER 2.0.1 - Fondo uniforme para fotografías
