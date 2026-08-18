@@ -57,21 +57,8 @@ function pick(data,cfg){
 }
 
 function card(p){
-  const st=stock(p.stock);
   const img=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'';
-  return `<article class="quick-add-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}">
-    <div class="quick-add-photo">${img}</div>
-    <div class="quick-add-main">
-      <div class="quick-add-refline"><strong>${esc(p.reference)}</strong>${p.shortcut?`<em>${esc(p.shortcut)}</em>`:''}</div>
-      <span>${esc(p.description)}</span>
-      <small class="${st[0]}"><i></i>${st[1]}</small>
-    </div>
-    <div class="quick-add-buy">
-      <b>${fmt.format(Number(p.price)||0)}</b>
-      <div class="quick-add-qty"><button type="button" data-minus>−</button><span>1</span><button type="button" data-plus>+</button></div>
-      <button type="button" class="quick-add-do" data-add>Añadir</button>
-    </div>
-  </article>`;
+  return `<article class="quick-add-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}"><div class="quick-add-photo">${img}</div><strong class="quick-add-reference">${esc(p.reference)}</strong><div class="quick-add-buy"><div class="quick-add-qty"><button type="button" data-minus>−</button><span>1</span><button type="button" data-plus>+</button></div><button type="button" class="quick-add-do" data-add>Añadir</button></div></article>`;
 }
 
 function render(){
@@ -131,7 +118,7 @@ function install(){
     if(e.target.closest('[data-plus]')){q.textContent=n+1;return;}
 
     if(e.target.closest('[data-add]')){
-      const ok=window.hxAddProductoSeguro?.(c.dataset.ref,n,null,Number(c.dataset.price));
+      const ok=window.HX_QUICK_ADD_PRODUCT?.(c.dataset.ref,n,Number(c.dataset.price));
       if(ok){
         try{window.render?.();}catch(_){}
         const b=e.target.closest('[data-add]');
