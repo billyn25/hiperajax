@@ -33,24 +33,82 @@ html.hxq-lock,body.hxq-lock{overflow:hidden!important;overscroll-behavior:none}
  .hxq-product{min-height:74px}
 }
 
-/* HXQ v2 — layout integration only; Explorer keeps its original button classes/styles */
+
+/* HXQ v4 — integración de Inicio sin alterar el botón Explorer */
 @media(min-width:1181px){
-  .product-tools-pro{grid-template-columns:minmax(300px,1fr) 76px 108px 112px 112px 124px minmax(190px,230px)!important;gap:8px!important;align-items:end!important}
-  .quick-main,.quick-qty,.quick-add,.quick-manual,.quick-separator,.hxq-home,.quick-explorer{grid-column:auto!important;min-width:0!important;width:auto!important}
-  .quick-explorer{width:100%!important}
-  .hxq-home{width:100%!important}
+  .product-tools-pro{
+    grid-template-columns:minmax(300px,1fr) 76px 108px 112px 112px 124px minmax(190px,230px)!important;
+    gap:8px!important;
+    align-items:end!important;
+  }
+  .quick-main,.quick-qty,.quick-add,.quick-manual,.quick-separator,.hxq-home,.quick-explorer{
+    grid-column:auto!important;
+    min-width:0!important;
+    width:auto!important;
+  }
+  .hxq-home,.quick-explorer{
+    width:100%!important;
+  }
 }
 @media(min-width:761px) and (max-width:1180px){
-  .product-tools-pro{grid-template-columns:minmax(0,1fr) 82px 112px 112px!important;gap:8px!important}
+  .product-tools-pro{
+    grid-template-columns:minmax(0,1fr) 82px 112px 112px!important;
+    gap:8px!important;
+  }
   .quick-main{grid-column:1 / -1!important}
-  .quick-qty{grid-column:1!important}.quick-add{grid-column:2!important}.quick-manual{grid-column:3!important}.quick-separator{grid-column:4!important}
-  .hxq-home{grid-column:1 / span 2!important;width:100%!important}.quick-explorer{grid-column:3 / span 2!important;width:100%!important}
+  .quick-qty{grid-column:1!important}
+  .quick-add{grid-column:2!important}
+  .quick-manual{grid-column:3!important}
+  .quick-separator{grid-column:4!important}
+  .hxq-home{grid-column:1 / span 2!important;width:100%!important}
+  .quick-explorer{grid-column:3 / span 2!important;width:100%!important}
 }
 @media(max-width:760px){
-  .product-tools-pro{grid-template-columns:1fr 1fr!important;gap:8px!important}
-  .quick-main{grid-column:1 / -1!important}.quick-qty{grid-column:1!important}.quick-add{grid-column:2!important}.quick-manual{grid-column:1!important}.quick-separator{grid-column:2!important}.hxq-home{grid-column:1!important;width:100%!important}.quick-explorer{grid-column:2!important;width:100%!important}
-  .hxq-home>label,.quick-explorer>label{white-space:nowrap}
+  .product-tools-pro{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:10px!important;
+    align-items:end!important;
+  }
+  .quick-main{grid-column:1 / -1!important}
+  .quick-qty{grid-column:1!important}
+  .quick-add{grid-column:2!important}
+  .quick-manual{grid-column:1!important}
+  .quick-separator{grid-column:2!important}
+
+  /* Rápido + Explorer: MISMA FILA */
+  .hxq-home{
+    grid-column:1!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+  .quick-explorer{
+    grid-column:2!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+
+  /* mismos encabezados y misma altura visual */
+  .hxq-home>label,
+  .quick-explorer>label{
+    display:block!important;
+    height:18px!important;
+    margin:0 0 5px!important;
+    line-height:18px!important;
+    white-space:nowrap!important;
+  }
+
+  .hxq-entry,
+  .quick-explorer .explorer-entry-btn{
+    width:100%!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+  }
 }
+
 /* Controls are spans, therefore legacy button rules cannot apply. */
 .hxq-close,.hxq-minus,.hxq-plus,.hxq-add,.hxq-entry{background:#fff;color:#30483d;background-image:none;box-shadow:none}
 .hxq-close{box-shadow:0 2px 7px rgba(25,45,35,.09)}
@@ -58,3 +116,59 @@ html.hxq-lock,body.hxq-lock{overflow:hidden!important;overscroll-behavior:none}
 .hxq-value{display:grid;place-items:center;background:#fff;color:#263a30;font-size:10px;font-weight:800;border-left:1px solid #e2e8e5;border-right:1px solid #e2e8e5}
 .hxq-add{display:grid;place-items:center;cursor:pointer;user-select:none}
 body:not(.light-mode) .hxq-close,body:not(.light-mode) .hxq-minus,body:not(.light-mode) .hxq-plus,body:not(.light-mode) .hxq-value,body:not(.light-mode) .hxq-add,body:not(.light-mode) .hxq-entry{background:#131d23;color:#dce5e9;background-image:none}
+
+
+/* Familias — subrayado visual tipo rotulador */
+.hxq-family>h2{
+  display:inline-block;
+  position:relative;
+  z-index:0;
+  padding:0 4px 2px!important;
+  margin:1px 0 7px!important;
+  font-weight:850!important;
+  letter-spacing:.01em;
+}
+.hxq-family>h2::after{
+  content:"";
+  position:absolute;
+  left:1px;
+  right:1px;
+  bottom:1px;
+  height:7px;
+  z-index:-1;
+  border-radius:3px;
+  background:rgba(239,196,74,.30);
+  transform:rotate(-.5deg);
+}
+body:not(.light-mode) .hxq-family>h2::after{
+  background:rgba(239,196,74,.20);
+}
+
+
+/* HXQ v8 — Rápido y Explorer ocupan el mismo ancho visual */
+@media(min-width:1181px){
+  .hxq-home,
+  .quick-explorer{
+    width:100%!important;
+    min-width:0!important;
+  }
+  .hxq-entry,
+  .quick-explorer .explorer-entry-btn{
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+}
+@media(max-width:1180px){
+  .hxq-home,
+  .quick-explorer{
+    width:100%!important;
+    min-width:0!important;
+  }
+  .hxq-entry,
+  .quick-explorer .explorer-entry-btn{
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+}

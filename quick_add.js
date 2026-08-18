@@ -13,6 +13,23 @@ const collator=new Intl.Collator('es',{numeric:true,sensitivity:'base'});
 function baseRef(ref){return String(ref||'').toUpperCase().replace(/-(?:B|W|GRA|GR|BLACK|WHITE)$/,'');}
 function colorRank(v){const s=String(v||'').toLowerCase();if(/blanco|white/.test(s))return 0;if(/negro|black/.test(s))return 1;if(/gris|grey|gray/.test(s))return 2;return 9;}
 function sortProducts(list){return list.slice().sort((a,b)=>collator.compare(baseRef(a.reference),baseRef(b.reference))||colorRank(a.color)-colorRank(b.color)||collator.compare(a.color||'',b.color||'')||(Number(a.price)||0)-(Number(b.price)||0)||collator.compare(a.reference||'',b.reference||''));}
+function sortPirProducts(list){
+ return list.slice().sort((a,b)=>
+   (Number(a.price)||0)-(Number(b.price)||0) ||
+   collator.compare(baseRef(a.reference),baseRef(b.reference)) ||
+   colorRank(a.color)-colorRank(b.color) ||
+   collator.compare(a.reference||'',b.reference||'')
+ );
+}
+
+function sortRemoteButtons(list){
+ return list.slice().sort((a,b)=>
+   collator.compare(baseRef(a.reference),baseRef(b.reference)) ||
+   (Number(a.price)||0)-(Number(b.price)||0) ||
+   collator.compare(a.reference||'',b.reference||'')
+ );
+}
+
 function card(p){const img=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'';return `<article class="hxq-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}"><div class="hxq-photo">${img}</div><strong class="hxq-reference">${esc(p.reference)}</strong><div class="hxq-actions"><div class="hxq-qty"><span class="hxq-minus" data-hxq-minus role="button" tabindex="0">−</span><span class="hxq-value">1</span><span class="hxq-plus" data-hxq-plus role="button" tabindex="0">+</span></div><span class="hxq-add" data-hxq-add role="button" tabindex="0">Añadir</span></div></article>`}
 function render(){
  const api=window.HX_EXPLORER_PRO,root=$('hxqContent');
@@ -24,7 +41,10 @@ function render(){
   const seen=new Set(),groups=[];
   for(const group of (family.groups||[])){
    if(!group?.products?.length)continue;
-   const products=sortProducts(group.products.filter(p=>{
+   const sorter=
+      group.name==='Movimiento / PIR' ? sortPirProducts :
+      group.name==='Botones / Mandos' ? sortRemoteButtons :
+      sortProducts;const products=sorter(group.products.filter(p=>{
     const k=String(p.reference||'').toUpperCase();
     if(!k||seen.has(k))return false;
     seen.add(k); return true;

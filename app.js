@@ -151,6 +151,7 @@ function hxQuickAddSumar(ref,qty=1,expectedPvp=null){
     addProductoObj(product,cantidad,null);
   }
   try{ render(); }catch(_error){}
+  hxToastGlobal(`${product.name} añadido`,'ok');
   return true;
 }
 window.HXQ_ADD_PRODUCT=hxQuickAddSumar;

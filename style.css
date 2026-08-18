@@ -7652,3 +7652,24 @@ body.light-mode .hx-product-thumb:hover,body.light-mode button.hx-product-thumb:
 #themeToggle:hover{border-color:#76692d;background:#242719;color:#ffd75a;box-shadow:0 4px 14px rgba(0,0,0,.34)}
 body.light-mode #themeToggle{border-color:#cfd9d4;background:#fff;color:#d99a00;box-shadow:0 3px 10px rgba(30,60,45,.10)}
 body.light-mode #themeToggle:hover{border-color:#d7b64a;background:#fff8dd;color:#b77d00;box-shadow:0 4px 12px rgba(30,60,45,.14)}
+
+
+/* Recientes — presencia visual más discreta */
+@media(max-width:760px){
+  .recentes,
+  .recent-chip,
+  .recentes-chip,
+  .quick-recent,
+  .quick-recent-chip,
+  .recent-products .chip,
+  .recent-products button,
+  .recent-products .btn{
+    min-height:28px!important;
+    height:28px!important;
+    padding:0 9px!important;
+    border-radius:8px!important;
+    font-size:10px!important;
+    font-weight:700!important;
+    box-shadow:none!important;
+  }
+}
