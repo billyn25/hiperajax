@@ -5,7 +5,7 @@ const CFG=[
  {family:'Accesorios inalámbricos'},
  {family:'Cámaras IP'},
  {family:'NVRs Profesionales',label:'NVR'},
- {family:'Accesorios CCTV',label:'Soportes'},
+ {family:'Accesorios CCTV',label:'Accesorios CCTV'},
  {family:'Discos duros',label:'Almacenamiento',refPrefixes:['HD1TB','HD2TB','HD3TB','HD4TB','HD6TB','HD8TB']}
 ];
 const $=id=>document.getElementById(id);

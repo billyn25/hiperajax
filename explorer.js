@@ -2955,20 +2955,31 @@
       const wanted=(Array.isArray(familyNames)?familyNames:[]).map(value=>norm(value));
       return model.families
         .filter(f=>!wanted.length || wanted.some(n=>norm(f.displayTitle)===n || norm(f.displayTitle).includes(n)))
-        .map(f=>({
-          family:f.displayTitle,
-          groups:quickGroups(f.items,f).map(g=>({
-            name:g.label,
-            products:f.items
-              .filter(item=>quickGroupsForItem(item,f).includes(g.label))
-              .map(item=>({
-                reference:item.p?.name||'',
-                image:item.p?.image||item.p?.image_url||item.p?.imagen||'',
-                price:Number(item.p?.pvp)||0,
-                color:colorFacet(item.p)||''
-              }))
-          }))
-        }));
+        .map(f=>{
+          const isCctvAccessories=norm(f.displayTitle)==='accesorios cctv';
+          const groups=isCctvAccessories
+            ? [{
+                name:'Soportes',
+                products:cameraSupportItems(model).map(item=>({
+                  reference:item.p?.name||'',
+                  image:item.p?.image||item.p?.image_url||item.p?.imagen||'',
+                  price:Number(item.p?.pvp)||0,
+                  color:colorFacet(item.p)||''
+                }))
+              }]
+            : quickGroups(f.items,f).map(g=>({
+                name:g.label,
+                products:f.items
+                  .filter(item=>quickGroupsForItem(item,f).includes(g.label))
+                  .map(item=>({
+                    reference:item.p?.name||'',
+                    image:item.p?.image||item.p?.image_url||item.p?.imagen||'',
+                    price:Number(item.p?.pvp)||0,
+                    color:colorFacet(item.p)||''
+                  }))
+              }));
+          return {family:f.displayTitle,groups};
+        });
     },
     resetCache(){
       modelCache = null;
