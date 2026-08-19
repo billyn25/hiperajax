@@ -54,8 +54,13 @@ function render(){
   const family=api.quickAddData([cfg.family])[0];if(!family)continue;
   const familyId=`hxq-family-${slug(cfg.label||family.family)}`;
   const seen=new Set(),groups=[];
+  let familyGroups=family.groups||[];
+  if(cfg.family==='Accesorios CCTV' && !familyGroups.some(group=>group?.products?.length)){
+    const products=(family.products||[]);
+    if(products.length) familyGroups=[{name:'Soportes',products}];
+  }
 
-  for(const group of (family.groups||[])){
+  for(const group of familyGroups){
    if(!group?.products?.length)continue;
    const familyName=String(cfg.family||'');
    const sorter=
@@ -99,7 +104,10 @@ function activate(el){
  const jump=el?.closest('[data-hxq-jump]');
  if(jump){
   const target=document.getElementById(jump.dataset.hxqJump),root=$('hxqContent');
-  if(target&&root)root.scrollTo({top:Math.max(0,target.offsetTop-10),behavior:'smooth'});
+  if(target&&root){
+   const top=target.getBoundingClientRect().top-root.getBoundingClientRect().top+root.scrollTop;
+   root.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+  }
   return true;
  }
  const c=el?.closest('.hxq-product');if(!c)return false;

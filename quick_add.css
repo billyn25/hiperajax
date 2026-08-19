@@ -76,7 +76,7 @@ body:not(.light-mode) .hxq-family>h2::after{
 .hxq-nav::-webkit-scrollbar{display:none}
 .hxq-nav-item{all:unset;box-sizing:border-box;min-height:32px;display:flex;align-items:center;padding:5px 8px;border:1px solid transparent;border-radius:8px;color:#5b6e64;font-size:10px;font-weight:800;line-height:1.18;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease}
 .hxq-nav-item:hover{background:#fff6da;border-color:#e3c978;color:#725908}
-.hxq-family{scroll-margin-top:10px}
+.hxq-family{scroll-margin-top:0}
 body:not(.light-mode) .hxq-nav{background:#0f181d;border-color:#2f3d44}
 body:not(.light-mode) .hxq-nav-item{color:#a9bbb1}
 body:not(.light-mode) .hxq-nav-item:hover{background:#292719;border-color:#746632;color:#e4c55f}
