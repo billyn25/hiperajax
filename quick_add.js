@@ -30,10 +30,10 @@ function sortRemoteButtons(list){
  );
 }
 
-function sortRefPrice(list){
+function sortPriceRef(list){
  return list.slice().sort((a,b)=>
-   collator.compare(baseRef(a.reference),baseRef(b.reference)) ||
    (Number(a.price)||0)-(Number(b.price)||0) ||
+   collator.compare(baseRef(a.reference),baseRef(b.reference)) ||
    collator.compare(a.reference||'',b.reference||'')
  );
 }
@@ -53,9 +53,9 @@ function render(){
    const sorter=
       group.name==='Movimiento / PIR' ? sortPirProducts :
       group.name==='Botones / Mandos' ? sortRemoteButtons :
-      group.name==='Transmitters' ? sortRefPrice :
-      familyName==='Cámaras IP' ? sortRefPrice :
-      familyName==='NVRs Profesionales' ? sortRefPrice :
+      group.name==='Transmitters' ? sortPriceRef :
+      familyName==='Cámaras IP' ? sortPriceRef :
+      familyName==='NVRs Profesionales' ? sortPriceRef :
       sortProducts;const products=sorter(group.products.filter(p=>{
     const k=String(p.reference||'').toUpperCase();
     if(!k||seen.has(k))return false;
