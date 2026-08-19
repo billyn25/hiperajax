@@ -94,7 +94,8 @@
     ups:['UPS'],
     routers_mobile:['Routers','Licencias','Industrial'],
     unmanaged_switches:['4 puertos','5 puertos','8 puertos','16 puertos','24 puertos','48 puertos','PoE'],
-    infrared_barriers:['Cableadas','Inalámbricas','Híbridas','Compatible Ajax','Solares']
+    infrared_barriers:['Cableadas','Inalámbricas','Híbridas','Compatible Ajax','Solares'],
+    racks_wall:['Racks']
   });
 
   const FACET_EQUIVALENT_GROUPS = Object.freeze([
@@ -1231,6 +1232,7 @@
     if(/alimentacion|alimentación/.test(text) && !/nube|cloud/.test(text)) return 'power_supply';
     if(/accesorio|accesorios/.test(text) && /inalambr|inalámbr|wireless/.test(text)) return 'wireless_accessories';
     if(/barreras? infrarrojas?|infrared barrier|photobeam/.test(text)) return 'infrared_barriers';
+    if(/racks? de pared|rack wall|lockbox/.test(text)) return 'racks_wall';
     if(/camara|cámara/.test(text)) return 'cameras';
     if(/detector|detectores|intrusion|intrusión/.test(text)) return 'detectors';
     if(/smart home|smarthome|domotica|domótica|automatizacion|automatización|confort/.test(text)) return 'smart_home';
@@ -1787,6 +1789,10 @@
         if(/(?:^|\s)(rex\s*2|rex2|rex)(?:\s|$)|\brepetidor\b|\brepeater\b/.test(src)) add('Repetidores');
         if(/lifequality|life quality/.test(src)) add('LifeQuality');
       }
+    }
+
+    if(profile === 'racks_wall'){
+      add('Racks');
     }
 
     return [...tags];

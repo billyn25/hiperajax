@@ -7,9 +7,12 @@ const CFG=[
  {family:'Cámaras IP'},
  {family:'NVRs Profesionales',label:'NVR'},
  {family:'Accesorios CCTV',label:'Accesorios CCTV'},
- {family:'Discos duros',label:'Almacenamiento',refPrefixes:['HD1TB','HD2TB','HD3TB','HD4TB','HD6TB','HD8TB']},
- {family:'Tarjetas SD',label:'Tarjetas SD',onlyGroups:['32 GB','64 GB','128 GB']},
- {family:'Alimentación',label:'Alimentación',onlyRefs:['DC12V2A-IP66','DC12V2A','DC12V2A-L','DC1215-W','DC1220-W','DC12V5A','INJ-POE-30W-V2','RG-POE-AT30']}
+ {family:'Almacenamiento',label:'Almacenamiento',sources:[
+   {family:'Discos duros',label:'Discos duros',refPrefixes:['HD1TB','HD2TB','HD3TB','HD4TB','HD6TB','HD8TB']},
+   {family:'Tarjetas SD',label:'Tarjetas SD',onlyGroups:['32 GB','64 GB','128 GB']}
+ ]},
+ {family:'Alimentación',label:'Alimentación',onlyRefs:['DC12V2A-IP66','DC12V2A','DC12V2A-L','DC1215-W','DC1220-W','DC12V5A','INJ-POE-30W-V2','RG-POE-AT30']},
+ {family:'Racks de pared',label:'Racks'}
 ];
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -102,19 +105,28 @@ function render(){
  if(!api?.quickAddData){root.innerHTML='<p class="hxq-empty">Cargando…</p>';renderNav([]);return}
  const html=[],navItems=[];
  for(const cfg of CFG){
-  const family=api.quickAddData([cfg.family])[0];if(!family)continue;
-  const familyId=`hxq-family-${slug(cfg.label||family.family)}`;
+  const sourceCfgs=Array.isArray(cfg.sources)?cfg.sources:[cfg];
+  const sourceFamilies=sourceCfgs.map(sourceCfg=>{
+    const family=api.quickAddData([sourceCfg.family])[0];
+    return family?{family,sourceCfg}:null;
+  }).filter(Boolean);
+  if(!sourceFamilies.length)continue;
+
+  const familyId=`hxq-family-${slug(cfg.label||cfg.family)}`;
   const groups=[];
-  let familyGroups=family.groups||[];
-  if(cfg.family==='Accesorios CCTV' && !familyGroups.some(group=>group?.products?.length)){
+
+  for(const sourceEntry of sourceFamilies){
+   const family=sourceEntry.family,activeCfg=sourceEntry.sourceCfg;
+   let familyGroups=family.groups||[];
+   if(activeCfg.family==='Accesorios CCTV' && !familyGroups.some(group=>group?.products?.length)){
     const products=(family.products||[]);
     if(products.length) familyGroups=[{name:'Soportes',products}];
-  }
+   }
 
-  for(const group of familyGroups){
-   if(!group?.products?.length)continue;
-   if(Array.isArray(cfg.onlyGroups) && !cfg.onlyGroups.includes(group.name)) continue;
-   const familyName=String(cfg.family||'');
+   for(const group of familyGroups){
+    if(!group?.products?.length)continue;
+    if(Array.isArray(activeCfg.onlyGroups) && !activeCfg.onlyGroups.includes(group.name)) continue;
+    const familyName=String(activeCfg.family||'');
    const detectorPriceGroups=new Set(['Movimiento / PIR','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio']);
    const sorter=
       (familyName==='Detectores' && detectorPriceGroups.has(group.name))?sortPriceRefColor:
@@ -123,21 +135,22 @@ function render(){
       group.name==='Teclados'?sortPriceRefColor:
       (familyName==='Accesorios CCTV' && group.name==='Soportes')?sortPriceRefColor:
       familyName==='Alimentación'?sortPriceRefColor:
+      familyName==='Racks de pared'?sortPriceRefColor:
       familyName==='Tarjetas SD'?sortPriceRefColor:
       familyName==='Cámaras IP'?sortPriceRef:
       familyName==='NVRs Profesionales'?sortPriceRef:
       sortProducts;
 
    let candidates=group.products;
-   if(Array.isArray(cfg.refPrefixes)){
-    const prefixes=cfg.refPrefixes.map(ref=>String(ref).toUpperCase());
+   if(Array.isArray(activeCfg.refPrefixes)){
+    const prefixes=activeCfg.refPrefixes.map(ref=>String(ref).toUpperCase());
     candidates=candidates.filter(p=>{
       const ref=String(p.reference||'').toUpperCase();
       return prefixes.some(prefix=>ref===prefix || ref.startsWith(prefix+'-') || ref.startsWith(prefix+'_'));
     });
    }
-   if(Array.isArray(cfg.onlyRefs)){
-    const wanted=new Set(cfg.onlyRefs.map(ref=>String(ref).toUpperCase()));
+   if(Array.isArray(activeCfg.onlyRefs)){
+    const wanted=new Set(activeCfg.onlyRefs.map(ref=>String(ref).toUpperCase()));
     candidates=candidates.filter(p=>wanted.has(String(p.reference||'').toUpperCase()));
    }
 
@@ -150,13 +163,18 @@ function render(){
    }));
    if(!products.length)continue;
 
-   const groupLabel=(cfg.family==='Domótica' && group.name==='Clima / Aire / LifeQuality')?'LifeQuality':group.name;
-   groups.push(`<section class="hxq-group"><div class="hxq-group-title"><strong>${esc(groupLabel)}</strong><span>${products.length}</span></div><div class="hxq-grid">${products.map(card).join('')}</div></section>`);
+    const baseLabel=(activeCfg.family==='Domótica' && group.name==='Clima / Aire / LifeQuality')?'LifeQuality':group.name;
+    const groupLabel=Array.isArray(cfg.sources)
+      ? `${activeCfg.label}${activeCfg.family==='Tarjetas SD' ? ` · ${baseLabel}` : (baseLabel && baseLabel!==activeCfg.label ? ` · ${baseLabel}` : '')}`
+      : baseLabel;
+    groups.push(`<section class="hxq-group"><div class="hxq-group-title"><strong>${esc(groupLabel)}</strong><span>${products.length}</span></div><div class="hxq-grid">${products.map(card).join('')}</div></section>`);
+   }
   }
 
   if(groups.length){
-   navItems.push({id:familyId,label:cfg.label||family.family});
-   html.push(`<section class="hxq-family" id="${esc(familyId)}"><h2>${esc(cfg.label||family.family)}</h2>${groups.join('')}</section>`);
+   const label=cfg.label||cfg.family;
+   navItems.push({id:familyId,label});
+   html.push(`<section class="hxq-family" id="${esc(familyId)}"><h2>${esc(label)}</h2>${groups.join('')}</section>`);
   }
  }
  root.innerHTML=html.join('')||'<p class="hxq-empty">No hay productos rápidos disponibles.</p>';
