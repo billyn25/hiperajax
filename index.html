@@ -10,7 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="botones.css?v=HXQ-54">
-  <link rel="stylesheet" href="quick_add.css?v=REFDAY-1">
+  <link rel="stylesheet" href="quick_add.css?v=SESSION-NAV-2">
 </head>
 <body>
   <header class="header">
@@ -174,9 +174,9 @@
         <span class="hxq-heading-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2.8 5.8 13h5.1l-.5 8.2L18.2 11h-5.1z"/></svg></span>
         <div><strong id="hxqTitle">Añadir rápido</strong><span>Productos habituales</span></div>
       </div>
-      <span class="hxq-close" data-hxq-close role="button" tabindex="0" aria-label="Cerrar">×</span>
+      <span class="hxq-close" data-hxq-close role="button" tabindex="0" aria-label="Cerrar" title="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
     </header>
-    <div id="hxqContent" class="hxq-content"></div>
+    <div class="hxq-body"><nav id="hxqNav" class="hxq-nav" aria-label="Atajos rápidos"></nav><div id="hxqContent" class="hxq-content"></div></div>
   </aside>
 </div>
 <div id="familiasModal" class="modal hidden" aria-hidden="true">
@@ -264,9 +264,9 @@
     </div>
   </div>
 
-  <script src="app.js?v=REFDAY-1"></script>
+  <script src="app.js?v=SESSION-NAV-2"></script>
   <script src="search_engine.js?v=HXQ-54"></script>
   <script src="explorer.js?v=HXQ-54"></script>
-  <script src="quick_add.js?v=SORT-PRICE-2"></script>
+  <script src="quick_add.js?v=SESSION-NAV-2"></script>
 </body>
 </html>

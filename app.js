@@ -136,23 +136,32 @@ function hxAddProductoSeguro(ref, qty=1, dto=null, expectedPvp=null){
   return addProductoObj(resolved.product, qty, dto);
 }
 
+let hxQuickSessionLines=new Map();
+function hxQuickAddSessionReset(){hxQuickSessionLines=new Map()}
+window.HXQ_RESET_SESSION=hxQuickAddSessionReset;
+
 function hxQuickAddSumar(ref,qty=1,expectedPvp=null){
   const resolved=hxResolverProductoExacto(ref,expectedPvp);
-  if(!resolved.ok){ hxToastGlobal(resolved.error,'error'); return false; }
+  if(!resolved.ok){hxToastGlobal(resolved.error,'error');return {ok:false,totalQty:0}}
   const product=resolved.product;
   const cantidad=Math.max(1,Number(qty)||1);
   const key=hxRefProducto(product.name);
-  const existing=lineas.find(line=>hxRefProducto(line?.name)===key);
-  if(existing){
-    existing.qty=Math.max(1,Number(existing.qty)||1)+cantidad;
+  let sessionLine=hxQuickSessionLines.get(key);
+
+  if(sessionLine && lineas.includes(sessionLine)){
+    sessionLine.qty=Math.max(1,Number(sessionLine.qty)||1)+cantidad;
     registrarReciente(product.name);
     hxBajarUltimaLineaPresupuesto();
   }else{
-    addProductoObj(product,cantidad,null);
+    if(!addProductoObj(product,cantidad,null)) return {ok:false,totalQty:0};
+    sessionLine=lineas[lineas.length-1];
+    hxQuickSessionLines.set(key,sessionLine);
   }
-  try{ render(); }catch(_error){}
-  hxToastGlobal(`${product.name} añadido`,'ok');
-  return true;
+
+  try{render()}catch(_error){}
+  const totalQty=Math.max(1,Number(sessionLine?.qty)||cantidad);
+  hxToastGlobal(`${product.name} añadido · ${totalQty} ud${totalQty===1?'':'s'}`,'ok');
+  return {ok:true,totalQty};
 }
 window.HXQ_ADD_PRODUCT=hxQuickAddSumar;
 
