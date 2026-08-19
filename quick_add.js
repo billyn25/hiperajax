@@ -30,6 +30,14 @@ function sortRemoteButtons(list){
  );
 }
 
+function sortRefPrice(list){
+ return list.slice().sort((a,b)=>
+   collator.compare(baseRef(a.reference),baseRef(b.reference)) ||
+   (Number(a.price)||0)-(Number(b.price)||0) ||
+   collator.compare(a.reference||'',b.reference||'')
+ );
+}
+
 function card(p){const img=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'';return `<article class="hxq-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}"><div class="hxq-photo">${img}</div><strong class="hxq-reference">${esc(p.reference)}</strong><div class="hxq-actions"><div class="hxq-qty"><span class="hxq-minus" data-hxq-minus role="button" tabindex="0">−</span><span class="hxq-value">1</span><span class="hxq-plus" data-hxq-plus role="button" tabindex="0">+</span></div><span class="hxq-add" data-hxq-add role="button" tabindex="0">Añadir</span></div></article>`}
 function render(){
  const api=window.HX_EXPLORER_PRO,root=$('hxqContent');
@@ -41,9 +49,13 @@ function render(){
   const seen=new Set(),groups=[];
   for(const group of (family.groups||[])){
    if(!group?.products?.length)continue;
+   const familyName=String(cfg.family||'');
    const sorter=
       group.name==='Movimiento / PIR' ? sortPirProducts :
       group.name==='Botones / Mandos' ? sortRemoteButtons :
+      group.name==='Transmitters' ? sortRefPrice :
+      familyName==='Cámaras IP' ? sortRefPrice :
+      familyName==='NVRs Profesionales' ? sortRefPrice :
       sortProducts;const products=sorter(group.products.filter(p=>{
     const k=String(p.reference||'').toUpperCase();
     if(!k||seen.has(k))return false;
