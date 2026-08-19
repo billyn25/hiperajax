@@ -281,7 +281,7 @@
       };
     }
 
-    const canonical = canonicalClassification(category, family, subcategory);
+    const canonical = canonicalClassification(category, family, subcategory, selectedRef);
     return {
       category:canonical.category,
       family:canonical.family,
@@ -418,7 +418,7 @@
     return withImage.slice().sort((a,b) => score(b)-score(a))[0]?.p || withImage[0].p;
   }
 
-  function canonicalClassification(categoryValue, familyValue, subcategoryValue=''){
+  function canonicalClassification(categoryValue, familyValue, subcategoryValue='', referenceValue=''){
     let category = clean(categoryValue);
     let family = clean(familyValue);
     const subcategory = clean(subcategoryValue);
@@ -459,7 +459,7 @@
       return {category:'Accesorios IT y Seguridad', family:'Discos duros'};
     }
 
-    if(/\bHD(?:1|2|3|4|6|8)TB\b/i.test(clean(p?.name))){
+    if(/\bHD(?:1|2|3|4|6|8)TB\b/i.test(clean(referenceValue))){
       return {category:'Accesorios IT y Seguridad', family:'Discos duros'};
     }
 
