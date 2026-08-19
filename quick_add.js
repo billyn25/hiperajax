@@ -8,6 +8,7 @@ const CFG=[
  {family:'NVRs Profesionales',label:'NVR'},
  {family:'Accesorios CCTV',label:'Accesorios CCTV'},
  {family:'Discos duros',label:'Almacenamiento',refPrefixes:['HD1TB','HD2TB','HD3TB','HD4TB','HD6TB','HD8TB']},
+ {family:'Tarjetas SD',label:'Tarjetas SD',onlyGroups:['32 GB','64 GB','128 GB']},
  {family:'Alimentación',label:'Alimentación',onlyRefs:['DC12V2A-IP66','DC12V2A','DC12V2A-L','DC1215-W','DC1220-W','DC12V5A','INJ-POE-30W-V2','RG-POE-AT30']}
 ];
 const $=id=>document.getElementById(id);
@@ -121,6 +122,8 @@ function render(){
       group.name==='Transmitters'?sortPriceRef:
       group.name==='Teclados'?sortPriceRefColor:
       (familyName==='Accesorios CCTV' && group.name==='Soportes')?sortPriceRefColor:
+      familyName==='Alimentación'?sortPriceRefColor:
+      familyName==='Tarjetas SD'?sortPriceRefColor:
       familyName==='Cámaras IP'?sortPriceRef:
       familyName==='NVRs Profesionales'?sortPriceRef:
       sortProducts;
