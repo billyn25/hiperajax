@@ -3,6 +3,7 @@ const CFG=[
  {family:'Centrales'},
  {family:'Detectores'},
  {family:'Accesorios inalámbricos'},
+ {family:'Domótica',label:'Domótica',onlyGroups:['LifeQuality','Timbre / Doorbell']},
  {family:'Cámaras IP'},
  {family:'NVRs Profesionales',label:'NVR'},
  {family:'Accesorios CCTV',label:'Accesorios CCTV'},
@@ -102,7 +103,7 @@ function render(){
  for(const cfg of CFG){
   const family=api.quickAddData([cfg.family])[0];if(!family)continue;
   const familyId=`hxq-family-${slug(cfg.label||family.family)}`;
-  const seen=new Set(),groups=[];
+  const groups=[];
   let familyGroups=family.groups||[];
   if(cfg.family==='Accesorios CCTV' && !familyGroups.some(group=>group?.products?.length)){
     const products=(family.products||[]);
@@ -111,6 +112,7 @@ function render(){
 
   for(const group of familyGroups){
    if(!group?.products?.length)continue;
+   if(Array.isArray(cfg.onlyGroups) && !cfg.onlyGroups.includes(group.name)) continue;
    const familyName=String(cfg.family||'');
    const sorter=
       group.name==='Movimiento / PIR'?sortPirProducts:
@@ -136,9 +138,12 @@ function render(){
     candidates=candidates.filter(p=>wanted.has(String(p.reference||'').toUpperCase()));
    }
 
+   const seen=new Set();
    const products=sorter(candidates.filter(p=>{
     const k=String(p.reference||'').toUpperCase();
-    if(!k||seen.has(k))return false;seen.add(k);return true;
+    if(!k||seen.has(k))return false;
+    seen.add(k);
+    return true;
    }));
    if(!products.length)continue;
 
