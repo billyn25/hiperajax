@@ -63,6 +63,15 @@ function updateActiveFamily(){
  const root=$('hxqContent');if(!root)return;
  const families=[...root.querySelectorAll('.hxq-family[id]')];
  if(!families.length)return;
+
+ /* En PC, al llegar al fondo, la última familia debe quedar activa
+    aunque su título no pueda alcanzar el umbral superior. */
+ const atBottom=root.scrollTop+root.clientHeight>=root.scrollHeight-6;
+ if(atBottom){
+  setActiveNav(families[families.length-1].id);
+  return;
+ }
+
  const top=root.getBoundingClientRect().top;
  let current=families[0];
  for(const family of families){
