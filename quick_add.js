@@ -114,12 +114,12 @@ function render(){
    if(!group?.products?.length)continue;
    if(Array.isArray(cfg.onlyGroups) && !cfg.onlyGroups.includes(group.name)) continue;
    const familyName=String(cfg.family||'');
+   const detectorPriceGroups=new Set(['Movimiento / PIR','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio']);
    const sorter=
-      group.name==='Movimiento / PIR'?sortPirProducts:
+      (familyName==='Detectores' && detectorPriceGroups.has(group.name))?sortPriceRefColor:
       group.name==='Botones / Mandos'?sortRemoteButtons:
       group.name==='Transmitters'?sortPriceRef:
       group.name==='Teclados'?sortPriceRefColor:
-      group.name==='Incendio'?sortPriceRefColor:
       (familyName==='Accesorios CCTV' && group.name==='Soportes')?sortPriceRefColor:
       familyName==='Cámaras IP'?sortPriceRef:
       familyName==='NVRs Profesionales'?sortPriceRef:
