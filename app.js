@@ -846,7 +846,7 @@ function productoTitulo(p){
   return `${d.icon} ${p.name}`;
 }
 function aplicarTemaGuardado(){
-  const tema = localStorage.getItem(STORAGE_TEMA) || 'dark';
+  const tema = localStorage.getItem(STORAGE_TEMA) || 'light';
   document.body.classList.toggle('light-mode', tema === 'light');
   const btn = $('#themeToggle');
   if(btn){

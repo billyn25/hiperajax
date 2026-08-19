@@ -29,9 +29,9 @@ html.hxq-lock,body.hxq-lock{overflow:hidden!important;overscroll-behavior:none}
  .hxq-heading strong{font-size:16px}
  .hxq-content{padding:7px;padding-bottom:calc(18px + env(safe-area-inset-bottom));overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
  .hxq-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:6px}
- .hxq-product{grid-template-columns:42px minmax(0,1fr);grid-template-areas:"photo ref" "actions actions";gap:5px 7px;padding:7px;min-height:100px}
- .hxq-photo{width:42px;height:42px}
- .hxq-reference{font-size:10px;line-height:1.18;white-space:normal;overflow-wrap:anywhere;-webkit-line-clamp:2}
+ .hxq-product{grid-template-columns:36px minmax(0,1fr);grid-template-areas:"photo ref" "actions actions";gap:5px 6px;padding:7px;min-height:100px}
+ .hxq-photo{width:36px;height:36px}
+ .hxq-reference{font-size:9.5px;line-height:1.18;white-space:normal;overflow-wrap:anywhere;-webkit-line-clamp:2}
  .hxq-actions{justify-content:space-between;gap:5px}
  .hxq-qty{height:31px;grid-template-columns:24px 28px 24px}
  .hxq-minus,.hxq-plus,.hxq-value{font-size:11px}
