@@ -854,6 +854,12 @@ function productoTitulo(p){
   const d = descripcionProducto(p);
   return `${d.icon} ${p.name}`;
 }
+function hxInicioArriba(){
+  try{ if('scrollRestoration' in history) history.scrollRestoration='manual'; }catch(_error){}
+  const subir=()=>{ try{ window.scrollTo(0,0); document.documentElement.scrollTop=0; document.body.scrollTop=0; }catch(_error){} };
+  subir();
+  requestAnimationFrame(()=>{ subir(); requestAnimationFrame(subir); });
+}
 function aplicarTemaGuardado(){
   const tema = localStorage.getItem(STORAGE_TEMA) || 'light';
   document.body.classList.toggle('light-mode', tema === 'light');
@@ -2242,7 +2248,7 @@ async function pdf(){
 
 window.setLinea=setLinea; window.delLinea=delLinea; window.addLineaManual=addLineaManual; window.addSeparador=addSeparador; window.moverLinea=moverLinea;
 document.addEventListener('DOMContentLoaded',()=>{
-  aplicarTemaGuardado();
+  aplicarTemaGuardado(); hxInicioArriba();
   $('#themeToggle')?.addEventListener('click',alternarTema);
   cargarLocal(); render(); cargarCatalogo();
   $('#buscador').addEventListener('input',resolverDesdeInput);

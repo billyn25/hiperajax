@@ -6,7 +6,8 @@ const CFG=[
  {family:'Cámaras IP'},
  {family:'NVRs Profesionales',label:'NVR'},
  {family:'Accesorios CCTV',label:'Accesorios CCTV'},
- {family:'Discos duros',label:'Almacenamiento',refPrefixes:['HD1TB','HD2TB','HD3TB','HD4TB','HD6TB','HD8TB']}
+ {family:'Discos duros',label:'Almacenamiento',refPrefixes:['HD1TB','HD2TB','HD3TB','HD4TB','HD6TB','HD8TB']},
+ {family:'Alimentación',label:'Alimentación',onlyRefs:['DC12V2A-IP66','DC12V2A','DC12V2A-L','DC1215-W','DC1220-W','DC12V5A','INJ-POE-30W-V2','RG-POE-AT30']}
 ];
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -49,6 +50,15 @@ function setActiveNav(id){
   active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
  }
 }
+function updateNavMore(){
+ const nav=$('hxqNav');
+ const more=document.querySelector('.hxq-nav-more');
+ if(!nav||!more)return;
+ const mobile=window.matchMedia('(max-width:640px)').matches;
+ if(!mobile){more.classList.remove('is-visible');return}
+ const max=Math.max(0,nav.scrollWidth-nav.clientWidth);
+ more.classList.toggle('is-visible',nav.scrollLeft<max-8);
+}
 function updateActiveFamily(){
  const root=$('hxqContent');if(!root)return;
  const families=[...root.querySelectorAll('.hxq-family[id]')];
@@ -64,6 +74,7 @@ function updateActiveFamily(){
 function renderNav(items){
  const nav=$('hxqNav');if(!nav)return;
  nav.innerHTML=items.map((item,index)=>`<span class="hxq-nav-item ${index===0?'is-active':''}" data-hxq-jump="${esc(item.id)}" role="button" tabindex="0">${esc(item.label)}</span>`).join('');
+ requestAnimationFrame(updateNavMore);
 }
 function card(p){const img=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'';return `<article class="hxq-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}"><div class="hxq-photo">${img}</div><strong class="hxq-reference">${esc(p.reference)}</strong><div class="hxq-actions"><div class="hxq-qty"><span class="hxq-minus" data-hxq-minus role="button" tabindex="0">−</span><span class="hxq-value">1</span><span class="hxq-plus" data-hxq-plus role="button" tabindex="0">+</span></div><span class="hxq-add" data-hxq-add role="button" tabindex="0">Añadir</span></div></article>`}
 function render(){
@@ -98,6 +109,10 @@ function render(){
       const ref=String(p.reference||'').toUpperCase();
       return prefixes.some(prefix=>ref===prefix || ref.startsWith(prefix+'-') || ref.startsWith(prefix+'_'));
     });
+   }
+   if(Array.isArray(cfg.onlyRefs)){
+    const wanted=new Set(cfg.onlyRefs.map(ref=>String(ref).toUpperCase()));
+    candidates=candidates.filter(p=>wanted.has(String(p.reference||'').toUpperCase()));
    }
 
    const products=sorter(candidates.filter(p=>{
@@ -154,5 +169,8 @@ function install(){
  $('hxqModal')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role="button"]')){e.preventDefault();activate(e.target)}});
  addEventListener('keydown',e=>{if(e.key==='Escape')close()});
  $('hxqContent')?.addEventListener('scroll',()=>requestAnimationFrame(updateActiveFamily),{passive:true});
+ const nav=$('hxqNav');
+ nav?.addEventListener('scroll',()=>requestAnimationFrame(updateNavMore),{passive:true});
+ addEventListener('resize',()=>requestAnimationFrame(updateNavMore),{passive:true});
 }
 window.HX_QUICK_ADD={open,close,render,config:CFG};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();})();
