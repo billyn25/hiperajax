@@ -29,6 +29,7 @@
     ['camara ip','cámaras ip','camara','cámara','camaras','cámaras','videovigilancia'],
     ['nvr profesionales','nvr','grabador','grabadores','grabacion','grabación'],
     ['accesorios cctv'],
+    ['discos duros','disco duro','hdd','hard drive'],
     ['kits cctv','kit cctv'],
     ['red','poe','network'],
     ['accesorio','accesorios','soporte','soportes'],
@@ -455,6 +456,10 @@
     }
 
     if(/almacenamiento|storage/.test(fullCombined) && /disco|hard drive|hdd|surveillance/.test(fullCombined)){
+      return {category:'Accesorios IT y Seguridad', family:'Discos duros'};
+    }
+
+    if(/\bHD(?:1|2|3|4|6|8)TB\b/i.test(clean(p?.name))){
       return {category:'Accesorios IT y Seguridad', family:'Discos duros'};
     }
 
