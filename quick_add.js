@@ -3,7 +3,7 @@ const CFG=[
  {family:'Centrales'},
  {family:'Detectores'},
  {family:'Accesorios inalámbricos'},
- {family:'Domótica',label:'Domótica',onlyGroups:['LifeQuality','Timbre / Doorbell']},
+ {family:'Domótica',label:'Domótica',onlyGroups:['Clima / Aire / LifeQuality','Timbre / Doorbell']},
  {family:'Cámaras IP'},
  {family:'NVRs Profesionales',label:'NVR'},
  {family:'Accesorios CCTV',label:'Accesorios CCTV'},
@@ -147,7 +147,8 @@ function render(){
    }));
    if(!products.length)continue;
 
-   groups.push(`<section class="hxq-group"><div class="hxq-group-title"><strong>${esc(group.name)}</strong><span>${products.length}</span></div><div class="hxq-grid">${products.map(card).join('')}</div></section>`);
+   const groupLabel=(cfg.family==='Domótica' && group.name==='Clima / Aire / LifeQuality')?'LifeQuality':group.name;
+   groups.push(`<section class="hxq-group"><div class="hxq-group-title"><strong>${esc(groupLabel)}</strong><span>${products.length}</span></div><div class="hxq-grid">${products.map(card).join('')}</div></section>`);
   }
 
   if(groups.length){
