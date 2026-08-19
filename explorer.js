@@ -459,7 +459,7 @@
       return {category:'Accesorios IT y Seguridad', family:'Discos duros'};
     }
 
-    if(/\bHD(?:1|2|3|4|6|8)TB\b/i.test(clean(referenceValue))){
+    if(/\bHD(?:1|2|3|4|6|8)TB(?:[-_][A-Z0-9]+)*\b/i.test(clean(referenceValue))){
       return {category:'Accesorios IT y Seguridad', family:'Discos duros'};
     }
 

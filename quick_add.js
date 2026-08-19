@@ -6,7 +6,7 @@ const CFG=[
  {family:'Cámaras IP'},
  {family:'NVRs Profesionales',label:'NVR'},
  {family:'Accesorios CCTV',label:'Soportes'},
- {family:'Discos duros',label:'Almacenamiento',onlyRefs:['HD1TB','HD2TB','HD3TB','HD4TB','HD6TB','HD8TB']}
+ {family:'Discos duros',label:'Almacenamiento',refPrefixes:['HD1TB','HD2TB','HD3TB','HD4TB','HD6TB','HD8TB']}
 ];
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -67,9 +67,12 @@ function render(){
       sortProducts;
 
    let candidates=group.products;
-   if(Array.isArray(cfg.onlyRefs)){
-    const wanted=new Set(cfg.onlyRefs.map(ref=>String(ref).toUpperCase()));
-    candidates=candidates.filter(p=>wanted.has(String(p.reference||'').toUpperCase()));
+   if(Array.isArray(cfg.refPrefixes)){
+    const prefixes=cfg.refPrefixes.map(ref=>String(ref).toUpperCase());
+    candidates=candidates.filter(p=>{
+      const ref=String(p.reference||'').toUpperCase();
+      return prefixes.some(prefix=>ref===prefix || ref.startsWith(prefix+'-') || ref.startsWith(prefix+'_'));
+    });
    }
 
    const products=sorter(candidates.filter(p=>{
@@ -92,7 +95,7 @@ function render(){
 function open(){window.HXQ_RESET_SESSION?.();render();$('hxqModal')?.classList.remove('hxq-hidden');$('hxqModal')?.setAttribute('aria-hidden','false');document.documentElement.classList.add('hxq-lock');document.body.classList.add('hxq-lock')}
 function close(){window.HXQ_RESET_SESSION?.();$('hxqModal')?.classList.add('hxq-hidden');$('hxqModal')?.setAttribute('aria-hidden','true');document.documentElement.classList.remove('hxq-lock');document.body.classList.remove('hxq-lock')}
 function activate(el){
- if(el?.matches('[data-hxq-close]')){close();return true}
+ if(el?.closest?.('[data-hxq-close]')){close();return true}
  const jump=el?.closest('[data-hxq-jump]');
  if(jump){
   const target=document.getElementById(jump.dataset.hxqJump),root=$('hxqContent');
