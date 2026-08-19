@@ -41,25 +41,29 @@ function sortPriceRef(list){
 
 
 function slug(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
-function updateNavArrows(){
- const nav=$('hxqNav');
- const prev=document.querySelector('[data-hxq-nav-prev]');
- const next=document.querySelector('[data-hxq-nav-next]');
- if(!nav||!prev||!next)return;
- const horizontal=window.matchMedia('(max-width:640px)').matches;
- if(horizontal){
-  const max=Math.max(0,nav.scrollWidth-nav.clientWidth);
-  prev.classList.toggle('is-visible',nav.scrollLeft>6);
-  next.classList.toggle('is-visible',nav.scrollLeft<max-6);
- }else{
-  prev.classList.remove('is-visible');
-  next.classList.remove('is-visible');
+function setActiveNav(id){
+ const nav=$('hxqNav');if(!nav)return;
+ nav.querySelectorAll('[data-hxq-jump]').forEach(item=>item.classList.toggle('is-active',item.dataset.hxqJump===id));
+ const active=nav.querySelector('.hxq-nav-item.is-active');
+ if(active && window.matchMedia('(max-width:640px)').matches){
+  active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
  }
+}
+function updateActiveFamily(){
+ const root=$('hxqContent');if(!root)return;
+ const families=[...root.querySelectorAll('.hxq-family[id]')];
+ if(!families.length)return;
+ const top=root.getBoundingClientRect().top;
+ let current=families[0];
+ for(const family of families){
+  if(family.getBoundingClientRect().top-top<=72) current=family;
+  else break;
+ }
+ setActiveNav(current.id);
 }
 function renderNav(items){
  const nav=$('hxqNav');if(!nav)return;
- nav.innerHTML=items.map(item=>`<span class="hxq-nav-item" data-hxq-jump="${esc(item.id)}" role="button" tabindex="0">${esc(item.label)}</span>`).join('');
- requestAnimationFrame(updateNavArrows);
+ nav.innerHTML=items.map((item,index)=>`<span class="hxq-nav-item ${index===0?'is-active':''}" data-hxq-jump="${esc(item.id)}" role="button" tabindex="0">${esc(item.label)}</span>`).join('');
 }
 function card(p){const img=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'';return `<article class="hxq-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}"><div class="hxq-photo">${img}</div><strong class="hxq-reference">${esc(p.reference)}</strong><div class="hxq-actions"><div class="hxq-qty"><span class="hxq-minus" data-hxq-minus role="button" tabindex="0">−</span><span class="hxq-value">1</span><span class="hxq-plus" data-hxq-plus role="button" tabindex="0">+</span></div><span class="hxq-add" data-hxq-add role="button" tabindex="0">Añadir</span></div></article>`}
 function render(){
@@ -113,7 +117,7 @@ function render(){
  root.innerHTML=html.join('')||'<p class="hxq-empty">No hay productos rápidos disponibles.</p>';
  renderNav(navItems);
 }
-function open(){window.HXQ_RESET_SESSION?.();render();$('hxqModal')?.classList.remove('hxq-hidden');$('hxqModal')?.setAttribute('aria-hidden','false');document.documentElement.classList.add('hxq-lock');document.body.classList.add('hxq-lock')}
+function open(){window.HXQ_RESET_SESSION?.();render();$('hxqModal')?.classList.remove('hxq-hidden');$('hxqModal')?.setAttribute('aria-hidden','false');document.documentElement.classList.add('hxq-lock');document.body.classList.add('hxq-lock');requestAnimationFrame(updateActiveFamily)}
 function close(){window.HXQ_RESET_SESSION?.();$('hxqModal')?.classList.add('hxq-hidden');$('hxqModal')?.setAttribute('aria-hidden','true');document.documentElement.classList.remove('hxq-lock');document.body.classList.remove('hxq-lock')}
 function activate(el){
  if(el?.closest?.('[data-hxq-close]')){close();return true}
@@ -121,6 +125,7 @@ function activate(el){
  if(jump){
   const target=document.getElementById(jump.dataset.hxqJump),root=$('hxqContent');
   if(target&&root){
+   setActiveNav(jump.dataset.hxqJump);
    const top=target.getBoundingClientRect().top-root.getBoundingClientRect().top+root.scrollTop;
    root.scrollTo({top:Math.max(0,top),behavior:'smooth'});
   }
@@ -148,10 +153,6 @@ function install(){
  $('hxqModal')?.addEventListener('click',e=>activate(e.target));
  $('hxqModal')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role="button"]')){e.preventDefault();activate(e.target)}});
  addEventListener('keydown',e=>{if(e.key==='Escape')close()});
- const nav=$('hxqNav');
- nav?.addEventListener('scroll',updateNavArrows,{passive:true});
- document.querySelector('[data-hxq-nav-prev]')?.addEventListener('click',()=>nav?.scrollBy({left:-190,behavior:'smooth'}));
- document.querySelector('[data-hxq-nav-next]')?.addEventListener('click',()=>nav?.scrollBy({left:190,behavior:'smooth'}));
- addEventListener('resize',updateNavArrows,{passive:true});
+ $('hxqContent')?.addEventListener('scroll',()=>requestAnimationFrame(updateActiveFamily),{passive:true});
 }
 window.HX_QUICK_ADD={open,close,render,config:CFG};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();})();
