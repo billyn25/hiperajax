@@ -661,6 +661,7 @@ body:not(.light-mode) #familiasGrid button.hxp-thumb{background:#303833!importan
   -webkit-box-orient:vertical;
   -webkit-line-clamp:2;
   overflow:hidden;
+   margin: 1px 0px 8px 0px;
 }
 #familiasGrid .hxp-product-meta{
   min-width:0;
