@@ -5165,6 +5165,13 @@ pintarCatalogPanel = function(term=catalogTerm){
     byId('pmModal')?.addEventListener('click',e=>{const b=e.target.closest('.pmx-folder');if(!b)return;pmView={type:b.dataset.pmView||'all',value:b.dataset.pmValue||''};if(pmView.type==='store'&&byId('pmFilterStore'))byId('pmFilterStore').value='';if(pmView.type==='commercial'&&byId('pmFilterCommercial'))byId('pmFilterCommercial').value='';clearSelection();render();if(matchMedia('(max-width:900px)').matches)modal()?.classList.add('pm-mobile-list')});
     window.addEventListener('hiperajax:presupuestos-importados',render);window.addEventListener('hiperajax:identificador-cambiado',render);
   });
+  // Móvil: volver desde la lista (también cuando una búsqueda no devuelve nada)
+  // debe regresar a la pantalla principal del gestor, no dejar al usuario en
+  // una vista de "Recientes" arrastrando la búsqueda anterior.
+  window.HX_PM_MOBILE_HOME=()=>{
+    resetManagerView();
+    render();
+  };
   window.HX_PM_RENDER=render;
 })();
 
@@ -6378,6 +6385,13 @@ window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
     const back=e.target.closest?.('#pmMobileBackFilters');
     if(!back)return;
     e.preventDefault();e.stopPropagation();
+    // En móvil Atrás vuelve siempre a la pantalla principal del gestor.
+    // Esto limpia una búsqueda sin resultados y evita caer en la lista de
+    // "Recientes" con el estado anterior todavía activo.
+    if(isMobile()&&typeof window.HX_PM_MOBILE_HOME==='function'){
+      window.HX_PM_MOBILE_HOME();
+      return;
+    }
     modal()?.classList.remove('pm-mobile-list','pm-has-selection');
     const sel=document.getElementById('presupuestosGuardados');if(sel)sel.value='';
     document.querySelectorAll('#pmModal .pmx-row.is-selected').forEach(r=>r.classList.remove('is-selected'));
