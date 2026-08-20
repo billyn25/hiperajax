@@ -80,10 +80,10 @@ function updateActiveFamily(){
 
  const top=root.getBoundingClientRect().top;
  const mobile=window.matchMedia('(max-width:640px)').matches;
- /* En móvil usamos un umbral algo mayor: cambia de familia cuando su
-    cabecera entra claramente en la zona visible, evitando que se quede
-    marcada la familia anterior durante el scroll. */
- const threshold=mobile?110:72;
+ /* En móvil seguimos la familia que va entrando en pantalla, no solo la
+    que ya ha llegado arriba. Así una familia pulsada no queda visualmente
+    enganchada mientras el usuario continúa haciendo scroll. */
+ const threshold=mobile?Math.max(110,root.clientHeight-120):72;
  let current=families[0];
  for(const family of families){
   if(family.getBoundingClientRect().top-top<=threshold) current=family;
