@@ -430,3 +430,8 @@ body:not(.light-mode) .hxq-nav-item.is-active{
 .hxq-stock-dot.is-ok{background:#2e9f59}
 .hxq-stock-dot.is-low{background:#d6a117}
 .hxq-stock-dot.is-none{background:#d94a4a}
+.hxq-photo[data-hxq-image]:not([data-hxq-image=""]){cursor:zoom-in}
+.hxq-photo[data-hxq-image]:not([data-hxq-image=""]) img{transition:transform .16s ease}
+@media (hover:hover) and (pointer:fine){
+ .hxq-photo[data-hxq-image]:not([data-hxq-image=""]):hover img{transform:scale(1.045)}
+}

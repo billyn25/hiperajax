@@ -127,7 +127,7 @@ function card(p){
  const img=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'';
  const state=stockState(p.stock);
  const stock=state?`<span class="hxq-stock-dot ${state[0]}" title="Stock: ${esc(state[1])}" aria-label="Stock: ${esc(state[1])}"></span>`:'';
- return `<article class="hxq-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}">${stock}<div class="hxq-photo">${img}</div><strong class="hxq-reference">${esc(p.reference)}</strong><div class="hxq-actions"><div class="hxq-qty"><span class="hxq-minus" data-hxq-minus role="button" tabindex="0">−</span><span class="hxq-value">1</span><span class="hxq-plus" data-hxq-plus role="button" tabindex="0">+</span></div><span class="hxq-add" data-hxq-add role="button" tabindex="0">Añadir</span></div></article>`;
+ return `<article class="hxq-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}">${stock}<div class="hxq-photo" data-hxq-image="${esc(p.image||'')}" role="${p.image?'button':'presentation'}" tabindex="${p.image?'0':'-1'}" aria-label="${p.image?'Ampliar imagen':''}">${img}</div><strong class="hxq-reference">${esc(p.reference)}</strong><div class="hxq-actions"><div class="hxq-qty"><span class="hxq-minus" data-hxq-minus role="button" tabindex="0">−</span><span class="hxq-value">1</span><span class="hxq-plus" data-hxq-plus role="button" tabindex="0">+</span></div><span class="hxq-add" data-hxq-add role="button" tabindex="0">Añadir</span></div></article>`;
 }
 function render(){
  const api=window.HX_EXPLORER_PRO,root=$('hxqContent');if(!root)return;
@@ -214,8 +214,24 @@ function render(){
 }
 function open(){window.HXQ_RESET_SESSION?.();render();$('hxqModal')?.classList.remove('hxq-hidden');$('hxqModal')?.setAttribute('aria-hidden','false');document.documentElement.classList.add('hxq-lock');document.body.classList.add('hxq-lock');requestAnimationFrame(updateActiveFamily)}
 function close(){window.HXQ_RESET_SESSION?.();$('hxqModal')?.classList.add('hxq-hidden');$('hxqModal')?.setAttribute('aria-hidden','true');document.documentElement.classList.remove('hxq-lock');document.body.classList.remove('hxq-lock')}
+function openImagePreview(url){
+ if(!url)return;
+ let modal=document.getElementById('hxImagePreview');
+ if(!modal){
+  modal=document.createElement('div');
+  modal.id='hxImagePreview';
+  modal.className='hx-image-preview hidden';
+  modal.innerHTML='<button type="button" class="hx-image-preview-close" aria-label="Cerrar">×</button><img alt="Vista ampliada del producto">';
+  document.body.appendChild(modal);
+  modal.addEventListener('click',ev=>{if(ev.target===modal||ev.target.closest('.hx-image-preview-close'))modal.classList.add('hidden')});
+ }
+ modal.querySelector('img').src=url;
+ modal.classList.remove('hidden');
+}
 function activate(el){
  if(el?.closest?.('[data-hxq-close]')){close();return true}
+ const photo=el?.closest?.('[data-hxq-image]');
+ if(photo?.dataset.hxqImage){openImagePreview(photo.dataset.hxqImage);return true}
  const jump=el?.closest('[data-hxq-jump]');
  if(jump){
   const target=document.getElementById(jump.dataset.hxqJump),root=$('hxqContent');
