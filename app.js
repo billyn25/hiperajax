@@ -5016,10 +5016,11 @@ pintarCatalogPanel = function(term=catalogTerm){
     else if(pmView.type==='commercial')parts.push(`Comercial: ${pmView.value}`);
     else if(pmView.type==='missing-store')parts.push('Sin tienda');
     const store=byId('pmFilterStore')?.value||'',commercial=byId('pmFilterCommercial')?.value||'',q=String(byId('pmSearch')?.value||'').trim();
+    const validQuery=q.length>=2;
     if(store)parts.push(store==='__NONE__'?'Sin tienda':`Tienda: ${store}`);
     if(commercial)parts.push(commercial==='__NONE__'?'Sin comercial':`Comercial: ${commercial}`);
-    if(q)parts.push(`Búsqueda: “${q}”`);
-    const active=pmView.type!=='recent'||store||commercial||q;
+    if(validQuery)parts.push(`Búsqueda: “${q}”`);
+    const active=pmView.type!=='recent'||store||commercial||validQuery;
     box.classList.toggle('is-filtered',!!active);
     box.innerHTML=`<span>${active?PM_ICON.search+' Filtrando':PM_ICON.folder+' Vista'}: <strong>${escapeHtml(parts.join(' · ')||'Recientes')}</strong></span>${active?'<button type="button" id="pmClearFilters">Quitar filtros</button>':''}`;
     byId('pmClearFilters')?.addEventListener('click',()=>{pmView={type:'recent',value:''};if(byId('pmFilterStore'))byId('pmFilterStore').value='';if(byId('pmFilterCommercial'))byId('pmFilterCommercial').value='';if(byId('pmSearch'))byId('pmSearch').value='';clearSelection();render()});
@@ -5136,6 +5137,19 @@ pintarCatalogPanel = function(term=catalogTerm){
     let pmSearchTimer=null;
     byId('pmSearch')?.addEventListener('input',()=>{
       clearTimeout(pmSearchTimer);
+      const q=String(byId('pmSearch')?.value||'').trim();
+      // 1 carácter no es una búsqueda: no filtra ni activa el estado "Filtrando".
+      // Al vaciar el campo sí restauramos inmediatamente la lista completa.
+      if(q.length===1){
+        updateFilterNotice();
+        return;
+      }
+      if(q.length===0){
+        clearSelection();
+        render();
+        if(matchMedia('(max-width:900px)').matches) modal()?.classList.add('pm-mobile-list');
+        return;
+      }
       pmSearchTimer=setTimeout(()=>{
         clearSelection();
         render();
