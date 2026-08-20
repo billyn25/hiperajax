@@ -4953,22 +4953,13 @@ pintarCatalogPanel = function(term=catalogTerm){
     const all=listAll();
     const store=byId('pmFilterStore'), commercial=byId('pmFilterCommercial');
     const oldS=store?.value||'',oldC=commercial?.value||'';
-    if(store){store.innerHTML='<option value="">Todas las tiendas</option><option value="__NONE__">Sin tienda</option>'+unique('tienda').map(x=>`<option>${escapeHtml(x)}</option>`).join('');store.value=oldS}
-    if(commercial){commercial.innerHTML='<option value="">Todos los comerciales</option><option value="__NONE__">Sin comercial</option>'+unique('comercial').map(x=>`<option>${escapeHtml(x)}</option>`).join('');commercial.value=oldC}
+    if(store){store.innerHTML='<option value="">Todas las tiendas</option>'+unique('tienda').map(x=>`<option>${escapeHtml(x)}</option>`).join('');store.value=oldS}
+    if(commercial){commercial.innerHTML='<option value="">Todos los comerciales</option>'+unique('comercial').map(x=>`<option>${escapeHtml(x)}</option>`).join('');commercial.value=oldC}
     const sf=byId('pmStoreFolders'),cf=byId('pmCommercialFolders');
-    const noStore=all.filter(p=>!String(p?.tienda||'').trim()).length;
-    const noCommercial=all.filter(p=>!String(p?.comercial||'').trim()).length;
-    const noAssignment=all.filter(p=>!String(p?.tienda||'').trim()&&!String(p?.comercial||'').trim()).length;
-    if(sf)sf.innerHTML=[
-      `<button type="button" class="pmx-folder pmx-folder-child pmx-folder-warning" data-pm-view="missing-store">${PM_ICON.warning}<span>Sin tienda</span><b class="pmx-folder-count">(${noStore})</b></button>`,
-      ...unique('tienda').map(x=>`<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="store" data-pm-value="${escapeHtml(x)}">${PM_ICON.store}<span>${escapeHtml(x)}</span><b class="pmx-folder-count">(${countBy('tienda',x)})</b></button>`)
-    ].join('');
-    if(cf)cf.innerHTML=[
-      `<button type="button" class="pmx-folder pmx-folder-child pmx-folder-warning" data-pm-view="missing-commercial">${PM_ICON.warning}<span>Sin comercial</span><b class="pmx-folder-count">(${noCommercial})</b></button>`,
-      ...unique('comercial').map(x=>`<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="commercial" data-pm-value="${escapeHtml(x)}">${PM_ICON.person}<span>${escapeHtml(x)}</span><b class="pmx-folder-count">(${countBy('comercial',x)})</b></button>`)
-    ].join('');
+    if(sf)sf.innerHTML=unique('tienda').map(x=>`<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="store" data-pm-value="${escapeHtml(x)}">${PM_ICON.store}<span>${escapeHtml(x)}</span><b class="pmx-folder-count">(${countBy('tienda',x)})</b></button>`).join('');
+    if(cf)cf.innerHTML=unique('comercial').map(x=>`<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="commercial" data-pm-value="${escapeHtml(x)}">${PM_ICON.person}<span>${escapeHtml(x)}</span><b class="pmx-folder-count">(${countBy('comercial',x)})</b></button>`).join('');
     const pending=byId('pmPendingFolders');
-    if(pending)pending.innerHTML=`<button type="button" class="pmx-folder pmx-folder-child pmx-folder-warning" data-pm-view="unassigned">${PM_ICON.warning}<span>Sin tienda ni comercial</span><b class="pmx-folder-count">(${noAssignment})</b></button>`;
+    if(pending)pending.innerHTML='';
     const recent=byId('pmFolderRecentCount'),total=byId('pmFolderAllCount');
     if(recent)recent.textContent=`(${Math.min(20,all.length)})`;
     if(total)total.textContent=`(${all.length})`;
@@ -5065,7 +5056,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     if(!root||!head)return;
     if(!p){head.textContent='Selecciona un presupuesto';root.className='pmx-preview-body pmx-preview-empty';root.innerHTML=`<div class="pmx-empty-icon">${PM_ICON.document}</div><strong>Selecciona un presupuesto</strong><p>Aquí verás sus datos antes de recuperarlo.</p>`;return}
     const c=calc(p),r=rows(p),shown=r.slice(0,5);head.textContent=title(p);
-    root.className='pmx-preview-body';root.innerHTML=`<div class="pmx-identity"><span class="pmx-document-icon">${PM_ICON.document}</span><div><h4>${escapeHtml(title(p))}</h4><p>${escapeHtml(p.numero||'Sin número')}</p></div></div><dl class="pmx-meta"><div><dt>Cliente</dt><dd>${escapeHtml(p.cliente||'Sin cliente')}</dd></div><div><dt>Tienda</dt><dd>${escapeHtml(p.tienda||'Sin tienda')}</dd></div><div><dt>Comercial</dt><dd>${escapeHtml(p.comercial||'Sin asignar')}</dd></div><div><dt>Fecha</dt><dd>${escapeHtml(date(p.fecha||modified(p)))}</dd></div><div><dt>Productos</dt><dd>${c.count}</dd></div></dl><div class="pmx-total"><span>Total</span><strong>${fmt.format(c.total)}</strong></div><div class="pmx-products"><div class="pmx-products-title"><span>Primeros productos</span>${r.length>5?`<small>+${r.length-5} más</small>`:''}</div><ul>${shown.length?shown.map(l=>`<li><span>${escapeHtml(product(l))}</span><b>x${qty(l)||1}</b></li>`).join(''):'<li class="pmx-no-products">Sin productos</li>'}</ul></div>`;
+    root.className='pmx-preview-body';root.innerHTML=`<div class="pmx-identity"><span class="pmx-document-icon">${PM_ICON.document}</span><div><h4>${escapeHtml(title(p))}</h4><p>${escapeHtml(p.numero||'Sin número')}</p></div></div><dl class="pmx-meta"><div><dt>Cliente</dt><dd>${escapeHtml(p.cliente||'Sin cliente')}</dd></div><div><dt>Tienda</dt><dd>${escapeHtml(p.tienda||'')}</dd></div><div><dt>Comercial</dt><dd>${escapeHtml(p.comercial||'')}</dd></div><div><dt>Fecha</dt><dd>${escapeHtml(date(p.fecha||modified(p)))}</dd></div><div><dt>Productos</dt><dd>${c.count}</dd></div></dl><div class="pmx-total"><span>Total</span><strong>${fmt.format(c.total)}</strong></div><div class="pmx-products"><div class="pmx-products-title"><span>Primeros productos</span>${r.length>5?`<small>+${r.length-5} más</small>`:''}</div><ul>${shown.length?shown.map(l=>`<li><span>${escapeHtml(product(l))}</span><b>x${qty(l)||1}</b></li>`).join(''):'<li class="pmx-no-products">Sin productos</li>'}</ul></div>`;
   }
   function render(){
     syncFilters();markFolder();updateFilterNotice();const all=listAll(),list=filtered(),root=byId('pmList');
@@ -5073,7 +5064,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     if(byId('pmVisibleCount'))byId('pmVisibleCount').textContent=`${list.length} visibles`;
     if(!root)return;if(pmSelectedId&&!all.some(p=>idOf(p)===pmSelectedId))pmSelectedId='';
     if(!list.length){window.HX_PM_SELECTED_ID='';root.innerHTML=`<div class="pmx-list-empty"><span>${PM_ICON.document}</span><strong>No hay presupuestos</strong><small>Cambia la carpeta o los filtros.</small></div>`;pmSelectedId='';preview();return}
-    root.innerHTML=list.map(p=>{const c=calc(p),id=idOf(p),sel=id===pmSelectedId;return `<button type="button" class="pmx-row${sel?' is-selected':''}" data-pm-id="${escapeHtml(id)}"><span class="pmx-row-icon">${PM_ICON.document}</span><span class="pmx-row-main"><strong class="pmx-card-identifier${identifier(p)?'':' is-empty'}">${escapeHtml(identifier(p)||'Sin identificador')}</strong><b class="pmx-card-number">${escapeHtml(p.numero||'Sin número')}</b><small class="pmx-card-client">${PM_ICON.person}<span>Cliente:</span> ${escapeHtml(p.cliente||'Sin cliente')}</small><span class="pmx-card-fields"><em>${PM_ICON.store}${escapeHtml(p.tienda||'Sin tienda')}</em><em>${PM_ICON.person}${escapeHtml(p.comercial||'Sin asignar')}</em><em>${PM_ICON.calendar}${escapeHtml(date(p.fecha||modified(p)))}</em></span></span><span class="pmx-row-side"><strong>${fmt.format(c.total)}</strong><small>${c.count} productos</small></span></button>`}).join('');
+    root.innerHTML=list.map(p=>{const c=calc(p),id=idOf(p),sel=id===pmSelectedId;return `<button type="button" class="pmx-row${sel?' is-selected':''}" data-pm-id="${escapeHtml(id)}"><span class="pmx-row-icon">${PM_ICON.document}</span><span class="pmx-row-main"><strong class="pmx-card-identifier${identifier(p)?'':' is-empty'}">${escapeHtml(identifier(p)||'Sin identificador')}</strong><b class="pmx-card-number">${escapeHtml(p.numero||'Sin número')}</b><small class="pmx-card-client">${PM_ICON.person}<span>Cliente:</span> ${escapeHtml(p.cliente||'Sin cliente')}</small><span class="pmx-card-fields"><em>${PM_ICON.store}${escapeHtml(p.tienda||'')}</em><em>${PM_ICON.person}${escapeHtml(p.comercial||'')}</em><em>${PM_ICON.calendar}${escapeHtml(date(p.fecha||modified(p)))}</em></span></span><span class="pmx-row-side"><strong>${fmt.format(c.total)}</strong><small>${c.count} productos</small></span></button>`}).join('');
     root.querySelectorAll('.pmx-row').forEach(row=>row.addEventListener('click',()=>{
       // En PC selecciona; en móvil abre una vista previa separada antes de recuperar.
       pmSelectedId=row.dataset.pmId||'';
