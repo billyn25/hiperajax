@@ -4952,14 +4952,19 @@ pintarCatalogPanel = function(term=catalogTerm){
   function syncFilters(){
     const all=listAll();
     const store=byId('pmFilterStore'), commercial=byId('pmFilterCommercial');
-    const oldS=store?.value||'',oldC=commercial?.value||'';
+    const oldS=store?.value||'',oldC=(commercial?.value==='__NONE__'?'':(commercial?.value||''));
     if(store){store.innerHTML='<option value="">Todas las tiendas</option>'+unique('tienda').map(x=>`<option>${escapeHtml(x)}</option>`).join('');store.value=oldS}
     if(commercial){commercial.innerHTML='<option value="">Todos los comerciales</option>'+unique('comercial').map(x=>`<option>${escapeHtml(x)}</option>`).join('');commercial.value=oldC}
     const sf=byId('pmStoreFolders'),cf=byId('pmCommercialFolders');
     if(sf)sf.innerHTML=unique('tienda').map(x=>`<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="store" data-pm-value="${escapeHtml(x)}">${PM_ICON.store}<span>${escapeHtml(x)}</span><b class="pmx-folder-count">(${countBy('tienda',x)})</b></button>`).join('');
     if(cf)cf.innerHTML=unique('comercial').map(x=>`<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="commercial" data-pm-value="${escapeHtml(x)}">${PM_ICON.person}<span>${escapeHtml(x)}</span><b class="pmx-folder-count">(${countBy('comercial',x)})</b></button>`).join('');
     const pending=byId('pmPendingFolders');
-    if(pending)pending.innerHTML='';
+    if(pending){
+      const missingStore=all.filter(p=>!String(p.tienda||'').trim()).length;
+      pending.innerHTML=missingStore
+        ? `<button type="button" class="pmx-folder pmx-folder-child" data-pm-view="missing-store">${PM_ICON.folder}<span>Sin tienda</span><b class="pmx-folder-count">(${missingStore})</b></button>`
+        : '';
+    }
     const recent=byId('pmFolderRecentCount'),total=byId('pmFolderAllCount');
     if(recent)recent.textContent=`(${Math.min(20,all.length)})`;
     if(total)total.textContent=`(${all.length})`;
@@ -4969,8 +4974,6 @@ pintarCatalogPanel = function(term=catalogTerm){
     if(pmView.type==='store')list=list.filter(p=>String(p.tienda||'').trim()===pmView.value);
     else if(pmView.type==='commercial')list=list.filter(p=>String(p.comercial||'').trim()===pmView.value);
     else if(pmView.type==='missing-store')list=list.filter(p=>!String(p.tienda||'').trim());
-    else if(pmView.type==='missing-commercial')list=list.filter(p=>!String(p.comercial||'').trim());
-    else if(pmView.type==='unassigned')list=list.filter(p=>!String(p.tienda||'').trim()&&!String(p.comercial||'').trim());
     const s=byId('pmFilterStore')?.value||'',c=byId('pmFilterCommercial')?.value||'';
     if(s==='__NONE__')list=list.filter(p=>!String(p.tienda||'').trim());else if(s)list=list.filter(p=>String(p.tienda||'').trim()===s);
     if(c==='__NONE__')list=list.filter(p=>!String(p.comercial||'').trim());else if(c)list=list.filter(p=>String(p.comercial||'').trim()===c);
@@ -5004,8 +5007,6 @@ pintarCatalogPanel = function(term=catalogTerm){
     else if(pmView.type==='store')parts.push(`Tienda: ${pmView.value}`);
     else if(pmView.type==='commercial')parts.push(`Comercial: ${pmView.value}`);
     else if(pmView.type==='missing-store')parts.push('Sin tienda');
-    else if(pmView.type==='missing-commercial')parts.push('Sin comercial');
-    else if(pmView.type==='unassigned')parts.push('Sin tienda ni comercial');
     const store=byId('pmFilterStore')?.value||'',commercial=byId('pmFilterCommercial')?.value||'',q=String(byId('pmSearch')?.value||'').trim();
     if(store)parts.push(store==='__NONE__'?'Sin tienda':`Tienda: ${store}`);
     if(commercial)parts.push(commercial==='__NONE__'?'Sin comercial':`Comercial: ${commercial}`);
