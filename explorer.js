@@ -420,6 +420,10 @@
   }
 
   function canonicalClassification(categoryValue, familyValue, subcategoryValue='', referenceValue=''){
+    if(/^(?:GAG1105PD|VDMS105GP|VDMS108GP|SW1008POE-100-E|SW0604POE-65-E|SF-SW0604HIPOE-60|SW8FE2FE-100W)$/i.test(clean(referenceValue))){
+      return {category:'Networking', family:'Switches no gestionables'};
+    }
+
     let category = clean(categoryValue);
     let family = clean(familyValue);
     const subcategory = clean(subcategoryValue);
@@ -2970,8 +2974,7 @@
                   reference:item.p?.name||'',
                   image:item.p?.image||item.p?.image_url||item.p?.imagen||'',
                   price:Number(item.p?.pvp)||0,
-                  color:colorFacet(item.p)||'',
-                  stock:item.p?.stock??''
+                  color:colorFacet(item.p)||''
                 }))
               }]
             : quickGroups(f.items,f).map(g=>({
@@ -2982,8 +2985,7 @@
                     reference:item.p?.name||'',
                     image:item.p?.image||item.p?.image_url||item.p?.imagen||'',
                     price:Number(item.p?.pvp)||0,
-                    color:colorFacet(item.p)||'',
-                    stock:item.p?.stock??''
+                    color:colorFacet(item.p)||''
                   }))
               }));
           return {family:f.displayTitle,groups};

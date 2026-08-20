@@ -12,8 +12,8 @@ const CFG=[
    {family:'Tarjetas SD',label:'Tarjetas SD',onlyGroups:['32 GB','64 GB','128 GB']}
  ]},
  {family:'Alimentación',label:'Alimentación',onlyRefs:['DC12V2A-IP66','DC12V2A','DC12V2A-L','DC1215-W','DC1220-W','DC12V5A','INJ-POE-30W-V2','RG-POE-AT30']},
- {family:'Racks de pared',label:'Racks'},
- {family:'Switches no gestionables',label:'Switches PoE',onlyRefs:['GAG1105PD', 'VDMS105GP', 'VDMS108GP', 'SW1008POE-100-E', 'SW0604POE-65-E', 'SF-SW0604HIPOE-60', 'SW8FE2FE-100W']}
+ {family:'Switches no gestionables',label:'Switches PoE',onlyRefs:['GAG1105PD', 'VDMS105GP', 'VDMS108GP', 'SW1008POE-100-E', 'SW0604POE-65-E', 'SF-SW0604HIPOE-60', 'SW8FE2FE-100W']},
+ {family:'Racks de pared',label:'Racks'}
 ];
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -100,22 +100,7 @@ function sortPriceRefColor(list){
    collator.compare(a.reference||'',b.reference||'')
  );
 }
-function stockState(raw){
- const value=String(raw??'').trim(),key=value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'');
- if(!value)return null;
- if(['high','alto','mucho','disponible','available','instock','enstock'].includes(key))return ['is-ok',value];
- if(['medium','medio','low','bajo','poco','limited','limitado'].includes(key))return ['is-low',value];
- if(['none','nostock','sinstock','agotado','outofstock','unavailable','nodisponible','zero'].includes(key))return ['is-none',value];
- const n=Number(value.replace(',','.'));
- if(Number.isFinite(n))return [n>=10?'is-ok':n>0?'is-low':'is-none',value];
- return ['is-low',value];
-}
-function card(p){
- const img=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'';
- const state=stockState(p.stock);
- const stock=state?`<span class="hxq-stock-dot ${state[0]}" title="Stock: ${esc(state[1])}" aria-label="Stock: ${esc(state[1])}"></span>`:'';
- return `<article class="hxq-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}">${stock}<div class="hxq-photo">${img}</div><strong class="hxq-reference">${esc(p.reference)}</strong><div class="hxq-actions"><div class="hxq-qty"><span class="hxq-minus" data-hxq-minus role="button" tabindex="0">−</span><span class="hxq-value">1</span><span class="hxq-plus" data-hxq-plus role="button" tabindex="0">+</span></div><span class="hxq-add" data-hxq-add role="button" tabindex="0">Añadir</span></div></article>`;
-}
+function card(p){const img=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'';return `<article class="hxq-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}"><div class="hxq-photo">${img}</div><strong class="hxq-reference">${esc(p.reference)}</strong><div class="hxq-actions"><div class="hxq-qty"><span class="hxq-minus" data-hxq-minus role="button" tabindex="0">−</span><span class="hxq-value">1</span><span class="hxq-plus" data-hxq-plus role="button" tabindex="0">+</span></div><span class="hxq-add" data-hxq-add role="button" tabindex="0">Añadir</span></div></article>`}
 function render(){
  const api=window.HX_EXPLORER_PRO,root=$('hxqContent');if(!root)return;
  if(!api?.quickAddData){root.innerHTML='<p class="hxq-empty">Cargando…</p>';renderNav([]);return}
@@ -151,8 +136,8 @@ function render(){
       group.name==='Teclados'?sortPriceRefColor:
       (familyName==='Accesorios CCTV' && group.name==='Soportes')?sortPriceRefColor:
       familyName==='Alimentación'?sortPriceRefColor:
-      familyName==='Racks de pared'?sortPriceRefColor:
       familyName==='Switches no gestionables'?sortPriceRefColor:
+      familyName==='Racks de pared'?sortPriceRefColor:
       familyName==='Tarjetas SD'?sortPriceRefColor:
       familyName==='Cámaras IP'?sortPriceRef:
       familyName==='NVRs Profesionales'?sortPriceRef:
