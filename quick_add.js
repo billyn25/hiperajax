@@ -67,6 +67,9 @@ function updateNavMore(){
 }
 function updateActiveFamily(){
  const root=$('hxqContent');if(!root)return;
+ /* En móvil la familia activa solo refleja un salto pulsado por el usuario.
+    El scroll manual no debe ir marcando familias automáticamente. */
+ if(window.matchMedia('(max-width:640px)').matches)return;
  const families=[...root.querySelectorAll('.hxq-family[id]')];
  if(!families.length)return;
 
@@ -264,7 +267,14 @@ function install(){
  $('hxqModal')?.addEventListener('click',e=>activate(e.target));
  $('hxqModal')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role="button"]')){e.preventDefault();activate(e.target)}});
  addEventListener('keydown',e=>{if(e.key==='Escape')close()});
- $('hxqContent')?.addEventListener('scroll',()=>requestAnimationFrame(updateActiveFamily),{passive:true});
+ const content=$('hxqContent');
+ content?.addEventListener('scroll',()=>requestAnimationFrame(updateActiveFamily),{passive:true});
+ /* Al arrastrar manualmente en móvil quitamos la marca del salto anterior.
+    touchmove no se dispara durante el scrollTo() programático del botón. */
+ content?.addEventListener('touchmove',()=>{
+  if(!window.matchMedia('(max-width:640px)').matches)return;
+  $('hxqNav')?.querySelectorAll('[data-hxq-jump]').forEach(item=>item.classList.remove('is-active'));
+ },{passive:true});
  const nav=$('hxqNav');
  nav?.addEventListener('scroll',()=>requestAnimationFrame(updateNavMore),{passive:true});
  addEventListener('resize',()=>requestAnimationFrame(updateNavMore),{passive:true});

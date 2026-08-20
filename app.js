@@ -5105,7 +5105,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     const m=modal();if(!m)return;
     resetManagerView();
     m.classList.remove('hidden');m.setAttribute('aria-hidden','false');
-    try{window.HX_LOADING_SHOW?.('Cargando presupuestos...');await window.HX_RECARGAR_PRESUPUESTOS?.({silencioso:true})}catch(e){}finally{window.HX_LOADING_HIDE?.()}
+    try{window.HX_LOADING_SHOW?.('Cargando presupuestos...');await window.HX_RECARGAR_PRESUPUESTOS?.({silencioso:true,forzar:true})}catch(e){}finally{window.HX_LOADING_HIDE?.()}
     render();
     if(!matchMedia('(max-width:900px)').matches) setTimeout(()=>byId('pmSearch')?.focus(),30);
   }
