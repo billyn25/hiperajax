@@ -67,14 +67,11 @@ function updateNavMore(){
 }
 function updateActiveFamily(){
  const root=$('hxqContent');if(!root)return;
- /* En móvil la familia activa solo refleja un salto pulsado por el usuario.
-    El scroll manual no debe ir marcando familias automáticamente. */
- if(window.matchMedia('(max-width:640px)').matches)return;
  const families=[...root.querySelectorAll('.hxq-family[id]')];
  if(!families.length)return;
 
- /* En PC, al llegar al fondo, la última familia debe quedar activa
-    aunque su título no pueda alcanzar el umbral superior. */
+ /* Al llegar al fondo, la última familia queda activa aunque su título
+    no pueda alcanzar el umbral superior. Funciona igual en PC y móvil. */
  const atBottom=root.scrollTop+root.clientHeight>=root.scrollHeight-6;
  if(atBottom){
   setActiveNav(families[families.length-1].id);
@@ -82,9 +79,14 @@ function updateActiveFamily(){
  }
 
  const top=root.getBoundingClientRect().top;
+ const mobile=window.matchMedia('(max-width:640px)').matches;
+ /* En móvil usamos un umbral algo mayor: cambia de familia cuando su
+    cabecera entra claramente en la zona visible, evitando que se quede
+    marcada la familia anterior durante el scroll. */
+ const threshold=mobile?110:72;
  let current=families[0];
  for(const family of families){
-  if(family.getBoundingClientRect().top-top<=72) current=family;
+  if(family.getBoundingClientRect().top-top<=threshold) current=family;
   else break;
  }
  setActiveNav(current.id);
@@ -269,12 +271,6 @@ function install(){
  addEventListener('keydown',e=>{if(e.key==='Escape')close()});
  const content=$('hxqContent');
  content?.addEventListener('scroll',()=>requestAnimationFrame(updateActiveFamily),{passive:true});
- /* Al arrastrar manualmente en móvil quitamos la marca del salto anterior.
-    touchmove no se dispara durante el scrollTo() programático del botón. */
- content?.addEventListener('touchmove',()=>{
-  if(!window.matchMedia('(max-width:640px)').matches)return;
-  $('hxqNav')?.querySelectorAll('[data-hxq-jump]').forEach(item=>item.classList.remove('is-active'));
- },{passive:true});
  const nav=$('hxqNav');
  nav?.addEventListener('scroll',()=>requestAnimationFrame(updateNavMore),{passive:true});
  addEventListener('resize',()=>requestAnimationFrame(updateNavMore),{passive:true});
