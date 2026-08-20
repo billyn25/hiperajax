@@ -107,7 +107,7 @@ function quickSpecificFilter(groupName,products){
   const motioncam=/motioncam|curtaincam/.test(ref);
   const combi=/combiprotect/.test(ref);
   const poe=/poe/.test(ref)||/gag1105pd|vdms105gp|vdms108gp|sw1008poe100e|sw0604poe65e|sfsw0604hipoe60|sw8fe2fe100w/.test(ref);
-  if(groupName==='Movimiento / PIR'&&(curtain||motioncam||combi))return false;
+  if(groupName==='Movimiento / PIR'&&(curtain||motioncam))return false;
   if(/^\d+\s+puertos$/.test(groupName)&&poe)return false;
   return true;
  });
@@ -155,6 +155,7 @@ function render(){
    for(const group of familyGroups){
     if(!group?.products?.length)continue;
     if(Array.isArray(activeCfg.onlyGroups) && !activeCfg.onlyGroups.includes(group.name)) continue;
+    if(group.name==='Combi'||group.name==='Hub Plus') continue;
     const familyName=String(activeCfg.family||'');
    const detectorPriceGroups=new Set(['Movimiento / PIR','MotionCam','PhOD','Cristal','Combi','Exterior','Cortina','Incendio']);
    const sorter=
