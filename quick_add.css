@@ -414,3 +414,19 @@ body:not(.light-mode) .hxq-nav-item.is-active{
    color:#a8b7af;
  }
 }
+
+
+.hxq-product{position:relative}
+.hxq-stock-dot{
+  position:absolute;
+  top:7px;
+  right:7px;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  z-index:3;
+  box-shadow:0 0 0 1px rgba(0,0,0,.08);
+}
+.hxq-stock-dot.is-ok{background:#2e9f59}
+.hxq-stock-dot.is-low{background:#d6a117}
+.hxq-stock-dot.is-none{background:#d94a4a}

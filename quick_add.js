@@ -100,7 +100,35 @@ function sortPriceRefColor(list){
    collator.compare(a.reference||'',b.reference||'')
  );
 }
-function card(p){const img=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'';return `<article class="hxq-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}"><div class="hxq-photo">${img}</div><strong class="hxq-reference">${esc(p.reference)}</strong><div class="hxq-actions"><div class="hxq-qty"><span class="hxq-minus" data-hxq-minus role="button" tabindex="0">−</span><span class="hxq-value">1</span><span class="hxq-plus" data-hxq-plus role="button" tabindex="0">+</span></div><span class="hxq-add" data-hxq-add role="button" tabindex="0">Añadir</span></div></article>`}
+function quickSpecificFilter(groupName,products){
+ return products.filter(p=>{
+  const ref=String(p.reference||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+  const curtain=/curtain/.test(ref);
+  const motioncam=/motioncam|curtaincam/.test(ref);
+  const combi=/combiprotect/.test(ref);
+  const poe=/poe/.test(ref)||/gag1105pd|vdms105gp|vdms108gp|sw1008poe100e|sw0604poe65e|sfsw0604hipoe60|sw8fe2fe100w/.test(ref);
+  if(groupName==='Movimiento / PIR'&&(curtain||motioncam||combi))return false;
+  if(/^\d+\s+puertos$/.test(groupName)&&poe)return false;
+  return true;
+ });
+}
+function stockState(raw){
+ const value=String(raw??'').trim();
+ const key=value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'');
+ if(!value)return null;
+ if(['high','alto','mucho','disponible','available','instock','enstock'].includes(key))return ['is-ok',value];
+ if(['medium','medio','low','bajo','poco','limited','limitado'].includes(key))return ['is-low',value];
+ if(['none','nostock','sinstock','agotado','outofstock','unavailable','nodisponible','zero'].includes(key))return ['is-none',value];
+ const n=Number(value.replace(',','.'));
+ if(Number.isFinite(n))return [n>=10?'is-ok':n>0?'is-low':'is-none',value];
+ return ['is-low',value];
+}
+function card(p){
+ const img=p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'';
+ const state=stockState(p.stock);
+ const stock=state?`<span class="hxq-stock-dot ${state[0]}" title="Stock: ${esc(state[1])}" aria-label="Stock: ${esc(state[1])}"></span>`:'';
+ return `<article class="hxq-product" data-ref="${esc(p.reference)}" data-price="${Number(p.price)||0}">${stock}<div class="hxq-photo">${img}</div><strong class="hxq-reference">${esc(p.reference)}</strong><div class="hxq-actions"><div class="hxq-qty"><span class="hxq-minus" data-hxq-minus role="button" tabindex="0">−</span><span class="hxq-value">1</span><span class="hxq-plus" data-hxq-plus role="button" tabindex="0">+</span></div><span class="hxq-add" data-hxq-add role="button" tabindex="0">Añadir</span></div></article>`;
+}
 function render(){
  const api=window.HX_EXPLORER_PRO,root=$('hxqContent');if(!root)return;
  if(!api?.quickAddData){root.innerHTML='<p class="hxq-empty">Cargando…</p>';renderNav([]);return}
@@ -156,6 +184,7 @@ function render(){
     candidates=candidates.filter(p=>wanted.has(String(p.reference||'').toUpperCase()));
    }
 
+   candidates=quickSpecificFilter(group.name,candidates);
    const seen=new Set();
    const products=sorter(candidates.filter(p=>{
     const k=String(p.reference||'').toUpperCase();

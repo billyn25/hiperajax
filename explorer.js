@@ -2974,7 +2974,8 @@
                   reference:item.p?.name||'',
                   image:item.p?.image||item.p?.image_url||item.p?.imagen||'',
                   price:Number(item.p?.pvp)||0,
-                  color:colorFacet(item.p)||''
+                  color:colorFacet(item.p)||'',
+                  stock:item.p?.stock??''
                 }))
               }]
             : quickGroups(f.items,f).map(g=>({
@@ -2985,7 +2986,8 @@
                     reference:item.p?.name||'',
                     image:item.p?.image||item.p?.image_url||item.p?.imagen||'',
                     price:Number(item.p?.pvp)||0,
-                    color:colorFacet(item.p)||''
+                    color:colorFacet(item.p)||'',
+                    stock:item.p?.stock??''
                   }))
               }));
           return {family:f.displayTitle,groups};
