@@ -985,3 +985,17 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
     font-size:10px!important;
   }
 }
+
+/* 27.0 · Cierre óptico stepper Rápidos: sin halo y glifo 2px más bajo. */
+.hxq-drawer .hxq-minus,.hxq-drawer .hxq-plus,
+.hxq-drawer .hxq-minus:hover,.hxq-drawer .hxq-plus:hover,
+.hxq-drawer .hxq-minus:focus,.hxq-drawer .hxq-plus:focus,
+.hxq-drawer .hxq-minus:focus-visible,.hxq-drawer .hxq-plus:focus-visible,
+.hxq-drawer .hxq-minus:active,.hxq-drawer .hxq-plus:active{
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+  filter:none!important;
+  transform:translateY(2px)!important;
+  -webkit-tap-highlight-color:transparent!important;
+}

@@ -8908,3 +8908,83 @@ body:not(.light-mode) .hx-compat-commerce>strong{color:#35a86f!important;}
     box-shadow:none!important;
   }
 }
+
+/* =========================================================
+   27.0 · CIERRE STEPPER + COMPATIBLES EN UNA SOLA FILA
+   - Elimina por completo halo/pastilla de −/+ en todos los estados.
+   - Ajuste óptico real: símbolos 2px más abajo que el número.
+   - Compatibles: precio a la izquierda, cantidad y Añadir en la misma fila
+     tanto en escritorio como en móvil, siguiendo Explorer.
+   ========================================================= */
+.hxq-minus,.hxq-plus,
+.hx-compat-step,
+#familiasGrid .hx-modal-qty-btn{
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+  filter:none!important;
+  transform:translateY(2px)!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+.hxq-minus:hover,.hxq-plus:hover,
+.hxq-minus:focus,.hxq-plus:focus,
+.hxq-minus:focus-visible,.hxq-plus:focus-visible,
+.hxq-minus:active,.hxq-plus:active,
+.hx-compat-step:hover,.hx-compat-step:focus,.hx-compat-step:focus-visible,.hx-compat-step:active,
+#familiasGrid .hx-modal-qty-btn:hover,
+#familiasGrid .hx-modal-qty-btn:focus,
+#familiasGrid .hx-modal-qty-btn:focus-visible,
+#familiasGrid .hx-modal-qty-btn:active{
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+  filter:none!important;
+  transform:translateY(2px)!important;
+}
+
+/* Compatibles PC: reservar ancho suficiente y usar una sola fila real. */
+@media (min-width:641px){
+  .hx-compat-item{
+    grid-template-columns:78px minmax(0,1fr) 248px!important;
+  }
+  .hx-compat-commerce{
+    width:248px!important;
+    min-width:248px!important;
+    display:grid!important;
+    grid-template-columns:minmax(58px,1fr) 94px 72px!important;
+    grid-template-areas:"price qty add"!important;
+    align-items:center!important;
+    justify-content:stretch!important;
+    column-gap:6px!important;
+    row-gap:0!important;
+  }
+  .hx-compat-commerce>strong{
+    grid-area:price!important;
+    justify-self:start!important;
+    align-self:center!important;
+    margin:0!important;
+    white-space:nowrap!important;
+  }
+}
+
+/* Compatibles móvil: misma lectura que Explorer: precio | −1+ | Añadir. */
+@media (max-width:640px){
+  .hx-compat-commerce{
+    width:100%!important;
+    min-width:0!important;
+    display:grid!important;
+    grid-template-columns:minmax(58px,1fr) 94px 66px!important;
+    grid-template-areas:"price qty add"!important;
+    align-items:center!important;
+    justify-content:stretch!important;
+    column-gap:6px!important;
+    row-gap:0!important;
+  }
+  .hx-compat-commerce>strong{
+    grid-area:price!important;
+    justify-self:start!important;
+    align-self:center!important;
+    margin:0!important;
+    white-space:nowrap!important;
+  }
+}

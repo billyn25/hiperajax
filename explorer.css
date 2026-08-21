@@ -2938,3 +2938,17 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
   transform:none!important;
   line-height:1!important;
 }
+
+/* 27.0 · Cierre óptico stepper Explorer: sin halo y glifo 2px más bajo. */
+#familiasGrid .hx-modal-qty-btn,
+#familiasGrid .hx-modal-qty-btn:hover,
+#familiasGrid .hx-modal-qty-btn:focus,
+#familiasGrid .hx-modal-qty-btn:focus-visible,
+#familiasGrid .hx-modal-qty-btn:active{
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+  filter:none!important;
+  transform:translateY(2px)!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
