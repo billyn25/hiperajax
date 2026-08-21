@@ -327,7 +327,7 @@ function hxEnsureCompatModal(){
   if(modal)return modal;
   modal=document.createElement('div');modal.id='hxCompatModal';modal.className='hx-compat-modal hidden';
   modal.innerHTML=`<div class="hx-compat-backdrop" data-hx-compat-close></div><section class="hx-compat-dialog" role="dialog" aria-modal="true">
-  <header class="hx-compat-header"><div class="hx-compat-heading"><strong id="hxCompatTitle">Compatibles</strong><span id="hxCompatOfficial" class="hx-compat-official"></span></div><span class="hx-compat-close hx-compat-control" role="button" tabindex="0" data-hx-compat-close>×</span></header>
+  <header class="hx-compat-header"><div class="hx-compat-heading"><span class="hx-compat-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8.5 8.5 5.8 11.2a3.4 3.4 0 0 0 4.8 4.8l2.7-2.7"/><path d="m15.5 15.5 2.7-2.7a3.4 3.4 0 0 0-4.8-4.8l-2.7 2.7"/><path d="m9.5 14.5 5-5"/></svg></span><div class="hx-compat-heading-copy"><strong id="hxCompatTitle">Compatibles</strong><span id="hxCompatOfficial" class="hx-compat-official"></span></div></div><span class="hx-compat-close hx-compat-control" role="button" tabindex="0" data-hx-compat-close aria-label="Cerrar" title="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></span></header>
   <div id="hxCompatOrigin" class="hx-compat-origin"></div>
   <nav id="hxCompatTabs" class="hx-compat-tabs"></nav>
   <div class="hx-compat-results-head"><strong id="hxCompatCount"></strong></div>
