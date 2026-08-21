@@ -505,3 +505,71 @@ body:not(.light-mode) .hxq-nav-item.is-active{
   .hxq-header{min-height:54px!important;padding:10px 11px!important;padding-top:max(10px,env(safe-area-inset-top))!important;}
   .hxq-heading strong{font-size:17px!important;}
 }
+
+/* =========================================================
+   14.0 · PRUEBA UI MODERNA — CONTROLES RÁPIDOS
+   Bloque aislado y reversible. No cambia estructura ni lógica.
+   ========================================================= */
+.hxq-qty{
+  height:32px!important;
+  grid-template-columns:28px 32px 28px!important;
+  border:1px solid #cfdad4!important;
+  border-radius:10px!important;
+  background:#f7faf8!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7)!important;
+}
+.hxq-minus,.hxq-plus,.hxq-qty>span{
+  background:transparent!important;
+  color:#31463b!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+.hxq-qty>span{
+  border-left:1px solid #e0e7e3!important;
+  border-right:1px solid #e0e7e3!important;
+}
+.hxq-minus:hover,.hxq-plus:hover{background:#eaf2ee!important;color:#17543a!important;}
+.hxq-minus:active,.hxq-plus:active{background:#dfece5!important;transform:scale(.96);}
+.hxq-add{
+  height:32px!important;
+  min-width:70px!important;
+  padding:0 11px!important;
+  border:1px solid #24724d!important;
+  border-radius:10px!important;
+  background:#287a53!important;
+  color:#fff!important;
+  box-shadow:0 2px 6px rgba(30,103,68,.13)!important;
+  font-size:10.5px!important;
+  font-weight:800!important;
+  letter-spacing:.01em!important;
+}
+.hxq-add:hover{background:#226b49!important;border-color:#1d6242!important;color:#fff!important;box-shadow:0 4px 10px rgba(30,103,68,.16)!important;transform:translateY(-1px)!important;}
+.hxq-add:active{transform:translateY(0) scale(.98)!important;box-shadow:none!important;}
+.hxq-add.is-added{background:#e8f4ed!important;border-color:#8ebaa2!important;color:#17623f!important;box-shadow:none!important;}
+body:not(.light-mode) .hxq-qty{background:#121c22!important;border-color:#40534a!important;box-shadow:none!important;}
+body:not(.light-mode) .hxq-minus,body:not(.light-mode) .hxq-plus,body:not(.light-mode) .hxq-qty>span{background:transparent!important;color:#dce8e1!important;}
+body:not(.light-mode) .hxq-qty>span{border-color:#34473e!important;}
+body:not(.light-mode) .hxq-minus:hover,body:not(.light-mode) .hxq-plus:hover{background:#1c2b25!important;color:#f2f8f5!important;}
+body:not(.light-mode) .hxq-add{background:#2b8a5c!important;border-color:#369c6b!important;color:#fff!important;}
+body:not(.light-mode) .hxq-add:hover{background:#329a67!important;border-color:#43ad78!important;}
+body:not(.light-mode) .hxq-add.is-added{background:#1b3328!important;border-color:#3f755b!important;color:#bfe8d2!important;}
+@media(max-width:640px){
+  .hxq-qty{height:32px!important;grid-template-columns:27px 30px 27px!important;}
+  .hxq-add{height:32px!important;min-width:62px!important;padding:0 8px!important;font-size:9.5px!important;}
+}
+
+/* =========================================================
+   15.0 · UNIFICACIÓN VISUAL — SUPERFICIES DE MODAL
+   Misma jerarquía visual, manteniendo hxq-* aislado.
+   ========================================================= */
+.hxq-drawer{background:#fff!important;}
+.hxq-header{background:#fff!important;border-bottom-color:#e4ebe7!important;}
+.hxq-content{background:#f7faf8!important;}
+.hxq-nav-shell{background:#f7faf8!important;border-color:#e1e8e4!important;}
+.hxq-group,.hxq-product{background:#fff!important;}
+body:not(.light-mode) .hxq-drawer,
+body:not(.light-mode) .hxq-header{background:#111a20!important;border-color:#2b3941!important;}
+body:not(.light-mode) .hxq-content{background:#0d151a!important;}
+body:not(.light-mode) .hxq-nav-shell{background:#0d151a!important;border-color:#2f3d44!important;}
+body:not(.light-mode) .hxq-group,
+body:not(.light-mode) .hxq-product{background:#162129!important;}

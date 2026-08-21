@@ -7955,3 +7955,184 @@ body:not(.light-mode){
   .hx-compat-heading-icon{width:34px!important;height:34px!important;flex-basis:34px!important;}
   .hx-compat-heading-copy>strong{font-size:17px!important;}
 }
+
+/* =====================================================
+   14.0 · PRUEBA UI MODERNA — CONTROLES DE MODALES
+   Bloque final, aislado y fácil de retirar. Solo apariencia.
+   ===================================================== */
+:root{
+  --hx-ui-green:#287a53;
+  --hx-ui-green-hover:#226b49;
+  --hx-ui-border:#cfdad4;
+  --hx-ui-surface:#ffffff;
+  --hx-ui-soft:#f7faf8;
+  --hx-ui-text:#31463b;
+  --hx-ui-danger:#a5444f;
+  --hx-ui-danger-soft:#fff5f6;
+}
+body:not(.light-mode){
+  --hx-ui-green:#2b8a5c;
+  --hx-ui-green-hover:#329a67;
+  --hx-ui-border:#40534a;
+  --hx-ui-surface:#162129;
+  --hx-ui-soft:#121c22;
+  --hx-ui-text:#dce8e1;
+  --hx-ui-danger:#e17a84;
+  --hx-ui-danger-soft:#2a1d21;
+}
+
+/* Compatibles: stepper + acción iguales a Añadir rápido. */
+.hx-compat-qty{
+  width:92px!important;
+  height:32px!important;
+  grid-template-columns:28px 36px 28px!important;
+  border:1px solid var(--hx-ui-border)!important;
+  border-radius:10px!important;
+  background:var(--hx-ui-soft)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6)!important;
+}
+.hx-compat-step,.hx-compat-qty span{
+  background:transparent!important;
+  color:var(--hx-ui-text)!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+.hx-compat-qty>span:not(.hx-compat-step){
+  border-left:1px solid color-mix(in srgb,var(--hx-ui-border) 72%,transparent)!important;
+  border-right:1px solid color-mix(in srgb,var(--hx-ui-border) 72%,transparent)!important;
+}
+.hx-compat-step:hover{background:color-mix(in srgb,var(--hx-ui-green) 10%,transparent)!important;color:var(--hx-ui-text)!important;}
+.hx-compat-step:active{transform:scale(.96);}
+.hx-compat-add{
+  width:auto!important;
+  min-width:72px!important;
+  height:32px!important;
+  padding:0 11px!important;
+  border:1px solid var(--hx-ui-green)!important;
+  border-radius:10px!important;
+  background:var(--hx-ui-green)!important;
+  color:#fff!important;
+  box-shadow:0 2px 6px rgba(30,103,68,.13)!important;
+  font-size:10.5px!important;
+}
+.hx-compat-add:hover{background:var(--hx-ui-green-hover)!important;border-color:var(--hx-ui-green-hover)!important;color:#fff!important;transform:translateY(-1px);}
+.hx-compat-add:active{transform:translateY(0) scale(.98);box-shadow:none!important;}
+.hx-compat-add.is-added{background:color-mix(in srgb,var(--hx-ui-green) 12%,var(--hx-ui-surface))!important;border-color:color-mix(in srgb,var(--hx-ui-green) 46%,var(--hx-ui-border))!important;color:var(--hx-ui-green)!important;box-shadow:none!important;}
+
+/* Presupuestos: acciones más compactas y sin aspecto de botón genérico. */
+#pmModal .pmx-actions{
+  gap:8px!important;
+}
+#pmModal .pmx-actions button{
+  min-height:38px!important;
+  height:38px!important;
+  padding:0 12px!important;
+  border:1px solid var(--hx-ui-border)!important;
+  border-radius:10px!important;
+  background:var(--hx-ui-surface)!important;
+  color:var(--hx-ui-text)!important;
+  box-shadow:none!important;
+  font-size:12px!important;
+  font-weight:750!important;
+  gap:7px!important;
+}
+#pmModal .pmx-actions button:hover:not(:disabled){
+  background:var(--hx-ui-soft)!important;
+  border-color:color-mix(in srgb,var(--hx-ui-green) 45%,var(--hx-ui-border))!important;
+  color:var(--hx-ui-text)!important;
+}
+#pmModal .pmx-actions .pmx-action-icon{
+  width:18px!important;
+  height:18px!important;
+  font-size:15px!important;
+}
+#pmModal #pmOpen{
+  background:var(--hx-ui-green)!important;
+  border-color:var(--hx-ui-green)!important;
+  color:#fff!important;
+  box-shadow:0 2px 6px rgba(30,103,68,.12)!important;
+}
+#pmModal #pmOpen:hover:not(:disabled){background:var(--hx-ui-green-hover)!important;border-color:var(--hx-ui-green-hover)!important;color:#fff!important;}
+#pmModal #pmDelete{
+  background:var(--hx-ui-danger-soft)!important;
+  border-color:color-mix(in srgb,var(--hx-ui-danger) 38%,var(--hx-ui-border))!important;
+  color:var(--hx-ui-danger)!important;
+}
+#pmModal #pmDelete:hover:not(:disabled){background:color-mix(in srgb,var(--hx-ui-danger) 11%,var(--hx-ui-surface))!important;border-color:var(--hx-ui-danger)!important;color:var(--hx-ui-danger)!important;}
+
+/* Carpetas/filtros del gestor: menos botón antiguo, más selector de app. */
+#pmModal .pmx-folder{
+  min-height:40px!important;
+  padding:8px 10px!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+#pmModal .pmx-folder.is-active,#pmModal .pmx-folder[data-pm-active="true"]{
+  box-shadow:inset 3px 0 0 var(--hx-ui-green)!important;
+}
+
+@media(max-width:900px){
+  #pmModal.pm-mobile-list.pm-has-selection .pmx-actions{
+    gap:8px!important;
+    padding:10px 8px 4px!important;
+  }
+  #pmModal.pm-mobile-list.pm-has-selection .pmx-actions button,
+  #pmModal.pm-mobile-preview.pm-has-selection .pmx-actions button{
+    min-height:40px!important;
+    height:40px!important;
+    padding:0 9px!important;
+    border-radius:10px!important;
+    font-size:12px!important;
+  }
+  .hx-compat-commerce{grid-template-columns:auto 92px 72px!important;}
+}
+
+/* =========================================================
+   15.0 · UNIFICACIÓN VISUAL — MODALES ACTIVOS
+   Una misma jerarquía de superficies sin acoplar estructuras.
+   Patrón: cabecera/shell neutros + lienzo suave + tarjetas elevadas.
+   ========================================================= */
+:root{
+  --hx-app-shell:#ffffff;
+  --hx-app-canvas:#f7faf8;
+  --hx-app-card:#ffffff;
+  --hx-app-line:#d6e0da;
+  --hx-app-line-soft:#e4ebe7;
+}
+body:not(.light-mode){
+  --hx-app-shell:#111a20;
+  --hx-app-canvas:#0d151a;
+  --hx-app-card:#162129;
+  --hx-app-line:#34434b;
+  --hx-app-line-soft:#2b3941;
+}
+
+/* Compatibles */
+.hx-compat-dialog{background:var(--hx-app-shell)!important;border-color:var(--hx-app-line)!important;}
+.hx-compat-header{background:var(--hx-app-shell)!important;border-bottom-color:var(--hx-app-line-soft)!important;}
+.hx-compat-origin,.hx-compat-tabs,.hx-compat-tab,.hx-compat-item{background:var(--hx-app-card)!important;}
+.hx-compat-list{background:var(--hx-app-canvas)!important;}
+body:not(.light-mode) .hx-compat-origin,
+body:not(.light-mode) .hx-compat-tabs,
+body:not(.light-mode) .hx-compat-tab,
+body:not(.light-mode) .hx-compat-item{border-color:var(--hx-app-line)!important;}
+
+/* Mis presupuestos — solo superficies comunes; no altera navegación ni layout. */
+body.light-mode #pmModal .pmx-modal-card,
+body.light #pmModal .pmx-modal-card{background:var(--hx-app-shell)!important;}
+body.light-mode #pmModal .pmx-head,
+body.light #pmModal .pmx-head{background:var(--hx-app-shell)!important;border-bottom-color:var(--hx-app-line-soft)!important;}
+body.light-mode #pmModal .pmx-browser,
+body.light #pmModal .pmx-browser,
+body.light-mode #pmModal .pmx-preview,
+body.light #pmModal .pmx-preview{background:var(--hx-app-card)!important;border-color:var(--hx-app-line)!important;}
+body.light-mode #pmModal .pmx-browser-head,
+body.light #pmModal .pmx-browser-head,
+body.light-mode #pmModal .pmx-preview-head,
+body.light #pmModal .pmx-preview-head{background:var(--hx-app-canvas)!important;border-color:var(--hx-app-line)!important;}
+body:not(.light-mode) #pmModal .pmx-modal-card{background:var(--hx-app-shell)!important;border-color:var(--hx-app-line)!important;}
+body:not(.light-mode) #pmModal .pmx-head{background:var(--hx-app-shell)!important;border-bottom-color:var(--hx-app-line-soft)!important;}
+body:not(.light-mode) #pmModal .pmx-browser,
+body:not(.light-mode) #pmModal .pmx-preview{background:var(--hx-app-card)!important;border-color:var(--hx-app-line)!important;}
+body:not(.light-mode) #pmModal .pmx-browser-head,
+body:not(.light-mode) #pmModal .pmx-preview-head{background:var(--hx-app-canvas)!important;border-color:var(--hx-app-line)!important;}

@@ -2462,3 +2462,30 @@ body:not(.light-mode) #familiasGrid .hxp-product-actions .hxp-compatible-btn:hov
   background:var(--hxp-bg)!important;
   box-shadow:none!important;
 }
+
+/* =========================================================
+   15.0 · UNIFICACIÓN VISUAL — EXPLORER
+   Superficies equivalentes a Añadir rápido, sin compartir clases.
+   ========================================================= */
+body.light-mode #familiasModal{
+  --hxp-bg:#ffffff;
+  --hxp-panel:#ffffff;
+  --hxp-panel-2:#f7faf8;
+  --hxp-card:#ffffff;
+  --hxp-card-hover:#f2f8f5;
+  --hxp-line:#d6e0da;
+  --hxp-line-soft:#e4ebe7;
+}
+body:not(.light-mode) #familiasModal{
+  --hxp-bg:#111a20;
+  --hxp-panel:#111a20;
+  --hxp-panel-2:#162129;
+  --hxp-card:#162129;
+  --hxp-card-hover:#1c2930;
+  --hxp-line:#34434b;
+  --hxp-line-soft:#2b3941;
+}
+#familiasModal .hxp-shell{background:var(--hxp-bg)!important;}
+#familiasModal .hxp-shell > .modal-head{background:var(--hxp-bg)!important;border-bottom-color:var(--hxp-line-soft)!important;}
+#familiasGrid.hxp-root{background:var(--hxp-panel-2)!important;}
+#familiasGrid .hxp-toolbar{background:var(--hxp-panel-2)!important;border-color:var(--hxp-line-soft)!important;}
