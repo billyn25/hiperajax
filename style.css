@@ -7804,3 +7804,15 @@ body:not(.light-mode) #recentes .recent-chip{background:rgba(92,145,119,.10)!imp
     color:#f3f7f5!important;
   }
 }
+
+/* =====================================================
+   8.0.2 · Mis presupuestos — mismo arranque vertical móvil
+   Evita que .pmx-browser / .pmx-preview hereden márgenes distintos.
+   SOLO afecta a las pantallas internas del gestor.
+   ===================================================== */
+@media (max-width:820px){
+  #pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-browser,
+  #pmModal.pm-mobile-preview .pmx-preview{
+    margin:0!important;
+  }
+}
