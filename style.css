@@ -8681,3 +8681,7 @@ body:not(.light-mode) .hx-compat-step:focus-visible{
   background:#203229!important;
   color:#edf7f2!important;
 }
+
+/* 21.0 · AJUSTE FINAL DE ESPACIADO — controles de Compatibles */
+.hx-compat-commerce{column-gap:6px!important;}
+@media(max-width:640px){.hx-compat-commerce{column-gap:6px!important;}}

@@ -2685,3 +2685,6 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
 #familiasGrid .hxp-family-rail-item.is-active em{
   background:#2b8a5c!important;border-color:#2b8a5c!important;color:#fff!important;
 }
+
+/* 21.0 · AJUSTE FINAL DE ESPACIADO — controles de producto */
+#familiasGrid .hxp-product-actions{gap:6px!important;}

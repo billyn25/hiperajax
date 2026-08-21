@@ -751,3 +751,6 @@ body:not(.light-mode) .hxq-close:hover,body:not(.light-mode) .hxq-close:focus-vi
 body:not(.light-mode) .hxq-group-title span{
   background:#203029!important;border-color:#405b4d!important;color:#cde3d8!important;
 }
+
+/* 21.0 · AJUSTE FINAL DE ESPACIADO — controles de producto */
+.hxq-actions{gap:6px!important;}
