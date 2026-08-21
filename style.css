@@ -7816,3 +7816,118 @@ body:not(.light-mode) #recentes .recent-chip{background:rgba(92,145,119,.10)!imp
     margin:0!important;
   }
 }
+
+/* 13.1 · Iconos de cabecera — solo títulos principales de modales */
+#catalogModal .modal-title-line,
+#familiasModal .modal-title-line,
+#pmModal .modal-title-line{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+#catalogModal .modal-title-icon,
+#familiasModal .modal-title-icon,
+#pmModal .modal-title-icon{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  flex:0 0 34px;
+  border-radius:9px;
+  background:#fff6da;
+  color:#d6a117;
+}
+#catalogModal .modal-title-icon svg,
+#familiasModal .modal-title-icon svg,
+#pmModal .modal-title-icon svg{
+  width:19px;
+  height:19px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+#catalogModal .modal-title-line h2,
+#familiasModal .modal-title-line h2,
+#pmModal .modal-title-line h2{margin:0;}
+body:not(.light-mode) #catalogModal .modal-title-icon,
+body:not(.light-mode) #familiasModal .modal-title-icon,
+body:not(.light-mode) #pmModal .modal-title-icon{
+  background:rgba(214,161,23,.14);
+  color:#e1b53d;
+}
+
+
+/* 13.2 · Mis presupuestos — controles móviles compactos y coherentes
+   Solo Atrás + Buscar. Aislado en #pmModal; no afecta a botones globales. */
+@media (max-width:900px){
+  #pmModal.pm-mobile-list #pmMobileBackFilters,
+  #pmModal.pm-mobile-preview #pmBackMobile{
+    box-sizing:border-box!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:5px!important;
+    width:auto!important;
+    min-width:72px!important;
+    height:34px!important;
+    min-height:34px!important;
+    margin:0!important;
+    padding:0 10px!important;
+    border:1px solid #d3ded8!important;
+    border-radius:9px!important;
+    background:#fff!important;
+    color:#283a31!important;
+    box-shadow:none!important;
+    font:750 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+    letter-spacing:0!important;
+    text-transform:none!important;
+    -webkit-tap-highlight-color:transparent!important;
+  }
+  #pmModal.pm-mobile-list #pmMobileBackFilters .ui-icon,
+  #pmModal.pm-mobile-preview #pmBackMobile .ui-icon,
+  #pmModal.pm-mobile-list #pmMobileBackFilters svg,
+  #pmModal.pm-mobile-preview #pmBackMobile svg{
+    width:16px!important;
+    height:16px!important;
+    flex:0 0 16px!important;
+  }
+  #pmModal .pmx-search-mobile-go{
+    box-sizing:border-box!important;
+    min-width:68px!important;
+    height:34px!important;
+    min-height:34px!important;
+    margin:0!important;
+    padding:0 11px!important;
+    border:1px solid #82a796!important;
+    border-radius:9px!important;
+    background:#fff!important;
+    color:#245440!important;
+    box-shadow:none!important;
+    font:750 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+    -webkit-tap-highlight-color:transparent!important;
+  }
+  #pmModal .pmx-search-mobile-go:active,
+  #pmModal.pm-mobile-list #pmMobileBackFilters:active,
+  #pmModal.pm-mobile-preview #pmBackMobile:active{
+    background:#eff6f2!important;
+  }
+  body:not(.light-mode) #pmModal.pm-mobile-list #pmMobileBackFilters,
+  body:not(.light-mode) #pmModal.pm-mobile-preview #pmBackMobile{
+    background:#162129!important;
+    border-color:#34434b!important;
+    color:#e8eef1!important;
+  }
+  body:not(.light-mode) #pmModal .pmx-search-mobile-go{
+    background:#162129!important;
+    border-color:#527665!important;
+    color:#bfe3cf!important;
+  }
+  body:not(.light-mode) #pmModal .pmx-search-mobile-go:active,
+  body:not(.light-mode) #pmModal.pm-mobile-list #pmMobileBackFilters:active,
+  body:not(.light-mode) #pmModal.pm-mobile-preview #pmBackMobile:active{
+    background:#1d2b33!important;
+  }
+}
