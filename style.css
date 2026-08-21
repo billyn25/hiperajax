@@ -8745,3 +8745,86 @@ body.dark .hx-compat-commerce > strong{
     font-size:17px!important;
   }
 }
+
+/* =========================================================
+   24.1 · COMPATIBLES — PALETA EXPLORER, SIN REHACER TARJETAS
+   Explorer es la referencia. Se igualan superficies, bordes,
+   precio y ritmo visual; no se altera la estructura interna.
+   ========================================================= */
+body.light-mode .hx-compat-dialog,
+body.light .hx-compat-dialog{
+  background:#ffffff!important;
+  border-color:#d6e0da!important;
+  color:#17241d!important;
+}
+body.light-mode .hx-compat-header,
+body.light .hx-compat-header{
+  background:#ffffff!important;
+  border-bottom-color:#e4ebe7!important;
+}
+body.light-mode .hx-compat-list,
+body.light .hx-compat-list{
+  background:#f7faf8!important;
+}
+body.light-mode .hx-compat-origin,
+body.light-mode .hx-compat-tabs,
+body.light-mode .hx-compat-tab,
+body.light-mode .hx-compat-item,
+body.light .hx-compat-origin,
+body.light .hx-compat-tabs,
+body.light .hx-compat-tab,
+body.light .hx-compat-item{
+  background:#ffffff!important;
+  border-color:#e4ebe7!important;
+}
+body.light-mode .hx-compat-item:hover,
+body.light .hx-compat-item:hover{
+  background:#f2f8f5!important;
+  border-color:#9dcfb4!important;
+}
+body.light-mode .hx-compat-photo,
+body.light .hx-compat-photo,
+body.light-mode .hx-compat-origin>img,
+body.light .hx-compat-origin>img{
+  background:#f7faf8!important;
+}
+body.light-mode .hx-compat-commerce>strong,
+body.light .hx-compat-commerce>strong{
+  color:#208e5b!important;
+  font-size:15px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  font-variant-numeric:tabular-nums!important;
+}
+body:not(.light-mode) .hx-compat-dialog{
+  background:#111a20!important;
+  border-color:#34434b!important;
+  color:#eef4f1!important;
+}
+body:not(.light-mode) .hx-compat-header{background:#111a20!important;border-bottom-color:#2b3941!important;}
+body:not(.light-mode) .hx-compat-list{background:#162129!important;}
+body:not(.light-mode) .hx-compat-origin,
+body:not(.light-mode) .hx-compat-tabs,
+body:not(.light-mode) .hx-compat-tab,
+body:not(.light-mode) .hx-compat-item{
+  background:#162129!important;
+  border-color:#34434b!important;
+}
+body:not(.light-mode) .hx-compat-item:hover{background:#1c2930!important;border-color:#456355!important;}
+body:not(.light-mode) .hx-compat-photo,
+body:not(.light-mode) .hx-compat-origin>img{background:#162129!important;}
+body:not(.light-mode) .hx-compat-commerce>strong{color:#35a86f!important;}
+
+/* Un poco más de aire en escritorio, sin tocar la versión móvil. */
+@media(min-width:901px){
+  .hx-compat-dialog{width:min(1160px,96vw)!important;}
+}
+
+/* Móvil: mismo radio/ritmo exterior que Explorer, sin recolocar contenido. */
+@media(max-width:640px){
+  .hx-compat-item{
+    border-radius:14px!important;
+    box-shadow:0 2px 8px rgba(0,0,0,.04)!important;
+  }
+  .hx-compat-commerce>strong{font-size:17px!important;}
+}

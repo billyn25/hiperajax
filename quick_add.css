@@ -850,3 +850,39 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
     padding:0!important;
   }
 }
+
+/* =========================================================
+   24.0 · HOME — BUSCADOR + ACCIÓN + SIN HUECO HUÉRFANO
+   Recupera para el buscador el ancho del antiguo botón "Añadir".
+   No cambia alturas ni flujo.
+   ========================================================= */
+@media(min-width:901px){
+  .add-card .hx-tools-search{
+    grid-template-columns:minmax(0,1fr) 82px 40px!important;
+    gap:8px!important;
+  }
+  .add-card .hx-tools-search .quick-main{min-width:0!important;width:100%!important;}
+  .add-card .hx-tools-search .quick-add.quick-add-icononly{
+    width:40px!important;min-width:40px!important;max-width:40px!important;
+    justify-self:end!important;
+  }
+}
+@media(max-width:900px){
+  .add-card .hx-tools-search{
+    grid-template-columns:minmax(0,1fr) 46px!important;
+    gap:10px!important;
+  }
+  .add-card .hx-tools-search .quick-main{
+    grid-column:1 / -1!important;
+    width:100%!important;
+  }
+  .add-card .hx-tools-search .quick-qty{
+    grid-column:1!important;
+    width:100%!important;
+  }
+  .add-card .hx-tools-search .quick-add.quick-add-icononly{
+    grid-column:2!important;
+    width:46px!important;min-width:46px!important;max-width:46px!important;
+    justify-self:stretch!important;
+  }
+}
