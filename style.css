@@ -7670,3 +7670,31 @@ body.light-mode #themeToggle:hover{border-color:#d7b64a;background:#fff8dd;color
 #recentes .recent-chip{all:unset!important;box-sizing:border-box!important;flex:0 0 auto!important;height:24px!important;padding:0 8px!important;display:inline-flex!important;align-items:center!important;border:1px solid rgba(45,116,82,.18)!important;border-radius:8px!important;background:rgba(45,116,82,.075)!important;color:#315c48!important;font-size:9px!important;font-weight:750!important;cursor:pointer!important;white-space:nowrap!important}
 #recentes .recent-chip:hover{background:rgba(45,116,82,.14)!important;border-color:rgba(45,116,82,.30)!important}
 body:not(.light-mode) #recentes .recent-chip{background:rgba(92,145,119,.10)!important;border-color:rgba(130,170,150,.22)!important;color:#b8cec2!important}
+
+
+/* v4.2.21 · búsqueda de presupuestos móvil confirmada por el usuario */
+#pmModal .pmx-search-mobile-go{display:none}
+@media(max-width:900px){
+  #pmModal:not(.pm-mobile-list):not(.pm-mobile-preview) .pmx-toolbar{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;
+  }
+  #pmModal .pmx-search-mobile-go{
+    display:inline-flex!important;
+    align-items:center;
+    justify-content:center;
+    min-width:76px;
+    height:42px;
+    margin:0;
+    padding:0 14px;
+    border:1px solid #2f7f57;
+    border-radius:11px;
+    background:#22854f;
+    color:#fff;
+    font:inherit;
+    font-weight:700;
+    line-height:1;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #pmModal .pmx-search{min-width:0}
+}

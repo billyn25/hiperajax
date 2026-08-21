@@ -5041,7 +5041,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     modal()?.classList.remove('pm-has-selection','pm-mobile-preview');
     preview();
   }
-  function resetManagerView(){
+  function resetManagerView({preserveSearch=false}={}){
     pmSelectedId='';
     window.HX_PM_SELECTED_ID='';
     pmView={type:'recent',value:''};
@@ -5049,7 +5049,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     clearMobileInlineState();
     m?.classList.remove('pm-mobile-preview','pm-mobile-list','pm-has-selection');
     const select=byId('presupuestosGuardados');if(select)select.value='';
-    if(byId('pmSearch'))byId('pmSearch').value='';
+    if(!preserveSearch && byId('pmSearch'))byId('pmSearch').value='';
     if(byId('pmFilterStore'))byId('pmFilterStore').value='';
     if(byId('pmFilterCommercial'))byId('pmFilterCommercial').value='';
     if(byId('pmSort'))byId('pmSort').value='recent';
@@ -5131,36 +5131,41 @@ pintarCatalogPanel = function(term=catalogTerm){
       const s=byId('presupuestosGuardados');if(s)s.value='';
       preview();
     });
-    // El buscador del gestor no debe reconstruir toda la lista en cada pulsación.
-    // En móvil ese render inmediato hace que una sola letra se sienta como una acción
-    // completa y dificulta seguir escribiendo o borrar. Esperamos una pausa breve.
+    // Buscador del gestor:
+    // - PC mantiene búsqueda automática con debounce.
+    // - Móvil NO salta mientras se escribe: el usuario confirma con "Buscar"
+    //   o con Enter. Así puede pensar, corregir y borrar sin que cambie de pantalla.
     let pmSearchTimer=null;
+    const runMobileSearch=()=>{
+      const q=String(byId('pmSearch')?.value||'').trim();
+      if(q.length<2){
+        updateFilterNotice();
+        byId('pmSearch')?.focus();
+        return;
+      }
+      clearSelection();
+      render();
+      modal()?.classList.add('pm-mobile-list');
+    };
+    byId('pmSearchMobileGo')?.addEventListener('click',runMobileSearch);
+    byId('pmSearch')?.addEventListener('keydown',e=>{
+      if(e.key==='Enter' && matchMedia('(max-width:900px)').matches){
+        e.preventDefault();
+        runMobileSearch();
+      }
+    });
     byId('pmSearch')?.addEventListener('input',()=>{
       clearTimeout(pmSearchTimer);
       const q=String(byId('pmSearch')?.value||'').trim();
-      // 1 carácter no es una búsqueda: no filtra ni activa el estado "Filtrando".
-      // Al vaciar el campo sí restauramos inmediatamente la lista completa.
-      if(q.length===1){
+      const mobileSearch=matchMedia('(max-width:900px)').matches;
+      if(mobileSearch){
+        // En móvil escribir nunca navega ni filtra por sí solo.
         updateFilterNotice();
         return;
       }
-      if(q.length===0){
-        clearSelection();
-        render();
-        if(matchMedia('(max-width:900px)').matches) modal()?.classList.add('pm-mobile-list');
-        return;
-      }
-      const mobileSearch=matchMedia('(max-width:900px)').matches;
-      // En móvil el teclado táctil necesita más margen: 320 ms hacía que al
-      // levantar el dedo entre letras saltase a la lista antes de terminar
-      // la palabra. En PC mantenemos la respuesta rápida porque el buscador
-      // permanece visible durante todo el filtrado.
-      const searchDelay=mobileSearch?900:320;
-      pmSearchTimer=setTimeout(()=>{
-        clearSelection();
-        render();
-        if(mobileSearch) modal()?.classList.add('pm-mobile-list');
-      },searchDelay);
+      if(q.length===1){updateFilterNotice();return;}
+      if(q.length===0){clearSelection();render();return;}
+      pmSearchTimer=setTimeout(()=>{clearSelection();render();},320);
     });
     ['pmFilterStore','pmFilterCommercial','pmSort'].forEach(id=>byId(id)?.addEventListener('change',()=>{
       clearSelection();
@@ -5174,8 +5179,8 @@ pintarCatalogPanel = function(term=catalogTerm){
   // Móvil: volver desde la lista (también cuando una búsqueda no devuelve nada)
   // debe regresar a la pantalla principal del gestor, no dejar al usuario en
   // una vista de "Recientes" arrastrando la búsqueda anterior.
-  window.HX_PM_MOBILE_HOME=()=>{
-    resetManagerView();
+  window.HX_PM_MOBILE_HOME=(options={})=>{
+    resetManagerView(options);
     render();
   };
   window.HX_PM_RENDER=render;
@@ -6401,7 +6406,9 @@ window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
     // Esto limpia una búsqueda sin resultados y evita caer en la lista de
     // "Recientes" con el estado anterior todavía activo.
     if(isMobile()&&typeof window.HX_PM_MOBILE_HOME==='function'){
-      window.HX_PM_MOBILE_HOME();
+      // Volver desde resultados conserva el texto para poder corregirlo y buscar de nuevo.
+      window.HX_PM_MOBILE_HOME({preserveSearch:true});
+      setTimeout(()=>document.getElementById('pmSearch')?.focus(),0);
       return;
     }
     modal()?.classList.remove('pm-mobile-list','pm-has-selection');
