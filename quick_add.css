@@ -461,3 +461,47 @@ body:not(.light-mode) .hxq-nav-item.is-active{
 @media (hover:hover) and (pointer:fine){
  .hxq-photo[data-hxq-image]:not([data-hxq-image=""]):hover img{transform:scale(1.045)}
 }
+
+/* =====================================================
+   13.4 · AÑADIR RÁPIDO — PATRÓN VISUAL CANÓNICO
+   ===================================================== */
+.hxq-header{
+  min-height:58px!important;
+  padding:var(--hx-modal-head-pad-y) var(--hx-modal-head-pad-x)!important;
+  gap:12px!important;
+}
+.hxq-heading{gap:9px!important;}
+.hxq-heading-icon{
+  width:var(--hx-modal-control)!important;
+  height:var(--hx-modal-control)!important;
+  flex:0 0 var(--hx-modal-control)!important;
+  border-radius:var(--hx-modal-radius)!important;
+  background:var(--hx-modal-icon-bg)!important;
+  color:var(--hx-modal-icon)!important;
+}
+.hxq-heading strong{font-size:var(--hx-modal-title-size)!important;letter-spacing:-.01em!important;}
+.hxq-heading span:not(.hxq-heading-icon){font-size:var(--hx-modal-subtitle-size)!important;line-height:1.25!important;}
+.hxq-close{
+  box-sizing:border-box!important;
+  width:var(--hx-modal-control)!important;
+  min-width:var(--hx-modal-control)!important;
+  height:var(--hx-modal-control)!important;
+  min-height:var(--hx-modal-control)!important;
+  padding:0!important;
+  border:1px solid var(--hx-modal-border)!important;
+  border-radius:var(--hx-modal-radius)!important;
+  background:var(--hx-modal-control-bg)!important;
+  color:var(--hx-modal-control-text)!important;
+  box-shadow:var(--hx-modal-control-shadow)!important;
+}
+.hxq-close:hover,.hxq-close:focus-visible{
+  background:var(--hx-modal-control-hover)!important;
+  border-color:#9eb3a8!important;
+  color:var(--hx-modal-control-text)!important;
+  outline:none!important;
+}
+.hxq-close svg{width:18px!important;height:18px!important;stroke-width:1.9!important;}
+@media(max-width:640px){
+  .hxq-header{min-height:54px!important;padding:10px 11px!important;padding-top:max(10px,env(safe-area-inset-top))!important;}
+  .hxq-heading strong{font-size:17px!important;}
+}

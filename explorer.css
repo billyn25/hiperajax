@@ -2389,3 +2389,76 @@ body:not(.light-mode) #familiasGrid .hxp-product-actions .hxp-compatible-btn:hov
   border-color:#718f80;
   color:#eef6f2;
 }
+
+/* =====================================================
+   13.4 · EXPLORER — COHERENCIA VISUAL DE MODAL
+   ===================================================== */
+#familiasModal .hxp-shell > .modal-head{
+  min-height:58px!important;
+  padding:var(--hx-modal-head-pad-y) var(--hx-modal-head-pad-x)!important;
+  gap:12px!important;
+}
+#familiasModal .hxp-shell > .modal-head h2{
+  font-size:var(--hx-modal-title-size)!important;
+  letter-spacing:-.01em!important;
+}
+#familiasModal .hxp-shell > .modal-head p{
+  margin-top:3px!important;
+  font-size:var(--hx-modal-subtitle-size)!important;
+  line-height:1.25!important;
+}
+#familiasModal .modal-title-icon{
+  width:var(--hx-modal-control)!important;
+  height:var(--hx-modal-control)!important;
+  flex:0 0 var(--hx-modal-control)!important;
+  border-radius:var(--hx-modal-radius)!important;
+  background:var(--hx-modal-icon-bg)!important;
+  color:var(--hx-modal-icon)!important;
+}
+#familiasModal .hxp-shell .modal-close{
+  box-sizing:border-box!important;
+  width:var(--hx-modal-control)!important;
+  min-width:var(--hx-modal-control)!important;
+  height:var(--hx-modal-control)!important;
+  min-height:var(--hx-modal-control)!important;
+  padding:0!important;
+  border:1px solid var(--hx-modal-border)!important;
+  border-radius:var(--hx-modal-radius)!important;
+  background:var(--hx-modal-control-bg)!important;
+  color:var(--hx-modal-control-text)!important;
+  box-shadow:var(--hx-modal-control-shadow)!important;
+}
+#familiasModal .hxp-shell .modal-close:hover,
+#familiasModal .hxp-shell .modal-close:focus-visible{
+  background:var(--hx-modal-control-hover)!important;
+  border-color:#9eb3a8!important;
+  outline:none!important;
+}
+#familiasModal .hxp-back,
+#familiasModal .hxp-change-family,
+#familiasModal .hxp-filter-button{
+  min-height:34px!important;
+  border-radius:var(--hx-modal-radius)!important;
+}
+#familiasGrid .hxp-search input,
+#familiasGrid .hxp-family-search input,
+#familiasGrid .hxp-sort{
+  border-radius:10px!important;
+}
+@media(max-width:640px){
+  #familiasModal .hxp-shell > .modal-head{min-height:54px!important;padding:10px 11px!important;}
+  #familiasModal .hxp-shell > .modal-head h2{font-size:17px!important;}
+}
+
+/* =====================================================
+   13.5 · EXPLORER — CABECERA INTEGRADA COMO AÑADIR RÁPIDO
+   Solo fondo/capas superiores. Sin cambiar geometría ni lógica.
+   ===================================================== */
+#familiasModal .hxp-shell > .modal-head{
+  background:var(--hxp-bg)!important;
+  box-shadow:none!important;
+}
+#familiasGrid .hxp-toolbar{
+  background:var(--hxp-bg)!important;
+  box-shadow:none!important;
+}

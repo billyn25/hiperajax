@@ -7875,3 +7875,83 @@ body:not(.light-mode) .hx-compat-heading-icon{background:rgba(214,161,23,.14);co
   .hx-compat-heading-icon svg{width:18px;height:18px;}
 }
 
+
+/* =====================================================
+   13.4 · LENGUAJE VISUAL DE MODALES — TOKENS + COMPATIBLES
+   Solo apariencia. Sin compartir estructura ni comportamiento.
+   ===================================================== */
+:root{
+  --hx-modal-control:34px;
+  --hx-modal-radius:9px;
+  --hx-modal-border:#d3ded8;
+  --hx-modal-control-bg:#fff;
+  --hx-modal-control-hover:#f4f7f5;
+  --hx-modal-control-text:#283a31;
+  --hx-modal-control-shadow:0 2px 7px rgba(25,45,35,.08);
+  --hx-modal-head-pad-y:12px;
+  --hx-modal-head-pad-x:14px;
+  --hx-modal-title-size:18px;
+  --hx-modal-subtitle-size:11px;
+  --hx-modal-icon-bg:#fff6da;
+  --hx-modal-icon:#d6a117;
+}
+body:not(.light-mode){
+  --hx-modal-border:#3b4b43;
+  --hx-modal-control-bg:#162129;
+  --hx-modal-control-hover:#1d2b33;
+  --hx-modal-control-text:#e8eef1;
+  --hx-modal-control-shadow:none;
+  --hx-modal-icon-bg:rgba(214,161,23,.14);
+  --hx-modal-icon:#e1b53d;
+}
+
+/* Compatibles: misma métrica de cabecera y cierre que el resto. */
+.hx-compat-header{
+  min-height:58px;
+  padding:var(--hx-modal-head-pad-y) var(--hx-modal-head-pad-x)!important;
+  gap:12px!important;
+}
+.hx-compat-heading{gap:9px!important;min-width:0!important;}
+.hx-compat-heading-icon{
+  width:var(--hx-modal-control)!important;
+  height:var(--hx-modal-control)!important;
+  flex:0 0 var(--hx-modal-control)!important;
+  border-radius:var(--hx-modal-radius)!important;
+  background:var(--hx-modal-icon-bg)!important;
+  color:var(--hx-modal-icon)!important;
+}
+.hx-compat-heading-copy>strong{font-size:var(--hx-modal-title-size)!important;letter-spacing:-.01em;}
+.hx-compat-close{
+  box-sizing:border-box!important;
+  width:var(--hx-modal-control)!important;
+  min-width:var(--hx-modal-control)!important;
+  height:var(--hx-modal-control)!important;
+  min-height:var(--hx-modal-control)!important;
+  padding:0!important;
+  border:1px solid var(--hx-modal-border)!important;
+  border-radius:var(--hx-modal-radius)!important;
+  background:var(--hx-modal-control-bg)!important;
+  color:var(--hx-modal-control-text)!important;
+  box-shadow:var(--hx-modal-control-shadow)!important;
+}
+.hx-compat-close:hover,.hx-compat-close:focus-visible{
+  background:var(--hx-modal-control-hover)!important;
+  border-color:#9eb3a8!important;
+  outline:none!important;
+}
+.hx-compat-close svg{width:18px!important;height:18px!important;stroke-width:1.9!important;}
+
+/* Mis presupuestos: título principal en la misma escala del sistema. */
+#pmModal .pmx-head h2{font-size:var(--hx-modal-title-size)!important;letter-spacing:-.01em!important;}
+#pmModal .pmx-head p{font-size:var(--hx-modal-subtitle-size)!important;line-height:1.25!important;}
+#pmModal .modal-title-icon{
+  width:var(--hx-modal-control)!important;height:var(--hx-modal-control)!important;
+  flex-basis:var(--hx-modal-control)!important;border-radius:var(--hx-modal-radius)!important;
+  background:var(--hx-modal-icon-bg)!important;color:var(--hx-modal-icon)!important;
+}
+
+@media(max-width:640px){
+  .hx-compat-header{min-height:54px;padding:10px 11px!important;}
+  .hx-compat-heading-icon{width:34px!important;height:34px!important;flex-basis:34px!important;}
+  .hx-compat-heading-copy>strong{font-size:17px!important;}
+}
