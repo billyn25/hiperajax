@@ -8685,3 +8685,7 @@ body:not(.light-mode) .hx-compat-step:focus-visible{
 /* 21.0 · AJUSTE FINAL DE ESPACIADO — controles de Compatibles */
 .hx-compat-commerce{column-gap:6px!important;}
 @media(max-width:640px){.hx-compat-commerce{column-gap:6px!important;}}
+
+/* 21.1 · COMPATIBLES — stepper + Añadir compactos, sin hueco artificial */
+.hx-compat-commerce{column-gap:2px!important;}
+@media(max-width:640px){.hx-compat-commerce{column-gap:2px!important;}}
