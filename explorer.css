@@ -2918,3 +2918,6 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
     padding:0 6px!important;
   }
 }
+
+/* 25.0 · Stepper: centrado real de − / número / + */
+#familiasGrid .hx-modal-qty-btn,#familiasGrid .hx-modal-qty-value{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:0!important;line-height:1!important;vertical-align:middle!important;transform:none!important;box-shadow:none!important;}

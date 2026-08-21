@@ -8828,3 +8828,57 @@ body:not(.light-mode) .hx-compat-commerce>strong{color:#35a86f!important;}
   }
   .hx-compat-commerce>strong{font-size:17px!important;}
 }
+
+/* =========================================================
+   25.0 · STEPPER — CENTRADO TIPOGRÁFICO CANÓNICO
+   Una sola métrica para Rápidos / Explorer / Compatibles.
+   ========================================================= */
+.hxq-minus,.hxq-plus,
+.hx-compat-step,
+#familiasGrid .hx-modal-qty-btn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  margin:0!important;
+  line-height:1!important;
+  text-indent:0!important;
+  vertical-align:middle!important;
+  font-family:inherit!important;
+  transform:none!important;
+  box-shadow:none!important;
+  -webkit-appearance:none!important;
+  appearance:none!important;
+}
+.hxq-qty>span,
+.hx-compat-qty>span:not(.hx-compat-step),
+#familiasGrid .hx-modal-qty-value{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  margin:0!important;
+  line-height:1!important;
+  vertical-align:middle!important;
+}
+/* Safari/iOS: el focus táctil no debe quedarse como una pastilla verde. */
+.hxq-minus:focus,.hxq-plus:focus,
+.hx-compat-step:focus,
+#familiasGrid .hx-modal-qty-btn:focus{
+  outline:none!important;
+  box-shadow:none!important;
+}
+@media (hover:none), (pointer:coarse){
+  .hxq-minus:hover,.hxq-plus:hover,
+  .hx-compat-step:hover,
+  #familiasGrid .hx-modal-qty-btn:hover{
+    background:transparent!important;
+    color:inherit!important;
+  }
+  .hxq-minus:active,.hxq-plus:active,
+  .hx-compat-step:active,
+  #familiasGrid .hx-modal-qty-btn:active{
+    background:var(--hx-close-soft,#e8f4ed)!important;
+    transform:none!important;
+  }
+}

@@ -273,7 +273,7 @@ body:not(.light-mode) .hxq-nav-item{color:#a9bbb1}
 
 .hx-tools-actions .hxq-entry{
   font-weight:800!important;
-  gap:9px!important;
+  gap:6px!important;
 }
 
 .hx-tools-actions .hxq-entry:hover{
@@ -886,3 +886,6 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
     justify-self:stretch!important;
   }
 }
+
+/* 25.0 · Stepper: centrado real de − / número / + */
+.hxq-drawer .hxq-minus,.hxq-drawer .hxq-plus,.hxq-drawer .hxq-qty>span{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:0!important;line-height:1!important;vertical-align:middle!important;transform:none!important;box-shadow:none!important;}
