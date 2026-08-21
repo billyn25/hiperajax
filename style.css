@@ -7684,7 +7684,7 @@ body:not(.light-mode) #recentes .recent-chip{background:rgba(92,145,119,.10)!imp
     align-items:center;
     justify-content:center;
     min-width:76px;
-    height:42px;
+    height:37px;
     margin:0;
     padding:0 14px;
     border:1px solid #2f7f57;
