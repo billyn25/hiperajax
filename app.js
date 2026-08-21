@@ -5150,11 +5150,17 @@ pintarCatalogPanel = function(term=catalogTerm){
         if(matchMedia('(max-width:900px)').matches) modal()?.classList.add('pm-mobile-list');
         return;
       }
+      const mobileSearch=matchMedia('(max-width:900px)').matches;
+      // En móvil el teclado táctil necesita más margen: 320 ms hacía que al
+      // levantar el dedo entre letras saltase a la lista antes de terminar
+      // la palabra. En PC mantenemos la respuesta rápida porque el buscador
+      // permanece visible durante todo el filtrado.
+      const searchDelay=mobileSearch?900:320;
       pmSearchTimer=setTimeout(()=>{
         clearSelection();
         render();
-        if(matchMedia('(max-width:900px)').matches) modal()?.classList.add('pm-mobile-list');
-      },320);
+        if(mobileSearch) modal()?.classList.add('pm-mobile-list');
+      },searchDelay);
     });
     ['pmFilterStore','pmFilterCommercial','pmSort'].forEach(id=>byId(id)?.addEventListener('change',()=>{
       clearSelection();
@@ -6268,6 +6274,12 @@ window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
 
       hxClearOpen416();
       window.HX_CLOUD_REMOVE_PRESUPUESTO?.(id);
+      // En móvil, al borrar el presupuesto que ocupa la vista previa no tiene
+      // sentido dejar esa pantalla vacía. Volvemos a la portada del gestor.
+      // En PC conservamos el gestor abierto con la lista visible.
+      if(window.matchMedia('(max-width:900px)').matches && typeof window.HX_PM_MOBILE_HOME==='function'){
+        window.HX_PM_MOBILE_HOME();
+      }
       hxEnhanceCards416();
       hxToast416(`Presupuesto ${numero} eliminado.`);
     }catch(error){
