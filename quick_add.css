@@ -273,7 +273,7 @@ body:not(.light-mode) .hxq-nav-item{color:#a9bbb1}
 
 .hx-tools-actions .hxq-entry{
   font-weight:800!important;
-  gap:6px!important;
+  gap:8px!important;
 }
 
 .hx-tools-actions .hxq-entry:hover{
