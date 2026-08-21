@@ -8250,3 +8250,102 @@ body:not(.light-mode) .hx-compat-step:hover{
   .hxq-qty,.hx-compat-qty{width:92px!important;min-width:92px!important;height:34px!important;grid-template-columns:28px 28px 28px!important;}
   .hxq-add,.hx-compat-add{min-width:76px!important;height:34px!important;padding:0 10px!important;font-size:10.5px!important;}
 }
+
+/* =========================================================
+   16.1 · AJUSTE FINO DARK + CONTROLES COHERENTES
+   Cierres, badges y alineación de cantidad/añadir.
+   Solo apariencia; no altera eventos ni estructura.
+   ========================================================= */
+:root{
+  --hx-ui-qty-h:34px;
+  --hx-ui-step-size:28px;
+  --hx-ui-add-h:34px;
+  --hx-ui-control-gap:10px;
+}
+
+/* Cierre idéntico en claro/oscuro, incluido Compatibles. */
+.hxq-close,
+.hx-compat-close,
+#familiasModal .modal-close,
+#pmModal .modal-close{
+  box-sizing:border-box!important;
+  width:34px!important;min-width:34px!important;
+  height:34px!important;min-height:34px!important;
+  border-radius:9px!important;
+  box-shadow:none!important;
+}
+body:not(.light-mode) .hxq-close,
+body:not(.light-mode) .hx-compat-close,
+body:not(.light-mode) #familiasModal .modal-close,
+body:not(.light-mode) #pmModal .modal-close{
+  background:#18271f!important;
+  border:1px solid #3f5f50!important;
+  color:#d8e9e0!important;
+}
+body:not(.light-mode) .hxq-close:hover,
+body:not(.light-mode) .hxq-close:focus-visible,
+body:not(.light-mode) .hx-compat-close:hover,
+body:not(.light-mode) .hx-compat-close:focus-visible,
+body:not(.light-mode) #familiasModal .modal-close:hover,
+body:not(.light-mode) #familiasModal .modal-close:focus-visible,
+body:not(.light-mode) #pmModal .modal-close:hover,
+body:not(.light-mode) #pmModal .modal-close:focus-visible{
+  background:#20342a!important;
+  border-color:#628774!important;
+  color:#f0f7f3!important;
+}
+
+/* Compatibles: más aire entre stepper y Añadir. */
+.hx-compat-commerce{column-gap:var(--hx-ui-control-gap)!important;}
+.hx-compat-qty{height:var(--hx-ui-qty-h)!important;}
+.hx-compat-add{height:var(--hx-ui-add-h)!important;}
+
+/* Añadir rápido y Compatibles: misma altura real del conjunto. */
+.hxq-qty,.hx-compat-qty{height:var(--hx-ui-qty-h)!important;}
+.hxq-minus,.hxq-plus,.hx-compat-step{
+  width:var(--hx-ui-step-size)!important;
+  min-width:var(--hx-ui-step-size)!important;
+  height:var(--hx-ui-step-size)!important;
+}
+.hxq-add,.hx-compat-add{height:var(--hx-ui-add-h)!important;min-height:var(--hx-ui-add-h)!important;}
+
+/* Badges oscuros: quitar blancos que generan demasiado contraste. */
+body:not(.light-mode) .hxq-group-title span{
+  min-width:24px!important;
+  height:20px!important;
+  padding:0 6px!important;
+  border:1px solid #405b4d!important;
+  border-radius:999px!important;
+  background:#203029!important;
+  color:#cde3d8!important;
+  box-shadow:none!important;
+}
+body:not(.light-mode) #familiasGrid .hxp-family-card>em,
+body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
+  border:1px solid #405b4d!important;
+  background:#203029!important;
+  color:#cde3d8!important;
+  box-shadow:none!important;
+}
+body:not(.light-mode) #familiasGrid .hxp-family-rail-item.is-active em{
+  background:#2b8a5c!important;
+  border-color:#2b8a5c!important;
+  color:#fff!important;
+}
+
+/* Compatibles en oscuro: evitar pestañas/blancos demasiado luminosos. */
+body:not(.light-mode) .hx-compat-tabs,
+body:not(.light-mode) .hx-compat-tab{
+  background:#162129!important;
+  border-color:#34434b!important;
+  color:#c5d3cc!important;
+}
+body:not(.light-mode) .hx-compat-tab:hover,
+body:not(.light-mode) .hx-compat-tab.is-active{
+  background:#1d2b27!important;
+}
+body:not(.light-mode) .hx-compat-tabs em{color:#9cafa5!important;}
+
+@media(max-width:640px){
+  .hx-compat-commerce{column-gap:9px!important;}
+}

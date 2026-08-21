@@ -580,3 +580,7 @@ body:not(.light-mode) .hxq-product{background:#162129!important;}
 .hxq-drawer .hxq-qty>span{min-width:26px!important;border:0!important;font-size:11.5px!important;font-variant-numeric:tabular-nums!important;}
 .hxq-drawer .hxq-add{min-width:84px!important;height:36px!important;padding:0 13px!important;border-radius:10px!important;font-size:11px!important;}
 @media(max-width:640px){.hxq-drawer .hxq-add{min-width:76px!important;height:34px!important;padding:0 10px!important;font-size:10.5px!important;}}
+
+/* 16.1 · RÁPIDOS — stepper y Añadir alineados */
+.hxq-drawer .hxq-qty{height:34px!important;min-height:34px!important;}
+.hxq-drawer .hxq-add{height:34px!important;min-height:34px!important;align-self:center!important;}

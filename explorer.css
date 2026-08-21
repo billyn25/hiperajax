@@ -2489,3 +2489,24 @@ body:not(.light-mode) #familiasModal{
 #familiasModal .hxp-shell > .modal-head{background:var(--hxp-bg)!important;border-bottom-color:var(--hxp-line-soft)!important;}
 #familiasGrid.hxp-root{background:var(--hxp-panel-2)!important;}
 #familiasGrid .hxp-toolbar{background:var(--hxp-panel-2)!important;border-color:var(--hxp-line-soft)!important;}
+
+/* =========================================================
+   16.1 · EXPLORER — STEPPER / AÑADIR MISMA ALTURA
+   ========================================================= */
+#familiasGrid .hx-modal-qty{
+  box-sizing:border-box!important;
+  height:34px!important;
+  min-height:34px!important;
+  align-items:center!important;
+}
+#familiasGrid .hx-modal-qty-btn{
+  width:28px!important;min-width:28px!important;height:28px!important;min-height:28px!important;
+}
+#familiasGrid .hxp-add{
+  box-sizing:border-box!important;
+  height:34px!important;
+  min-height:34px!important;
+  padding-top:0!important;padding-bottom:0!important;
+  align-self:center!important;
+}
+#familiasGrid .hxp-product-actions{align-items:center!important;gap:10px!important;}
