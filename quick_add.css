@@ -584,3 +584,57 @@ body:not(.light-mode) .hxq-product{background:#162129!important;}
 /* 16.1 · RÁPIDOS — stepper y Añadir alineados */
 .hxq-drawer .hxq-qty{height:34px!important;min-height:34px!important;}
 .hxq-drawer .hxq-add{height:34px!important;min-height:34px!important;align-self:center!important;}
+
+/* =========================================================
+   17.0 · AFINADO RESPONSIVE QUIRÚRGICO — AÑADIR RÁPIDO
+   La tarjeta responde a su ancho real, no solo al viewport.
+   Evita colapso/solape de stepper y Añadir en paneles estrechos.
+   ========================================================= */
+.hxq-product{container-type:inline-size;}
+.hxq-actions{
+  min-width:0!important;
+  align-items:center!important;
+}
+@container (max-width:310px){
+  .hxq-product{
+    grid-template-columns:46px minmax(0,1fr)!important;
+    grid-template-areas:"photo ref" "actions actions"!important;
+    gap:7px 8px!important;
+    padding:8px!important;
+  }
+  .hxq-photo{width:46px!important;height:46px!important;}
+  .hxq-actions{
+    display:grid!important;
+    grid-template-columns:minmax(92px,1fr) minmax(72px,.82fr)!important;
+    gap:7px!important;
+    width:100%!important;
+  }
+  .hxq-qty,.hxq-add{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+  }
+}
+@container (max-width:185px){
+  .hxq-actions{grid-template-columns:1fr!important;}
+  .hxq-qty,.hxq-add{width:100%!important;}
+}
+
+/* Badge de grupo: mismo lenguaje sobrio que Explorer. */
+.hxq-group-title span{
+  min-width:22px!important;
+  height:19px!important;
+  padding:0 5px!important;
+  border:1px solid #dbe5e0!important;
+  background:#f7faf8!important;
+  color:#66776e!important;
+  box-shadow:none!important;
+}
+body:not(.light-mode) .hxq-group-title span{
+  min-width:22px!important;
+  height:19px!important;
+  padding:0 5px!important;
+  border-color:#405b4d!important;
+  background:#203029!important;
+  color:#cde3d8!important;
+}

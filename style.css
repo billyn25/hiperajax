@@ -8349,3 +8349,99 @@ body:not(.light-mode) .hx-compat-tabs em{color:#9cafa5!important;}
 @media(max-width:640px){
   .hx-compat-commerce{column-gap:9px!important;}
 }
+
+/* =========================================================
+   17.0 · AFINADO FINAL DE COHERENCIA — COMPATIBLES / MODALES
+   Solo apariencia y espaciado; no altera lógica.
+   ========================================================= */
+.hx-compat-commerce{
+  column-gap:10px!important;
+  align-items:center!important;
+}
+.hx-compat-qty{
+  box-sizing:border-box!important;
+  width:94px!important;
+  min-width:94px!important;
+  height:34px!important;
+  grid-template-columns:28px 30px 28px!important;
+  gap:4px!important;
+  padding:0 4px!important;
+  border-radius:10px!important;
+}
+.hx-compat-step{
+  width:28px!important;
+  min-width:28px!important;
+  height:28px!important;
+  min-height:28px!important;
+  border-radius:8px!important;
+  line-height:1!important;
+}
+.hx-compat-qty>span:not(.hx-compat-step){
+  min-width:26px!important;
+  line-height:1!important;
+  font-variant-numeric:tabular-nums!important;
+}
+.hx-compat-add{
+  box-sizing:border-box!important;
+  height:34px!important;
+  min-height:34px!important;
+  min-width:82px!important;
+  padding:0 12px!important;
+  border-radius:10px!important;
+  line-height:1!important;
+}
+
+/* Cierres: mismo aspecto óptico también en claro. */
+.hxq-close,.hx-compat-close,#familiasModal .modal-close,#pmModal .modal-close{
+  background:#f4f8f6!important;
+  border-color:#cfdcd5!important;
+  color:#254236!important;
+}
+body:not(.light-mode) .hxq-close,
+body:not(.light-mode) .hx-compat-close,
+body:not(.light-mode) #familiasModal .modal-close,
+body:not(.light-mode) #pmModal .modal-close{
+  background:#18271f!important;
+  border-color:#3f5f50!important;
+  color:#d8e9e0!important;
+}
+
+/* Compatibles dark: reducir contraluz de chips y superficies auxiliares. */
+body:not(.light-mode) .hx-compat-official,
+body:not(.light-mode) .hx-compat-origin-title em{
+  background:#203029!important;
+  color:#cde3d8!important;
+  border:1px solid #405b4d!important;
+}
+body:not(.light-mode) .hx-compat-meta small.is-ok{
+  background:#1b3026!important;
+  color:#bfe8d2!important;
+  border-color:#365f4b!important;
+}
+body:not(.light-mode) .hx-compat-note{
+  background:#162129!important;
+  color:#aebfb6!important;
+}
+
+/* Badges de cantidad rápidos: sobrios y coherentes con Explorer. */
+.hxq-group-title span{
+  min-width:22px!important;
+  height:19px!important;
+  padding:0 5px!important;
+  border:1px solid #dbe5e0!important;
+  background:#f7faf8!important;
+  color:#66776e!important;
+  font-size:8px!important;
+  box-shadow:none!important;
+}
+body:not(.light-mode) .hxq-group-title span{
+  border-color:#405b4d!important;
+  background:#203029!important;
+  color:#cde3d8!important;
+}
+
+@media(max-width:640px){
+  .hx-compat-commerce{column-gap:8px!important;}
+  .hx-compat-qty{width:92px!important;min-width:92px!important;grid-template-columns:28px 28px 28px!important;gap:3px!important;padding:0 3px!important;}
+  .hx-compat-add{min-width:76px!important;padding:0 10px!important;}
+}

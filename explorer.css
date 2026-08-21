@@ -2510,3 +2510,49 @@ body:not(.light-mode) #familiasModal{
   align-self:center!important;
 }
 #familiasGrid .hxp-product-actions{align-items:center!important;gap:10px!important;}
+
+/* =========================================================
+   17.0 · AFINADO DE CONTROLES — EXPLORER
+   Misma altura óptica entre stepper y Añadir; mejor respiración.
+   ========================================================= */
+#familiasGrid .hx-modal-qty{
+  box-sizing:border-box!important;
+  min-width:94px!important;
+  height:34px!important;
+  padding:0 4px!important;
+  gap:4px!important;
+  border-radius:10px!important;
+}
+#familiasGrid .hx-modal-qty-btn{
+  width:28px!important;
+  min-width:28px!important;
+  height:28px!important;
+  min-height:28px!important;
+  border-radius:8px!important;
+  display:grid!important;
+  place-items:center!important;
+  line-height:1!important;
+}
+#familiasGrid .hx-modal-qty-value{
+  min-width:26px!important;
+  display:grid!important;
+  place-items:center!important;
+  line-height:1!important;
+  font-variant-numeric:tabular-nums!important;
+}
+#familiasGrid .hxp-add{
+  height:34px!important;
+  min-height:34px!important;
+  min-width:82px!important;
+  padding:0 12px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  border-radius:10px!important;
+}
+#familiasGrid .hxp-product-actions{
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+}
