@@ -635,3 +635,32 @@ body:not(.light-mode) .hxq-group-title span{
   background:#203029!important;
   color:#cde3d8!important;
 }
+
+/* =========================================================
+   18.0 · COHERENCIA FINAL — CIERRE + ESTADO AÑADIDO
+   Aislado al modal rápido.
+   ========================================================= */
+.hxq-close{
+  width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;
+  padding:0!important;border:1px solid #c8d9d0!important;border-radius:9px!important;
+  background:#f1f7f4!important;color:#31594a!important;box-shadow:none!important;
+}
+.hxq-close:hover,.hxq-close:focus-visible{
+  background:#e4f0ea!important;border-color:#86aa98!important;color:#174d35!important;outline:none!important;
+}
+body:not(.light-mode) .hxq-close{
+  background:#18271f!important;border-color:#3f5f50!important;color:#d8e9e0!important;
+}
+body:not(.light-mode) .hxq-close:hover,body:not(.light-mode) .hxq-close:focus-visible{
+  background:#20352b!important;border-color:#6f927f!important;color:#eff8f3!important;
+}
+.hxq-close svg{width:18px!important;height:18px!important;stroke-width:1.9!important;}
+
+/* Estado de confirmación: mismo lenguaje que Explorer/Compatibles. */
+.hxq-add.is-added{
+  background:#17683f!important;border-color:#17683f!important;color:#fff!important;
+  box-shadow:none!important;transform:none!important;
+}
+body:not(.light-mode) .hxq-add.is-added{
+  background:#245d43!important;border-color:#347653!important;color:#eaf6ef!important;
+}

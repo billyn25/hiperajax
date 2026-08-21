@@ -8445,3 +8445,43 @@ body:not(.light-mode) .hxq-group-title span{
   .hx-compat-qty{width:92px!important;min-width:92px!important;grid-template-columns:28px 28px 28px!important;gap:3px!important;padding:0 3px!important;}
   .hx-compat-add{min-width:76px!important;padding:0 10px!important;}
 }
+
+/* =========================================================
+   18.0 · COHERENCIA FINAL — COMPATIBLES / PRESUPUESTOS
+   Solo apariencia; sin cambios de lógica.
+   ========================================================= */
+.hx-compat-close,#pmModal .modal-close{
+  width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;
+  padding:0!important;border:1px solid #c8d9d0!important;border-radius:9px!important;
+  background:#f1f7f4!important;color:#31594a!important;box-shadow:none!important;
+}
+.hx-compat-close:hover,.hx-compat-close:focus-visible,
+#pmModal .modal-close:hover,#pmModal .modal-close:focus-visible{
+  background:#e4f0ea!important;border-color:#86aa98!important;color:#174d35!important;outline:none!important;
+}
+body:not(.light-mode) .hx-compat-close,
+body:not(.light-mode) #pmModal .modal-close{
+  background:#18271f!important;border-color:#3f5f50!important;color:#d8e9e0!important;
+}
+body:not(.light-mode) .hx-compat-close:hover,
+body:not(.light-mode) .hx-compat-close:focus-visible,
+body:not(.light-mode) #pmModal .modal-close:hover,
+body:not(.light-mode) #pmModal .modal-close:focus-visible{
+  background:#20352b!important;border-color:#6f927f!important;color:#eff8f3!important;
+}
+.hx-compat-close svg,#pmModal .modal-close svg{width:18px!important;height:18px!important;stroke-width:1.9!important;}
+
+/* Compatibles: más aire entre cantidad y Añadir, sin ensanchar la tarjeta. */
+.hx-compat-commerce{column-gap:12px!important;}
+@media(max-width:640px){.hx-compat-commerce{column-gap:10px!important;}}
+
+/* Misma altura óptica y mismo estado de confirmación. */
+.hx-compat-qty{height:34px!important;min-height:34px!important;}
+.hx-compat-add{height:34px!important;min-height:34px!important;}
+.hx-compat-add.is-added{
+  background:#17683f!important;border-color:#17683f!important;color:#fff!important;
+  box-shadow:none!important;transform:none!important;
+}
+body:not(.light-mode) .hx-compat-add.is-added{
+  background:#245d43!important;border-color:#347653!important;color:#eaf6ef!important;
+}
