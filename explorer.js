@@ -2309,7 +2309,7 @@
     }
     if(ok && trigger){
       const original = trigger.textContent;
-      trigger.textContent = 'Añadido';
+      trigger.textContent = '✓ Añadido';
       trigger.classList.add('is-added');
       setTimeout(() => { trigger.textContent = original; trigger.classList.remove('is-added'); }, 800);
     }

@@ -8728,3 +8728,20 @@ body:not(.light-mode) .hx-compat-step:focus-visible{
   }
   .hx-compat-add{width:66px!important;min-width:66px!important;padding:0 8px!important;}
 }
+
+/* 23.1 · COMPATIBLES — precio con la misma métrica visual que Explorer */
+.hx-compat-commerce > strong{
+  color:#35a86f!important;
+  font-size:15px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  font-variant-numeric:tabular-nums!important;
+}
+body.dark .hx-compat-commerce > strong{
+  color:#208e5b!important;
+}
+@media (max-width:640px){
+  .hx-compat-commerce > strong{
+    font-size:17px!important;
+  }
+}

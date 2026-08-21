@@ -2714,3 +2714,99 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
   #familiasGrid .hxp-product-actions{gap:6px!important;}
   #familiasGrid .hxp-add{min-width:66px!important;padding:0 8px!important;}
 }
+
+/* 23.0 · EXPLORER MÓVIL — precio + acciones en una sola línea */
+@media (max-width:640px){
+  #familiasGrid .hxp-product-commerce{
+    width:100%!important;
+    padding-left:0!important;
+    margin-top:10px!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:8px!important;
+  }
+  #familiasGrid .hxp-price{
+    flex:0 0 auto!important;
+    margin-right:auto!important;
+    font-size:17px!important;
+    line-height:1!important;
+    text-align:left!important;
+  }
+  #familiasGrid .hxp-product-actions{
+    flex:0 0 auto!important;
+    width:auto!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    flex-wrap:nowrap!important;
+    gap:6px!important;
+  }
+  #familiasGrid .hx-modal-qty{
+    flex:0 0 94px!important;
+    width:94px!important;
+    min-width:94px!important;
+    height:34px!important;
+  }
+  #familiasGrid .hx-modal-qty-btn,
+  #familiasGrid .hx-modal-qty-value{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    line-height:1!important;
+    padding-top:0!important;
+    padding-bottom:0!important;
+  }
+  #familiasGrid .hxp-add{
+    min-width:66px!important;
+    width:auto!important;
+    height:34px!important;
+    min-height:34px!important;
+    padding:0 8px!important;
+  }
+}
+@media (max-width:420px){
+  #familiasGrid .hxp-product-commerce{display:flex!important;grid-template-columns:none!important;}
+  #familiasGrid .hxp-price{grid-column:auto!important;grid-row:auto!important;}
+  #familiasGrid .hxp-product-actions{grid-column:auto!important;grid-row:auto!important;display:flex!important;width:auto!important;}
+}
+
+/* =====================================================
+   13.10 · CABECERA EXPLORER = AÑADIR RÁPIDO
+   Misma métrica visual; no altera toolbar ni contenido.
+   ===================================================== */
+#familiasModal .hxp-shell > .modal-head{
+  min-height:58px!important;
+  padding:var(--hx-modal-head-pad-y) var(--hx-modal-head-pad-x)!important;
+  gap:12px!important;
+  align-items:center!important;
+}
+#familiasModal .modal-title-icon{
+  width:var(--hx-modal-control)!important;
+  height:var(--hx-modal-control)!important;
+  flex:0 0 var(--hx-modal-control)!important;
+  border-radius:var(--hx-modal-radius)!important;
+}
+#familiasModal .hxp-shell > .modal-head h2{
+  font-size:var(--hx-modal-title-size)!important;
+  line-height:1.15!important;
+  margin:0!important;
+}
+#familiasModal .hxp-shell > .modal-head p{
+  font-size:var(--hx-modal-subtitle-size)!important;
+  line-height:1.25!important;
+  margin:3px 0 0!important;
+}
+#familiasModal .hxp-shell .modal-close{
+  width:var(--hx-modal-control)!important;
+  min-width:var(--hx-modal-control)!important;
+  height:var(--hx-modal-control)!important;
+  min-height:var(--hx-modal-control)!important;
+}
+@media(max-width:640px){
+  #familiasModal .hxp-shell > .modal-head{
+    min-height:54px!important;
+    padding:10px 11px!important;
+    padding-top:max(10px,env(safe-area-inset-top))!important;
+  }
+  #familiasModal .hxp-shell > .modal-head h2{font-size:17px!important;}
+}
