@@ -5518,7 +5518,7 @@ body.light #pmModal .pmx-folder[data-pm-active="true"],body.light-mode #pmModal 
 body.light #pmModal .pmx-row,body.light-mode #pmModal .pmx-row{background:#fff!important;color:#1b2b24!important;border-color:#dce9e2!important}
 body.light #pmModal .pmx-row:hover:not(.is-selected),body.light-mode #pmModal .pmx-row:hover:not(.is-selected){background:#edf8f2!important;border-color:#b9dccb!important;color:#172019!important}
 body.light #pmModal .pmx-row:hover:not(.is-selected) *,body.light-mode #pmModal .pmx-row:hover:not(.is-selected) *{color:#172019!important}
-body.light #pmModal .pmx-row.is-selected,body.light-mode #pmModal .pmx-row.is-selected{background:#1f8f5f!important;border-color:#146c43!important;color:#fff!important}
+body.light #pmModal .pmx-row.is-selected,body.light-mode #pmModal .pmx-row.is-selected{border-color:#146c43!important;color:#fff!important}
 
 @media(max-width:900px){
   #pmModal .pmx-modal-card.explore-wrap{
