@@ -273,7 +273,7 @@ body:not(.light-mode) .hxq-nav-item{color:#a9bbb1}
 
 .hx-tools-actions .hxq-entry{
   font-weight:800!important;
-  gap:8px!important;
+  gap:6px!important;
 }
 
 .hx-tools-actions .hxq-entry:hover{
@@ -1023,5 +1023,148 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
   .hxq-drawer .hxq-minus:focus-visible,.hxq-drawer .hxq-plus:focus-visible,
   .hxq-drawer .hxq-minus:active,.hxq-drawer .hxq-plus:active{
     background:transparent!important;
+  }
+}
+
+/* =========================================================
+   29.0 · STEPPER ÚNICO — EXPLORER ES LA REFERENCIA
+   Una sola regla final para Rápidos + Explorer + Compatibles.
+   Misma caja, tipografía, centrado y estados. Sin desplazamientos.
+   ========================================================= */
+.hxq-drawer .hxq-qty,
+#familiasGrid .hx-modal-qty,
+.hx-compat-qty{
+  box-sizing:border-box!important;
+  width:92px!important;
+  min-width:92px!important;
+  height:34px!important;
+  min-height:34px!important;
+  display:grid!important;
+  grid-template-columns:28px 28px 28px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  padding:0 3px!important;
+  overflow:hidden!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+
+.hxq-drawer .hxq-minus,
+.hxq-drawer .hxq-plus,
+#familiasGrid .hx-modal-qty-btn,
+.hx-compat-step{
+  box-sizing:border-box!important;
+  width:28px!important;
+  min-width:28px!important;
+  height:28px!important;
+  min-height:28px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  color:inherit!important;
+  font:inherit!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  line-height:1!important;
+  text-indent:0!important;
+  transform:none!important;
+  translate:none!important;
+  box-shadow:none!important;
+  outline:none!important;
+  filter:none!important;
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+
+.hxq-drawer .hxq-qty>span,
+#familiasGrid .hx-modal-qty-value,
+.hx-compat-qty>span:not(.hx-compat-step){
+  box-sizing:border-box!important;
+  width:28px!important;
+  min-width:28px!important;
+  height:28px!important;
+  min-height:28px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  font-size:11.5px!important;
+  font-weight:850!important;
+  line-height:1!important;
+  font-variant-numeric:tabular-nums!important;
+  transform:none!important;
+  translate:none!important;
+  box-shadow:none!important;
+}
+
+/* Escritorio: mismo hover suave de Explorer, sin mover el glifo. */
+@media (hover:hover) and (pointer:fine){
+  .hxq-drawer .hxq-minus:hover,
+  .hxq-drawer .hxq-plus:hover,
+  #familiasGrid .hx-modal-qty-btn:hover,
+  .hx-compat-step:hover{
+    background:#e8f4ed!important;
+    color:#17623f!important;
+    transform:none!important;
+    translate:none!important;
+    box-shadow:none!important;
+  }
+  body:not(.light-mode) .hxq-drawer .hxq-minus:hover,
+  body:not(.light-mode) .hxq-drawer .hxq-plus:hover,
+  body:not(.light-mode) #familiasGrid .hx-modal-qty-btn:hover,
+  body:not(.light-mode) .hx-compat-step:hover{
+    background:#20332a!important;
+    color:#bfe8d2!important;
+  }
+}
+
+/* Focus/active: feedback sin salto vertical. */
+.hxq-drawer .hxq-minus:focus,
+.hxq-drawer .hxq-plus:focus,
+.hxq-drawer .hxq-minus:focus-visible,
+.hxq-drawer .hxq-plus:focus-visible,
+.hxq-drawer .hxq-minus:active,
+.hxq-drawer .hxq-plus:active,
+#familiasGrid .hx-modal-qty-btn:focus,
+#familiasGrid .hx-modal-qty-btn:focus-visible,
+#familiasGrid .hx-modal-qty-btn:active,
+.hx-compat-step:focus,
+.hx-compat-step:focus-visible,
+.hx-compat-step:active{
+  transform:none!important;
+  translate:none!important;
+  box-shadow:none!important;
+  outline:none!important;
+}
+
+@media (hover:none), (pointer:coarse){
+  .hxq-drawer .hxq-minus:hover,
+  .hxq-drawer .hxq-plus:hover,
+  #familiasGrid .hx-modal-qty-btn:hover,
+  .hx-compat-step:hover{
+    background:transparent!important;
+    color:inherit!important;
+  }
+  .hxq-drawer .hxq-minus:active,
+  .hxq-drawer .hxq-plus:active,
+  #familiasGrid .hx-modal-qty-btn:active,
+  .hx-compat-step:active{
+    background:#e8f4ed!important;
+    color:#17623f!important;
+  }
+  body:not(.light-mode) .hxq-drawer .hxq-minus:active,
+  body:not(.light-mode) .hxq-drawer .hxq-plus:active,
+  body:not(.light-mode) #familiasGrid .hx-modal-qty-btn:active,
+  body:not(.light-mode) .hx-compat-step:active{
+    background:#20332a!important;
+    color:#bfe8d2!important;
   }
 }
