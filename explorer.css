@@ -2588,3 +2588,61 @@ body:not(.light-mode) #familiasModal .hxp-shell .modal-close:focus-visible{
 body:not(.light-mode) #familiasGrid .hxp-add.is-added{
   background:#245d43!important;border-color:#347653!important;color:#eaf6ef!important;
 }
+
+/* =========================================================
+   19.0 · ACCIÓN AÑADIR — PATRÓN COMÚN LIGERO
+   Explorer conserva su geometría; reduce peso cromático.
+   ========================================================= */
+#familiasGrid .hxp-add{
+  min-width:72px!important;
+  height:34px!important;
+  min-height:34px!important;
+  padding:0 10px!important;
+  border:1px solid #86aa98!important;
+  border-radius:10px!important;
+  background:#f4f8f6!important;
+  color:#245440!important;
+  box-shadow:none!important;
+  font-size:10.5px!important;
+  font-weight:800!important;
+  transform:none!important;
+}
+#familiasGrid .hxp-add:hover,
+#familiasGrid .hxp-add:focus-visible{
+  background:#e8f3ed!important;
+  border-color:#6e9a84!important;
+  color:#174d35!important;
+  box-shadow:none!important;
+  transform:none!important;
+  outline:none!important;
+}
+#familiasGrid .hxp-add:active{
+  background:#deece4!important;
+  transform:scale(.98)!important;
+}
+#familiasGrid .hxp-add.is-added{
+  background:#dff2e7!important;
+  border-color:#8fc4a7!important;
+  color:#17623f!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+body:not(.light-mode) #familiasGrid .hxp-add{
+  background:#18231e!important;
+  border-color:#466657!important;
+  color:#cfe3d8!important;
+}
+body:not(.light-mode) #familiasGrid .hxp-add:hover,
+body:not(.light-mode) #familiasGrid .hxp-add:focus-visible{
+  background:#203229!important;
+  border-color:#648b77!important;
+  color:#edf7f2!important;
+}
+body:not(.light-mode) #familiasGrid .hxp-add.is-added{
+  background:#203a2d!important;
+  border-color:#4f8668!important;
+  color:#c8eed8!important;
+}
+@media(max-width:640px){
+  #familiasGrid .hxp-add{min-width:66px!important;padding:0 8px!important;font-size:10px!important;}
+}

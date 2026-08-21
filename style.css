@@ -8485,3 +8485,62 @@ body:not(.light-mode) #pmModal .modal-close:focus-visible{
 body:not(.light-mode) .hx-compat-add.is-added{
   background:#245d43!important;border-color:#347653!important;color:#eaf6ef!important;
 }
+
+/* =========================================================
+   19.0 · COMPATIBLES — ACCIÓN AÑADIR COMÚN Y LIGERA
+   Igual que Rápidos/Explorer, manteniendo clases aisladas.
+   ========================================================= */
+.hx-compat-add{
+  width:auto!important;
+  min-width:72px!important;
+  height:34px!important;
+  min-height:34px!important;
+  padding:0 10px!important;
+  border:1px solid #86aa98!important;
+  border-radius:10px!important;
+  background:#f4f8f6!important;
+  color:#245440!important;
+  box-shadow:none!important;
+  font-size:10.5px!important;
+  font-weight:800!important;
+  transform:none!important;
+}
+.hx-compat-add:hover,
+.hx-compat-add:focus-visible{
+  background:#e8f3ed!important;
+  border-color:#6e9a84!important;
+  color:#174d35!important;
+  box-shadow:none!important;
+  transform:none!important;
+  outline:none!important;
+}
+.hx-compat-add:active{
+  background:#deece4!important;
+  transform:scale(.98)!important;
+}
+.hx-compat-add.is-added{
+  background:#dff2e7!important;
+  border-color:#8fc4a7!important;
+  color:#17623f!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+body:not(.light-mode) .hx-compat-add{
+  background:#18231e!important;
+  border-color:#466657!important;
+  color:#cfe3d8!important;
+}
+body:not(.light-mode) .hx-compat-add:hover,
+body:not(.light-mode) .hx-compat-add:focus-visible{
+  background:#203229!important;
+  border-color:#648b77!important;
+  color:#edf7f2!important;
+}
+body:not(.light-mode) .hx-compat-add.is-added{
+  background:#203a2d!important;
+  border-color:#4f8668!important;
+  color:#c8eed8!important;
+}
+@media(max-width:640px){
+  .hx-compat-add{min-width:66px!important;padding:0 8px!important;font-size:10px!important;}
+}
