@@ -2646,3 +2646,42 @@ body:not(.light-mode) #familiasGrid .hxp-add.is-added{
 @media(max-width:640px){
   #familiasGrid .hxp-add{min-width:66px!important;padding:0 8px!important;font-size:10px!important;}
 }
+
+/* =========================================================
+   20.0 · CIERRE VISUAL 1.0 — EXPLORER
+   ========================================================= */
+#familiasModal .hxp-shell .modal-close{
+  width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;
+  padding:0!important;display:grid!important;place-items:center!important;
+  border:1px solid #c8d9d0!important;border-radius:9px!important;
+  background:#f1f7f4!important;color:#31594a!important;box-shadow:none!important;transform:none!important;
+}
+#familiasModal .hxp-shell .modal-close svg,
+#familiasModal .hxp-shell .modal-close .ui-icon{width:18px!important;height:18px!important;stroke-width:1.9!important;}
+#familiasModal .hxp-shell .modal-close:hover,
+#familiasModal .hxp-shell .modal-close:focus-visible{
+  background:#e4f0ea!important;border-color:#86aa98!important;color:#174d35!important;outline:none!important;box-shadow:none!important;
+}
+body:not(.light-mode) #familiasModal .hxp-shell .modal-close{
+  background:#18271f!important;border-color:#3f5f50!important;color:#d8e9e0!important;
+}
+body:not(.light-mode) #familiasModal .hxp-shell .modal-close:hover,
+body:not(.light-mode) #familiasModal .hxp-shell .modal-close:focus-visible{
+  background:#20352b!important;border-color:#6f927f!important;color:#eff8f3!important;
+}
+
+/* Badges de familias: mismo patrón que Añadir rápido. */
+#familiasGrid .hxp-family-card>em,
+#familiasGrid .hxp-family-rail-item em{
+  min-width:22px!important;height:19px!important;padding:0 5px!important;
+  border:1px solid #cddbd3!important;border-radius:999px!important;
+  background:#eef5f1!important;color:#557064!important;box-shadow:none!important;
+  font-size:8px!important;font-weight:800!important;line-height:19px!important;
+}
+body:not(.light-mode) #familiasGrid .hxp-family-card>em,
+body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
+  background:#203029!important;border-color:#405b4d!important;color:#cde3d8!important;
+}
+#familiasGrid .hxp-family-rail-item.is-active em{
+  background:#2b8a5c!important;border-color:#2b8a5c!important;color:#fff!important;
+}
