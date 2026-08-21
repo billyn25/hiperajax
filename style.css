@@ -3622,7 +3622,7 @@ body.light-mode #pmModal .pmx-row-side strong{
     background:rgba(255,255,255,.05)!important;
     border:1px solid rgba(255,255,255,.12)!important;
     color:#fff!important;
-    font-size:12px!important;
+    font-size:13.33px!important;
     box-shadow:none!important;
   }
   #pmModal .pmx-mobile-back:hover{background:rgba(31,143,95,.18)!important}
@@ -5998,7 +5998,7 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
     display:inline-flex!important;
     align-items:center!important;
     justify-content:center!important;
-    min-height:46px!important;
+    min-height:40px!important;
     margin:2px 6px 2px 0!important;
     padding:10px 15px!important;
     border-radius:10px!important;
