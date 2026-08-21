@@ -2983,692 +2983,6 @@ body:not(.light-mode) .totals .total-box strong{
   display:none!important;
 }
 
-/* =====================================================
-   v2.8.7 - Gestor de presupuestos tipo Explorador
-   Todo queda aislado con prefijo pm- y dentro de #pmModal.
-   ===================================================== */
-.pm-legacy-controls{display:none!important}
-#pmModal .pm-modal-card{width:min(1080px,96vw);max-height:88vh;gap:12px}
-#pmModal .pm-head{align-items:flex-start}
-#pmModal .pm-head-right{display:flex;align-items:center;gap:10px}
-#pmModal .pm-count{font-size:12px;font-weight:800;color:var(--muted);border:1px solid rgba(126,154,174,.22);background:rgba(126,154,174,.08);padding:7px 10px;border-radius:999px;white-space:nowrap}
-#pmModal .pm-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:10px}
-#pmModal .pm-search-wrap{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px;height:40px;border:1px solid rgba(126,154,174,.24);background:rgba(255,255,255,.035);border-radius:12px;padding:0 11px}
-#pmModal .pm-search-wrap>span{font-size:20px;color:#8ea6b7;line-height:1}
-#pmModal .pm-search-wrap input,#pmModal .pm-toolbar select{height:38px;margin:0;border:0!important;background:transparent!important;box-shadow:none!important;color:inherit}
-#pmModal .pm-toolbar select{border:1px solid rgba(126,154,174,.24)!important;background:#101b23!important;padding:0 10px;border-radius:12px}
-#pmModal .pm-list-shell{border:1px solid rgba(126,154,174,.20);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.10);min-height:280px}
-#pmModal .pm-list-head,#pmModal .pm-row{display:grid;grid-template-columns:minmax(220px,1.55fr) minmax(130px,1fr) 150px 72px 135px;align-items:center;gap:12px}
-#pmModal .pm-list-head{position:sticky;top:0;z-index:2;min-height:38px;padding:0 14px;background:#111d26;border-bottom:1px solid rgba(126,154,174,.20);font-size:10.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#8fa4b2}
-#pmModal .pm-list-head span:nth-child(4),#pmModal .pm-list-head span:nth-child(5){text-align:right}
-#pmModal .pm-list{max-height:44vh;overflow:auto;padding:5px}
-#pmModal .pm-row{width:100%;min-height:58px;padding:8px 10px;border:1px solid transparent;border-radius:10px;background:transparent;color:#edf4f7;text-align:left;cursor:pointer;box-shadow:none;transition:background .14s ease,border-color .14s ease,box-shadow .14s ease}
-#pmModal .pm-row:hover{background:rgba(122,153,176,.09);border-color:rgba(122,153,176,.18)}
-#pmModal .pm-row.pm-selected{background:linear-gradient(90deg,rgba(70,117,154,.24),rgba(70,117,154,.12));border-color:rgba(112,164,205,.58);box-shadow:inset 3px 0 0 #6f9fc4,0 0 0 1px rgba(31,52,68,.20)}
-#pmModal .pm-file{display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:9px;min-width:0}
-#pmModal .pm-file-icon{width:30px;height:34px;display:grid;place-items:center;border-radius:7px;background:rgba(112,159,196,.12);border:1px solid rgba(112,159,196,.20);font-size:17px}
-#pmModal .pm-selected .pm-file-icon{background:rgba(112,159,196,.24);border-color:rgba(112,159,196,.52)}
-#pmModal .pm-file-text{min-width:0;display:flex;flex-direction:column;gap:2px}
-#pmModal .pm-file-text strong{font-size:12.5px;color:#f5f9fb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pmModal .pm-file-text small,#pmModal .pm-cell-sub{font-size:10.5px;color:#8399a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pmModal .pm-cell{font-size:11.5px;color:#cdd9df;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pmModal .pm-cell-lines,#pmModal .pm-cell-total{text-align:right;font-variant-numeric:tabular-nums}
-#pmModal .pm-cell-total{font-size:13px;font-weight:900;color:#f1f6f9}
-#pmModal .pm-empty{min-height:250px;display:grid;place-items:center;text-align:center;color:#8195a2;padding:30px;font-size:12px}
-#pmModal .pm-summary{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:54px;padding:10px 13px;border-radius:12px;border:1px solid rgba(126,154,174,.18);background:rgba(126,154,174,.055);color:#dbe5ea;font-size:11.5px}
-#pmModal .pm-summary strong{font-size:12.5px;color:#fff}
-#pmModal .pm-summary-bits{display:flex;gap:15px;flex-wrap:wrap;color:#91a5b2}
-#pmModal .pm-summary-empty{color:#7f929e}
-#pmModal .pm-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-#pmModal .pm-actions button{min-height:36px}
-#pmModal .pm-actions button:disabled{opacity:.38;cursor:not-allowed;filter:saturate(.4)}
-#pmModal .pm-cancel{margin-left:auto}
-#pmModal .pm-toast{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:10;background:#15242e;border:1px solid rgba(112,159,196,.45);box-shadow:0 12px 35px rgba(0,0,0,.35);color:#f4f8fa;border-radius:11px;padding:9px 14px;font-size:12px;font-weight:800;animation:pmToastIn .18s ease}
-@keyframes pmToastIn{from{opacity:0;transform:translate(-50%,-6px)}to{opacity:1;transform:translate(-50%,0)}}
-
-body.light #pmModal .pm-modal-card,body.light-mode #pmModal .pm-modal-card{background:linear-gradient(180deg,#fff,#f5f8fa);border-color:#cad7df;color:#172630}
-body.light #pmModal .pm-count,body.light-mode #pmModal .pm-count{background:#edf3f7;border-color:#d3dee5;color:#5c7180}
-body.light #pmModal .pm-search-wrap,body.light-mode #pmModal .pm-search-wrap{background:#fff;border-color:#ccd8df}
-body.light #pmModal .pm-toolbar select,body.light-mode #pmModal .pm-toolbar select{background:#fff!important;color:#24343e!important;border-color:#ccd8df!important}
-body.light #pmModal .pm-list-shell,body.light-mode #pmModal .pm-list-shell{background:#fff;border-color:#d2dde4}
-body.light #pmModal .pm-list-head,body.light-mode #pmModal .pm-list-head{background:#eef3f6;color:#607483;border-color:#d2dde4}
-body.light #pmModal .pm-row,body.light-mode #pmModal .pm-row{color:#20323d}
-body.light #pmModal .pm-row:hover,body.light-mode #pmModal .pm-row:hover{background:#f0f5f8;border-color:#d5e1e8}
-body.light #pmModal .pm-row.pm-selected,body.light-mode #pmModal .pm-row.pm-selected{background:linear-gradient(90deg,#dceaf4,#edf5fa);border-color:#8db3cf;box-shadow:inset 3px 0 0 #668fac}
-body.light #pmModal .pm-file-icon,body.light-mode #pmModal .pm-file-icon{background:#edf4f8;border-color:#d0dfe8}
-body.light #pmModal .pm-file-text strong,body.light-mode #pmModal .pm-file-text strong{color:#172b37}
-body.light #pmModal .pm-file-text small,body.light-mode #pmModal .pm-file-text small,body.light #pmModal .pm-cell-sub,body.light-mode #pmModal .pm-cell-sub{color:#6d818e}
-body.light #pmModal .pm-cell,body.light-mode #pmModal .pm-cell{color:#3d5260}
-body.light #pmModal .pm-cell-total,body.light-mode #pmModal .pm-cell-total{color:#172b37}
-body.light #pmModal .pm-summary,body.light-mode #pmModal .pm-summary{background:#f0f5f8;border-color:#d5e0e7;color:#344b59}
-body.light #pmModal .pm-summary strong,body.light-mode #pmModal .pm-summary strong{color:#172b37}
-
-@media(max-width:760px){
-  #pmModal .pm-modal-card{width:100%;max-height:94vh;padding:12px}
-  #pmModal .pm-toolbar{grid-template-columns:1fr}
-  #pmModal .pm-list-head{display:none}
-  #pmModal .pm-list-shell{min-height:240px}
-  #pmModal .pm-list{max-height:53vh;padding:6px}
-  #pmModal .pm-row{grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;min-height:78px;padding:9px}
-  #pmModal .pm-row>.pm-client{grid-column:1/2;padding-left:41px}
-  #pmModal .pm-row>.pm-date{grid-column:1/2;padding-left:41px}
-  #pmModal .pm-row>.pm-cell-lines{display:none}
-  #pmModal .pm-row>.pm-cell-total{grid-column:2;grid-row:1/4;align-self:center;font-size:14px}
-  #pmModal .pm-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
-  #pmModal .pm-actions button{width:100%;margin:0}
-  #pmModal .pm-cancel{grid-column:1/-1}
-  #pmModal .pm-summary{align-items:flex-start;flex-direction:column}
-  #pmModal .pm-head-right{gap:6px}
-  #pmModal .pm-count{display:none}
-}
-
-.pm-global-toast{position:fixed;left:50%;top:18px;z-index:9999;transform:translate(-50%,-12px);opacity:0;pointer-events:none;background:#15242e;color:#f5f8fa;border:1px solid rgba(112,159,196,.48);border-radius:11px;box-shadow:0 14px 42px rgba(0,0,0,.38);padding:10px 15px;font-size:12px;font-weight:900;transition:opacity .2s ease,transform .2s ease}
-.pm-global-toast.pm-global-toast-show{opacity:1;transform:translate(-50%,0)}
-body.light .pm-global-toast,body.light-mode .pm-global-toast{background:#fff;color:#263946;border-color:#a9c3d5;box-shadow:0 12px 34px rgba(38,57,70,.18)}
-
-
-/* =====================================================
-   v3.0.0 - Gestor de presupuestos / Lista + Vista previa
-   Paleta neutra gris-azulada. Cero verde. Todo aislado.
-   ===================================================== */
-#pmModal .pmx-modal-card{width:min(1180px,96vw);max-height:92vh;padding:18px;gap:14px;background:linear-gradient(180deg,#17232c 0%,#111b23 100%);border:1px solid #354550;box-shadow:0 28px 80px rgba(0,0,0,.48);color:#eef3f6}
-#pmModal .pmx-head{align-items:flex-start;border-bottom:1px solid #30404b;padding-bottom:13px}
-#pmModal .pmx-head h2{color:#f5f7f9}
-#pmModal .pmx-head p{color:#aebbc4}
-#pmModal .pmx-head-actions{display:flex;align-items:center;gap:10px}
-#pmModal .pmx-count{padding:7px 11px;border-radius:999px;background:#2f3941;border:1px solid #505d66;color:#e7ecef;font-size:12px;font-weight:800}
-#pmModal .pmx-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 205px;gap:12px}
-#pmModal .pmx-search{height:42px;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:9px;padding:0 12px;border:1px solid #45545e;border-radius:11px;background:#26323a;color:#c9d2d8}
-#pmModal .pmx-search input{height:40px;margin:0;border:0!important;background:transparent!important;color:#f2f5f7!important;box-shadow:none!important}
-#pmModal .pmx-search input::placeholder{color:#9aa9b3}
-#pmModal .pmx-toolbar select{height:42px;margin:0;padding:0 11px;border:1px solid #45545e!important;border-radius:11px;background:#303b43!important;color:#f1f4f6!important;box-shadow:none!important}
-#pmModal .pmx-workspace{display:grid;grid-template-columns:minmax(320px,.92fr) minmax(430px,1.35fr);gap:14px;min-height:490px;overflow:hidden}
-#pmModal .pmx-browser,#pmModal .pmx-preview{min-width:0;border:1px solid #374852;border-radius:14px;background:#1d2931;overflow:hidden}
-#pmModal .pmx-browser{display:flex;flex-direction:column}
-#pmModal .pmx-browser-head{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #374852;background:#29353d;color:#f1f4f6;font-weight:800}
-#pmModal .pmx-browser-head small{color:#b3c0c8;font-weight:700}
-#pmModal .pmx-list{flex:1;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:7px}
-#pmModal .pmx-row{width:100%;min-height:68px;display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid #46545d;border-radius:10px;background:#313b42;color:#f0f3f5;text-align:left;cursor:pointer;box-shadow:none;transition:background .15s ease,border-color .15s ease,transform .15s ease,box-shadow .15s ease}
-#pmModal .pmx-row:hover{background:#3a454d;border-color:#65737c;transform:translateY(-1px)}
-#pmModal .pmx-row.is-selected{background:#445260;border-color:#8a9dac;box-shadow:inset 4px 0 0 #aebdca,0 5px 14px rgba(0,0,0,.18)}
-#pmModal .pmx-row-icon{width:36px;height:40px;display:grid;place-items:center;border-radius:8px;background:#46515a;border:1px solid #66737c;color:#eef2f4;font-size:18px}
-#pmModal .pmx-row-main{min-width:0;display:flex;flex-direction:column;gap:4px}
-#pmModal .pmx-row-main strong{font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pmModal .pmx-row-main small{font-size:11px;color:#c0cbd1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pmModal .pmx-row-side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-left:8px}
-#pmModal .pmx-row-side strong{font-size:13px;color:#fff;font-variant-numeric:tabular-nums}
-#pmModal .pmx-row-side small{font-size:10.5px;color:#bdc8ce}
-#pmModal .pmx-list-empty{min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:#b8c3ca;text-align:center;padding:24px}
-#pmModal .pmx-list-empty>span{font-size:34px;color:#d1d9de}
-#pmModal .pmx-list-empty strong{color:#eef2f4}
-#pmModal .pmx-preview{display:flex;flex-direction:column;background:#202c34}
-#pmModal .pmx-preview-head{height:58px;display:flex;align-items:center;gap:11px;padding:0 16px;border-bottom:1px solid #3a4a54;background:#2b3740}
-#pmModal .pmx-preview-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;background:#414c54;border:1px solid #637079;color:#eef2f4}
-#pmModal .pmx-preview-head small{display:block;color:#b8c4cb;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
-#pmModal .pmx-preview-head h3{margin:2px 0 0;color:#fff;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pmModal .pmx-preview-body{flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:16px;color:#e9eef1}
-#pmModal .pmx-preview-empty{align-items:center;justify-content:center;text-align:center;color:#bbc6cc;padding:36px}
-#pmModal .pmx-preview-empty .pmx-empty-icon{font-size:42px;color:#d4dce1}
-#pmModal .pmx-preview-empty strong{font-size:16px;color:#f4f6f7}
-#pmModal .pmx-preview-empty p{max-width:390px;margin:0;line-height:1.55;color:#b7c2c8}
-#pmModal .pmx-identity{display:flex;align-items:center;gap:13px;padding-bottom:15px;border-bottom:1px solid #3b4a53}
-#pmModal .pmx-document-icon{width:48px;height:52px;display:grid;place-items:center;border-radius:11px;background:#3b464e;border:1px solid #69767e;color:#fff;font-size:24px}
-#pmModal .pmx-identity h4{margin:0 0 4px;font-size:21px;color:#fff}
-#pmModal .pmx-identity p{margin:0;color:#bec9cf}
-#pmModal .pmx-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0}
-#pmModal .pmx-meta>div{padding:11px 12px;border:1px solid #43515a;border-radius:10px;background:#2c373f}
-#pmModal .pmx-meta dt{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#aebcc4;font-weight:800}
-#pmModal .pmx-meta dd{margin:5px 0 0;color:#fff;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pmModal .pmx-total{display:flex;align-items:flex-end;justify-content:space-between;padding:15px 2px 14px;border-bottom:1px solid #3b4a53}
-#pmModal .pmx-total span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#bbc6cc;font-weight:800}
-#pmModal .pmx-total strong{font-size:28px;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
-#pmModal .pmx-products-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;color:#f1f4f6;font-weight:800}
-#pmModal .pmx-products-title small{color:#b7c3ca}
-#pmModal .pmx-products ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
-#pmModal .pmx-products li{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:39px;padding:8px 11px;border:1px solid #424f58;border-radius:9px;background:#303a42;color:#edf1f3}
-#pmModal .pmx-products li span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pmModal .pmx-products li b{color:#426b86!important;font-size:11px}
-#pmModal .pmx-products .pmx-no-products{justify-content:center;color:#b9c4ca}
-#pmModal .pmx-actions{display:flex;align-items:center;gap:9px;padding-top:13px;border-top:1px solid #30404b}
-#pmModal .pmx-actions button{min-height:38px!important;padding:0 15px!important;border:1px solid #5b6871!important;background:#3d474f!important;color:#f6f7f8!important;box-shadow:none!important}
-#pmModal .pmx-actions button:hover:not(:disabled){background:#4a555d!important;border-color:#7c8992!important}
-#pmModal .pmx-actions #pmDelete{background:#50383b!important;border-color:#765157!important;color:#fff!important}
-#pmModal .pmx-actions #pmDelete:hover:not(:disabled){background:#614247!important;border-color:#96656e!important}
-#pmModal .pmx-actions button:disabled{opacity:.35!important;cursor:not-allowed!important}
-#pmModal .pmx-close-action{margin-left:auto}
-.pmx-global-toast{position:fixed;left:50%;top:18px;z-index:9999;transform:translate(-50%,-10px);opacity:0;pointer-events:none;padding:10px 15px;border-radius:10px;background:#414b53;border:1px solid #6f7c85;color:#fff;box-shadow:0 14px 38px rgba(0,0,0,.38);font-weight:800;transition:.2s ease}
-.pmx-global-toast.show{opacity:1;transform:translate(-50%,0)}
-
-body.light #pmModal .pmx-modal-card,body.light-mode #pmModal .pmx-modal-card{background:linear-gradient(180deg,#f5f7f8,#e8ecef);border-color:#aeb8bf;color:#26343d}
-body.light #pmModal .pmx-head h2,body.light-mode #pmModal .pmx-head h2{color:#1d2b33}
-body.light #pmModal .pmx-head p,body.light-mode #pmModal .pmx-head p{color:#5e6c75}
-body.light #pmModal .pmx-count,body.light-mode #pmModal .pmx-count{background:#dce2e6;border-color:#aeb8bf;color:#34434c}
-body.light #pmModal .pmx-search,body.light-mode #pmModal .pmx-search,body.light #pmModal .pmx-toolbar select,body.light-mode #pmModal .pmx-toolbar select{background:#fff!important;border-color:#b7c1c8!important;color:#25343d!important}
-body.light #pmModal .pmx-search input,body.light-mode #pmModal .pmx-search input{color:#22313a!important}
-body.light #pmModal .pmx-browser,body.light-mode #pmModal .pmx-browser,body.light #pmModal .pmx-preview,body.light-mode #pmModal .pmx-preview{background:#f3f5f6;border-color:#b9c3c9}
-body.light #pmModal .pmx-browser-head,body.light-mode #pmModal .pmx-browser-head,body.light #pmModal .pmx-preview-head,body.light-mode #pmModal .pmx-preview-head{background:#dde3e7;border-color:#b9c3c9;color:#24333c}
-body.light #pmModal .pmx-row,body.light-mode #pmModal .pmx-row{background:#fff;border-color:#c7cfd4;color:#24333c}
-body.light #pmModal .pmx-row:hover,body.light-mode #pmModal .pmx-row:hover{background:#edf1f3;border-color:#aeb9c0}
-body.light #pmModal .pmx-row.is-selected,body.light-mode #pmModal .pmx-row.is-selected{background:#d9e0e5;border-color:#7f909c;box-shadow:inset 4px 0 0 #687d8c,0 4px 12px rgba(35,50,60,.12)}
-body.light #pmModal .pmx-row-icon,body.light-mode #pmModal .pmx-row-icon,body.light #pmModal .pmx-preview-icon,body.light-mode #pmModal .pmx-preview-icon,body.light #pmModal .pmx-document-icon,body.light-mode #pmModal .pmx-document-icon{background:#e0e5e8;border-color:#abb6bd;color:#2f404a}
-body.light #pmModal .pmx-row-main strong,body.light-mode #pmModal .pmx-row-main strong,body.light #pmModal .pmx-row-side strong,body.light-mode #pmModal .pmx-row-side strong,body.light #pmModal .pmx-preview-head h3,body.light-mode #pmModal .pmx-preview-head h3,body.light #pmModal .pmx-identity h4,body.light-mode #pmModal .pmx-identity h4,body.light #pmModal .pmx-total strong,body.light-mode #pmModal .pmx-total strong{color:#1e2d36}
-body.light #pmModal .pmx-row-main small,body.light-mode #pmModal .pmx-row-main small,body.light #pmModal .pmx-row-side small,body.light-mode #pmModal .pmx-row-side small{color:#5f6e77}
-body.light #pmModal .pmx-preview-body,body.light-mode #pmModal .pmx-preview-body{color:#26353e}
-body.light #pmModal .pmx-meta>div,body.light-mode #pmModal .pmx-meta>div,body.light #pmModal .pmx-products li,body.light-mode #pmModal .pmx-products li{background:#fff;border-color:#c0c9ce;color:#26353e}
-body.light #pmModal .pmx-meta dd,body.light-mode #pmModal .pmx-meta dd,body.light #pmModal .pmx-products-title,body.light-mode #pmModal .pmx-products-title{color:#26353e}
-body.light #pmModal .pmx-actions button,body.light-mode #pmModal .pmx-actions button{background:#e1e5e8!important;border-color:#aeb8bf!important;color:#26343d!important}
-body.light #pmModal .pmx-actions button:hover:not(:disabled),body.light-mode #pmModal .pmx-actions button:hover:not(:disabled){background:#d3d9dd!important}
-
-@media(max-width:820px){
-  #pmModal .pmx-modal-card{width:100%;max-height:95vh;padding:12px}
-  #pmModal .pmx-toolbar{grid-template-columns:1fr}
-  #pmModal .pmx-workspace{grid-template-columns:1fr;min-height:0;overflow:auto}
-  #pmModal .pmx-browser{min-height:300px;max-height:42vh}
-  #pmModal .pmx-preview{min-height:390px}
-  #pmModal .pmx-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
-  #pmModal .pmx-actions button{width:100%;margin:0!important}
-  #pmModal .pmx-close-action{grid-column:1/-1}
-  #pmModal .pmx-head-actions .pmx-count{display:none}
-}
-@media(max-width:520px){
-  #pmModal .pmx-row{grid-template-columns:34px minmax(0,1fr)}
-  #pmModal .pmx-row-side{grid-column:2;align-items:flex-start;padding-left:0;flex-direction:row;justify-content:space-between}
-  #pmModal .pmx-meta{grid-template-columns:1fr}
-  #pmModal .pmx-total strong{font-size:24px}
-}
-
-/* =====================================================
-   v3.0.1 - Corrección visual final del gestor
-   Neutraliza cualquier verde heredado y compacta Vista previa.
-   ===================================================== */
-#pmModal button{
-  background:#d8dde1!important;
-  background-image:none!important;
-  border:1px solid #aeb7be!important;
-  color:#26333b!important;
-  box-shadow:none!important;
-  text-shadow:none!important;
-}
-#pmModal button:hover:not(:disabled){
-  background:#e4e8eb!important;
-  border-color:#c5ccd1!important;
-  color:#172229!important;
-}
-#pmModal .pmx-row{
-  background:#313b42!important;
-  border-color:#46545d!important;
-  color:#f0f3f5!important;
-}
-#pmModal .pmx-row:hover{
-  background:#3a454d!important;
-  border-color:#65737c!important;
-}
-#pmModal .pmx-row.is-selected{
-  background:#445260!important;
-  border-color:#8a9dac!important;
-  color:#fff!important;
-}
-#pmModal .pmx-actions #pmDelete{
-  background:#6f3d43!important;
-  border-color:#765157!important;
-  color:#fff!important;
-}
-#pmModal .pmx-actions #pmDelete:hover:not(:disabled){
-  background:#b91c1c!important;
-  border-color:#991b1b!important;
-}
-#pmModal .modal-close{
-  width:36px!important;
-  height:36px!important;
-  min-width:34px!important;
-  padding:0!important;
-  display:grid!important;
-  place-items:center!important;
-  border-radius:9px!important;
-  background:rgba(255,255,255,.05)!important;
-  border:1px solid rgba(255,255,255,.12)!important;
-  color:#fff!important;
-  font-size:20px!important;
-  line-height:1!important;
-  box-shadow:none!important;
-}
-#pmModal .modal-close:hover{background:rgba(31,143,95,.18)!important}
-body.light #pmModal .modal-close,body.light-mode #pmModal .modal-close{
-  background:#f1f7f4!important;
-  border-color:#d7e5de!important;
-  color:#172019!important;
-}
-#pmModal .pmx-preview-head{height:50px!important;padding:0 14px!important;gap:9px!important}
-#pmModal .pmx-preview-icon{width:30px!important;height:30px!important;border-radius:8px!important;font-size:15px!important}
-#pmModal .pmx-preview-head small{font-size:9px!important;letter-spacing:.07em!important}
-#pmModal .pmx-preview-head h3{font-size:13px!important;margin-top:1px!important}
-#pmModal .pmx-preview-body{padding:14px!important;gap:12px!important;font-size:12px!important}
-#pmModal .pmx-preview-empty .pmx-empty-icon{font-size:34px!important}
-#pmModal .pmx-preview-empty strong{font-size:14px!important}
-#pmModal .pmx-preview-empty p{font-size:11.5px!important;line-height:1.45!important}
-#pmModal .pmx-identity{gap:10px!important;padding-bottom:11px!important}
-#pmModal .pmx-document-icon{width:38px!important;height:42px!important;border-radius:9px!important;font-size:19px!important}
-#pmModal .pmx-identity h4{font-size:16px!important;margin-bottom:5px!important}
-#pmModal .pmx-identity p{font-size:11px!important}
-#pmModal .pmx-meta{gap:8px!important}
-#pmModal .pmx-meta>div{padding:8px 10px!important;border-radius:9px!important}
-#pmModal .pmx-meta dt{font-size:9px!important}
-#pmModal .pmx-meta dd{font-size:11.5px!important;margin-top:3px!important}
-#pmModal .pmx-total{padding:10px 2px!important}
-#pmModal .pmx-total span{font-size:9.5px!important}
-#pmModal .pmx-total strong{font-size:21px!important}
-#pmModal .pmx-products-title{font-size:11.5px!important;margin-bottom:7px!important}
-#pmModal .pmx-products-title small{font-size:10px!important}
-#pmModal .pmx-products ul{gap:5px!important}
-#pmModal .pmx-products li{min-height:32px!important;padding:6px 9px!important;border-radius:8px!important;font-size:11.5px!important}
-#pmModal .pmx-products li b{font-size:10px!important}
-
-body.light #pmModal button,
-body.light-mode #pmModal button{
-  background:#e2e6e9!important;
-  background-image:none!important;
-  border-color:#b5bec4!important;
-  color:#26343d!important;
-}
-body.light #pmModal button:hover:not(:disabled),
-body.light-mode #pmModal button:hover:not(:disabled){
-  background:#f0f2f4!important;
-  border-color:#9faab1!important;
-}
-body.light #pmModal .pmx-row,
-body.light-mode #pmModal .pmx-row{
-  background:#fff!important;
-  border-color:#c7cfd4!important;
-  color:#24333c!important;
-}
-body.light #pmModal .pmx-row:hover,
-body.light-mode #pmModal .pmx-row:hover{
-  background:#edf1f3!important;
-}
-body.light #pmModal .pmx-row.is-selected,
-body.light-mode #pmModal .pmx-row.is-selected{
-  background:#d9e0e5!important;
-  border-color:#7f909c!important;
-}
-
-/* =====================================================
-   v3.0.2 - Pulido visual + móvil sin desbordamientos
-   Acentos azul grisáceo, sin verdes.
-   ===================================================== */
-#pmModal .pmx-preview-head,
-#pmModal .pmx-browser-head{
-  background:linear-gradient(180deg,#273743,#22313b)!important;
-  border-color:#435865!important;
-}
-#pmModal .pmx-preview-icon,
-#pmModal .pmx-row-icon,
-#pmModal .pmx-document-icon{
-  background:#344b5d!important;
-  border-color:#58758a!important;
-  color:#dcecf7!important;
-}
-#pmModal .pmx-preview-head small,
-#pmModal .pmx-browser-head small,
-#pmModal .pmx-products-title small{
-  color:#9fb9ca!important;
-}
-#pmModal .pmx-identity h4,
-#pmModal .pmx-preview-head h3{
-  color:##6d6a6a!important;
-}
-#pmModal .pmx-total strong{
-  color:#a9cbe1!important;
-  text-shadow:0 1px 0 rgba(0,0,0,.25);
-}
-#pmModal .pmx-row.is-selected{
-  background:linear-gradient(90deg,#405464,#354754)!important;
-  border-color:#7895a9!important;
-  box-shadow:inset 4px 0 0 #88a9bf,0 4px 12px rgba(0,0,0,.18)!important;
-}
-#pmModal .pmx-row.is-selected .pmx-row-icon{
-  background:#46657b!important;
-  border-color:#7fa1b9!important;
-}
-#pmModal .pmx-products li{
-  #background:linear-gradient(180deg, #e4edf3, #d9e5ec) !important;
-  border-color:#465a67!important;
-}
-
-@media(max-width:820px){
-  #pmModal .pmx-modal-card{
-    width:calc(100vw - 14px)!important;
-    max-width:none!important;
-    padding:10px!important;
-    overflow:hidden!important;
-  }
-  #pmModal .pmx-head{
-    gap:8px!important;
-    min-width:0!important;
-  }
-  #pmModal .pmx-head h2{
-    font-size:17px!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-  #pmModal .pmx-head p{font-size:10.5px!important}
-  #pmModal .pmx-toolbar{gap:8px!important}
-  #pmModal .pmx-workspace{
-    display:block!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-  }
-  #pmModal .pmx-browser{
-    width:100%!important;
-    min-width:0!important;
-    max-width:100%!important;
-    min-height:250px!important;
-    max-height:45vh!important;
-    overflow:hidden!important;
-  }
-  #pmModal .pmx-list{
-    padding:6px!important;
-    overflow-x:hidden!important;
-  }
-  #pmModal .pmx-row{
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    display:grid!important;
-    grid-template-columns:32px minmax(0,1fr)!important;
-    grid-template-rows:auto auto!important;
-    column-gap:9px!important;
-    row-gap:4px!important;
-    padding:9px!important;
-    min-height:68px!important;
-    overflow:hidden!important;
-  }
-  #pmModal .pmx-row-icon{
-    grid-column:1!important;
-    grid-row:1 / span 2!important;
-    width:30px!important;
-    height:34px!important;
-    align-self:start!important;
-  }
-  #pmModal .pmx-row-main{
-    grid-column:2!important;
-    grid-row:1!important;
-    min-width:0!important;
-    overflow:hidden!important;
-  }
-  #pmModal .pmx-row-main strong,
-  #pmModal .pmx-row-main small{
-    display:block!important;
-    max-width:100%!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-  #pmModal .pmx-row-main strong{font-size:12px!important}
-  #pmModal .pmx-row-main small{font-size:10px!important}
-  #pmModal .pmx-row-side{
-    grid-column:2!important;
-    grid-row:2!important;
-    min-width:0!important;
-    width:100%!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:space-between!important;
-    gap:8px!important;
-    padding:0!important;
-    overflow:hidden!important;
-  }
-  #pmModal .pmx-row-side small{
-    flex:1 1 auto!important;
-    min-width:0!important;
-    max-width:58%!important;
-    font-size:9.5px!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-  #pmModal .pmx-row-side strong{
-    flex:0 0 auto!important;
-    max-width:42%!important;
-    font-size:12px!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    color:#a9cbe1!important;
-  }
-  #pmModal .pmx-preview{
-    width:100%!important;
-    min-width:0!important;
-    min-height:330px!important;
-    margin-top:10px!important;
-    overflow:hidden!important;
-  }
-  #pmModal .pmx-preview-body,
-  #pmModal .pmx-identity,
-  #pmModal .pmx-meta,
-  #pmModal .pmx-products,
-  #pmModal .pmx-products li{
-    min-width:0!important;
-    max-width:100%!important;
-  }
-  #pmModal .pmx-identity h4,
-  #pmModal .pmx-identity p,
-  #pmModal .pmx-meta dd,
-  #pmModal .pmx-products li span{
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-  #pmModal .pmx-actions{
-    gap:7px!important;
-  }
-  #pmModal .pmx-actions button{
-    min-width:0!important;
-    padding:0 8px!important;
-    font-size:11px!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-}
-
-@media(max-width:420px){
-  #pmModal .pmx-actions{grid-template-columns:1fr!important}
-  #pmModal .pmx-close-action{grid-column:auto!important}
-  #pmModal .pmx-preview-body{padding:11px!important}
-  #pmModal .pmx-meta{grid-template-columns:1fr!important}
-  #pmModal .pmx-total strong{font-size:19px!important}
-}
-
-body.light #pmModal .pmx-preview-head,
-body.light-mode #pmModal .pmx-preview-head,
-body.light #pmModal .pmx-browser-head,
-body.light-mode #pmModal .pmx-browser-head{
-  background:linear-gradient(180deg,#e4edf3,#d9e5ec)!important;
-  border-color:#b2c5d1!important;
-}
-body.light #pmModal .pmx-total strong,
-body.light-mode #pmModal .pmx-total strong,
-body.light #pmModal .pmx-row-side strong,
-body.light-mode #pmModal .pmx-row-side strong{
-  color:#426b86!important;
-  text-shadow:none!important;
-}
-
-@media(max-width:760px){
-
-  #pmModal{
-    padding:6px !important;
-  }
-
-  #pmModal .pm-modal-card{
-    width:100% !important;
-    max-width:100% !important;
-    height:94dvh !important;
-    max-height:94dvh !important;
-    min-height:0 !important;
-    display:flex !important;
-    flex-direction:column !important;
-    overflow:hidden !important;
-    padding:12px !important;
-  }
-
-  #pmModal .pm-head,
-  #pmModal .pm-toolbar,
-  #pmModal .pm-actions{
-    flex:0 0 auto !important;
-  }
-
-  #pmModal .pm-list-shell{
-    flex:1 1 auto !important;
-    min-height:0 !important;
-    overflow:hidden !important;
-  }
-
-  #pmModal .pm-list{
-    height:100% !important;
-    max-height:none !important;
-    min-height:0 !important;
-    overflow-y:auto !important;
-    overflow-x:hidden !important;
-    padding:6px 6px calc(env(safe-area-inset-bottom, 0px) + 30px) !important;
-    -webkit-overflow-scrolling:touch !important;
-    overscroll-behavior:contain;
-    touch-action:pan-y;
-  }
-}
-
-
-/* =====================================================
-   v3.1.0 - Gestor móvil en dos pantallas
-   Lista completa -> Vista previa con acciones -> Atrás
-   PC permanece sin cambios.
-   ===================================================== */
-#pmModal .pmx-mobile-back{display:none!important}
-
-@media(max-width:820px){
-  #pmModal{padding:6px!important}
-  #pmModal .pmx-modal-card{
-    width:100%!important;
-    height:96dvh!important;
-    max-height:96dvh!important;
-    min-height:0!important;
-    padding:10px!important;
-    overflow:hidden!important;
-    display:flex!important;
-    flex-direction:column!important;
-  }
-  #pmModal .pmx-head{flex:0 0 auto!important}
-  #pmModal .pmx-toolbar{flex:0 0 auto!important;grid-template-columns:1fr!important}
-  #pmModal .pmx-workspace{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    display:block!important;
-    overflow:hidden!important;
-  }
-  #pmModal .pmx-browser{
-    height:100%!important;
-    min-height:0!important;
-    max-height:none!important;
-    display:flex!important;
-  }
-  #pmModal .pmx-list{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    max-height:none!important;
-    height:auto!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    overscroll-behavior:contain!important;
-    touch-action:pan-y!important;
-    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px)!important;
-  }
-  #pmModal .pmx-preview,
-  #pmModal .pmx-actions{display:none!important}
-  #pmModal .pmx-head-actions .pmx-count{display:none!important}
-
-  #pmModal.pm-mobile-preview .pmx-toolbar,
-  #pmModal.pm-mobile-preview .pmx-browser{display:none!important}
-  #pmModal.pm-mobile-preview .pmx-preview{
-    display:flex!important;
-    height:100%!important;
-    min-height:0!important;
-    max-height:none!important;
-  }
-  #pmModal.pm-mobile-preview .pmx-preview-body{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    overflow-y:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px)!important;
-  }
-  #pmModal.pm-mobile-preview .pmx-actions{
-    flex:0 0 auto!important;
-    display:grid!important;
-    grid-template-columns:1fr 1fr!important;
-    gap:8px!important;
-    padding-top:10px!important;
-  }
-  #pmModal.pm-mobile-preview .pmx-actions button{width:100%!important;margin:0!important}
-  #pmModal.pm-mobile-preview .pmx-close-action{grid-column:1/-1!important}
-  #pmModal .pmx-mobile-back{
-    display:none!important;
-    width:auto!important;
-    min-width:78px!important;
-    height:34px!important;
-    padding:0 10px!important;
-    margin:0 2px 0 0!important;
-    border-radius:9px!important;
-    background:rgba(255,255,255,.05)!important;
-    border:1px solid rgba(255,255,255,.12)!important;
-    color:#fff!important;
-    font-size:13.33px!important;
-    box-shadow:none!important;
-  }
-  #pmModal .pmx-mobile-back:hover{background:rgba(31,143,95,.18)!important}
-  body.light #pmModal .pmx-mobile-back,body.light-mode #pmModal .pmx-mobile-back{
-    background:#f1f7f4!important;border-color:#d7e5de!important;color:#172019!important;
-  }
-  #pmModal.pm-mobile-preview .pmx-mobile-back{display:inline-flex!important;align-items:center!important;justify-content:center!important}
-  #pmModal.pm-mobile-preview .pmx-preview-icon{display:none!important}
-  #pmModal.pm-mobile-preview .pmx-preview-head{height:52px!important;padding:0 10px!important}
-}
-
-@media(max-width:520px){
-  #pmModal .pmx-head p{display:none!important}
-  #pmModal .pmx-toolbar select{display:none!important}
-  #pmModal .pmx-row{min-height:72px!important}
-  #pmModal.pm-mobile-preview .pmx-actions{grid-template-columns:1fr!important}
-  #pmModal.pm-mobile-preview .pmx-close-action{grid-column:auto!important}
-}
-@media(max-width:820px){
-  #pmModal.pm-mobile-preview .pmx-mobile-back{
-    min-height:40px!important;
-    height:40px!important;
-    margin:16px 4px 14px 0!important;
-    padding:0 14px!important;
-  }
-  #pmModal.pm-mobile-preview .pmx-preview-head{
-    height:auto!important;
-    min-height:68px!important;
-    align-items:center!important;
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* 3.0.0 - efecto único al añadir al final */
 @keyframes hxLineaNuevaPulso{
   0%{box-shadow:inset 0 0 0 2px rgba(95,145,195,.85);background:rgba(95,145,195,.22)}
@@ -4151,386 +3465,6 @@ body.light .hx-modal-qty-value{color:#173126;}
     font-size:23px!important;
   }
 }
-
-/* 3.5.1 · copia de seguridad de presupuestos */
-#pmModal .pmx-toolbar{flex-wrap:wrap}
-#pmModal .pmx-backup-actions{display:flex;gap:7px;margin-left:auto}
-#pmModal .pmx-backup-actions button{min-height:36px;padding:0 12px;white-space:nowrap}
-@media (max-width:820px){
-  #pmModal .pmx-backup-actions{width:100%;margin-left:0;display:grid;grid-template-columns:1fr 1fr}
-  #pmModal .pmx-backup-actions button{width:100%;margin:0!important}
-}
-
-
-/* =====================================================
-   v3.7.0 - Cabecera del gestor y acciones de copia
-   ===================================================== */
-#pmModal .pmx-head{align-items:center!important}
-#pmModal .pmx-head-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-#pmModal .pmx-head-actions .pmx-backup-actions{display:flex;gap:7px;margin:0}
-#pmModal .pmx-head-actions .pmx-backup-actions button{min-height:34px!important;padding:0 11px!important;white-space:nowrap}
-#pmModal .pmx-toolbar{grid-template-columns:minmax(0,1fr) 205px!important}
-@media(max-width:820px){
-  #pmModal .pmx-head{align-items:flex-start!important}
-  #pmModal .pmx-head-actions{max-width:58%;gap:5px}
-  #pmModal .pmx-head-actions .pmx-backup-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
-  #pmModal .pmx-head-actions .pmx-backup-actions button{width:100%;font-size:11px;padding:0 7px!important}
-  #pmModal .pmx-toolbar{grid-template-columns:1fr!important}
-}
-
-
-/* =====================================================
-   v3.7.1 - Gestor de presupuestos móvil más aprovechable
-   ===================================================== */
-@media (max-width:820px){
-  #pmModal .pmx-modal-card{
-    height:calc(100dvh - 12px)!important;
-    max-height:calc(100dvh - 12px)!important;
-    padding:8px!important;
-    gap:8px!important;
-  }
-  #pmModal .pmx-head{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    align-items:start!important;
-    gap:8px!important;
-    padding-bottom:8px!important;
-  }
-  #pmModal .pmx-head h2{font-size:18px!important;margin:0!important}
-  #pmModal .pmx-head-actions{
-    display:grid!important;
-    grid-template-columns:1fr 1fr auto!important;
-    align-items:center!important;
-    gap:6px!important;
-  }
-  #pmModal .pmx-backup-actions{
-    grid-column:1/3!important;
-    display:grid!important;
-    grid-template-columns:1fr 1fr!important;
-    gap:6px!important;
-  }
-  #pmModal .pmx-backup-actions button{
-    width:100%!important;
-    min-width:0!important;
-    height:36px!important;
-    min-height:36px!important;
-    padding:0 10px!important;
-    margin:0!important;
-    white-space:nowrap!important;
-    font-size:12px!important;
-  }
-  #pmModal .modal-close{
-    grid-column:3!important;
-    grid-row:1!important;
-    width:36px!important;
-    height:36px!important;
-  }
-  #pmModal .pmx-toolbar{gap:6px!important}
-  #pmModal .pmx-search{height:38px!important}
-  #pmModal .pmx-search input{height:36px!important}
-  #pmModal .pmx-browser-head{height:38px!important;padding:0 10px!important}
-  #pmModal .pmx-list{padding:6px!important;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 10px)!important}
-  #pmModal .pmx-row{min-height:64px!important;padding:7px 9px!important}
-
-  /* En la lista no hay botonera inferior: toda la altura queda para tarjetas. */
-  #pmModal:not(.pm-mobile-preview) .pmx-actions{display:none!important}
-
-  /* En la vista previa la botonera es compacta y no incluye otro Cerrar. */
-  #pmModal.pm-mobile-preview .pmx-actions{
-    display:grid!important;
-    grid-template-columns:1fr 1fr!important;
-    gap:6px!important;
-    padding:7px 0 calc(env(safe-area-inset-bottom,0px) + 2px)!important;
-    border-top:1px solid #30404b!important;
-  }
-  #pmModal.pm-mobile-preview .pmx-actions button{
-    min-height:36px!important;
-    height:36px!important;
-    padding:0 7px!important;
-    font-size:11px!important;
-    line-height:1.1!important;
-  }
-  #pmModal.pm-mobile-preview #pmOpen{grid-column:1/2!important}
-  #pmModal.pm-mobile-preview #pmDuplicate{grid-column:2/3!important}
-  #pmModal.pm-mobile-preview #pmRename{grid-column:1/2!important}
-  #pmModal.pm-mobile-preview #pmExportOne{grid-column:2/3!important}
-  #pmModal.pm-mobile-preview #pmDelete{grid-column:1/-1!important}
-}
-
-@media (max-width:520px){
-  #pmModal .pmx-head{
-    grid-template-columns:1fr auto!important;
-  }
-  #pmModal .pmx-head-actions{
-    grid-column:1/-1!important;
-    width:100%!important;
-    grid-template-columns:1fr 1fr 36px!important;
-  }
-  #pmModal .pmx-backup-actions{grid-column:1/3!important}
-  #pmModal .modal-close{grid-column:3!important}
-  #pmModal.pm-mobile-preview .pmx-actions{
-    grid-template-columns:1fr 1fr!important;
-  }
-}
-
-
-/* =====================================================
-   v3.7.4 · Modal Presupuestos coherente con Catálogo/Explorar
-   Ajuste final de cabecera, acciones y temas claro/oscuro.
-   ===================================================== */
-#pmModal .pmx-modal-card{
-  width:min(1120px,96vw)!important;
-  background:linear-gradient(180deg,#0d171f 0%,#071016 100%)!important;
-  border:1px solid rgba(31,143,95,.42)!important;
-  border-radius:22px!important;
-  box-shadow:0 32px 90px rgba(0,0,0,.62)!important;
-  color:#fff!important;
-}
-#pmModal .pmx-head{
-  display:flex!important;
-  align-items:flex-start!important;
-  justify-content:space-between!important;
-  gap:14px!important;
-  padding-bottom:11px!important;
-  border-bottom:1px solid rgba(31,143,95,.18)!important;
-}
-#pmModal .pmx-title-block{min-width:0!important}
-#pmModal .pmx-head h2{margin:0!important;color:#fff!important;font-size:22px!important}
-#pmModal .pmx-head p{margin:4px 0 0!important;color:#9cb3a8!important;font-size:12px!important}
-#pmModal .pmx-count{
-  display:inline!important;
-  padding:0!important;
-  border:0!important;
-  border-radius:0!important;
-  background:transparent!important;
-  color:inherit!important;
-  font-size:inherit!important;
-  font-weight:800!important;
-}
-#pmModal .modal-close{
-  flex:0 0 auto!important;
-  width:34px!important;
-  height:34px!important;
-  margin:0!important;
-  border-radius:10px!important;
-}
-#pmModal .pmx-top-actions{
-  display:flex!important;
-  align-items:center!important;
-  gap:8px!important;
-  flex-wrap:wrap!important;
-}
-#pmModal .pmx-top-actions button{
-  width:auto!important;
-  min-width:104px!important;
-  min-height:38px!important;
-  height:38px!important;
-  padding:0 15px!important;
-  margin:0!important;
-  white-space:nowrap!important;
-  font-size:12px!important;
-  font-weight:800!important;
-}
-#pmModal .pmx-top-actions button:disabled{opacity:.42!important;cursor:not-allowed!important}
-#pmModal .pmx-toolbar{margin-top:0!important}
-#pmModal .pmx-browser,
-#pmModal .pmx-preview{
-  border-color:rgba(126,154,174,.24)!important;
-  background:#111d26!important;
-}
-#pmModal .pmx-browser-head,
-#pmModal .pmx-preview-head{
-  background:#14232d!important;
-  border-color:rgba(126,154,174,.22)!important;
-}
-#pmModal .pmx-row{background:#182731!important;border-color:#314551!important}
-#pmModal .pmx-row:hover{background:#203440!important;border-color:#4f6878!important}
-#pmModal .pmx-row.is-selected{
-  background:linear-gradient(90deg,rgba(31,143,95,.20),rgba(31,143,95,.08))!important;
-  border-color:rgba(60,171,118,.65)!important;
-  box-shadow:inset 4px 0 0 #35a36f,0 5px 14px rgba(0,0,0,.20)!important;
-}
-#pmModal .pmx-row-icon,
-#pmModal .pmx-preview-icon,
-#pmModal .pmx-document-icon{background:#20323d!important;border-color:#425a68!important;color:#eef7f2!important}
-#pmModal .pmx-meta>div,
-#pmModal .pmx-products li{background:#152630!important;border-color:#344b58!important}
-#pmModal .pmx-actions{
-  display:flex!important;
-  align-items:center!important;
-  gap:8px!important;
-  flex-wrap:wrap!important;
-  padding-top:11px!important;
-}
-#pmModal .pmx-actions button{
-  width:auto!important;
-  min-width:108px!important;
-  min-height:38px!important;
-  height:38px!important;
-  padding:0 14px!important;
-  margin:0!important;
-  white-space:nowrap!important;
-}
-
-body.light #pmModal .pmx-modal-card,
-body.light-mode #pmModal .pmx-modal-card{
-  background:linear-gradient(180deg,#ffffff 0%,#f7fbf9 100%)!important;
-  border-color:rgba(31,143,95,.28)!important;
-  box-shadow:0 24px 65px rgba(18,35,28,.20)!important;
-  color:#172019!important;
-}
-body.light #pmModal .pmx-head,
-body.light-mode #pmModal .pmx-head{border-bottom-color:rgba(31,143,95,.18)!important}
-body.light #pmModal .pmx-head h2,
-body.light-mode #pmModal .pmx-head h2{color:#172019!important}
-body.light #pmModal .pmx-head p,
-body.light-mode #pmModal .pmx-head p{color:#5f7168!important}
-body.light #pmModal .pmx-browser,
-body.light-mode #pmModal .pmx-browser,
-body.light #pmModal .pmx-preview,
-body.light-mode #pmModal .pmx-preview{background:#fff!important;border-color:#cad8d0!important}
-body.light #pmModal .pmx-browser-head,
-body.light-mode #pmModal .pmx-browser-head,
-body.light #pmModal .pmx-preview-head,
-body.light-mode #pmModal .pmx-preview-head{background:#eef5f1!important;border-color:#cad8d0!important;color:#263b30!important}
-body.light #pmModal .pmx-row,
-body.light-mode #pmModal .pmx-row{background:#fff!important;border-color:#d2ddd7!important;color:#203228!important}
-body.light #pmModal .pmx-row:hover,
-body.light-mode #pmModal .pmx-row:hover{background:#f2f7f4!important;border-color:#b7c9bf!important}
-body.light #pmModal .pmx-row.is-selected,
-body.light-mode #pmModal .pmx-row.is-selected{
-  background:linear-gradient(90deg,#e7f4ec,#f5faf7)!important;
-  border-color:#88b89d!important;
-  box-shadow:inset 4px 0 0 #2f9566,0 4px 12px rgba(35,70,50,.10)!important;
-}
-body.light #pmModal .pmx-row-icon,
-body.light-mode #pmModal .pmx-row-icon,
-body.light #pmModal .pmx-preview-icon,
-body.light-mode #pmModal .pmx-preview-icon,
-body.light #pmModal .pmx-document-icon,
-body.light-mode #pmModal .pmx-document-icon{background:#edf4f0!important;border-color:#b9ccc1!important;color:#294c39!important}
-body.light #pmModal .pmx-meta>div,
-body.light-mode #pmModal .pmx-meta>div,
-body.light #pmModal .pmx-products li,
-body.light-mode #pmModal .pmx-products li{background:#fff!important;border-color:#ccd9d1!important;color:#24362c!important}
-
-@media(max-width:820px){
-  #pmModal .pmx-modal-card{
-    width:calc(100vw - 12px)!important;
-    height:calc(100dvh - 12px)!important;
-    max-height:calc(100dvh - 12px)!important;
-    padding:10px!important;
-    gap:8px!important;
-    border-radius:17px!important;
-  }
-  #pmModal .pmx-head{
-    display:flex!important;
-    grid-template-columns:none!important;
-    align-items:flex-start!important;
-    padding-bottom:8px!important;
-  }
-  #pmModal .pmx-head h2{font-size:18px!important}
-  #pmModal .pmx-head p{font-size:11px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:calc(100vw - 84px)!important}
-  #pmModal .modal-close{
-    position:static!important;
-    grid-column:auto!important;
-    grid-row:auto!important;
-    width:36px!important;
-    height:36px!important;
-  }
-  #pmModal .pmx-top-actions{
-    display:grid!important;
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-    gap:6px!important;
-    width:100%!important;
-  }
-  #pmModal .pmx-top-actions button{
-    width:100%!important;
-    min-width:0!important;
-    height:36px!important;
-    min-height:36px!important;
-    padding:0 5px!important;
-    font-size:11.5px!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-  #pmModal .pmx-toolbar{gap:6px!important}
-  #pmModal .pmx-workspace{flex:1!important;min-height:0!important;overflow:hidden!important}
-  #pmModal .pmx-browser{max-height:none!important;min-height:0!important;height:100%!important}
-  #pmModal .pmx-list{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 8px)!important}
-  #pmModal:not(.pm-mobile-preview) .pmx-actions{display:none!important}
-  #pmModal.pm-mobile-preview .pmx-actions{
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:6px!important;
-    padding:7px 0 calc(env(safe-area-inset-bottom,0px) + 2px)!important;
-  }
-  #pmModal.pm-mobile-preview .pmx-actions button{
-    width:100%!important;
-    min-width:0!important;
-    height:36px!important;
-    min-height:36px!important;
-    padding:0 7px!important;
-    font-size:11px!important;
-  }
-  #pmModal.pm-mobile-preview #pmDelete{grid-column:auto!important}
-}
-
-/* 3.7.5 · Mantener Importar, Backup y Exportar en una sola fila móvil */
-@media (max-width:820px){
-  #pmModal .pmx-top-actions > #pmImport,
-  #pmModal .pmx-top-actions > #pmExport,
-  #pmModal .pmx-top-actions > #pmExportOne,
-  #pmModal.pm-mobile-preview .pmx-top-actions > #pmExportOne{
-    grid-column:auto!important;
-    grid-row:auto!important;
-  }
-  #pmModal .pmx-top-actions{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-    flex-wrap:nowrap!important;
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@media(max-width:760px){
-
-
-}
-
-
-
-
-
-
 
 /* =====================================================
    v4.0.14c - Cabecera de presupuesto compacta en una línea
@@ -5256,7 +4190,7 @@ body:not(.light):not(.light-mode) #pmModal .pmx-folder:hover *{
     gap:8px!important;
   }
   #pmModal.pm-mobile-list .pmx-mobile-back-filters{
-    min-height:40px!important;
+    min-height:44px!important;
     margin:10px 4px 12px 0!important;
     padding:9px 14px!important;
   }
@@ -5998,7 +4932,7 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
     display:inline-flex!important;
     align-items:center!important;
     justify-content:center!important;
-    min-height:40px!important;
+    min-height:46px!important;
     margin:2px 6px 2px 0!important;
     padding:10px 15px!important;
     border-radius:10px!important;
@@ -7299,31 +6233,6 @@ body.light-mode #catalogDiagnosticModal .catalog-diag-item.is-lowcost span{color
 }
 
 
-/* =====================================================
-   7.6.4 · Pulido final de Mis presupuestos
-   ===================================================== */
-
-/* PC: la vista de tres columnas ya está completa; Atrás no aporta navegación. */
-@media (min-width:901px){
-  #pmModal #pmBackMobile{
-    display:none!important;
-  }
-}
-
-/* Móvil: dar aire a los dos separadores de la vista previa.
-   No altera PC ni la estructura de la tarjeta. */
-@media (max-width:900px){
-  #pmModal .pmx-preview-body .pmx-identity{
-    padding-bottom:17px!important;
-    margin-bottom:2px!important;
-  }
-
-  #pmModal .pmx-preview-body .pmx-total{
-    padding-bottom:17px!important;
-    margin-bottom:3px!important;
-  }
-}
-
 /* 7.6.6 · contraste del título del modal de precios */
 #catalogDiagnosticModal .modal-head h2,
 #catalogDiagnosticModal .modal-head h3{
@@ -7397,128 +6306,6 @@ body.light-mode #catalogDiagnosticModal #catalogDiagnosticTitle{
   }
 }
 
-
-/* 7.7.32 · Gestor de presupuestos PRO en escritorio
-   Recupera la estructura natural de 3 columnas:
-   navegación | presupuestos | vista previa. */
-@media (min-width:981px){
-  #pmModal .pmx-modal-card{
-    width:min(1360px,96vw)!important;
-    height:min(820px,92vh)!important;
-    max-height:92vh!important;
-    padding:18px!important;
-    gap:12px!important;
-    overflow:hidden!important;
-  }
-
-  #pmModal .pmx-head{
-    flex:0 0 auto!important;
-    padding-bottom:11px!important;
-  }
-
-  #pmModal .pmx-toolbar{
-    flex:0 0 auto!important;
-    grid-template-columns:minmax(360px,1fr) 175px 175px 155px!important;
-    gap:9px!important;
-  }
-
-  #pmModal .pmx-filter-notice{
-    flex:0 0 auto!important;
-    min-height:32px!important;
-    margin:0!important;
-  }
-
-  #pmModal .pmx-workspace{
-    flex:1 1 auto!important;
-    display:grid!important;
-    grid-template-columns:235px minmax(520px,1.55fr) minmax(300px,.82fr)!important;
-    grid-template-rows:minmax(0,1fr)!important;
-    gap:12px!important;
-    min-height:0!important;
-    overflow:hidden!important;
-  }
-
-  #pmModal .pmx-folders,
-  #pmModal .pmx-browser,
-  #pmModal .pmx-preview{
-    height:100%!important;
-    min-height:0!important;
-    max-height:none!important;
-    align-self:stretch!important;
-    border-radius:13px!important;
-  }
-
-  #pmModal .pmx-folders{
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    padding:9px!important;
-    scrollbar-gutter:stable!important;
-  }
-
-  #pmModal .pmx-browser{
-    display:flex!important;
-    flex-direction:column!important;
-    overflow:hidden!important;
-  }
-
-  #pmModal .pmx-browser-head{
-    flex:0 0 46px!important;
-    min-height:46px!important;
-    padding:0 15px!important;
-  }
-
-  #pmModal #pmMobileBackFilters,
-  #pmModal #pmBackMobile{
-    display:none!important;
-  }
-
-  #pmModal .pmx-list{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    overflow-y:auto!important;
-    padding:9px!important;
-  }
-
-  #pmModal .pmx-preview{
-    display:flex!important;
-    flex-direction:column!important;
-    overflow:hidden!important;
-  }
-
-  #pmModal .pmx-preview-head{
-    flex:0 0 auto!important;
-    min-height:58px!important;
-    padding:10px 12px!important;
-  }
-
-  #pmModal .pmx-preview-body{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    overflow-y:auto!important;
-    padding:13px!important;
-  }
-
-  #pmModal .pmx-preview-empty{
-    display:flex!important;
-    flex-direction:column!important;
-    align-items:center!important;
-    justify-content:center!important;
-    text-align:center!important;
-  }
-
-  #pmModal .pmx-actions{
-    flex:0 0 auto!important;
-    display:grid!important;
-    grid-template-columns:1fr 1.2fr 1fr 1fr!important;
-    gap:9px!important;
-    margin-top:0!important;
-    padding-top:4px!important;
-  }
-
-  #pmModal .pmx-actions button{
-    min-height:42px!important;
-  }
-}
 
 /* 7.7.31 · iPhone: evitar autozoom en buscador del gestor de presupuestos */
 @media (max-width:760px){
@@ -7684,7 +6471,7 @@ body:not(.light-mode) #recentes .recent-chip{background:rgba(92,145,119,.10)!imp
     align-items:center;
     justify-content:center;
     min-width:76px;
-    height:38px;
+    height:42px;
     margin:0;
     padding:0 14px;
     border:1px solid #2f7f57;
@@ -7698,3 +6485,215 @@ body:not(.light-mode) #recentes .recent-chip{background:rgba(92,145,119,.10)!imp
   }
   #pmModal .pmx-search{min-width:0}
 }
+
+/* =====================================================
+   8.0 · MIS PRESUPUESTOS — CSS CONSOLIDADO
+   Una sola geometría para PC y móvil.
+   Sustituye las capas históricas del gestor sin cambiar su lógica.
+   ===================================================== */
+#pmModal .pmx-modal-card{
+  width:min(1440px,96vw)!important;
+  height:min(900px,94dvh)!important;
+  max-width:1440px!important;
+  max-height:94dvh!important;
+  padding:0!important;
+  gap:0!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  border-radius:16px!important;
+  box-sizing:border-box!important;
+}
+#pmModal .pmx-head{
+  flex:0 0 auto!important;
+  min-height:70px!important;
+  padding:14px 18px!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:14px!important;
+  border-bottom:1px solid rgba(151,174,164,.20)!important;
+}
+#pmModal .pmx-title-block{min-width:0!important}
+#pmModal .pmx-head h2{margin:0!important;font-size:20px!important;line-height:1.15!important}
+#pmModal .pmx-head p{margin:4px 0 0!important;font-size:11.5px!important;line-height:1.25!important}
+#pmModal .pmx-count{padding:0!important;border:0!important;background:transparent!important;font-size:inherit!important}
+#pmModal .modal-close{flex:0 0 40px!important;width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;margin:0!important;padding:0!important;border-radius:50%!important;display:grid!important;place-items:center!important}
+#pmModal .modal-close .ui-icon{width:20px!important;height:20px!important;margin:0!important}
+
+#pmModal .pmx-toolbar{
+  flex:0 0 auto!important;
+  display:grid!important;
+  grid-template-columns:minmax(300px,1fr) 180px 180px 170px!important;
+  gap:10px!important;
+  padding:12px 18px!important;
+  margin:0!important;
+}
+#pmModal .pmx-search{height:42px!important;min-height:42px!important;margin:0!important;padding:0 12px!important;border-radius:11px!important;display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;align-items:center!important;gap:8px!important}
+#pmModal .pmx-search input{height:40px!important;min-height:40px!important;margin:0!important;padding:0!important;font-size:14px!important}
+#pmModal .pmx-toolbar select{height:42px!important;min-height:42px!important;margin:0!important;padding:0 10px!important;border-radius:11px!important}
+#pmModal .pmx-search-mobile-go{display:none!important}
+#pmModal .pmx-filter-notice{flex:0 0 auto!important;min-height:38px!important;margin:0 18px 12px!important;padding:8px 11px!important;border-radius:10px!important;box-sizing:border-box!important}
+
+#pmModal .pmx-workspace{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  display:grid!important;
+  grid-template-columns:220px minmax(520px,1fr) minmax(300px,.68fr)!important;
+  gap:12px!important;
+  padding:0 18px 14px!important;
+  box-sizing:border-box!important;
+}
+#pmModal .pmx-folders,#pmModal .pmx-browser,#pmModal .pmx-preview{
+  min-width:0!important;
+  min-height:0!important;
+  height:100%!important;
+  margin:0!important;
+  border-radius:13px!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+#pmModal .pmx-folders{display:flex!important;flex-direction:column!important;padding:10px!important;overflow-y:auto!important;overflow-x:hidden!important}
+#pmModal .pmx-folder{width:100%!important;min-width:0!important;min-height:42px!important;margin:0!important;padding:8px 10px!important;border-radius:9px!important;box-sizing:border-box!important}
+#pmModal .pmx-folder-group{margin-top:11px!important;padding-top:10px!important}
+#pmModal .pmx-folder-group>strong{display:block!important;margin:0 7px 7px!important;font-size:10px!important}
+#pmModal .pmx-folder-group>div{display:flex!important;flex-direction:column!important;gap:5px!important}
+
+#pmModal .pmx-browser,#pmModal .pmx-preview{display:flex!important;flex-direction:column!important}
+#pmModal .pmx-browser-head,#pmModal .pmx-preview-head{
+  flex:0 0 58px!important;
+  min-height:58px!important;
+  height:58px!important;
+  margin:0!important;
+  padding:0 14px!important;
+  box-sizing:border-box!important;
+  border-bottom:1px solid rgba(151,174,164,.22)!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+#pmModal .pmx-browser-head{justify-content:space-between!important;font-size:13px!important;font-weight:800!important}
+#pmModal .pmx-browser-head small{font-size:10.5px!important}
+#pmModal .pmx-preview-head{justify-content:flex-start!important}
+#pmModal .pmx-preview-head>div{min-width:0!important;flex:1!important}
+#pmModal .pmx-preview-head small{display:block!important;margin:0!important;font-size:9.5px!important;line-height:1.15!important;letter-spacing:.07em!important}
+#pmModal .pmx-preview-head h3{margin:2px 0 0!important;font-size:13px!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#pmModal .pmx-preview-icon{flex:0 0 32px!important;width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;margin:0!important;border-radius:8px!important;display:grid!important;place-items:center!important}
+
+#pmModal .pmx-list{flex:1 1 auto!important;min-height:0!important;margin:0!important;padding:10px!important;overflow:auto!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-content:start!important;gap:10px!important}
+#pmModal .pmx-row{min-width:0!important;min-height:154px!important;margin:0!important;padding:14px!important;border-radius:11px!important;box-sizing:border-box!important;display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;grid-template-rows:auto auto!important;column-gap:12px!important;align-items:start!important}
+#pmModal .pmx-row-icon{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;border-radius:10px!important}
+#pmModal .pmx-row-main{min-width:0!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important}
+#pmModal .pmx-card-identifier{max-width:100%!important;font-size:14px!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#pmModal .pmx-card-number{font-size:12px!important;line-height:1.2!important}
+#pmModal .pmx-card-client{max-width:100%!important;margin-top:2px!important;font-size:11px!important;line-height:1.3!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#pmModal .pmx-card-fields{width:100%!important;margin-top:8px!important;padding-top:8px!important;display:grid!important;grid-template-columns:1fr!important;gap:4px!important}
+#pmModal .pmx-card-fields em{min-width:0!important;font-size:10.5px!important;line-height:1.3!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#pmModal .pmx-row-side{grid-column:2!important;width:100%!important;margin-top:8px!important;padding-top:8px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}
+#pmModal .pmx-row-side strong{font-size:14px!important}
+#pmModal .pmx-row-side small{font-size:10.5px!important}
+
+#pmModal .pmx-preview-body{flex:1 1 auto!important;min-height:0!important;margin:0!important;padding:14px!important;overflow:auto!important;display:flex!important;flex-direction:column!important;gap:11px!important;box-sizing:border-box!important}
+#pmModal .pmx-preview-empty{align-items:center!important;justify-content:center!important;text-align:center!important}
+#pmModal .pmx-identity{gap:10px!important;padding-bottom:10px!important}
+#pmModal .pmx-document-icon{width:38px!important;height:42px!important;min-width:38px!important;border-radius:9px!important;font-size:18px!important}
+#pmModal .pmx-identity h4{margin:0 0 3px!important;font-size:16px!important;line-height:1.2!important}
+#pmModal .pmx-identity p{margin:0!important;font-size:11px!important}
+#pmModal .pmx-meta{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;margin:0!important}
+#pmModal .pmx-meta>div{padding:8px 9px!important;border-radius:8px!important}
+#pmModal .pmx-meta dt{font-size:9px!important}
+#pmModal .pmx-meta dd{margin:3px 0 0!important;font-size:11px!important}
+#pmModal .pmx-total{padding:10px 2px!important}
+#pmModal .pmx-total span{font-size:9px!important}
+#pmModal .pmx-total strong{font-size:21px!important}
+#pmModal .pmx-products-title{margin-bottom:6px!important;font-size:11px!important}
+#pmModal .pmx-products ul{gap:5px!important}
+#pmModal .pmx-products li{min-height:32px!important;padding:6px 8px!important;border-radius:7px!important;font-size:11px!important}
+
+#pmModal .pmx-mobile-back-filters,#pmModal .pmx-mobile-back{display:none!important}
+#pmModal .pmx-actions{
+  flex:0 0 auto!important;
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:9px!important;
+  margin:0!important;
+  padding:11px 18px 14px!important;
+  border-top:1px solid rgba(151,174,164,.20)!important;
+  box-sizing:border-box!important;
+}
+#pmModal .pmx-actions button{width:100%!important;min-width:0!important;min-height:44px!important;margin:0!important;padding:9px 12px!important;border-radius:10px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important}
+
+@media(max-width:900px){
+  #pmModal .pmx-modal-card{
+    width:100vw!important;height:100dvh!important;max-width:none!important;max-height:100dvh!important;
+    margin:0!important;border-radius:0!important;padding:0!important;
+  }
+  #pmModal .pmx-head{min-height:62px!important;padding:10px 12px!important;gap:10px!important}
+  #pmModal .pmx-head h2{font-size:18px!important}
+  #pmModal .pmx-head p{font-size:10.5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:calc(100vw - 78px)!important}
+  #pmModal .modal-close{flex-basis:40px!important;width:40px!important;height:40px!important}
+
+  #pmModal .pmx-toolbar{grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;padding:10px 12px!important}
+  #pmModal .pmx-search{height:44px!important;min-height:44px!important}
+  #pmModal .pmx-search input{height:42px!important;min-height:42px!important;font-size:16px!important}
+  #pmModal .pmx-toolbar select{display:none!important}
+  #pmModal .pmx-search-mobile-go{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:44px!important;height:44px!important;margin:0!important;padding:0 14px!important;border-radius:10px!important;font-weight:800!important}
+
+  #pmModal .pmx-filter-notice{min-height:40px!important;margin:0 12px 8px!important;padding:8px 10px!important}
+  #pmModal .pmx-workspace{display:block!important;flex:1 1 auto!important;min-height:0!important;padding:0 12px 10px!important;overflow:hidden!important}
+  #pmModal .pmx-folders,#pmModal .pmx-browser,#pmModal .pmx-preview{width:100%!important;height:100%!important;min-height:0!important;border-radius:12px!important}
+  #pmModal .pmx-folders{padding:8px!important;overflow:auto!important}
+  #pmModal .pmx-folder{min-height:46px!important;padding:9px 11px!important}
+
+  /* Geometría común de las dos pantallas secundarias */
+  #pmModal .pmx-browser-head,#pmModal .pmx-preview-head{
+    min-height:60px!important;height:60px!important;flex-basis:60px!important;padding:0 10px!important;gap:9px!important;
+  }
+  #pmModal .pmx-mobile-back-filters,#pmModal .pmx-mobile-back{
+    flex:0 0 auto!important;width:auto!important;height:40px!important;min-height:40px!important;min-width:78px!important;
+    margin:0!important;padding:0 11px!important;border-radius:9px!important;
+    display:none!important;align-items:center!important;justify-content:center!important;gap:5px!important;font-size:12px!important;font-weight:800!important;
+  }
+  #pmModal .pmx-mobile-back-filters .ui-icon,#pmModal .pmx-mobile-back .ui-icon{width:17px!important;height:17px!important;margin:0!important}
+  #pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-mobile-back-filters,
+  #pmModal.pm-mobile-preview .pmx-mobile-back{display:inline-flex!important}
+  #pmModal .pmx-browser-head{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;align-items:center!important}
+  #pmModal .pmx-browser-head>span{font-size:13px!important;font-weight:800!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  #pmModal .pmx-browser-head small{font-size:10px!important;white-space:nowrap!important}
+  #pmModal .pmx-preview-head{display:grid!important;grid-template-columns:auto auto minmax(0,1fr)!important;align-items:center!important}
+  #pmModal .pmx-preview-icon{width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important}
+  #pmModal .pmx-preview-head h3{font-size:12px!important}
+
+  /* Pantalla principal */
+  #pmModal:not(.pm-mobile-list) .pmx-toolbar{display:grid!important}
+  #pmModal:not(.pm-mobile-list) .pmx-folders{display:flex!important}
+  #pmModal:not(.pm-mobile-list) .pmx-browser,#pmModal:not(.pm-mobile-list) .pmx-preview,#pmModal:not(.pm-mobile-list) .pmx-filter-notice,#pmModal:not(.pm-mobile-list) .pmx-actions{display:none!important}
+
+  /* Pantalla lista */
+  #pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-toolbar,#pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-folders,#pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-preview,#pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-actions{display:none!important}
+  #pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-filter-notice{display:flex!important}
+  #pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-browser{display:flex!important}
+  #pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-workspace{height:auto!important}
+  #pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-list{display:flex!important;flex-direction:column!important;gap:9px!important;padding:8px!important}
+  #pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-row{width:100%!important;min-height:116px!important;padding:11px!important;grid-template-columns:40px minmax(0,1fr)!important;column-gap:11px!important}
+  #pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-card-fields{grid-template-columns:1fr 1fr!important;gap:4px 8px!important}
+
+  /* Pantalla vista previa */
+  #pmModal.pm-mobile-preview .pmx-toolbar,#pmModal.pm-mobile-preview .pmx-folders,#pmModal.pm-mobile-preview .pmx-filter-notice,#pmModal.pm-mobile-preview .pmx-browser{display:none!important}
+  #pmModal.pm-mobile-preview .pmx-preview{display:flex!important}
+  #pmModal.pm-mobile-preview .pmx-preview-body{padding:12px!important;gap:10px!important}
+  #pmModal.pm-mobile-preview .pmx-meta{grid-template-columns:1fr 1fr!important}
+  #pmModal.pm-mobile-preview .pmx-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;padding:9px 12px calc(10px + env(safe-area-inset-bottom,0px))!important}
+  #pmModal.pm-mobile-preview .pmx-actions button{min-height:44px!important;padding:8px 9px!important;font-size:12px!important}
+}
+
+@media(max-width:420px){
+  #pmModal .pmx-toolbar{padding-left:10px!important;padding-right:10px!important}
+  #pmModal .pmx-workspace{padding-left:10px!important;padding-right:10px!important}
+  #pmModal .pmx-filter-notice{margin-left:10px!important;margin-right:10px!important}
+  #pmModal.pm-mobile-list:not(.pm-mobile-preview) .pmx-card-fields{grid-template-columns:1fr!important}
+  #pmModal.pm-mobile-preview .pmx-meta{grid-template-columns:1fr!important}
+}
+
