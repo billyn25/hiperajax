@@ -586,38 +586,35 @@ body:not(.light-mode) .hxq-product{background:#162129!important;}
 .hxq-drawer .hxq-add{height:34px!important;min-height:34px!important;align-self:center!important;}
 
 /* =========================================================
-   17.0 · AFINADO RESPONSIVE QUIRÚRGICO — AÑADIR RÁPIDO
-   La tarjeta responde a su ancho real, no solo al viewport.
-   Evita colapso/solape de stepper y Añadir en paneles estrechos.
+   17.0 · RESPONSIVE ESTABLE — AÑADIR RÁPIDO
+   Mantiene stepper + Añadir en la misma fila incluso en móvil.
+   Se adapta reduciendo anchuras, sin apilar controles.
    ========================================================= */
-.hxq-product{container-type:inline-size;}
 .hxq-actions{
   min-width:0!important;
+  display:flex!important;
   align-items:center!important;
+  justify-content:space-between!important;
+  flex-wrap:nowrap!important;
+  gap:7px!important;
 }
-@container (max-width:310px){
-  .hxq-product{
-    grid-template-columns:46px minmax(0,1fr)!important;
-    grid-template-areas:"photo ref" "actions actions"!important;
-    gap:7px 8px!important;
-    padding:8px!important;
+@media(max-width:640px){
+  .hxq-drawer .hxq-qty{
+    width:86px!important;
+    min-width:86px!important;
+    grid-template-columns:26px 28px 26px!important;
+    gap:2px!important;
+    padding:0 2px!important;
+    flex:0 0 86px!important;
   }
-  .hxq-photo{width:46px!important;height:46px!important;}
-  .hxq-actions{
-    display:grid!important;
-    grid-template-columns:minmax(92px,1fr) minmax(72px,.82fr)!important;
-    gap:7px!important;
-    width:100%!important;
-  }
-  .hxq-qty,.hxq-add{
-    width:100%!important;
-    min-width:0!important;
+  .hxq-drawer .hxq-add{
+    width:auto!important;
+    min-width:60px!important;
     max-width:none!important;
+    flex:1 1 auto!important;
+    padding:0 8px!important;
+    white-space:nowrap!important;
   }
-}
-@container (max-width:185px){
-  .hxq-actions{grid-template-columns:1fr!important;}
-  .hxq-qty,.hxq-add{width:100%!important;}
 }
 
 /* Badge de grupo: mismo lenguaje sobrio que Explorer. */
