@@ -889,3 +889,99 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
 
 /* 25.0 · Stepper: centrado real de − / número / + */
 .hxq-drawer .hxq-minus,.hxq-drawer .hxq-plus,.hxq-drawer .hxq-qty>span{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:0!important;line-height:1!important;vertical-align:middle!important;transform:none!important;box-shadow:none!important;}
+
+/* =========================================================
+   26.0 · CORRECCIÓN DE RAÍZ — STEPPER + RÁPIDOS RESPONSIVE
+   - Ajuste óptico real de −/+ (el glifo quedaba alto aunque la caja estuviera centrada).
+   - Rápidos refluye por ancho REAL del drawer, no por ancho de viewport.
+   ========================================================= */
+.hxq-drawer{container-type:inline-size;}
+.hxq-drawer .hxq-minus,
+.hxq-drawer .hxq-plus{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  margin:0!important;
+  line-height:1!important;
+  text-indent:0!important;
+  transform:translateY(1px)!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+.hxq-drawer .hxq-value{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  margin:0!important;
+  line-height:1!important;
+  transform:none!important;
+}
+
+/* Cuando el drawer realmente se estrecha, los controles bajan debajo de foto/nombre.
+   Evita que stepper/Añadir invadan la imagen o el texto. */
+@container (max-width:700px){
+  .hxq-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+    padding:7px!important;
+  }
+  .hxq-product{
+    grid-template-columns:50px minmax(0,1fr)!important;
+    grid-template-areas:"photo ref" "actions actions"!important;
+    column-gap:8px!important;
+    row-gap:7px!important;
+    align-items:center!important;
+    min-width:0!important;
+    padding:8px!important;
+  }
+  .hxq-photo{width:50px!important;height:50px!important;}
+  .hxq-reference{min-width:0!important;font-size:11px!important;line-height:1.2!important;}
+  .hxq-actions{
+    width:100%!important;
+    min-width:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    flex-wrap:nowrap!important;
+    gap:6px!important;
+  }
+  .hxq-drawer .hxq-qty{
+    flex:0 0 86px!important;
+    width:86px!important;
+    min-width:86px!important;
+  }
+  .hxq-drawer .hxq-add{
+    flex:0 1 76px!important;
+    width:auto!important;
+    min-width:62px!important;
+    max-width:76px!important;
+    padding:0 7px!important;
+  }
+}
+
+/* iPhone muy estrecho: mantener dos columnas, pero sin solapamiento. */
+@container (max-width:430px){
+  .hxq-grid{gap:6px!important;padding:6px!important;}
+  .hxq-product{
+    grid-template-columns:44px minmax(0,1fr)!important;
+    column-gap:6px!important;
+    row-gap:6px!important;
+    padding:7px!important;
+  }
+  .hxq-photo{width:44px!important;height:44px!important;}
+  .hxq-reference{font-size:10px!important;line-height:1.18!important;}
+  .hxq-actions{gap:5px!important;}
+  .hxq-drawer .hxq-qty{
+    flex-basis:82px!important;
+    width:82px!important;
+    min-width:82px!important;
+    grid-template-columns:25px 26px 25px!important;
+  }
+  .hxq-drawer .hxq-add{
+    min-width:56px!important;
+    max-width:68px!important;
+    padding:0 5px!important;
+    font-size:10px!important;
+  }
+}

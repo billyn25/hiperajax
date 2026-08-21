@@ -2921,3 +2921,20 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
 
 /* 25.0 · Stepper: centrado real de − / número / + */
 #familiasGrid .hx-modal-qty-btn,#familiasGrid .hx-modal-qty-value{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:0!important;line-height:1!important;vertical-align:middle!important;transform:none!important;box-shadow:none!important;}
+
+/* 26.0 · Ajuste óptico del glifo −/+ — cajas ya estaban centradas. */
+#familiasGrid .hx-modal-qty-btn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  margin:0!important;
+  line-height:1!important;
+  text-indent:0!important;
+  transform:translateY(1px)!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+#familiasGrid .hx-modal-qty-value{
+  transform:none!important;
+  line-height:1!important;
+}

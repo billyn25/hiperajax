@@ -8882,3 +8882,29 @@ body:not(.light-mode) .hx-compat-commerce>strong{color:#35a86f!important;}
     transform:none!important;
   }
 }
+
+/* 26.0 · Compatibles — mismo ajuste óptico de −/+ que Explorer y Rápidos. */
+.hx-compat-step{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  margin:0!important;
+  line-height:1!important;
+  text-indent:0!important;
+  transform:translateY(1px)!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+.hx-compat-qty>span:not(.hx-compat-step){
+  transform:none!important;
+  line-height:1!important;
+}
+@media (hover:none), (pointer:coarse){
+  .hxq-minus:focus,.hxq-plus:focus,
+  .hx-compat-step:focus,
+  #familiasGrid .hx-modal-qty-btn:focus{
+    background:transparent!important;
+    outline:none!important;
+    box-shadow:none!important;
+  }
+}
