@@ -8988,3 +8988,5 @@ body:not(.light-mode) .hx-compat-commerce>strong{color:#35a86f!important;}
     white-space:nowrap!important;
   }
 }
+
+/* 28.0 · Compatibles queda como referencia; Explorer/Rápidos corrigen localmente en sus CSS. */

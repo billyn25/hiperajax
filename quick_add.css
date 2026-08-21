@@ -999,3 +999,29 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
   transform:translateY(2px)!important;
   -webkit-tap-highlight-color:transparent!important;
 }
+
+/* 28.0 · CIERRE FINO RÁPIDOS — posición estable en todos los anchos/estados */
+.hxq-drawer .hxq-minus,.hxq-drawer .hxq-plus,
+.hxq-drawer .hxq-minus:hover,.hxq-drawer .hxq-plus:hover,
+.hxq-drawer .hxq-minus:focus,.hxq-drawer .hxq-plus:focus,
+.hxq-drawer .hxq-minus:focus-visible,.hxq-drawer .hxq-plus:focus-visible,
+.hxq-drawer .hxq-minus:active,.hxq-drawer .hxq-plus:active{
+  transform:none!important;
+  box-shadow:none!important;
+  outline:none!important;
+  filter:none!important;
+}
+@media (hover:hover) and (pointer:fine){
+  .hxq-drawer .hxq-minus:hover,.hxq-drawer .hxq-plus:hover{
+    background:#eef6f2!important;
+    color:#1d5138!important;
+  }
+}
+@media (hover:none), (pointer:coarse){
+  .hxq-drawer .hxq-minus:hover,.hxq-drawer .hxq-plus:hover,
+  .hxq-drawer .hxq-minus:focus,.hxq-drawer .hxq-plus:focus,
+  .hxq-drawer .hxq-minus:focus-visible,.hxq-drawer .hxq-plus:focus-visible,
+  .hxq-drawer .hxq-minus:active,.hxq-drawer .hxq-plus:active{
+    background:transparent!important;
+  }
+}

@@ -2952,3 +2952,32 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
   transform:translateY(2px)!important;
   -webkit-tap-highlight-color:transparent!important;
 }
+
+/* 28.0 · CIERRE FINO EXPLORER — centrado sin desplazar el glifo */
+#familiasGrid .hx-modal-qty-btn,
+#familiasGrid .hx-modal-qty-btn:focus,
+#familiasGrid .hx-modal-qty-btn:focus-visible,
+#familiasGrid .hx-modal-qty-btn:active{
+  transform:none!important;
+  box-shadow:none!important;
+  outline:none!important;
+  filter:none!important;
+}
+@media (hover:hover) and (pointer:fine){
+  #familiasGrid .hx-modal-qty-btn:hover{
+    transform:none!important;
+    background:var(--hxp-accent-soft)!important;
+    color:var(--hxp-accent)!important;
+    box-shadow:none!important;
+  }
+}
+@media (hover:none), (pointer:coarse){
+  #familiasGrid .hx-modal-qty-btn:hover,
+  #familiasGrid .hx-modal-qty-btn:focus,
+  #familiasGrid .hx-modal-qty-btn:focus-visible,
+  #familiasGrid .hx-modal-qty-btn:active{
+    transform:none!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+}
