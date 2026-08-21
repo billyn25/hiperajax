@@ -754,3 +754,30 @@ body:not(.light-mode) .hxq-group-title span{
 
 /* 21.0 · AJUSTE FINAL DE ESPACIADO — controles de producto */
 .hxq-actions{gap:6px!important;}
+
+/* 22.0 · BLOQUE DE ACCIONES CANÓNICO — RÁPIDOS */
+.hxq-actions{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  flex-wrap:nowrap!important;
+  gap:6px!important;
+}
+.hxq-drawer .hxq-qty{
+  flex:0 0 92px!important;
+  width:92px!important;
+  min-width:92px!important;
+  height:34px!important;
+}
+.hxq-drawer .hxq-add{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:72px!important;
+  height:34px!important;
+  padding:0 10px!important;
+}
+@media(max-width:640px){
+  .hxq-actions{justify-content:flex-end!important;gap:6px!important;}
+  .hxq-drawer .hxq-qty{flex:0 0 86px!important;width:86px!important;min-width:86px!important;}
+  .hxq-drawer .hxq-add{flex:0 0 auto!important;width:auto!important;min-width:66px!important;padding:0 8px!important;}
+}

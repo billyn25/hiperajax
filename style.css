@@ -8689,3 +8689,42 @@ body:not(.light-mode) .hx-compat-step:focus-visible{
 /* 21.1 · COMPATIBLES — stepper + Añadir compactos, sin hueco artificial */
 .hx-compat-commerce{column-gap:2px!important;}
 @media(max-width:640px){.hx-compat-commerce{column-gap:2px!important;}}
+
+/* =========================================================
+   22.0 · BLOQUE DE ACCIONES CANÓNICO — COMPATIBLES
+   Misma geometría exterior que Rápidos/Explorer.
+   ========================================================= */
+.hx-compat-commerce{
+  display:grid!important;
+  grid-template-columns:94px 72px!important;
+  grid-template-areas:"price price" "qty add"!important;
+  justify-content:end!important;
+  align-items:center!important;
+  column-gap:6px!important;
+  row-gap:8px!important;
+}
+.hx-compat-qty{
+  grid-area:qty!important;
+  box-sizing:border-box!important;
+  width:94px!important;
+  min-width:94px!important;
+  height:34px!important;
+  margin:0!important;
+}
+.hx-compat-add{
+  grid-area:add!important;
+  box-sizing:border-box!important;
+  width:72px!important;
+  min-width:72px!important;
+  height:34px!important;
+  margin:0!important;
+  padding:0 10px!important;
+}
+@media(max-width:640px){
+  .hx-compat-commerce{
+    grid-template-columns:auto 94px 66px!important;
+    grid-template-areas:"price qty add"!important;
+    column-gap:6px!important;
+  }
+  .hx-compat-add{width:66px!important;min-width:66px!important;padding:0 8px!important;}
+}

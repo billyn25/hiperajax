@@ -2688,3 +2688,29 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
 
 /* 21.0 · AJUSTE FINAL DE ESPACIADO — controles de producto */
 #familiasGrid .hxp-product-actions{gap:6px!important;}
+
+/* 22.0 · BLOQUE DE ACCIONES CANÓNICO — EXPLORER */
+#familiasGrid .hxp-product-actions{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  flex-wrap:nowrap!important;
+  gap:6px!important;
+}
+#familiasGrid .hx-modal-qty{
+  flex:0 0 94px!important;
+  width:94px!important;
+  min-width:94px!important;
+  height:34px!important;
+}
+#familiasGrid .hxp-add{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:72px!important;
+  height:34px!important;
+  padding:0 10px!important;
+}
+@media(max-width:640px){
+  #familiasGrid .hxp-product-actions{gap:6px!important;}
+  #familiasGrid .hxp-add{min-width:66px!important;padding:0 8px!important;}
+}
