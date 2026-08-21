@@ -2810,3 +2810,111 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
   }
   #familiasModal .hxp-shell > .modal-head h2{font-size:17px!important;}
 }
+
+/* =========================================================
+   24.0 · EXPLORER MÓVIL — FILA COMERCIAL DEFINITIVA
+   Precio + cantidad + compatibles + Añadir en UNA sola línea.
+   Aislado a móvil. No altera Explorer PC ni modal Compatibles.
+   ========================================================= */
+@media (max-width:640px){
+  #familiasGrid .hxp-product-commerce{
+    box-sizing:border-box!important;
+    width:100%!important;
+    margin-top:10px!important;
+    padding:0!important;
+    display:grid!important;
+    grid-template-columns:max-content minmax(0,1fr)!important;
+    grid-template-rows:34px!important;
+    align-items:center!important;
+    column-gap:7px!important;
+    overflow:visible!important;
+  }
+
+  #familiasGrid .hxp-price{
+    grid-column:1!important;
+    grid-row:1!important;
+    align-self:center!important;
+    justify-self:start!important;
+    margin:0!important;
+    min-width:0!important;
+    white-space:nowrap!important;
+    font-size:17px!important;
+    line-height:34px!important;
+  }
+
+  #familiasGrid .hxp-product-actions{
+    grid-column:2!important;
+    grid-row:1!important;
+    align-self:center!important;
+    justify-self:end!important;
+    width:max-content!important;
+    max-width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:0!important;
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:5px!important;
+  }
+
+  #familiasGrid .hx-modal-qty{
+    flex:0 0 90px!important;
+    width:90px!important;
+    min-width:90px!important;
+    max-width:90px!important;
+    height:34px!important;
+    min-height:34px!important;
+    margin:0!important;
+  }
+
+  #familiasGrid .hxp-product-actions .hxp-compatible-btn{
+    flex:0 0 auto!important;
+    width:auto!important;
+    min-width:52px!important;
+    height:34px!important;
+    min-height:34px!important;
+    padding:0 7px!important;
+    margin:0!important;
+  }
+
+  #familiasGrid .hxp-product-actions .hxp-compatible-icon{
+    width:18px!important;
+    height:18px!important;
+    flex-basis:18px!important;
+  }
+
+  #familiasGrid .hxp-add{
+    flex:0 0 auto!important;
+    width:auto!important;
+    min-width:64px!important;
+    height:34px!important;
+    min-height:34px!important;
+    margin:0!important;
+    padding:0 8px!important;
+    white-space:nowrap!important;
+  }
+}
+
+/* iPhone estrecho: conserva la misma línea sin aplastar el precio. */
+@media (max-width:390px){
+  #familiasGrid .hxp-product-commerce{column-gap:5px!important;}
+  #familiasGrid .hxp-price{font-size:16px!important;}
+  #familiasGrid .hxp-product-actions{gap:4px!important;}
+  #familiasGrid .hx-modal-qty{
+    flex-basis:84px!important;
+    width:84px!important;
+    min-width:84px!important;
+    max-width:84px!important;
+  }
+  #familiasGrid .hxp-product-actions .hxp-compatible-btn{
+    min-width:48px!important;
+    padding:0 5px!important;
+  }
+  #familiasGrid .hxp-add{
+    min-width:60px!important;
+    padding:0 6px!important;
+  }
+}
