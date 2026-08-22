@@ -2857,7 +2857,7 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
     flex-wrap:nowrap!important;
     align-items:center!important;
     justify-content:flex-end!important;
-    gap:6px!important;
+    gap:7px!important;
   }
 
   #familiasGrid .hx-modal-qty{
