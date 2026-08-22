@@ -156,8 +156,6 @@
   let state = freshState();
   let modelCache = null;
   let modelSignature = '';
-  let searchIndexSignature = '';
-  let searchIndexCache = new Map();
   let searchTimer = null;
   let drawerDraft = {};
   let drawerQuickDraft = '';
@@ -688,50 +686,6 @@
   }
 
 
-  function searchAliases(query){
-    const q = norm(query);
-    return SEARCH_ALIAS_RULES.filter(entry => entry.rx.test(q)).map(entry => entry.add).join(' ');
-  }
-
-  function productQuickText(item){
-    const family = buildModel().byFamily.get(item.familyKey);
-    return family ? quickGroupsForItem(item, family).join(' ') : '';
-  }
-
-  function productSearchText(item){
-    const product = item.p || {};
-    const attributes = product.attributes && typeof product.attributes === 'object'
-      ? Object.entries(product.attributes).flatMap(([key,value]) => [key,value]).join(' ')
-      : '';
-    return norm([
-      product.name, product.brand, product.short_description, product.description,
-      item.category, item.family, item.subcategory,
-      product.product_type, product.series, product.technology, product.protocol,
-      product.color, product.connectivity, product.resolution, product.environment,
-      product.compatibility, attributes, productQuickText(item)
-    ].filter(Boolean).join(' '));
-  }
-
-  function ensureSearchIndex(){
-    const signature = productSignature();
-    if(searchIndexSignature === signature && searchIndexCache.size) return searchIndexCache;
-
-    searchIndexCache = new Map();
-    buildModel().allItems.forEach(item => {
-      const haystack = productSearchText(item);
-      const ref = norm(item.p?.name || '');
-      searchIndexCache.set(item.index, {
-        haystack,
-        compact:haystack.replace(/[^a-z0-9]/g,''),
-        quick:norm(productQuickText(item)),
-        ref,
-        compactRef:ref.replace(/[^a-z0-9]/g,'')
-      });
-    });
-    searchIndexSignature = signature;
-    return searchIndexCache;
-  }
-
   function rankedSearch(items, query){
     const q = clean(query);
     if(!q) return items.slice();
@@ -766,7 +720,6 @@
       .map(row => sourceItems[Number(row.i)])
       .filter(Boolean);
   }
-  function modelItemByIndex(index){ return buildModel().allItems.find(item => item.index === Number(index)) || null; }
 
   function stockFacet(product){
     let status = { visible:false, clase:'', texto:'' };
@@ -908,9 +861,6 @@
     return sorted.filter(group => !hidden.has(group.key));
   }
 
-  function filterHasValue(filters,key,valueId){
-    return Array.isArray(filters?.[key]) && filters[key].includes(valueId);
-  }
 
   function activeFilterCount(filters = state.filters){
     return Object.values(filters || {}).reduce((total,values) => total + (Array.isArray(values) ? values.length : 0), 0);
@@ -1027,12 +977,6 @@
     return list.sort((a,b) => featuredRank(a)-featuredRank(b) || collator.compare(a.p?.name || '', b.p?.name || ''));
   }
 
-  function familyQueryItems(){
-    const model = buildModel();
-    let items = state.familyKey ? familyItems(model) : model.allItems.slice();
-    if(clean(state.query)) items = rankedSearch(items, state.query);
-    return items;
-  }
 
   function definitionItemsForQuick(quickGroup = state.quickGroup, family = currentFamily(), model = buildModel()){
     const related=relatedQuickItems(quickGroup,family,model);
@@ -1339,22 +1283,6 @@
     return {accessory,kit,structured,name};
   }
 
-  function isCameraSupportItem(item){
-    const p = item?.p || {};
-    const attrs = normalizeAttributes(p);
-    const familyText = norm(`${item?.family||''} ${item?.category||''} ${p.family||''} ${p.category||''}`);
-    const typeText = norm([
-      item?.subcategory, p.product_type, p.tipo, p.series,
-      p.name, p.short_description,
-      ...Object.entries(attrs).flatMap(([key,value]) => [key,value])
-    ].filter(Boolean).join(' '));
-
-    // Solo soportes reales de CCTV/cámara. Nunca cajas, cables, fuentes o kits.
-    const cameraAccessoryFamily = /accesorio|accesorios/.test(familyText) && /cctv|camara|cámara|video/.test(familyText);
-    const supportType = /mountcam|soporte(?:\s+(?:de|para))?\s+c[aá]mara|camera\s+(?:wall\s+)?mount|camera\s+bracket|bracket.*c[aá]mara|\bsoporte\b|\bbracket\b|\bmount\b/.test(typeText);
-    const excluded = /junctionbox|caja|box|cable|fuente|power supply|alimentacion|alimentación|adaptador|adapter|inyector|switch|\bkit\b|dummy|carcasa|tapa|cover|disco|hdd/.test(typeText);
-    return !excluded && (/(?:^|[-_])mountcam(?:[-_]|$)/.test(norm(p.name||'')) || (cameraAccessoryFamily && supportType));
-  }
 
   function cameraSupportItems(model = buildModel()){
     return model.allItems.filter(item => {
@@ -2342,10 +2270,18 @@
       refreshBudgetSummary();
     }
     if(ok && trigger){
-      const original = trigger.textContent;
-      trigger.textContent = '✓ Añadido';
+      if(trigger.dataset.hxpFeedback==='1') return;
+      trigger.dataset.hxpFeedback='1';
+      trigger.disabled=true;
+      trigger.textContent = quantity>1 ? `✓ Añadidos ${quantity}` : '✓ Añadido';
       trigger.classList.add('is-added');
-      setTimeout(() => { trigger.textContent = original; trigger.classList.remove('is-added'); }, 800);
+      setTimeout(() => {
+        const current=typeof hxModalQtyGet==='function'?hxModalQtyGet('explorer',Number(index)):1;
+        trigger.textContent=current>1?`Añadir ${current}`:'Añadir';
+        trigger.classList.remove('is-added');
+        trigger.disabled=false;
+        delete trigger.dataset.hxpFeedback;
+      }, 800);
     }
   }
 
@@ -2777,8 +2713,6 @@
     window.addEventListener('hx:catalogo-cargado', () => {
       modelCache = null;
       modelSignature = '';
-      searchIndexSignature = '';
-      searchIndexCache.clear();
       const modal = byId('familiasModal');
       if(modal && !modal.classList.contains('hidden')) render();
     });
@@ -3056,8 +2990,6 @@
     resetCache(){
       modelCache = null;
       modelSignature = '';
-      searchIndexSignature = '';
-      searchIndexCache.clear();
     },
     version:'7.7.0-catalogo-expandido'
   };

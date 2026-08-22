@@ -21,14 +21,6 @@ const collator=new Intl.Collator('es',{numeric:true,sensitivity:'base'});
 function baseRef(ref){return String(ref||'').toUpperCase().replace(/-(?:B|W|GRA|GR|BLACK|WHITE)$/,'');}
 function colorRank(v){const s=String(v||'').toLowerCase();if(/blanco|white/.test(s))return 0;if(/negro|black/.test(s))return 1;if(/gris|grey|gray/.test(s))return 2;return 9;}
 function sortProducts(list){return list.slice().sort((a,b)=>collator.compare(baseRef(a.reference),baseRef(b.reference))||colorRank(a.color)-colorRank(b.color)||collator.compare(a.color||'',b.color||'')||(Number(a.price)||0)-(Number(b.price)||0)||collator.compare(a.reference||'',b.reference||''));}
-function sortPirProducts(list){
- return list.slice().sort((a,b)=>
-   (Number(a.price)||0)-(Number(b.price)||0) ||
-   collator.compare(baseRef(a.reference),baseRef(b.reference)) ||
-   colorRank(a.color)-colorRank(b.color) ||
-   collator.compare(a.reference||'',b.reference||'')
- );
-}
 
 function sortRemoteButtons(list){
  return list.slice().sort((a,b)=>
@@ -249,14 +241,16 @@ function activate(el){
  }
  const c=el?.closest('.hxq-product');if(!c)return false;
  const q=c.querySelector('.hxq-value');let n=Math.max(1,Number(q.textContent)||1);
- if(el.matches('[data-hxq-minus]')){q.textContent=Math.max(1,n-1);return true}
- if(el.matches('[data-hxq-plus]')){q.textContent=n+1;return true}
+ if(el.matches('[data-hxq-minus]')){n=Math.max(1,n-1);q.textContent=n;const add=c.querySelector('[data-hxq-add]');if(add&&!add.classList.contains('is-added'))add.textContent=n>1?`Añadir ${n}`:'Añadir';return true}
+ if(el.matches('[data-hxq-plus]')){n=n+1;q.textContent=n;const add=c.querySelector('[data-hxq-add]');if(add&&!add.classList.contains('is-added'))add.textContent=n>1?`Añadir ${n}`:'Añadir';return true}
  if(el.matches('[data-hxq-add]')){
+  if(el.dataset.hxqFeedback==='1') return true;
   const result=window.HXQ_ADD_PRODUCT?.(c.dataset.ref,n,Number(c.dataset.price));
   if(result?.ok){
-   const total=Math.max(1,Number(result.totalQty)||n);
-   el.textContent=`✓ ${total} ud${total===1?'':'s'}`;el.classList.add('is-added');
-   setTimeout(()=>{el.textContent='Añadir';el.classList.remove('is-added')},1050);
+   el.dataset.hxqFeedback='1';
+   el.setAttribute('aria-disabled','true');
+   el.textContent=n>1?`✓ Añadidos ${n}`:'✓ Añadido';el.classList.add('is-added');
+   setTimeout(()=>{const current=Math.max(1,Number(q.textContent)||1);el.textContent=current>1?`Añadir ${current}`:'Añadir';el.classList.remove('is-added');el.removeAttribute('aria-disabled');delete el.dataset.hxqFeedback},1050);
   }
   return true;
  }

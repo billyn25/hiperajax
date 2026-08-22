@@ -394,13 +394,13 @@ const functionalOrder=['detectores','baterias','valvulas','teclados','mandos','s
       const i=Number(btn.dataset.hxCompatMinus);
       const qtyEl=list.querySelector(`[data-hx-compat-qty="${i}"]`);
       if(!qtyEl)return;
-      qtyEl.textContent=String(Math.max(1,Number(qtyEl.textContent||1)-1));
+      const qty=Math.max(1,Number(qtyEl.textContent||1)-1); qtyEl.textContent=String(qty); const add=list.querySelector(`[data-hx-compat-add="${i}"]`); if(add&&!add.classList.contains('is-added')) add.textContent=qty>1?`Añadir ${qty}`:'Añadir';
     }));
     list.querySelectorAll('[data-hx-compat-plus]').forEach(btn=>btn.addEventListener('click',()=>{
       const i=Number(btn.dataset.hxCompatPlus);
       const qtyEl=list.querySelector(`[data-hx-compat-qty="${i}"]`);
       if(!qtyEl)return;
-      qtyEl.textContent=String(Math.min(99,Number(qtyEl.textContent||1)+1));
+      const qty=Math.min(99,Number(qtyEl.textContent||1)+1); qtyEl.textContent=String(qty); const add=list.querySelector(`[data-hx-compat-add="${i}"]`); if(add&&!add.classList.contains('is-added')) add.textContent=qty>1?`Añadir ${qty}`:'Añadir';
     }));
     list.querySelectorAll('[data-hx-compat-add]').forEach(btn=>btn.addEventListener('click',()=>{
       const i=Number(btn.dataset.hxCompatAdd);
@@ -430,11 +430,12 @@ const functionalOrder=['detectores','baterias','valvulas','teclados','mandos','s
       }catch(_error){}
       const originalText=btn.dataset.hxOriginalText || btn.textContent || 'Añadir';
       btn.dataset.hxOriginalText=originalText;
-      btn.textContent='✓ Añadido';
+      btn.textContent=qty>1?`✓ Añadidos ${qty}`:'✓ Añadido';
       btn.classList.add('is-added');
       clearTimeout(btn.__hxCompatAddedTimer);
       btn.__hxCompatAddedTimer=setTimeout(()=>{
-        btn.textContent=btn.dataset.hxOriginalText || 'Añadir';
+        const currentQty=Math.max(1,Number(list.querySelector(`[data-hx-compat-qty=\"${i}\"]`)?.textContent||1));
+        btn.textContent=currentQty>1?`Añadir ${currentQty}`:'Añadir';
         btn.classList.remove('is-added');
       },900);
     }));
@@ -447,11 +448,6 @@ const functionalOrder=['detectores','baterias','valvulas','teclados','mandos','s
     list.scrollTop=0;
     try{ list.scrollTo({top:0,left:0,behavior:'auto'}); }catch(_error){}
   });
-}
-function hxCompatButton(product){
-  const count = hxResolvedRelated(product).length;
-  if(!count) return '';
-  return `<button type="button" class="hx-compat-btn" data-hx-compatible="${escapeHtml(product?.name||'')}">Compatibles (${count})</button>`;
 }
 
 let hxSearchInputTimer = null;
@@ -636,144 +632,6 @@ function iconoPorFamilia(info, p){
   if(f.includes('kits')) return '📦';
   return '📦';
 }
-function textoKnowledgeProducto(p){
-  const info = conocimientoProducto(p);
-  if(!info) return '';
-  return [info.n, info.f, info.d, etiquetasFamiliaKnowledge(info, p).join(' ')].join(' ');
-}
-function etiquetasFamiliaKnowledge(info, p){
-  const f = normaliza((info && info.f)||'');
-  const n = normaliza(((info && info.n)||'') + ' ' + ((info && info.d)||'') + ' ' + ((p && p.name)||''));
-  const out=[]; const add=(...xs)=>xs.forEach(x=>out.push(normaliza(x)));
-  if(f.includes('kits')) add('kit','starter','pack alarma','alarma completa','kit basico','kit básico');
-  if(f.includes('hubs')) add('hub','central','panel','central alarma','alarma','sim','ethernet','wifi','lte','4g','2g','fotoverificacion','fotoverificación');
-  if(f.includes('repetidores')) add('rex','repetidor','ampliar cobertura','alcance','señal','senal','radio','wings','jeweller');
-  if(f.includes('apertura')) add('puerta','ventana','apertura','contacto magnetico','contacto magnético','reed','impacto','inclinacion','inclinación');
-  if(f.includes('cristal')) add('cristal','vidrio','rotura','escaparate','microfono','micrófono');
-  if(f.includes('movimiento')) add('movimiento','pir','detector','presencia','volumetrico','volumétrico','perimetral','cortina','exterior','interior','fotoverificacion','fotoverificación');
-  if(f.includes('sirenas')) add('sirena','alarma sonora','aviso','sonido','interior','exterior','antisabotaje');
-  if(f.includes('botones')) add('boton','botón','mando','panico','pánico','emergencia','atraco','spacecontrol','llavero','control remoto');
-  if(f.includes('teclados')) add('teclado','codigo','código','armar','desarmar','pantalla','tactil','táctil','pass','tag','smartphone');
-  if(f.includes('camara') || f.includes('timbres') || f.includes('video')) add('camara','cámara','camaras','cámaras','video','videovigilancia','cctv','ip','poe','ia','wdr','microfono','micrófono','interior','exterior');
-  if(f.includes('grabadores')) add('nvr','grabador','grabadores','videograbador','video','camaras','cámaras','canales','hdmi','4k','poe','disco duro','hdd','almacenamiento');
-  if(f.includes('incendio')) add('incendio','fuego','humo','calor','temperatura','co','monoxido','monóxido','alarma incendio','en54','pulsador');
-  if(f.includes('interruptores')) add('interruptor','luz','iluminacion','iluminación','mecanismo','pared','tactil','táctil','dimmer','cruce','conmutado','dos vias','2 vias');
-  if(f.includes('bases')) add('enchufe','base enchufe','toma corriente','ethernet','lan','mecanismo','pared','surfacebox');
-  if(f.includes('enchufes')) add('socket','enchufe inteligente','consumo','monitor consumo','domotica','domótica');
-  if(f.includes('reles')) add('relay','rele','relé','contacto seco','automatizacion','automatización','control remoto','230v','garaje','motor','cerradura');
-  if(f.includes('aire')) add('aire','calidad aire','co2','temperatura','humedad','ambiente','sensor ambiental');
-  if(f.includes('inundacion')) add('agua','inundacion','inundación','fuga','fugas','humedad','detector agua','sensor agua');
-  if(f.includes('valvulas')) add('waterstop','agua','valvula','válvula','corte agua','llave agua','fuga','inundacion','fontaneria');
-  if(f.includes('integracion')) add('integracion','integración','modulo','módulo','cableado','terceros','entrada','salida','vhf');
-  if(f.includes('fibra')) add('fibra','linea','línea','cableado','proteccion linea','alimentacion linea');
-  if(f.includes('carcasas')) add('carcasa','caja','case','montaje','modulo','módulo','bateria','batería');
-  if(f.includes('alimentacion')) add('fuente','alimentacion','alimentación','psu','12v','24v','6v','baja tension','baja tensión','nvr','hub','rex');
-  if(n.includes('hlvf')) add('varifocal','2.8-12','motorizado','p iris','audio alarma');
-  if(n.includes('hl')) add('iluminacion hibrida','iluminación híbrida','hybrid light');
-  if(n.includes('8 mp') || n.includes('8mp')) add('8mp','8 mp','ocho megapixeles');
-  if(n.includes('5 mp') || n.includes('5mp')) add('5mp','5 mp','cinco megapixeles');
-  if(n.includes('4 mp') || n.includes('4mp')) add('4mp','4 mp','cuatro megapixeles');
-  if(n.includes('2.8')) add('2.8mm','110 grados','gran angular');
-  if(n.includes('4 mm') || n.includes('4mm')) add('4mm','85 grados');
-  if(n.includes('16 canales') || n.includes('16-ch')) add('16 canales','dieciseis canales','dieciséis canales');
-  if(n.includes('32 canales') || n.includes('32-ch')) add('32 canales','treinta y dos canales');
-  if(n.includes('8 canales') || n.includes('8-ch')) add('8 canales','ocho canales');
-  return [...new Set(out)].filter(Boolean);
-}
-
-function etiquetasProducto(p){
-  const raw = normaliza(((p && p.name) || '') + ' ' + ((p && p.brand) || ''));
-  const tags = [];
-  const add = (...xs) => xs.forEach(x => tags.push(normaliza(x)));
-
-  // Agua / inundación
-  if(raw.includes('leak') || raw.includes('waterstop')) add('agua','inundacion','fuga','fugas','humedad','detector de agua','sensor agua','anti inundacion','anti fugas','corte agua','llave agua','valvula agua','válvula agua','cierre agua');
-  if(raw.includes('waterstop')) add('valvula','válvula','electrovalvula','electroválvula','corte automatico','corte automático','cerrar agua','llave de paso');
-
-  // Intrusión / detectores
-  if(raw.includes('motion')) add('movimiento','movimientos','detector','detectores','presencia','pir','sensor movimiento','volumetrico','volumétrico','intrusion','intrusión','alarma interior');
-  if(raw.includes('motioncam')) add('camara','cámara','foto','verificacion','verificación','detector con camara','detector con cámara','fotodetector');
-  if(raw.includes('outdoor') || raw.includes('curtain') || raw.includes('dualcurtain') || raw.includes('outdoorprotect')) add('exterior','intemperie','perimetral','jardin','jardín','calle','terraza','barrera','barrera movimiento','proteccion exterior','protección exterior');
-  if(raw.includes('curtain')) add('cortina','barrera cortina','barrera inalambrica','barrera inalámbrica','perimetro','perímetro');
-  if(raw.includes('doorprotect') || raw.includes('door')) add('puerta','puertas','ventana','ventanas','contacto','magnetico','magnético','apertura','sensor puerta','sensor ventana','contacto magnetico','contacto magnético');
-  if(raw.includes('glass')) add('cristal','vidrio','rotura','rotura cristal','rotura vidrio','escaparate','detector cristal');
-
-  // Incendio y seguridad vital
-  if(raw.includes('fire')) add('incendio','incendios','humo','humos','fuego','temperatura','calor','co','monoxido','monóxido','detector humo','detector incendio','seguridad vida','vida','alarma incendio');
-  if(raw.includes('manualcallpoint')) add('pulsador incendio','pulsador emergencia','boton incendio','botón incendio','evacuacion','evacuación','manual call point');
-  if(raw.includes('lifequality')) add('calidad aire','aire','co2','temperatura','humedad','ambiente','sensor ambiente','calidad ambiental');
-
-  // Sirenas, control y mandos
-  if(raw.includes('siren')) add('sirena','sirenas','alarma sonora','sonora','aviso','acustica','acústica','alerta','avisador');
-  if(raw.includes('keypad')) add('teclado','teclados','codigo','codigos','código','control','armar','desarmar','pantalla','touchscreen','lector','control alarma');
-  if(raw.includes('button') || raw.includes('doublebutton')) add('boton','botón','panico','pánico','pulsador','emergencia','atraco','alarma silenciosa');
-  if(raw.includes('tag') || raw.includes('pass') || raw.includes('spacecontrol')) add('mando','mandos','llavero','llaveros','tarjeta','tag','acceso','control remoto','proximidad','desarmar');
-
-  // Centrales, comunicación y repetidores
-  if(raw.includes('hub')) add('central','alarma','panel','comunicador','wifi','4g','ethernet','hub','central alarma','cerebro alarma','panel alarma');
-  if(raw.includes('rex')) add('repetidor','extensor','amplificador','cobertura','alcance','radio');
-  if(raw.includes('ocbridge') || raw.includes('uartbridge') || raw.includes('vhfbridge') || raw.includes('transmitter') || raw.includes('multitransmitter')) add('integracion','integración','cableado','cableada','modulo cableado','módulo cableado','entrada cableada','transmisor');
-
-  // Vídeo / cámaras / NVR
-  if(raw.includes('nvr')) add('nvr','grabador','grabadores','videograbador','videograbadores','grabador camaras','grabador cámaras','grabador de camaras','grabador de cámaras','disco duro','hdd','hd','almacenamiento','cctv','videovigilancia','video vigilancia','camaras','cámaras','poe','switch poe','8 canales','16 canales','32 canales');
-  if(raw.includes('bullet') || raw.includes('dome') || raw.includes('turret') || raw.includes('indoorcam') || raw.includes('doorbell') || raw.includes('cam')) add('camara','camaras','cámara','cámaras','video','vídeo','vigilancia','cctv','ip','vision nocturna','visión nocturna','exterior','interior','domo','bullet','torreta','turret','dome','onvif','rtsp');
-  if(raw.includes('doorbell')) add('videoportero','timbre','portero','llamada puerta','puerta');
-  if(raw.includes('storage')) add('almacenamiento','cloud','nube','grabacion','grabación','video','camaras','cámaras');
-
-  // Automatización / confort / electricidad
-  if(raw.includes('relay') || raw.includes('wallswitch')) add('rele','reles','relé','relés','automatizacion','automatización','domotica','domótica','contacto seco','salida rele','salida relé','control electrico','control eléctrico');
-  if(raw.includes('socket') || raw.includes('outlet')) add('enchufe','toma corriente','corriente','smart plug','consumo','domotica','domótica');
-  if(raw.includes('switch') || raw.includes('lightcore') || raw.includes('dimmer') || raw.includes('button') || raw.includes('centerbutton') || raw.includes('sidebutton') || raw.includes('solobutton')) add('interruptor','pulsador','luz','iluminacion','iluminación','dimmer','regulador','domotica','domótica','mecanismo');
-  if(raw.includes('ledstrip')) add('led','tira led','iluminacion','iluminación','luz');
-
-  // Alimentación / baterías / red / accesorios de futuro
-  if(raw.includes('battery') || raw.includes('batt')) add('bateria','baterias','batería','baterías','alimentacion','alimentación','pila','backup','respaldo','sai');
-  if(raw.includes('dc12') || raw.includes('dc1224') || raw.includes('ac220') || raw.includes('psu')) add('alimentador','alimentadores','fuente','fuentes','fuente alimentacion','fuente alimentación','transformador','12v','12 voltios','24v','220v','corriente','alimentacion');
-  if(raw.includes('poe')) add('poe','switch poe','inyector poe','48v','48 voltios','alimentar camaras','alimentar cámaras','red poe');
-  if(raw.includes('lan') || raw.includes('ethernet')) add('red','ethernet','lan','switch normal','switch red','conector red','cable red');
-  if(raw.includes('storage') || raw.includes('hdd') || raw.includes('hd')) add('disco duro','hdd','hd','almacenamiento','memoria','grabacion','grabación');
-  if(raw.includes('sd') || raw.includes('microsd')) add('micro sd','microsd','tarjeta memoria','tarjeta de memoria','memoria camara','memoria cámara');
-
-  // Montajes, soportes y accesorios
-  if(raw.includes('bracket') || raw.includes('holder') || raw.includes('frame') || raw.includes('cover') || raw.includes('magnet') || raw.includes('junctionbox') || raw.includes('mount') || raw.includes('hood') || raw.includes('surfacebox')) add('soporte','soportes','montaje','base','bracket','tapa','marco','caja','cajas','caja conexiones','imán','iman','recambio','accesorio','accesorios','protector','visera');
-  if(raw.includes('kit')) add('kit','pack','conjunto','starter','arranque');
-  if(raw.includes('dummy') || raw.includes('demo') || raw.includes('democase') || raw.includes('suitcase')) add('demo','muestra','dummy','expositor','maleta','demo case');
-
-  // Material adicional que podrá entrar al CSV más adelante
-  add('ajax','seguridad','alarma profesional');
-  if(raw.includes('hdd') || raw.includes('nvr')) add('disco duro hd','disco duro nvr');
-  if(raw.includes('switch')) add('switch normal','switch poe','switch de red');
-  if(raw.includes('injector') || raw.includes('inyector')) add('inyector poe','48 voltios');
-  if(raw.includes('solar')) add('solar','inalambrica solar','inalámbrica solar');
-
-  // Colores y variantes útiles
-  if(/-b(\b|-|$)/.test(raw)) add('negro','black');
-  if(/-w(\b|-|$)/.test(raw)) add('blanco','white');
-  if(raw.includes('gra')) add('grafito','gris');
-  if(raw.includes('gre')) add('verde');
-  if(raw.includes('rb')) add('bateria reemplazable','batería reemplazable');
-  if(raw.includes('sb')) add('bateria sellada','batería sellada');
-  if(raw.includes('hac')) add('disco incluido','hdd incluido','con disco duro');
-  if(raw.includes('8p') || raw.includes('16p')) add('poe','puertos poe','switch poe integrado');
-
-
-  // Plurales y sinónimos directos v18.4: búsqueda rápida
-  if(raw.includes('relay')) add('reles','relés','relays');
-  if(raw.includes('siren')) add('sirenas');
-  if(raw.includes('nvr')) add('grabadores','videograbadores');
-  if(raw.includes('bullet') || raw.includes('dome') || raw.includes('turret') || raw.includes('indoorcam') || raw.includes('doorbell')) add('camaras','cámaras');
-  if(raw.includes('motion')) add('movimientos','detectores');
-  if(raw.includes('doorprotect') || raw.includes('door')) add('puertas','ventanas');
-  if(raw.includes('fire')) add('incendios','humos');
-  if(raw.includes('leak') || raw.includes('waterstop')) add('fugas','inundaciones');
-  if(raw.includes('keypad')) add('teclados');
-  if(raw.includes('spacecontrol') || raw.includes('button') || raw.includes('tag') || raw.includes('pass')) add('mandos');
-  if(raw.includes('battery') || raw.includes('batt')) add('baterias','baterías');
-  if(raw.includes('psu') || raw.includes('dc12') || raw.includes('dc1224') || raw.includes('ac220')) add('alimentadores','fuentes');
-  if(raw.includes('bracket') || raw.includes('holder') || raw.includes('junctionbox') || raw.includes('mount') || raw.includes('surfacebox')) add('soportes','cajas','accesorios');
-
-  return [...new Set(tags)].filter(Boolean);
-}
 function descripcionProductoBase(p){
   const n = normaliza((p && p.name) || '');
 
@@ -857,10 +715,6 @@ function descripcionProducto(p){
     return {icon:iconoPorFamilia(info,p), desc:info.d, family:info.f, official:info.n};
   }
   return descripcionProductoBase(p);
-}
-function productoTitulo(p){
-  const d = descripcionProducto(p);
-  return `${d.icon} ${p.name}`;
 }
 function hxInicioArriba(){
   try{ if('scrollRestoration' in history) history.scrollRestoration='manual'; }catch(_error){}
@@ -997,17 +851,25 @@ function hxQtyControlHtml(scope, idx){
   </div>`;
 }
 function hxBindQtyControls(root, scope){
+  const syncAddLabel=(ctrl,qty)=>{
+    const card=ctrl.closest('.hxp-product');
+    const add=card?.querySelector('.hxp-add');
+    if(add && !add.classList.contains('is-added')) add.textContent=qty>1?`Añadir ${qty}`:'Añadir';
+  };
   root.querySelectorAll('.hx-modal-qty').forEach(ctrl=>{
     ctrl.addEventListener('dblclick',e=>e.stopPropagation());
     const idx=Number(ctrl.dataset.index);
     const value=ctrl.querySelector('.hx-modal-qty-value');
+    syncAddLabel(ctrl,hxModalQtyGet(scope,idx));
     ctrl.querySelector('.hx-modal-qty-minus')?.addEventListener('click',e=>{
       e.stopPropagation();
-      value.textContent=String(hxModalQtySet(scope,idx,hxModalQtyGet(scope,idx)-1));
+      const qty=hxModalQtySet(scope,idx,hxModalQtyGet(scope,idx)-1);
+      value.textContent=String(qty); syncAddLabel(ctrl,qty);
     });
     ctrl.querySelector('.hx-modal-qty-plus')?.addEventListener('click',e=>{
       e.stopPropagation();
-      value.textContent=String(hxModalQtySet(scope,idx,hxModalQtyGet(scope,idx)+1));
+      const qty=hxModalQtySet(scope,idx,hxModalQtyGet(scope,idx)+1);
+      value.textContent=String(qty); syncAddLabel(ctrl,qty);
     });
   });
 }
@@ -1876,7 +1738,7 @@ function duplicarPresupuesto(){
 }
 
 function limpiar(){
-  if(confirm('¿Vaciar presupuesto?')){
+  if(confirm('¿Vaciar todo el presupuesto?\n\nSe eliminarán todas las líneas actuales.')){
     const contador = $('#previewProducto').textContent;
     nuevoPresupuesto();
     if(contador.includes('productos cargados')) $('#previewProducto').textContent = contador;
@@ -2298,15 +2160,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    Regla principal: TODO lo que esté en el CSV debe salir.
    El conocimiento mejora familia/descripción, pero nunca oculta.
    ===================================================== */
-function esNvrReal(p){ const n=normaliza(p.name); return n.startsWith('aj-nvr') || n.startsWith('nvr') || n.includes('nvrkit'); }
-function esFuenteNvr(p){ const n=normaliza(p.name); return n.includes('psu-nvr') || (n.includes('psu') && n.includes('nvr')) || n.includes('dc12v-psu-nvr'); }
-function esNvrHdmi(p){ const n=normaliza(p.name); if(!esNvrReal(p)) return false; return n.includes('hac') || n.includes('hdc') || n.includes('h2d') || n.includes('hdmi'); }
-function esProductoWifi(p){ const n=normaliza(p.name); return n.includes('hub2plus') || n.includes('superior-hub-g3') || n.includes('megahub') || n.includes('indoorcam') || n.includes('doorbell'); }
-function esSwitchPoe(p){ const n=normaliza(p.name); return n.includes('vdms105gp') || n.includes('vdms108gp') || (n.includes('switch') && n.includes('poe')); }
-function esInyectorPoe(p){ const n=normaliza(p.name); return n.includes('inj-poe') || n.includes('injector-poe') || n.includes('inyector-poe'); }
-function esDiscoDuro(p){ const n=normaliza(p.name); return /^hd\d+tb/.test(n) || n.includes('disco') || n.includes('hdd'); }
-function esTarjetaSD(p){ const n=normaliza(p.name); return n.includes('hs-tf') || n.includes('microsd') || n.includes('micro-sd') || n.includes('tarjeta-sd'); }
-function esBarrera(p){ const n=normaliza(p.name); return n.includes('abe-150') || n.includes('barrera'); }
 function metaProducto164(p){
   const raw = String((p && p.name) || '');
   const n = normaliza(raw);
@@ -2424,16 +2277,6 @@ descripcionProducto = function(p){
   if(meta) return {icon:meta.icon, desc:meta.desc, family:meta.family, official:meta.sub};
   return descripcionProductoAnterior_164(p);
 };
-function textoBusqueda164(p){
-  const meta = metaProducto164(p);
-  const base = [p.name, p.brand, descripcionProducto(p).desc];
-  if(meta) base.push(meta.family, meta.sub, meta.tags.join(' '));
-  try{ base.push(textoKnowledgeProducto(p), etiquetasProducto(p).join(' ')); }catch(e){}
-  return normaliza(base.join(' '));
-}
-function esMecanismo164(p){ const m=metaProducto164(p); return !!(m && m.family.includes('Confort') && (m.sub.includes('Mecanismos') || m.sub.includes('Tapas') || m.sub.includes('Marcos') || m.sub.includes('LightSwitch') || m.sub.includes('Outlet') || m.sub.includes('Cajas'))); }
-function esRedPoe164(p){ const m=metaProducto164(p); return !!(m && m.family === 'Red / PoE'); }
-function esAlmacenamiento164(p){ const m=metaProducto164(p); return !!(m && m.family === 'Almacenamiento'); }
 function esSwitchPoe165(p){
   const n = normaliza((p && p.name) || '');
   return n.includes('vdms105gp') || n.includes('vdms108gp') || (n.includes('switch') && n.includes('poe'));
@@ -2442,7 +2285,6 @@ function esInyectorPoe165(p){
   const n = normaliza((p && p.name) || '');
   return n.includes('inj-poe') || n.includes('injector-poe') || n.includes('inyector-poe');
 }
-function esRedPoe165(p){ return esSwitchPoe165(p) || esInyectorPoe165(p); }
 function esDiscoDuro165(p){
   const n = normaliza((p && p.name) || '');
   return /^hd\d+tb/.test(n) || n.includes('disco') || n.includes('hdd');
@@ -2451,7 +2293,6 @@ function esTarjetaSD165(p){
   const n = normaliza((p && p.name) || '');
   return n.includes('hs-tf') || n.includes('microsd') || n.includes('micro-sd') || n.includes('tarjeta-sd') || n.includes('tarjeta sd');
 }
-function esAlmacenamiento165(p){ return esDiscoDuro165(p) || esTarjetaSD165(p); }
 
 const metaProductoAnterior_165 = typeof metaProducto164 === 'function' ? metaProducto164 : null;
 metaProducto164 = function(p){
@@ -2481,18 +2322,6 @@ metaProducto164 = function(p){
   }
   return metaProductoAnterior_165 ? metaProductoAnterior_165(p) : null;
 };
-
-
-function esProductoIncendio166(p){
-  const n = normaliza((p && p.name) || '');
-  return n.includes('fireprotect') || n.includes('manualcallpoint') || n.includes('en54') || n.includes('fire');
-}
-function esProductoCO166(p){
-  const n = normaliza((p && p.name) || '');
-  // CO real en Ajax suele venir marcado con C dentro de FireProtect 2 o Plus.
-  if(!esProductoIncendio166(p)) return false;
-  return n.includes('fireprotectplus') || n.includes('-c-') || n.includes('-hc-') || n.includes('-hsc-') || n.includes('(co)') || n.includes('co');
-}
 function esProductoBateria166(p){
   const n = normaliza((p && p.name) || '');
   return n.includes('battery') || n.includes('batt') || n.includes('internalbattery') || n.includes('batterybox') || n.includes('batterykit') || n.includes('hubbatt');
@@ -3197,7 +3026,6 @@ try{
 
 const descripcionProductoAnterior_181 = descripcionProducto;
 function ref181(p){ return String((p && p.name) || '').trim(); }
-function n181(p){ return normaliza(ref181(p)); }
 function has181(n, ...xs){ return xs.some(x => n.includes(normaliza(x))); }
 function cap181(s){ return String(s||'').replace(/^AJ-/i,'').replace(/-DUMMY$/i,'').replace(/-/g,' '); }
 function modelDummy181(n, original){
@@ -3321,11 +3149,6 @@ function meta181(p){
   return null;
 }
 
-function textoBusqueda181(p){
-  const m = meta181(p);
-  const prev = (()=>{ try{ const d = descripcionProductoAnterior_181(p); return [d.desc,d.family,d.official].join(' '); }catch(e){ return ''; }})();
-  return normaliza([ref181(p), p && p.brand, m && m.family, m && m.sub, m && m.desc, m && m.official, m && (m.tags||[]).join(' '), prev].join(' '));
-}
 
 descripcionProducto = function(p){
   const m = meta181(p);
@@ -3333,7 +3156,6 @@ descripcionProducto = function(p){
   return descripcionProductoAnterior_181(p);
 };
 function ref182(p){ return String((p && p.name) || '').trim(); }
-function n182(p){ return normaliza(ref182(p)); }
 function has182(n,...xs){ return xs.some(x => n.includes(normaliza(x))); }
 function dummyTarget182(n){
   if(has182(n,'combiprotect')) return 'detector combinado de movimiento y rotura de cristal CombiProtect';
@@ -3386,7 +3208,6 @@ function meta182(p){
 }
 const descripcionProducto_PRE182 = descripcionProducto;
 descripcionProducto = function(p){ const m = meta182(p); if(m) return {icon:m.icon,desc:m.desc,family:m.sub?`${m.family} · ${m.sub}`:m.family,official:m.official}; try{return descripcionProducto_PRE182(p);}catch(e){return {icon:'📦',desc:'Producto del catálogo',family:'Producto nuevo',official:ref182(p)};} };
-function textoBusqueda182(p){ const m=meta182(p)||{}; let prev=''; try{const d=descripcionProducto_PRE182(p); prev=[d.desc,d.family,d.official].join(' ');}catch(e){} return normaliza([ref182(p),p&&p.brand,m.family,m.sub,m.desc,m.official,(m.tags||[]).join(' '),prev,p&&p._search175].join(' ')); }
 const HX_RECIENTES_KEY='hiperajax_productos_recientes_v1';
 function leerRecientes(){
   try{
@@ -3596,7 +3417,6 @@ function brandInfo186(p){
   return b;
 }
 function rawText186(p){ return [String((p&&p.name)||''), String((p&&p.brand)||'')].join(' '); }
-function nText186(p){ return normaliza(rawText186(p)); }
 function has186(txt,...keys){ return keys.some(k => txt.includes(normaliza(k))); }
 
 function metaMarca186(p){
@@ -3698,29 +3518,6 @@ cargarCatalogo = async function(){
   construirIndice186();
   return r;
 };
-
-
-function q187(term){
-  const q = normaliza(term).trim();
-  if(q === 'wi fi' || q === 'wi-fi') return 'wifi';
-  if(q === 'lte') return '4g';
-  if(q === 'hubplus' || q === 'hub plus' || q === 'hub 2 plus' || q === 'hub2 plus') return 'hub2plus';
-  return q;
-}
-function n187(p){ return normaliza(String((p && p.name) || '')); }
-function isHub2Plus187(p){
-  const n = n187(p);
-  return n === 'aj-hub2plus-b' || n === 'aj-hub2plus-w';
-}
-function isHub4G187(p){
-  const n = n187(p);
-  // Centrales/kits con comunicación LTE/4G real. Evita tarjetas 64G, baterías y soportes.
-  if(n.includes('hubbatt') || n.includes('battery') || n.includes('batt') || n.includes('bracket') || n.includes('repairkit')) return false;
-  if(n.includes('hub2-4g') || n.includes('hub2kit4g')) return true;
-  if(n.includes('hub2plus') || n.includes('hubbp')) return true;
-  if(n.includes('starterkit') && n.includes('4g')) return true;
-  return false;
-}
 function ref188(p){ return String((p && p.name) || '').trim(); }
 function n188(p){ return normaliza(ref188(p)); }
 function isAjaxKit188(p){
@@ -4184,14 +3981,6 @@ descripcionProducto = function(p){
   return descripcionProducto_PRE192(p);
 };
 let catalogLetter193 = '';
-
-function norm193(s){
-  return normaliza(String(s || '')).replace(/[^a-z0-9]+/g, ' ').trim();
-}
-function tokens193(s){
-  return norm193(s).split(/\s+/).filter(Boolean);
-}
-function ref193(p){ return String((p && p.name) || '').trim(); }
 const pintarCatalogPanel_PRE193 = pintarCatalogPanel;
 pintarCatalogPanel = function(term=catalogTerm){
   ensureAlphabet193();
@@ -4423,7 +4212,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 function ref199(p){ return normaliza((p && p.name) || ''); }
-function contiene199(n, arr){ return arr.some(k => n.includes(k)); }
 
 function resumenProducto199(p){
   const n = ref199(p);
@@ -4572,7 +4360,6 @@ const QUICK_CATALOG_204 = [
   {id:'fire', label:'🔥 Incendio', test:n=>/fireprotect|manualcallpoint|en54/.test(n)},
   {id:'used', label:'🕒 Más usados', test:n=>/hub2plus|hub2-4g|motioncam|motionprotect|doorprotect|streetsiren|homesiren|keypad|nvr108|nvr116|bulletcam|domecam|turretcam/.test(n)}
 ];
-function quickDef204(id){ return QUICK_CATALOG_204.find(x=>x.id===id); }
 function ensureQuickCatalog204(){
   const modal = document.getElementById('catalogModal');
   const row = modal ? modal.querySelector('.modal-search-row') : null;
