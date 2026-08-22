@@ -8879,3 +8879,50 @@ body:not(.light-mode) .hx-compat-commerce>strong{color:#35a86f!important;}
   }
 }
 
+
+
+/* v4.2.21 · pistas de scroll del presupuesto */
+.budget-card .table-scroll{position:relative}
+.hx-budget-scroll-hint{
+  position:sticky;
+  left:50%;
+  z-index:12;
+  width:34px;
+  height:24px;
+  margin-left:-17px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(31,143,95,.28);
+  border-radius:999px;
+  background:rgba(11,23,18,.88);
+  color:#bde8cf;
+  box-shadow:0 3px 12px rgba(0,0,0,.16);
+  opacity:0;
+  pointer-events:none;
+  transform:scale(.92);
+  transition:opacity .16s ease,transform .16s ease,background .16s ease;
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+}
+.hx-budget-scroll-hint svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hx-budget-scroll-hint.is-visible{opacity:.92;pointer-events:auto;transform:scale(1)}
+.hx-budget-scroll-up{top:38px;margin-top:4px;margin-bottom:-28px}
+.hx-budget-scroll-down{bottom:6px;margin-top:-28px;margin-bottom:4px}
+.hx-budget-scroll-hint:hover{background:rgba(31,143,95,.18)}
+body.light-mode .hx-budget-scroll-hint{background:rgba(255,255,255,.94);color:#176f4b;border-color:rgba(31,143,95,.24);box-shadow:0 3px 12px rgba(25,73,52,.12)}
+@media(max-width:760px){
+  .hx-budget-scroll-hint{width:32px;height:23px;margin-left:-16px}
+  .hx-budget-scroll-up{top:36px}
+}
+@media(prefers-reduced-motion:reduce){.hx-budget-scroll-hint{transition:none}.budget-card .table-scroll{scroll-behavior:auto}}
+
+/* Mis presupuestos · filtro de fecha compacto */
+#pmModal .pmx-date-range{display:inline-flex;align-items:center;gap:5px;min-width:0}
+#pmModal .pmx-date-range[hidden]{display:none!important}
+#pmModal .pmx-date-range input{min-width:128px;height:38px;border:1px solid var(--border,#d7e0db);border-radius:9px;background:var(--surface,#fff);color:inherit;padding:0 8px;font:inherit}
+@media(max-width:900px){
+  #pmModal .pmx-date-range{grid-column:1/-1;width:100%}
+  #pmModal .pmx-date-range input{flex:1 1 0;min-width:0}
+}

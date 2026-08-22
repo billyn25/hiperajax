@@ -21,7 +21,6 @@ let seleccionado = null;
 let seleccionadoRef = '';
 let seleccionadoPvp = null;
 let activeIndex = -1;
-let recientesSesion = [];
 let catalogTerm = "";
 const $ = (q) => document.querySelector(q);
 const fmt = new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'});
@@ -4740,7 +4739,49 @@ pintarCatalogPanel = function(term=catalogTerm){
   const modified=p=>String(p?.updatedAt||p?.guardado||p?.createdAt||p?.fecha||'');
   function calc(p){let base=0;rows(p).forEach(l=>{const price=Number(l.pvp)||0,d= Math.min(100,Math.max(0,Number(l.dto??l.descuento)||0));base+=price*qty(l)*(1-d/100)});base*=1-Math.min(100,Math.max(0,Number(p?.dtoGeneral)||0))/100;return {count:rows(p).length,total:base*(1+Math.max(0,Number(p?.iva)||0)/100)}}
   function date(v){if(!v)return 'Sin fecha';const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v);return new Intl.DateTimeFormat('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d)}
-  function searchText(p){return [identifier(p),p?.numero,p?.cliente,p?.tienda,p?.comercial].filter(Boolean).join(' ').toLowerCase()}
+  function searchText(p){
+    const rawDate=String(p?.fecha||modified(p)||'');
+    const shownDate=date(rawDate);
+    const productText=rows(p).map(product).join(' ');
+    return [identifier(p),p?.numero,p?.cliente,p?.telefono,p?.email,p?.tienda,p?.comercial,rawDate,shownDate,productText].filter(Boolean).join(' ').toLowerCase();
+  }
+  function pmDateValue(p){
+    const raw=String(p?.fecha||modified(p)||'').trim();
+    if(!raw)return null;
+    const iso=raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(iso)return new Date(Number(iso[1]),Number(iso[2])-1,Number(iso[3]));
+    const es=raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+    if(es)return new Date(Number(es[3]),Number(es[2])-1,Number(es[1]));
+    const d=new Date(raw);return Number.isNaN(d.getTime())?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  }
+  function pmDayStart(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
+  function pmDateBounds(mode){
+    const today=pmDayStart(new Date());
+    if(mode==='today')return [today,today];
+    if(mode==='7days'){const from=new Date(today);from.setDate(from.getDate()-6);return [from,today]}
+    if(mode==='month')return [new Date(today.getFullYear(),today.getMonth(),1),today];
+    if(mode==='prevmonth')return [new Date(today.getFullYear(),today.getMonth()-1,1),new Date(today.getFullYear(),today.getMonth(),0)];
+    if(mode==='custom'){
+      const from=byId('pmDateFrom')?.value,to=byId('pmDateTo')?.value;
+      return [from?pmDayStart(new Date(from+'T00:00:00')):null,to?pmDayStart(new Date(to+'T00:00:00')):null];
+    }
+    return [null,null];
+  }
+  function pmMatchesDate(p){
+    const mode=byId('pmFilterDate')?.value||'';if(!mode)return true;
+    const d=pmDateValue(p);if(!d)return false;
+    const [from,to]=pmDateBounds(mode);if(from&&d<from)return false;if(to&&d>to)return false;return true;
+  }
+  function pmDateLabel(){
+    const mode=byId('pmFilterDate')?.value||'';
+    if(mode==='today')return 'Hoy';if(mode==='7days')return 'Últimos 7 días';if(mode==='month')return 'Este mes';if(mode==='prevmonth')return 'Mes anterior';
+    if(mode==='custom'){
+      const f=byId('pmDateFrom')?.value,t=byId('pmDateTo')?.value;
+      return f||t?`Fecha: ${f?date(f):'…'} – ${t?date(t):'…'}`:'Rango personalizado';
+    }
+    return '';
+  }
+  function pmSyncDateRange(){const range=byId('pmDateRange');if(range)range.hidden=(byId('pmFilterDate')?.value!=='custom')}
   function selected(){return listAll().find(p=>idOf(p)===String(pmSelectedId))||null}
   function unique(field){return [...new Set(listAll().map(p=>String(p?.[field]||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true}))}
   function countBy(field,value){return listAll().filter(p=>String(p?.[field]||'').trim()===String(value||'').trim()).length}
@@ -4772,6 +4813,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     const s=byId('pmFilterStore')?.value||'',c=byId('pmFilterCommercial')?.value||'';
     if(s==='__NONE__')list=list.filter(p=>!String(p.tienda||'').trim());else if(s)list=list.filter(p=>String(p.tienda||'').trim()===s);
     if(c==='__NONE__')list=list.filter(p=>!String(p.comercial||'').trim());else if(c)list=list.filter(p=>String(p.comercial||'').trim()===c);
+    list=list.filter(pmMatchesDate);
     const q=String(byId('pmSearch')?.value||'').trim().toLowerCase();if(q.length>=2)list=list.filter(p=>q.split(/\s+/).every(part=>searchText(p).includes(part)));
     const sort=byId('pmSort')?.value||'recent';
     if(sort==='identifier')list.sort((a,b)=>title(a).localeCompare(title(b),'es',{numeric:true}));
@@ -4802,15 +4844,16 @@ pintarCatalogPanel = function(term=catalogTerm){
     else if(pmView.type==='store')parts.push(`Tienda: ${pmView.value}`);
     else if(pmView.type==='commercial')parts.push(`Comercial: ${pmView.value}`);
     else if(pmView.type==='missing-store')parts.push('Sin tienda');
-    const store=byId('pmFilterStore')?.value||'',commercial=byId('pmFilterCommercial')?.value||'',q=String(byId('pmSearch')?.value||'').trim();
+    const store=byId('pmFilterStore')?.value||'',commercial=byId('pmFilterCommercial')?.value||'',q=String(byId('pmSearch')?.value||'').trim(),dateMode=byId('pmFilterDate')?.value||'';
     const validQuery=q.length>=2;
     if(store)parts.push(store==='__NONE__'?'Sin tienda':`Tienda: ${store}`);
     if(commercial)parts.push(commercial==='__NONE__'?'Sin comercial':`Comercial: ${commercial}`);
+    if(dateMode)parts.push(pmDateLabel());
     if(validQuery)parts.push(`Búsqueda: “${q}”`);
-    const active=pmView.type!=='recent'||store||commercial||validQuery;
+    const active=pmView.type!=='recent'||store||commercial||dateMode||validQuery;
     box.classList.toggle('is-filtered',!!active);
-    box.innerHTML=`<span>${active?PM_ICON.search+' Filtrando':PM_ICON.folder+' Vista'}: <strong>${escapeHtml(parts.join(' · ')||'Recientes')}</strong></span>${active?'<button type="button" id="pmClearFilters">Quitar filtros</button>':''}`;
-    byId('pmClearFilters')?.addEventListener('click',()=>{pmView={type:'recent',value:''};if(byId('pmFilterStore'))byId('pmFilterStore').value='';if(byId('pmFilterCommercial'))byId('pmFilterCommercial').value='';if(byId('pmSearch'))byId('pmSearch').value='';clearSelection();render()});
+    box.innerHTML=`<span>${active?PM_ICON.search+' Filtrando':PM_ICON.folder+' Vista'}: <strong>${escapeHtml(parts.join(' · ')||'Recientes')}</strong></span>${active?'<button type="button" id="pmClearFilters">Limpiar filtros</button>':''}`;
+    byId('pmClearFilters')?.addEventListener('click',()=>{pmView={type:'recent',value:''};if(byId('pmFilterStore'))byId('pmFilterStore').value='';if(byId('pmFilterCommercial'))byId('pmFilterCommercial').value='';if(byId('pmFilterDate'))byId('pmFilterDate').value='';if(byId('pmDateFrom'))byId('pmDateFrom').value='';if(byId('pmDateTo'))byId('pmDateTo').value='';if(byId('pmSearch'))byId('pmSearch').value='';pmSyncDateRange();clearSelection();render()});
   }
   function clearMobileInlineState(){
     const m=modal();if(!m)return;
@@ -4839,6 +4882,10 @@ pintarCatalogPanel = function(term=catalogTerm){
     if(!preserveSearch && byId('pmSearch'))byId('pmSearch').value='';
     if(byId('pmFilterStore'))byId('pmFilterStore').value='';
     if(byId('pmFilterCommercial'))byId('pmFilterCommercial').value='';
+    if(byId('pmFilterDate'))byId('pmFilterDate').value='';
+    if(byId('pmDateFrom'))byId('pmDateFrom').value='';
+    if(byId('pmDateTo'))byId('pmDateTo').value='';
+    pmSyncDateRange();
     if(byId('pmSort'))byId('pmSort').value='recent';
     document.querySelectorAll('#pmModal .pmx-row.is-selected').forEach(r=>r.classList.remove('is-selected'));
     ['pmOpen','pmDuplicate','pmRename','pmDelete'].forEach(id=>{const b=byId(id);if(b)b.disabled=true});
@@ -4955,10 +5002,14 @@ pintarCatalogPanel = function(term=catalogTerm){
       pmSearchTimer=setTimeout(()=>{clearSelection();render();},320);
     });
     ['pmFilterStore','pmFilterCommercial','pmSort'].forEach(id=>byId(id)?.addEventListener('change',()=>{
-      clearSelection();
-      render();
-      if(matchMedia('(max-width:900px)').matches) modal()?.classList.add('pm-mobile-list');
+      clearSelection();render();if(matchMedia('(max-width:900px)').matches) modal()?.classList.add('pm-mobile-list');
     }));
+    byId('pmFilterDate')?.addEventListener('change',()=>{
+      pmSyncDateRange();clearSelection();render();
+      if(matchMedia('(max-width:900px)').matches && byId('pmFilterDate')?.value!=='custom') modal()?.classList.add('pm-mobile-list');
+    });
+    ['pmDateFrom','pmDateTo'].forEach(id=>byId(id)?.addEventListener('change',()=>{clearSelection();render();if(matchMedia('(max-width:900px)').matches) modal()?.classList.add('pm-mobile-list')}));
+    pmSyncDateRange();
     byId('pmList')?.addEventListener('dblclick',async e=>{if(matchMedia('(max-width:900px)').matches)return;const r=e.target.closest('.pmx-row');if(r){pmSelectedId=r.dataset.pmId||'';const s=byId('presupuestosGuardados');if(s)s.value=pmSelectedId;await window.HX_ABRIR_PRESUPUESTO?.(pmSelectedId);}});
     byId('pmModal')?.addEventListener('click',e=>{const b=e.target.closest('.pmx-folder');if(!b)return;pmView={type:b.dataset.pmView||'all',value:b.dataset.pmValue||''};if(pmView.type==='store'&&byId('pmFilterStore'))byId('pmFilterStore').value='';if(pmView.type==='commercial'&&byId('pmFilterCommercial'))byId('pmFilterCommercial').value='';clearSelection();render();if(matchMedia('(max-width:900px)').matches)modal()?.classList.add('pm-mobile-list')});
     window.addEventListener('hiperajax:presupuestos-importados',render);window.addEventListener('hiperajax:identificador-cambiado',render);
@@ -6279,4 +6330,59 @@ descripcionProducto = function(p){
     });
     setTimeout(resetPanelScroll,60);
   };
+})();
+
+
+/* =====================================================
+   v4.2.21 · Indicadores de scroll del presupuesto
+   - Solo aparecen si existen filas ocultas arriba/abajo.
+   - No cambian la altura ni la estructura de la tabla.
+   - Clic/tap desplaza una vista de productos suavemente.
+   ===================================================== */
+(function(){
+  function initBudgetScrollHints(){
+    const scroller=document.querySelector('.budget-card .table-scroll');
+    if(!scroller || scroller.dataset.hxScrollHints==='1') return;
+    scroller.dataset.hxScrollHints='1';
+
+    const make=(dir,label)=>{
+      const b=document.createElement('button');
+      b.type='button';
+      b.className=`hx-budget-scroll-hint hx-budget-scroll-${dir}`;
+      b.setAttribute('aria-label',label);
+      b.setAttribute('title',label);
+      b.innerHTML=dir==='up'
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 14.5 5.5-5 5.5 5"/></svg>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 9.5 5.5 5 5.5-5"/></svg>';
+      scroller.appendChild(b);
+      return b;
+    };
+
+    const up=make('up','Ver productos anteriores');
+    const down=make('down','Ver más productos');
+    let raf=0;
+    const update=()=>{
+      cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(()=>{
+        const max=Math.max(0,scroller.scrollHeight-scroller.clientHeight);
+        const overflow=max>6;
+        up.classList.toggle('is-visible',overflow && scroller.scrollTop>6);
+        down.classList.toggle('is-visible',overflow && scroller.scrollTop<max-6);
+      });
+    };
+    const move=dir=>{
+      const amount=Math.max(120,Math.round(scroller.clientHeight*.72));
+      scroller.scrollBy({top:dir*amount,behavior:'smooth'});
+    };
+    up.addEventListener('click',e=>{e.preventDefault();move(-1)});
+    down.addEventListener('click',e=>{e.preventDefault();move(1)});
+    scroller.addEventListener('scroll',update,{passive:true});
+    window.addEventListener('resize',update,{passive:true});
+    const tbody=scroller.querySelector('tbody');
+    if(tbody && window.MutationObserver) new MutationObserver(update).observe(tbody,{childList:true,subtree:true});
+    if(window.ResizeObserver) new ResizeObserver(update).observe(scroller);
+    update();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initBudgetScrollHints,{once:true});
+  else initBudgetScrollHints();
 })();
