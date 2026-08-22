@@ -9079,3 +9079,20 @@ body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year
 #pmModal .pmx-filters-toggle b[hidden]{display:none!important}
 #pmModal .pmx-filters-toggle.is-active{border-color:var(--green,#1f8f5f)!important;background:rgba(31,143,95,.08)!important}
 \n\n/* v4.2.27 · cierre filtros: móvil integrado + rango efectivo */\n@media (max-width:900px){\n  #pmModal .pmx-advanced-filters:not([hidden]){\n    background:var(--hx-app-card)!important;\n    border-color:var(--hx-app-line)!important;\n    padding:7px!important;\n    gap:7px!important;\n  }\n  #pmModal .pmx-advanced-filters select,\n  #pmModal .pmx-toolbar.pmx-filters-open #pmSort,\n  #pmModal .pmx-date-range input{\n    background:var(--hx-app-canvas)!important;\n    border-color:var(--hx-app-line)!important;\n    color:var(--hx-app-text)!important;\n    -webkit-text-fill-color:var(--hx-app-text)!important;\n  }\n  #pmModal .pmx-toolbar.pmx-filters-open #pmSort{margin-top:0!important;}\n}\n
+/* v4.2.28 · Mis presupuestos móvil: filtros integrados en dark */
+@media (max-width:900px){
+  body:not(.light-mode) #pmModal .pmx-advanced-filters:not([hidden]){
+    background:#162129!important;
+    border-color:#34434b!important;
+    box-shadow:none!important;
+  }
+  body:not(.light-mode) #pmModal .pmx-advanced-filters select,
+  body:not(.light-mode) #pmModal .pmx-toolbar.pmx-filters-open #pmSort,
+  body:not(.light-mode) #pmModal .pmx-date-range input{
+    background:#26343d!important;
+    border-color:#42535d!important;
+    color:#f1f5f3!important;
+    -webkit-text-fill-color:#f1f5f3!important;
+  }
+  body:not(.light-mode) #pmModal .pmx-date-range label{color:#aebdb6!important}
+}

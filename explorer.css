@@ -3000,3 +3000,11 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
 }
 
 \n\n/* 6.3.1 · pulido final del drawer móvil */\n@media(max-width:760px){\n  #familiasGrid .hxp-drawer-foot{grid-template-columns:92px minmax(0,1fr)!important;gap:9px!important;}\n  #familiasGrid .hxp-filter-clear{padding-inline:8px!important;}\n}\n
+/* v4.2.28 · Filtros móvil: secundarios legibles + CTA principal */
+@media (max-width:760px){
+  #familiasGrid .hxp-filter-option:has(input:disabled),
+  #familiasGrid .hxp-filter-option.is-disabled{opacity:.52!important}
+  .hxp-filter-actions{gap:10px!important}
+  .hxp-filter-actions .hxp-filter-clear{flex:0 0 auto!important;min-width:0!important;padding-left:14px!important;padding-right:14px!important}
+  .hxp-filter-actions .hxp-filter-apply{flex:1 1 auto!important}
+}
