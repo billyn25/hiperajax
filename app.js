@@ -4790,13 +4790,16 @@ pintarCatalogPanel = function(term=catalogTerm){
     if(mode==='today')return 'Hoy';if(mode==='7days')return 'Últimos 7 días';if(mode==='month')return 'Este mes';if(mode==='prevmonth')return 'Mes anterior';
     if(mode==='custom'){
       const f=byId('pmDateFrom')?.value,t=byId('pmDateTo')?.value;
-      return f||t?`Fecha: ${f?date(f):'…'} – ${t?date(t):'…'}`:'';
+      return f||t?`Fecha: ${f?date(f):'…'} – ${t?date(t):'…'}`:'Rango personalizado';
     }
     return '';
   }
   function pmSyncDateRange(){const range=byId('pmDateRange');if(range)range.hidden=(byId('pmFilterDate')?.value!=='custom')}
-  function pmEffectiveDateFilter(){const mode=byId('pmFilterDate')?.value||'';if(mode!=='custom')return mode;return (byId('pmDateFrom')?.value||byId('pmDateTo')?.value)?mode:''}
-  function pmActiveFilterCount(){return [byId('pmFilterStore')?.value,byId('pmFilterCommercial')?.value,pmEffectiveDateFilter()].filter(Boolean).length}
+  function pmActiveFilterCount(){
+    const store=byId('pmFilterStore')?.value||'', commercial=byId('pmFilterCommercial')?.value||'', mode=byId('pmFilterDate')?.value||'';
+    const dateActive=mode==='custom' ? !!(byId('pmDateFrom')?.value||byId('pmDateTo')?.value) : !!mode;
+    return (store?1:0)+(commercial?1:0)+(dateActive?1:0);
+  }
   function pmSyncFiltersUI(){
     const panel=byId('pmAdvancedFilters'),toggle=byId('pmFiltersToggle'),badge=byId('pmFiltersBadge'),toolbar=modal()?.querySelector('.pmx-toolbar');
     const count=pmActiveFilterCount();
@@ -4873,10 +4876,9 @@ pintarCatalogPanel = function(term=catalogTerm){
     const validQuery=q.length>=2;
     if(store)parts.push(store==='__NONE__'?'Sin tienda':`Tienda: ${store}`);
     if(commercial)parts.push(commercial==='__NONE__'?'Sin comercial':`Comercial: ${commercial}`);
-    const effectiveDateMode=pmEffectiveDateFilter();
-    if(effectiveDateMode)parts.push(pmDateLabel());
+    if(dateMode && (dateMode!=='custom' || byId('pmDateFrom')?.value || byId('pmDateTo')?.value))parts.push(pmDateLabel());
     if(validQuery)parts.push(`Búsqueda: “${q}”`);
-    const active=pmView.type!=='recent'||store||commercial||effectiveDateMode||validQuery;
+    const active=pmView.type!=='recent'||store||commercial||dateMode||validQuery;
     box.classList.toggle('is-filtered',!!active);
     box.hidden=!active;
     if(!active){box.innerHTML='';return}

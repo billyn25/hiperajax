@@ -1543,7 +1543,7 @@ body:not(.light-mode) #familiasGrid .hxp-family-visual img{background:#2a342e}
    EXPLORER PRO 6.1 · auditoría de filtros y mantenimiento
    ===================================================== */
 #familiasGrid .hxp-filter-option.is-disabled{
-  opacity:.68;
+  opacity:.40;
   cursor:not-allowed;
   background:transparent!important;
   border-color:transparent!important;
