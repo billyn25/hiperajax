@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Presupuestador de AJAX · Hiper Antena</title>
-  <link rel="stylesheet" href="style.css?v=PM-DATE-1">
+  <link rel="stylesheet" href="style.css?v=4222">
   <link rel="stylesheet" href="explorer.css?v=UI-COMPACT-5">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
@@ -211,27 +211,33 @@
           <input id="pmSearch" autocomplete="off" placeholder="Buscar identificador, cliente, número o producto...">
         </label>
         <button type="button" id="pmSearchMobileGo" class="pmx-search-mobile-go" aria-label="Buscar presupuestos" title="Buscar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
-        <select id="pmFilterStore" aria-label="Filtrar por tienda"><option value="">Todas las tiendas</option></select>
-        <select id="pmFilterCommercial" aria-label="Filtrar por comercial"><option value="">Todos los comerciales</option></select>
-        <select id="pmFilterDate" aria-label="Filtrar por fecha">
-          <option value="">Cualquier fecha</option>
-          <option value="today">Hoy</option>
-          <option value="7days">Últimos 7 días</option>
-          <option value="month">Este mes</option>
-          <option value="prevmonth">Mes anterior</option>
-          <option value="custom">Rango personalizado</option>
-        </select>
-        <span id="pmDateRange" class="pmx-date-range" hidden>
-          <input id="pmDateFrom" type="date" aria-label="Fecha desde" title="Fecha desde">
-          <span aria-hidden="true">–</span>
-          <input id="pmDateTo" type="date" aria-label="Fecha hasta" title="Fecha hasta">
-        </span>
+        <button type="button" id="pmFiltersToggle" class="pmx-filters-toggle" aria-expanded="false" aria-controls="pmAdvancedFilters">
+          <span class="ui-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span>
+          <span>Filtros</span><b id="pmFiltersBadge" hidden>0</b>
+        </button>
         <select id="pmSort" aria-label="Ordenar presupuestos">
           <option value="recent">Más recientes</option>
           <option value="identifier">Por identificador</option>
           <option value="client">Por cliente</option>
           <option value="total">Por importe</option>
         </select>
+        <div id="pmAdvancedFilters" class="pmx-advanced-filters" hidden>
+          <select id="pmFilterStore" aria-label="Filtrar por tienda"><option value="">Todas las tiendas</option></select>
+          <select id="pmFilterCommercial" aria-label="Filtrar por comercial"><option value="">Todos los comerciales</option></select>
+          <select id="pmFilterDate" aria-label="Filtrar por fecha">
+            <option value="">Cualquier fecha</option>
+            <option value="today">Hoy</option>
+            <option value="7days">Últimos 7 días</option>
+            <option value="month">Este mes</option>
+            <option value="prevmonth">Mes anterior</option>
+            <option value="custom">Rango personalizado</option>
+          </select>
+          <span id="pmDateRange" class="pmx-date-range" hidden>
+            <label><small>Desde</small><input id="pmDateFrom" type="date" aria-label="Fecha desde" title="Fecha desde"></label>
+            <span aria-hidden="true">–</span>
+            <label><small>Hasta</small><input id="pmDateTo" type="date" aria-label="Fecha hasta" title="Fecha hasta"></label>
+          </span>
+        </div>
       </div>
       <div id="pmFilterNotice" class="pmx-filter-notice explore-breadcrumb" aria-live="polite"><span><span class="pmx-document-svg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg></span> Vista: <strong>Recientes</strong></span></div>
 
