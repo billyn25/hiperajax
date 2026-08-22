@@ -4790,12 +4790,13 @@ pintarCatalogPanel = function(term=catalogTerm){
     if(mode==='today')return 'Hoy';if(mode==='7days')return 'Últimos 7 días';if(mode==='month')return 'Este mes';if(mode==='prevmonth')return 'Mes anterior';
     if(mode==='custom'){
       const f=byId('pmDateFrom')?.value,t=byId('pmDateTo')?.value;
-      return f||t?`Fecha: ${f?date(f):'…'} – ${t?date(t):'…'}`:'Rango personalizado';
+      return f||t?`Fecha: ${f?date(f):'…'} – ${t?date(t):'…'}`:'';
     }
     return '';
   }
   function pmSyncDateRange(){const range=byId('pmDateRange');if(range)range.hidden=(byId('pmFilterDate')?.value!=='custom')}
-  function pmActiveFilterCount(){return [byId('pmFilterStore')?.value,byId('pmFilterCommercial')?.value,byId('pmFilterDate')?.value].filter(Boolean).length}
+  function pmEffectiveDateFilter(){const mode=byId('pmFilterDate')?.value||'';if(mode!=='custom')return mode;return (byId('pmDateFrom')?.value||byId('pmDateTo')?.value)?mode:''}
+  function pmActiveFilterCount(){return [byId('pmFilterStore')?.value,byId('pmFilterCommercial')?.value,pmEffectiveDateFilter()].filter(Boolean).length}
   function pmSyncFiltersUI(){
     const panel=byId('pmAdvancedFilters'),toggle=byId('pmFiltersToggle'),badge=byId('pmFiltersBadge'),toolbar=modal()?.querySelector('.pmx-toolbar');
     const count=pmActiveFilterCount();
@@ -4872,9 +4873,10 @@ pintarCatalogPanel = function(term=catalogTerm){
     const validQuery=q.length>=2;
     if(store)parts.push(store==='__NONE__'?'Sin tienda':`Tienda: ${store}`);
     if(commercial)parts.push(commercial==='__NONE__'?'Sin comercial':`Comercial: ${commercial}`);
-    if(dateMode)parts.push(pmDateLabel());
+    const effectiveDateMode=pmEffectiveDateFilter();
+    if(effectiveDateMode)parts.push(pmDateLabel());
     if(validQuery)parts.push(`Búsqueda: “${q}”`);
-    const active=pmView.type!=='recent'||store||commercial||dateMode||validQuery;
+    const active=pmView.type!=='recent'||store||commercial||effectiveDateMode||validQuery;
     box.classList.toggle('is-filtered',!!active);
     box.hidden=!active;
     if(!active){box.innerHTML='';return}

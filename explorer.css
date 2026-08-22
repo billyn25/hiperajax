@@ -1543,7 +1543,7 @@ body:not(.light-mode) #familiasGrid .hxp-family-visual img{background:#2a342e}
    EXPLORER PRO 6.1 · auditoría de filtros y mantenimiento
    ===================================================== */
 #familiasGrid .hxp-filter-option.is-disabled{
-  opacity:.40;
+  opacity:.55;
   cursor:not-allowed;
   background:transparent!important;
   border-color:transparent!important;
@@ -2999,3 +2999,4 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
   }
 }
 
+\n\n/* 6.3.1 · pulido final del drawer móvil */\n@media(max-width:760px){\n  #familiasGrid .hxp-drawer-foot{grid-template-columns:92px minmax(0,1fr)!important;gap:9px!important;}\n  #familiasGrid .hxp-filter-clear{padding-inline:8px!important;}\n}\n

@@ -9025,7 +9025,7 @@ body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year
 
 /* v4.2.25 · Linealidad visual: Filtros usa exactamente el lenguaje de Explorer */
 #pmModal .pmx-filters-toggle{
-  height:41px;
+  height:38px;
   min-width:102px;
   padding:0 12px;
   gap:7px;
@@ -9078,3 +9078,4 @@ body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year
 #pmModal .pmx-filter-notice[hidden]{display:none!important}
 #pmModal .pmx-filters-toggle b[hidden]{display:none!important}
 #pmModal .pmx-filters-toggle.is-active{border-color:var(--green,#1f8f5f)!important;background:rgba(31,143,95,.08)!important}
+\n\n/* v4.2.27 · cierre filtros: móvil integrado + rango efectivo */\n@media (max-width:900px){\n  #pmModal .pmx-advanced-filters:not([hidden]){\n    background:var(--hx-app-card)!important;\n    border-color:var(--hx-app-line)!important;\n    padding:7px!important;\n    gap:7px!important;\n  }\n  #pmModal .pmx-advanced-filters select,\n  #pmModal .pmx-toolbar.pmx-filters-open #pmSort,\n  #pmModal .pmx-date-range input{\n    background:var(--hx-app-canvas)!important;\n    border-color:var(--hx-app-line)!important;\n    color:var(--hx-app-text)!important;\n    -webkit-text-fill-color:var(--hx-app-text)!important;\n  }\n  #pmModal .pmx-toolbar.pmx-filters-open #pmSort{margin-top:0!important;}\n}\n
