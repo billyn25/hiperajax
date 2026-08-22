@@ -2801,13 +2801,13 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
     flex-flow:row nowrap!important;
     align-items:center!important;
     justify-content:flex-end!important;
-    gap:5px!important;
+    gap:7px!important;
   }
   #familiasGrid .hx-modal-qty{
-    flex:0 0 90px!important;
-    width:90px!important;
-    min-width:90px!important;
-    max-width:90px!important;
+    flex:0 0 92px!important;
+    width:92px!important;
+    min-width:92px!important;
+    max-width:92px!important;
     height:34px!important;
     min-height:34px!important;
     margin:0!important;
@@ -2829,7 +2829,7 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
   #familiasGrid .hxp-add{
     flex:0 0 auto!important;
     width:auto!important;
-    min-width:64px!important;
+    min-width:66px!important;
     height:34px!important;
     min-height:34px!important;
     margin:0!important;
@@ -2839,10 +2839,14 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
 }
 
 @media (max-width:390px){
-  /* Se mantienen 7 px entre precio y botonera: cabe sin apelmazar. */
+  /* En iPhone normal se conserva la misma geometría táctil que Compatibles. */
   #familiasGrid .hxp-product-commerce{column-gap:7px!important;}
   #familiasGrid .hxp-price{font-size:16px!important;}
-  #familiasGrid .hxp-product-actions{gap:4px!important;}
+}
+
+
+@media (max-width:340px){
+  #familiasGrid .hxp-product-actions{gap:6px!important;}
   #familiasGrid .hx-modal-qty{
     flex-basis:84px!important;
     width:84px!important;
