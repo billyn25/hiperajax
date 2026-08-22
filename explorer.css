@@ -2695,7 +2695,7 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
   align-items:center!important;
   justify-content:flex-end!important;
   flex-wrap:nowrap!important;
-  gap:7px!important;
+  gap:6px!important;
 }
 #familiasGrid .hx-modal-qty{
   flex:0 0 94px!important;
@@ -2713,61 +2713,6 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
 @media(max-width:640px){
   #familiasGrid .hxp-product-actions{gap:6px!important;}
   #familiasGrid .hxp-add{min-width:66px!important;padding:0 8px!important;}
-}
-
-/* 23.0 · EXPLORER MÓVIL — precio + acciones en una sola línea */
-@media (max-width:640px){
-  #familiasGrid .hxp-product-commerce{
-    width:100%!important;
-    padding-left:0!important;
-    margin-top:10px!important;
-    display:flex!important;
-    align-items:center!important;
-    gap:8px!important;
-  }
-  #familiasGrid .hxp-price{
-    flex:0 0 auto!important;
-    margin-right:auto!important;
-    font-size:17px!important;
-    line-height:1!important;
-    text-align:left!important;
-  }
-  #familiasGrid .hxp-product-actions{
-    flex:0 0 auto!important;
-    width:auto!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:flex-end!important;
-    flex-wrap:nowrap!important;
-    gap:7px!important;
-  }
-  #familiasGrid .hx-modal-qty{
-    flex:0 0 94px!important;
-    width:94px!important;
-    min-width:94px!important;
-    height:34px!important;
-  }
-  #familiasGrid .hx-modal-qty-btn,
-  #familiasGrid .hx-modal-qty-value{
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    line-height:1!important;
-    padding-top:0!important;
-    padding-bottom:0!important;
-  }
-  #familiasGrid .hxp-add{
-    min-width:66px!important;
-    width:auto!important;
-    height:34px!important;
-    min-height:34px!important;
-    padding:0 8px!important;
-  }
-}
-@media (max-width:420px){
-  #familiasGrid .hxp-product-commerce{display:flex!important;grid-template-columns:none!important;}
-  #familiasGrid .hxp-price{grid-column:auto!important;grid-row:auto!important;}
-  #familiasGrid .hxp-product-actions{grid-column:auto!important;grid-row:auto!important;display:flex!important;width:auto!important;}
 }
 
 /* =====================================================
@@ -2812,11 +2757,13 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
 }
 
 /* =========================================================
-   24.0 · EXPLORER MÓVIL — FILA COMERCIAL DEFINITIVA
-   Precio + cantidad + compatibles + Añadir en UNA sola línea.
-   Aislado a móvil. No altera Explorer PC ni modal Compatibles.
+   24.0 · EXPLORER — MÓVIL CANÓNICO
+   Una sola definición para la fila comercial y la cabecera compacta.
    ========================================================= */
+#familiasGrid .hxp-mobile-compact-bar{display:none;}
+
 @media (max-width:640px){
+  /* Precio + cantidad + compatibles + Añadir en una sola fila. */
   #familiasGrid .hxp-product-commerce{
     box-sizing:border-box!important;
     width:100%!important;
@@ -2829,7 +2776,6 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
     column-gap:7px!important;
     overflow:visible!important;
   }
-
   #familiasGrid .hxp-price{
     grid-column:1!important;
     grid-row:1!important;
@@ -2841,7 +2787,6 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
     font-size:17px!important;
     line-height:34px!important;
   }
-
   #familiasGrid .hxp-product-actions{
     grid-column:2!important;
     grid-row:1!important;
@@ -2853,13 +2798,11 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
     margin:0!important;
     padding:0!important;
     display:flex!important;
-    flex-direction:row!important;
-    flex-wrap:nowrap!important;
+    flex-flow:row nowrap!important;
     align-items:center!important;
     justify-content:flex-end!important;
-    gap:7px!important;
+    gap:5px!important;
   }
-
   #familiasGrid .hx-modal-qty{
     flex:0 0 90px!important;
     width:90px!important;
@@ -2869,7 +2812,6 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
     min-height:34px!important;
     margin:0!important;
   }
-
   #familiasGrid .hxp-product-actions .hxp-compatible-btn{
     flex:0 0 auto!important;
     width:auto!important;
@@ -2879,13 +2821,11 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
     padding:0 7px!important;
     margin:0!important;
   }
-
   #familiasGrid .hxp-product-actions .hxp-compatible-icon{
     width:18px!important;
     height:18px!important;
     flex-basis:18px!important;
   }
-
   #familiasGrid .hxp-add{
     flex:0 0 auto!important;
     width:auto!important;
@@ -2898,9 +2838,9 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
   }
 }
 
-/* iPhone estrecho: conserva la misma línea sin aplastar el precio. */
 @media (max-width:390px){
-  #familiasGrid .hxp-product-commerce{column-gap:5px!important;}
+  /* Se mantienen 7 px entre precio y botonera: cabe sin apelmazar. */
+  #familiasGrid .hxp-product-commerce{column-gap:7px!important;}
   #familiasGrid .hxp-price{font-size:16px!important;}
   #familiasGrid .hxp-product-actions{gap:4px!important;}
   #familiasGrid .hx-modal-qty{
@@ -2919,65 +2859,139 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
   }
 }
 
-/* 25.0 · Stepper: centrado real de − / número / + */
-#familiasGrid .hx-modal-qty-btn,#familiasGrid .hx-modal-qty-value{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:0!important;line-height:1!important;vertical-align:middle!important;transform:none!important;box-shadow:none!important;}
+/* Al desplazarse, Explorer deja solo una barra útil + atajos. */
+@media (max-width:760px){
+  #familiasGrid .hxp-mobile-compact-bar{
+    box-sizing:border-box;
+    flex:0 0 44px;
+    min-width:0;
+    min-height:44px;
+    padding:5px 8px;
+    grid-template-columns:34px minmax(0,1fr) 34px 34px 34px;
+    align-items:center;
+    gap:6px;
+    border-bottom:1px solid var(--hxp-line-soft);
+    background:var(--hxp-panel-2);
+  }
+  #familiasGrid .hxp-mobile-compact-back,
+  #familiasGrid .hxp-mobile-compact-filter,
+  #familiasGrid .hxp-mobile-compact-close,
+  #familiasGrid .hxp-mobile-sort{
+    box-sizing:border-box;
+    position:relative;
+    width:34px;
+    min-width:34px;
+    height:34px;
+    min-height:34px;
+    margin:0;
+    padding:8px;
+    display:grid;
+    place-items:center;
+    border:1px solid var(--hxp-line);
+    border-radius:10px;
+    background:var(--hxp-panel);
+    color:var(--hxp-text)!important;
+    box-shadow:none;
+  }
+  #familiasGrid .hxp-mobile-compact-back svg,
+  #familiasGrid .hxp-mobile-compact-filter svg,
+  #familiasGrid .hxp-mobile-compact-close svg,
+  #familiasGrid .hxp-mobile-sort svg{
+    width:17px;
+    height:17px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:1.9;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  #familiasGrid .hxp-mobile-compact-title{
+    min-width:0;
+    display:flex;
+    align-items:center;
+    gap:7px;
+    overflow:hidden;
+  }
+  #familiasGrid .hxp-mobile-compact-title strong{
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:var(--hxp-text);
+    font-size:14px;
+    line-height:1;
+    font-weight:850;
+  }
+  #familiasGrid .hxp-mobile-compact-title em{
+    flex:0 0 auto;
+    min-width:24px;
+    height:22px;
+    padding:0 6px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid var(--hxp-line);
+    border-radius:999px;
+    background:var(--hxp-accent-soft);
+    color:var(--hxp-accent);
+    font-size:10px;
+    line-height:1;
+    font-style:normal;
+    font-weight:900;
+  }
+  #familiasGrid .hxp-mobile-compact-filter b{
+    position:absolute;
+    top:-4px;
+    right:-4px;
+    min-width:16px;
+    height:16px;
+    padding:0 4px;
+    display:grid;
+    place-items:center;
+    border-radius:999px;
+    background:var(--hxp-accent-strong);
+    color:#fff;
+    font-size:8px;
+    line-height:1;
+  }
+  #familiasGrid .hxp-mobile-sort{padding:0;overflow:hidden;}
+  #familiasGrid .hxp-mobile-sort>span{display:grid;place-items:center;pointer-events:none;}
+  #familiasGrid .hxp-mobile-sort select{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    margin:0;
+    opacity:0;
+    cursor:pointer;
+    font-size:16px!important;
+  }
+  #familiasGrid .hxp-mobile-sort.is-disabled{opacity:.48;}
 
-/* 26.0 · Ajuste óptico del glifo −/+ — cajas ya estaban centradas. */
-#familiasGrid .hx-modal-qty-btn{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  padding:0!important;
-  margin:0!important;
-  line-height:1!important;
-  text-indent:0!important;
-  transform:translateY(1px)!important;
-  -webkit-tap-highlight-color:transparent!important;
-}
-#familiasGrid .hx-modal-qty-value{
-  transform:none!important;
-  line-height:1!important;
-}
-
-/* 27.0 · Cierre óptico stepper Explorer: sin halo y glifo 2px más bajo. */
-#familiasGrid .hx-modal-qty-btn,
-#familiasGrid .hx-modal-qty-btn:hover,
-#familiasGrid .hx-modal-qty-btn:focus,
-#familiasGrid .hx-modal-qty-btn:focus-visible,
-#familiasGrid .hx-modal-qty-btn:active{
-  background:transparent!important;
-  box-shadow:none!important;
-  outline:none!important;
-  filter:none!important;
-  transform:translateY(2px)!important;
-  -webkit-tap-highlight-color:transparent!important;
-}
-
-/* 28.0 · CIERRE FINO EXPLORER — centrado sin desplazar el glifo */
-#familiasGrid .hx-modal-qty-btn,
-#familiasGrid .hx-modal-qty-btn:focus,
-#familiasGrid .hx-modal-qty-btn:focus-visible,
-#familiasGrid .hx-modal-qty-btn:active{
-  transform:none!important;
-  box-shadow:none!important;
-  outline:none!important;
-  filter:none!important;
-}
-@media (hover:hover) and (pointer:fine){
-  #familiasGrid .hx-modal-qty-btn:hover{
-    transform:none!important;
-    background:var(--hxp-accent-soft)!important;
-    color:var(--hxp-accent)!important;
-    box-shadow:none!important;
+  #familiasModal.hxp-mobile-condensed .hxp-shell>.modal-head,
+  #familiasModal.hxp-mobile-condensed #familiasGrid .hxp-toolbar,
+  #familiasModal.hxp-mobile-condensed #familiasGrid .hxp-current-family{
+    display:none!important;
+  }
+  #familiasModal.hxp-mobile-condensed #familiasGrid .hxp-mobile-compact-bar{
+    display:grid!important;
+  }
+  #familiasModal.hxp-mobile-condensed #familiasGrid .hxp-products-layout{
+    flex:1 1 auto!important;
+    height:100%!important;
+    min-height:0!important;
+  }
+  #familiasModal.hxp-mobile-condensed #familiasGrid .hxp-type-strip{
+    flex-basis:40px!important;
+    min-height:40px!important;
+    padding:4px 8px!important;
+    gap:6px!important;
+  }
+  #familiasModal.hxp-mobile-condensed #familiasGrid .hxp-type-tab{
+    height:30px!important;
+  }
+  #familiasModal.hxp-mobile-condensed #familiasGrid .hxp-products-scroll{
+    padding-top:6px!important;
   }
 }
-@media (hover:none), (pointer:coarse){
-  #familiasGrid .hx-modal-qty-btn:hover,
-  #familiasGrid .hx-modal-qty-btn:focus,
-  #familiasGrid .hx-modal-qty-btn:focus-visible,
-  #familiasGrid .hx-modal-qty-btn:active{
-    transform:none!important;
-    background:transparent!important;
-    box-shadow:none!important;
-  }
-}
+

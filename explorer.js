@@ -1102,6 +1102,7 @@
     const paths = {
       search:'<circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path>',
       filter:'<path d="M4 6h16M7 12h10M10 18h4"></path>',
+      sort:'<path d="M8 4v16m0 0-3-3m3 3 3-3M16 20V4m0 0-3 3m3-3 3 3"></path>',
       back:'<path d="m15 18-6-6 6-6"></path>',
       close:'<path d="M6 6l12 12M18 6 6 18"></path>',
       box:'<path d="m4 7 8-4 8 4-8 4z"></path><path d="M4 7v10l8 4 8-4V7M12 11v10"></path>',
@@ -1129,7 +1130,7 @@
     if(searching){
       return `<label class="hxp-sort is-search-relevance" title="Durante una búsqueda, los resultados se ordenan por relevancia">
         <span>Orden</span>
-        <select id="hxpSort" aria-label="Orden de resultados" disabled>
+        <select id="hxpSort" data-hxp-sort-control aria-label="Orden de resultados" disabled>
           <option selected>Relevancia</option>
         </select>
       </label>`;
@@ -1137,7 +1138,7 @@
 
     return `<label class="hxp-sort">
       <span>Orden</span>
-      <select id="hxpSort" aria-label="Ordenar productos">
+      <select id="hxpSort" data-hxp-sort-control aria-label="Ordenar productos">
         <option value="price-ref" ${state.sort==='price-ref'?'selected':''}>Precio + referencia</option>
         <option value="ref-color" ${state.sort==='ref-color'?'selected':''}>Referencia + color</option>
         <option value="type-ref-color" ${state.sort==='type-ref-color'?'selected':''}>Tipo + referencia</option>
@@ -1162,6 +1163,38 @@
           ${svgIcon('filter')}<span>Filtros</span>${filters?`<b>${filters}</b>`:''}
         </button>${sortControl()}` : ''}
       </div>
+    </div>`;
+  }
+
+  function compactSortControl(){
+    const searching = Boolean(clean(state.query));
+    const options = searching
+      ? '<option selected>Relevancia</option>'
+      : `<option value="price-ref" ${state.sort==='price-ref'?'selected':''}>Precio + referencia</option>
+        <option value="ref-color" ${state.sort==='ref-color'?'selected':''}>Referencia + color</option>
+        <option value="type-ref-color" ${state.sort==='type-ref-color'?'selected':''}>Tipo + referencia</option>
+        <option value="price-color" ${state.sort==='price-color'?'selected':''}>Precio + color</option>
+        <option value="featured" ${state.sort==='featured'?'selected':''}>Más usados</option>
+        <option value="price-asc" ${state.sort==='price-asc'?'selected':''}>Precio: menor</option>
+        <option value="price-desc" ${state.sort==='price-desc'?'selected':''}>Precio: mayor</option>
+        <option value="stock" ${state.sort==='stock'?'selected':''}>Stock</option>
+        <option value="ref" ${state.sort==='ref'?'selected':''}>Referencia</option>
+        <option value="name" ${state.sort==='name'?'selected':''}>Descripción</option>`;
+    return `<label class="hxp-mobile-sort ${searching?'is-disabled':''}" title="Ordenar productos">
+      <span aria-hidden="true">${svgIcon('sort')}</span>
+      <select data-hxp-sort-control aria-label="Ordenar productos" ${searching?'disabled':''}>${options}</select>
+    </label>`;
+  }
+
+  function mobileCompactBar(resultCount, family){
+    const filters = activeFilterCount();
+    const title = family ? visibleFamilyTitle(family) : (clean(state.query) ? 'Resultados' : 'Productos');
+    return `<div class="hxp-mobile-compact-bar" aria-label="Controles compactos de Explorer">
+      <button type="button" class="hxp-mobile-compact-back" data-hxp-home aria-label="Volver a familias">${svgIcon('back')}</button>
+      <div class="hxp-mobile-compact-title"><strong>${esc(title)}</strong><em>${resultCount}</em></div>
+      <button type="button" class="hxp-mobile-compact-filter ${filters?'is-active':''}" data-hxp-open-filters aria-label="Abrir filtros">${svgIcon('filter')}${filters?`<b>${filters}</b>`:''}</button>
+      ${compactSortControl()}
+      <button type="button" class="hxp-mobile-compact-close" data-hxp-close-explorer aria-label="Cerrar Explorer">${svgIcon('close')}</button>
     </div>`;
   }
 
@@ -1978,6 +2011,7 @@
       <div class="hxp-products-layout ${state.familyKey ? 'has-family-rail' : 'is-global-results'}">
         ${desktopFamilyRail(model)}
         <main class="hxp-main hxp-products-view">
+        ${mobileCompactBar(items.length, family)}
         <div class="hxp-current-family">
           <button type="button" class="hxp-back" data-hxp-home aria-label="Volver a familias">${svgIcon('back')}</button>
           <div><h3>${esc(title)}</h3><p>${esc(context)}</p></div>
@@ -2347,6 +2381,8 @@
 
     const count = document.querySelector('#familiasGrid .hxp-result-count');
     if(count) count.innerHTML = `<strong>${items.length}</strong> producto${items.length===1?'':'s'}`;
+    const compactCount = document.querySelector('#familiasGrid .hxp-mobile-compact-title em');
+    if(compactCount) compactCount.textContent = String(items.length);
 
     // Los rápidos no se reconstruyen por cada letra. Se recalculan al aplicar filtros,
     // cambiar de familia o pulsar un rápido.
@@ -2405,6 +2441,27 @@
     });
   }
 
+  function bindMobileCondense(root){
+    const modal = byId('familiasModal');
+    const scroller = root?.querySelector('#hxpProductsScroll');
+    if(!modal) return;
+    if(!isMobile() || !scroller){
+      modal.classList.remove('hxp-mobile-condensed');
+      return;
+    }
+
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      modal.classList.toggle('hxp-mobile-condensed', scroller.scrollTop > 30);
+    };
+    scroller.addEventListener('scroll', () => {
+      if(frame) return;
+      frame = requestAnimationFrame(update);
+    }, {passive:true});
+    update();
+  }
+
   function bindDynamicResults(root){
     if(!root) return;
     bindQuickScroll(root);
@@ -2432,6 +2489,7 @@
 
   function bind(root){
     bindQuickScroll(root);
+    bindMobileCondense(root);
 
     if(!root.dataset.hxpDetailDelegateBound){
       root.dataset.hxpDetailDelegateBound='1';
@@ -2532,13 +2590,14 @@
     quickStrip?.addEventListener('scroll', () => { if(isMobile()) quickStripScrollLeft = quickStrip.scrollLeft || 0; }, {passive:true});
         root.querySelectorAll('[data-hxp-family]').forEach(button => button.addEventListener('click', () => selectFamily(button.dataset.hxpFamily)));
     root.querySelectorAll('[data-hxp-home]').forEach(button => button.addEventListener('click', goHome));
+    root.querySelectorAll('[data-hxp-close-explorer]').forEach(button => button.addEventListener('click', closeExplorer));
     root.querySelectorAll('[data-hxp-open-filters]').forEach(button => button.addEventListener('click', openFilters));
     root.querySelectorAll('[data-hxp-close-filters]').forEach(button => button.addEventListener('click', closeFilters));
 
-    root.querySelector('#hxpSort')?.addEventListener('change', event => {
+    root.querySelectorAll('[data-hxp-sort-control]').forEach(select => select.addEventListener('change', event => {
       state.sort = event.target.value;
       render({preserveScroll:false});
-    });
+    }));
 
     root.querySelectorAll('[data-hxp-quick]').forEach(button => button.addEventListener('click', () => {
       const value = button.dataset.hxpQuick || '';
@@ -2650,6 +2709,7 @@
     try{ if(typeof hxResetModalQty === 'function') hxResetModalQty('explorer'); }catch(_error){}
     try{ if(typeof hxResetModalSession === 'function') hxResetModalSession('explorer'); }catch(_error){}
     modal.classList.add('hidden');
+    modal.classList.remove('hxp-mobile-condensed');
     modal.setAttribute('aria-hidden','true');
     document.body.classList.remove('modal-open');
     state = freshState();

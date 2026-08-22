@@ -273,7 +273,7 @@ body:not(.light-mode) .hxq-nav-item{color:#a9bbb1}
 
 .hx-tools-actions .hxq-entry{
   font-weight:800!important;
-  gap:8px!important;
+  gap:6px!important;
 }
 
 .hx-tools-actions .hxq-entry:hover{
@@ -887,39 +887,12 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
   }
 }
 
-/* 25.0 · Stepper: centrado real de − / número / + */
-.hxq-drawer .hxq-minus,.hxq-drawer .hxq-plus,.hxq-drawer .hxq-qty>span{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:0!important;line-height:1!important;vertical-align:middle!important;transform:none!important;box-shadow:none!important;}
-
 /* =========================================================
-   26.0 · CORRECCIÓN DE RAÍZ — STEPPER + RÁPIDOS RESPONSIVE
-   - Ajuste óptico real de −/+ (el glifo quedaba alto aunque la caja estuviera centrada).
-   - Rápidos refluye por ancho REAL del drawer, no por ancho de viewport.
+   25.0 · RÁPIDOS RESPONSIVE POR ANCHO REAL DEL DRAWER
+   Solo estructura. El stepper común se define una vez en 29.0.
    ========================================================= */
 .hxq-drawer{container-type:inline-size;}
-.hxq-drawer .hxq-minus,
-.hxq-drawer .hxq-plus{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  padding:0!important;
-  margin:0!important;
-  line-height:1!important;
-  text-indent:0!important;
-  transform:translateY(1px)!important;
-  -webkit-tap-highlight-color:transparent!important;
-}
-.hxq-drawer .hxq-value{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  padding:0!important;
-  margin:0!important;
-  line-height:1!important;
-  transform:none!important;
-}
 
-/* Cuando el drawer realmente se estrecha, los controles bajan debajo de foto/nombre.
-   Evita que stepper/Añadir invadan la imagen o el texto. */
 @container (max-width:700px){
   .hxq-grid{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -944,7 +917,7 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
     align-items:center!important;
     justify-content:flex-end!important;
     flex-wrap:nowrap!important;
-    gap:7px!important;
+    gap:6px!important;
   }
   .hxq-drawer .hxq-qty{
     flex:0 0 86px!important;
@@ -960,7 +933,6 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
   }
 }
 
-/* iPhone muy estrecho: mantener dos columnas, pero sin solapamiento. */
 @container (max-width:430px){
   .hxq-grid{gap:6px!important;padding:6px!important;}
   .hxq-product{
@@ -983,46 +955,6 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
     max-width:68px!important;
     padding:0 5px!important;
     font-size:10px!important;
-  }
-}
-
-/* 27.0 · Cierre óptico stepper Rápidos: sin halo y glifo 2px más bajo. */
-.hxq-drawer .hxq-minus,.hxq-drawer .hxq-plus,
-.hxq-drawer .hxq-minus:hover,.hxq-drawer .hxq-plus:hover,
-.hxq-drawer .hxq-minus:focus,.hxq-drawer .hxq-plus:focus,
-.hxq-drawer .hxq-minus:focus-visible,.hxq-drawer .hxq-plus:focus-visible,
-.hxq-drawer .hxq-minus:active,.hxq-drawer .hxq-plus:active{
-  background:transparent!important;
-  box-shadow:none!important;
-  outline:none!important;
-  filter:none!important;
-  transform:translateY(2px)!important;
-  -webkit-tap-highlight-color:transparent!important;
-}
-
-/* 28.0 · CIERRE FINO RÁPIDOS — posición estable en todos los anchos/estados */
-.hxq-drawer .hxq-minus,.hxq-drawer .hxq-plus,
-.hxq-drawer .hxq-minus:hover,.hxq-drawer .hxq-plus:hover,
-.hxq-drawer .hxq-minus:focus,.hxq-drawer .hxq-plus:focus,
-.hxq-drawer .hxq-minus:focus-visible,.hxq-drawer .hxq-plus:focus-visible,
-.hxq-drawer .hxq-minus:active,.hxq-drawer .hxq-plus:active{
-  transform:none!important;
-  box-shadow:none!important;
-  outline:none!important;
-  filter:none!important;
-}
-@media (hover:hover) and (pointer:fine){
-  .hxq-drawer .hxq-minus:hover,.hxq-drawer .hxq-plus:hover{
-    background:#eef6f2!important;
-    color:#1d5138!important;
-  }
-}
-@media (hover:none), (pointer:coarse){
-  .hxq-drawer .hxq-minus:hover,.hxq-drawer .hxq-plus:hover,
-  .hxq-drawer .hxq-minus:focus,.hxq-drawer .hxq-plus:focus,
-  .hxq-drawer .hxq-minus:focus-visible,.hxq-drawer .hxq-plus:focus-visible,
-  .hxq-drawer .hxq-minus:active,.hxq-drawer .hxq-plus:active{
-    background:transparent!important;
   }
 }
 
