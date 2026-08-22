@@ -2739,7 +2739,7 @@ body:not(.light-mode) #familiasGrid .hxp-family-rail-item em{
     align-items:center!important;
     justify-content:flex-end!important;
     flex-wrap:nowrap!important;
-    gap:6px!important;
+    gap:7px!important;
   }
   #familiasGrid .hx-modal-qty{
     flex:0 0 94px!important;
