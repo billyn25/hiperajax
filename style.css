@@ -7900,7 +7900,7 @@ body:not(.light-mode) .hx-compat-heading-icon{background:rgba(214,161,23,.14);co
    Solo apariencia. Sin compartir estructura ni comportamiento.
    ===================================================== */
 :root{
-  --hx-modal-control:34px;
+  --hx-modal-control:38px;
   --hx-modal-radius:9px;
   --hx-modal-border:#d3ded8;
   --hx-modal-control-bg:#fff;
