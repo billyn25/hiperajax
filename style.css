@@ -8952,8 +8952,8 @@ body.light-mode .hx-budget-scroll-hint{background:rgba(255,255,255,.94);color:#1
 
 /* v4.2.22 · Mis presupuestos: filtros progresivos y compactos */
 #pmModal .pmx-filters-toggle{
-  height:38px;min-width:112px;padding:0 13px;border:1px solid var(--border,#d7e0db);border-radius:9px;
-  background:var(--surface,#fff);color:inherit;display:inline-flex;align-items:center;justify-content:center;gap:7px;font:inherit;font-weight:700;cursor:pointer
+  height:41px;min-width:112px;padding:0 13px;border:1px solid var(--border,#d7e0db);border-radius:9px;
+  background:var(--surface,#fff);color:inherit;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:700;cursor:pointer
 }
 #pmModal .pmx-filters-toggle .ui-icon{width:17px;height:17px}
 #pmModal .pmx-filters-toggle b{min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#e4f4ec;color:#13754e;font-size:11px}
