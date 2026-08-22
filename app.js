@@ -4797,11 +4797,13 @@ pintarCatalogPanel = function(term=catalogTerm){
   function pmSyncDateRange(){const range=byId('pmDateRange');if(range)range.hidden=(byId('pmFilterDate')?.value!=='custom')}
   function pmActiveFilterCount(){return [byId('pmFilterStore')?.value,byId('pmFilterCommercial')?.value,byId('pmFilterDate')?.value].filter(Boolean).length}
   function pmSyncFiltersUI(){
-    const panel=byId('pmAdvancedFilters'),toggle=byId('pmFiltersToggle'),badge=byId('pmFiltersBadge');
+    const panel=byId('pmAdvancedFilters'),toggle=byId('pmFiltersToggle'),badge=byId('pmFiltersBadge'),toolbar=modal()?.querySelector('.pmx-toolbar');
     const count=pmActiveFilterCount();
     if(badge){badge.textContent=String(count);badge.hidden=!count}
-    toggle?.classList.toggle('is-active',!!count || !panel?.hidden);
-    toggle?.setAttribute('aria-expanded',panel?.hidden?'false':'true');
+    const open=!!panel && !panel.hidden;
+    toggle?.classList.toggle('is-active',!!count || open);
+    toggle?.setAttribute('aria-expanded',open?'true':'false');
+    toolbar?.classList.toggle('pmx-filters-open',open);
   }
   function selected(){return listAll().find(p=>idOf(p)===String(pmSelectedId))||null}
   function unique(field){return [...new Set(listAll().map(p=>String(p?.[field]||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true}))}
