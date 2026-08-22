@@ -3265,7 +3265,7 @@ body.light #pmModal .modal-close,body.light-mode #pmModal .modal-close{
 
 body.light #pmModal button,
 body.light-mode #pmModal button{
-  background:#eef3f5!important;
+  background:#e2e6e9!important;
   background-image:none!important;
   border-color:#b5bec4!important;
   color:#26343d!important;
@@ -7833,17 +7833,16 @@ body:not(.light-mode) #pmModal .modal-close:hover{
     flex:0 0 15px!important;
   }
 
-  #pmModal:not(.pm-mobile-list):not(.pm-mobile-preview) .pmx-toolbar{
-    grid-template-columns:minmax(0,1fr) 38px!important;
-    align-items:center!important;
-  }
   #pmModal .pmx-search-mobile-go{
     all:unset!important;
     box-sizing:border-box!important;
     width:38px!important;
     min-width:38px!important;
+    max-width:38px!important;
     height:38px!important;
     min-height:38px!important;
+    max-height:38px!important;
+    flex:0 0 38px!important;
     display:grid!important;
     place-items:center!important;
     border:1px solid #82a796!important;
@@ -8952,8 +8951,8 @@ body.light-mode .hx-budget-scroll-hint{background:rgba(255,255,255,.94);color:#1
 
 /* v4.2.22 · Mis presupuestos: filtros progresivos y compactos */
 #pmModal .pmx-filters-toggle{
-  height:42px;min-width:112px;padding:0 13px;border:1px solid var(--border,#d7e0db);border-radius:9px;
-  background:var(--surface,#fff);color:inherit;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:700;cursor:pointer
+  height:38px;min-width:112px;padding:0 13px;border:1px solid var(--border,#d7e0db);border-radius:9px;
+  background:var(--surface,#fff);color:inherit;display:inline-flex;align-items:center;justify-content:center;gap:7px;font:inherit;font-weight:700;cursor:pointer
 }
 #pmModal .pmx-filters-toggle .ui-icon{width:17px;height:17px}
 #pmModal .pmx-filters-toggle b{min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#e4f4ec;color:#13754e;font-size:11px}
