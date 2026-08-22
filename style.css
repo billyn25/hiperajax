@@ -5387,11 +5387,11 @@ body.light #pmModal .pmx-row.is-selected *,body.light-mode #pmModal .pmx-row.is-
   #pmModal .pmx-head{padding:14px 14px 11px!important}
   #pmModal .pmx-title-block p{display:none!important}
   #pmModal .pmx-toolbar{
-    display:grid!important;grid-template-columns:minmax(0,1fr) 34px 38px!important;
+    display:grid!important;grid-template-columns:minmax(0,1fr) 38px 38px!important;
     column-gap:7px!important;row-gap:8px!important;padding:10px 14px!important;align-items:center!important
   }
   #pmModal .pmx-search{grid-column:1!important;grid-row:1!important;min-width:0!important;width:100%!important}
-  #pmModal .pmx-search-mobile-go{grid-column:2!important;grid-row:1!important;width:34px!important;height:38px!important}
+  #pmModal .pmx-search-mobile-go{grid-column:2!important;grid-row:1!important;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important}
   #pmModal .pmx-filters-toggle{grid-column:3!important;grid-row:1!important;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;padding:0!important;border-radius:11px!important;position:relative!important}
   #pmModal .pmx-filters-toggle>span:not(.ui-icon){display:none!important}
   #pmModal .pmx-filters-toggle .ui-icon,#pmModal .pmx-filters-toggle .ui-icon svg{width:17px!important;height:17px!important}
@@ -5400,9 +5400,10 @@ body.light #pmModal .pmx-row.is-selected *,body.light-mode #pmModal .pmx-row.is-
   #pmModal .pmx-advanced-filters[hidden]{display:none!important}
   #pmModal .pmx-advanced-filters:not([hidden]){
     grid-column:1/-1!important;grid-row:2!important;display:grid!important;grid-template-columns:1fr!important;
-    gap:7px!important;width:100%!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important
+    justify-self:stretch!important;align-self:stretch!important;box-sizing:border-box!important;
+    gap:7px!important;width:100%!important;max-width:none!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important
   }
-  #pmModal .pmx-advanced-filters:not([hidden]) select{display:block!important;width:100%!important;height:40px!important;min-width:0!important}
+  #pmModal .pmx-advanced-filters:not([hidden]) select{display:block!important;width:100%!important;max-width:none!important;height:40px!important;min-width:0!important;box-sizing:border-box!important}
   #pmModal .pmx-toolbar.pmx-filters-open #pmSort{display:block!important;grid-column:1/-1!important;grid-row:3!important;width:100%!important;height:40px!important}
   #pmModal .pmx-date-range{grid-column:1!important;width:100%!important}
   #pmModal .pmx-date-range input{height:40px!important}
@@ -7198,8 +7199,10 @@ body.light-mode #catalogDiagnosticModal .catalog-diag-budget summary{
   #catalogDiagnosticModal .catalog-diagnostic-close{
     flex-basis:34px!important;
     width:34px!important;
-    min-width:34px!important;
-    height:34px!important;
+    min-width:38px!important;
+    min-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
   }
   #catalogDiagnosticModal .catalog-diagnostic-body{
     max-height:calc(100dvh - 72px)!important;
@@ -7831,14 +7834,16 @@ body:not(.light-mode) #pmModal .modal-close:hover{
   }
 
   #pmModal:not(.pm-mobile-list):not(.pm-mobile-preview) .pmx-toolbar{
-    grid-template-columns:minmax(0,1fr) 34px!important;
+    grid-template-columns:minmax(0,1fr) 38px!important;
     align-items:center!important;
   }
   #pmModal .pmx-search-mobile-go{
     all:unset!important;
     box-sizing:border-box!important;
-    width:34px!important;
-    height:34px!important;
+    width:38px!important;
+    min-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
     display:grid!important;
     place-items:center!important;
     border:1px solid #82a796!important;
