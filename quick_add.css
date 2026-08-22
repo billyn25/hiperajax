@@ -944,7 +944,7 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
     align-items:center!important;
     justify-content:flex-end!important;
     flex-wrap:nowrap!important;
-    gap:6px!important;
+    gap:7px!important;
   }
   .hxq-drawer .hxq-qty{
     flex:0 0 86px!important;
