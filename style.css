@@ -9022,3 +9022,54 @@ body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year
   #pmModal .pmx-date-range label{min-width:0!important}
   #pmModal .pmx-date-range input{height:40px!important}
 }
+
+/* v4.2.25 · Linealidad visual: Filtros usa exactamente el lenguaje de Explorer */
+#pmModal .pmx-filters-toggle{
+  height:38px;
+  min-width:102px;
+  padding:0 12px;
+  gap:7px;
+  border-radius:11px;
+  font-size:12px;
+  font-weight:800;
+  box-shadow:none;
+}
+#pmModal .pmx-filters-toggle .ui-icon{
+  width:17px!important;
+  height:17px!important;
+  display:grid;
+  place-items:center;
+  flex:0 0 17px;
+}
+#pmModal .pmx-filters-toggle .ui-icon svg{
+  display:block;
+  width:17px!important;
+  height:17px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.8!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+#pmModal .pmx-filters-toggle:hover,
+#pmModal .pmx-filters-toggle:focus-visible,
+#pmModal .pmx-filters-toggle.is-active{
+  border-color:var(--green,#1f8f5f)!important;
+  background:rgba(31,143,95,.08)!important;
+  outline:none!important;
+}
+@media (max-width:900px){
+  #pmModal .pmx-filters-toggle{
+    width:38px!important;
+    min-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:0!important;
+    border-radius:11px!important;
+  }
+  #pmModal .pmx-filters-toggle .ui-icon{
+    width:17px!important;
+    height:17px!important;
+    flex-basis:17px!important;
+  }
+}
