@@ -3636,7 +3636,7 @@ body.light-mode #pmModal .pmx-row-side strong{
 
 @media(max-width:520px){
   #pmModal .pmx-head p{display:none!important}
-  #pmModal .pmx-toolbar select{display:none!important}
+  #pmModal .pmx-toolbar > #pmSort{display:none!important}
   #pmModal .pmx-row{min-height:72px!important}
   #pmModal.pm-mobile-preview .pmx-actions{grid-template-columns:1fr!important}
   #pmModal.pm-mobile-preview .pmx-close-action{grid-column:auto!important}
@@ -8968,4 +8968,12 @@ body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year
 @media (max-width:640px){
   #pmModal .pmx-advanced-filters{grid-template-columns:1fr!important}
   #pmModal .pmx-date-range{grid-column:1!important}
+}
+
+/* v4.2.23 · Mis presupuestos móvil: botón Filtros y panel progresivo visibles */
+@media(max-width:900px){
+  #pmModal .pmx-filters-toggle{display:inline-flex!important;width:100%!important;min-height:42px!important}
+  #pmModal .pmx-advanced-filters:not([hidden]){display:grid!important;width:100%!important;grid-template-columns:1fr!important;gap:8px!important}
+  #pmModal .pmx-advanced-filters select{display:block!important;width:100%!important;min-width:0!important}
+  #pmModal .pmx-date-range{width:100%!important;grid-column:1!important}
 }

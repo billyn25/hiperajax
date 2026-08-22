@@ -1059,7 +1059,20 @@ function cambiarQtyLinea(i, delta){
     }
   }catch(e){}
 }
-function delLinea(i){ lineas.splice(i,1); render(); }
+function delLinea(i){
+  const l = Array.isArray(lineas) ? lineas[i] : null;
+  if(!l) return;
+  const ref = String(l.name || l.producto || l.descripcion || '').trim();
+  const esSeparador = !!(l.separador || l.tipo === 'separador');
+  const texto = esSeparador
+    ? '¿Eliminar este separador del presupuesto?'
+    : ref
+      ? `¿Eliminar “${ref}” del presupuesto?`
+      : '¿Eliminar esta línea del presupuesto?';
+  if(!confirm(texto)) return;
+  lineas.splice(i,1);
+  render();
+}
 try{ window.cambiarQtyLinea = cambiarQtyLinea; }catch(e){}
 function calc(){
   const subtotalBruto = lineas.reduce((s,l)=> l.separador ? s : s + (Number(l.pvp)||0)*(Number(l.qty)||0),0);
