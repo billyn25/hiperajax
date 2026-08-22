@@ -4876,7 +4876,9 @@ pintarCatalogPanel = function(term=catalogTerm){
     if(validQuery)parts.push(`Búsqueda: “${q}”`);
     const active=pmView.type!=='recent'||store||commercial||dateMode||validQuery;
     box.classList.toggle('is-filtered',!!active);
-    box.innerHTML=`<span>${active?PM_ICON.search+' Filtrando':PM_ICON.folder+' Vista'}: <strong>${escapeHtml(parts.join(' · ')||'Recientes')}</strong></span>${active?'<button type="button" id="pmClearFilters">Limpiar filtros</button>':''}`;
+    box.hidden=!active;
+    if(!active){box.innerHTML='';return}
+    box.innerHTML=`<span>${PM_ICON.search} Filtrando: <strong>${escapeHtml(parts.join(' · ')||'Recientes')}</strong></span><button type="button" id="pmClearFilters">Limpiar filtros</button>`;
     byId('pmClearFilters')?.addEventListener('click',()=>{pmView={type:'recent',value:''};if(byId('pmFilterStore'))byId('pmFilterStore').value='';if(byId('pmFilterCommercial'))byId('pmFilterCommercial').value='';if(byId('pmFilterDate'))byId('pmFilterDate').value='';if(byId('pmDateFrom'))byId('pmDateFrom').value='';if(byId('pmDateTo'))byId('pmDateTo').value='';if(byId('pmSearch'))byId('pmSearch').value='';pmSyncDateRange();clearSelection();render()});
   }
   function clearMobileInlineState(){

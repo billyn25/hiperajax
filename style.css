@@ -9073,3 +9073,8 @@ body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year
     flex-basis:17px!important;
   }
 }
+
+/* v4.2.26 · Mis presupuestos: remate final de filtros */
+#pmModal .pmx-filter-notice[hidden]{display:none!important}
+#pmModal .pmx-filters-toggle b[hidden]{display:none!important}
+#pmModal .pmx-filters-toggle.is-active{border-color:var(--green,#1f8f5f)!important;background:rgba(31,143,95,.08)!important}
