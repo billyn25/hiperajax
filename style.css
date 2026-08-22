@@ -8918,181 +8918,209 @@ body.light-mode .hx-budget-scroll-hint{background:rgba(255,255,255,.94);color:#1
 }
 @media(prefers-reduced-motion:reduce){.hx-budget-scroll-hint{transition:none}.budget-card .table-scroll{scroll-behavior:auto}}
 
-/* Mis presupuestos · filtro de fecha compacto */
-#pmModal .pmx-date-range{display:inline-flex;align-items:center;gap:5px;min-width:0}
-#pmModal .pmx-date-range[hidden]{display:none!important}
-#pmModal .pmx-date-range input{min-width:128px;height:38px;border:1px solid var(--border,#d7e0db);border-radius:9px;background:var(--surface,#fff);color:inherit;padding:0 8px;font:inherit}
-@media(max-width:900px){
-  #pmModal .pmx-date-range{grid-column:1/-1;width:100%}
-  #pmModal .pmx-date-range input{flex:1 1 0;min-width:0}
+/* Mis presupuestos · filtros compactos (consolidado) */
+#pmModal .pmx-toolbar{position:relative}
+#pmModal .pmx-filters-toggle{
+  height:38px;
+  min-width:102px;
+  padding:0 12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border:1px solid var(--hx-app-line,#d7e0db);
+  border-radius:11px;
+  background:var(--hx-app-canvas,#fff);
+  color:var(--hx-app-text,#17241e);
+  font:inherit;
+  font-size:12px;
+  font-weight:800;
+  line-height:1;
+  cursor:pointer;
+  box-shadow:none;
+}
+#pmModal .pmx-filters-toggle .ui-icon{
+  width:17px;
+  height:17px;
+  flex:0 0 17px;
+  display:grid;
+  place-items:center;
+  color:currentColor;
+}
+#pmModal .pmx-filters-toggle .ui-icon svg{
+  width:17px;
+  height:17px;
+  display:block;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+#pmModal .pmx-filters-toggle b{
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:var(--hx-app-green-soft,#e4f4ec);
+  color:var(--hx-app-green,#13754e);
+  font-size:10px;
+  line-height:1;
+}
+#pmModal .pmx-filters-toggle b[hidden],
+#pmModal .pmx-filter-notice[hidden],
+#pmModal .pmx-advanced-filters[hidden],
+#pmModal .pmx-date-range[hidden]{display:none}
+#pmModal .pmx-filters-toggle:hover,
+#pmModal .pmx-filters-toggle:focus-visible,
+#pmModal .pmx-filters-toggle.is-active{
+  border-color:var(--hx-app-green,#1f8f5f);
+  background:color-mix(in srgb,var(--hx-app-green,#1f8f5f) 9%,var(--hx-app-canvas,#fff));
+  color:var(--hx-app-text,#17241e);
+  outline:none;
 }
 
-/* v4.2.22 · Mis presupuestos: filtros progresivos y compactos */
-#pmModal .pmx-filters-toggle{
-  height:38px;min-width:112px;padding:0 13px;border:1px solid var(--border,#d7e0db);border-radius:9px;
-  background:var(--surface,#fff);color:inherit;display:inline-flex;align-items:center;justify-content:center;gap:7px;font:inherit;font-weight:700;cursor:pointer
+#pmModal .pmx-advanced-filters{
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:175px 175px 155px minmax(280px,520px);
+  gap:9px;
+  align-items:end;
+  padding-top:1px;
 }
-#pmModal .pmx-filters-toggle .ui-icon{width:17px;height:17px}
-#pmModal .pmx-filters-toggle b{min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#e4f4ec;color:#13754e;font-size:11px}
-#pmModal .pmx-filters-toggle.is-active{border-color:rgba(31,143,95,.38);background:rgba(31,143,95,.08);color:#176f4b}
-#pmModal .pmx-toolbar{position:relative}
-#pmModal .pmx-advanced-filters{grid-column:1/-1;display:grid;grid-template-columns:175px 175px 155px minmax(300px,1fr);gap:9px;align-items:end;padding-top:1px}
-#pmModal .pmx-advanced-filters[hidden]{display:none!important}
-#pmModal .pmx-advanced-filters select{height:38px;min-width:0}
-#pmModal .pmx-date-range{display:flex;align-items:flex-end;gap:7px}
-#pmModal .pmx-date-range label{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 0}
-#pmModal .pmx-date-range small{font-size:10px;line-height:1;color:var(--muted,#6f8178);font-weight:700;padding-left:2px}
-#pmModal .pmx-date-range input{width:100%!important;min-width:0!important;color:#17241e!important;-webkit-text-fill-color:#17241e!important;color-scheme:light}
+#pmModal .pmx-advanced-filters select{
+  height:38px;
+  min-width:0;
+  background:var(--hx-app-canvas,#fff);
+  border-color:var(--hx-app-line,#d7e0db);
+  color:var(--hx-app-text,#17241e);
+}
+#pmModal .pmx-date-range{
+  min-width:0;
+  display:flex;
+  align-items:flex-end;
+  gap:7px;
+}
+#pmModal .pmx-date-range label{
+  min-width:0;
+  flex:1 1 0;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+#pmModal .pmx-date-range small{
+  padding-left:2px;
+  color:var(--hx-app-muted,#6f8178);
+  font-size:10px;
+  font-weight:700;
+  line-height:1;
+}
+#pmModal .pmx-date-range input{
+  width:100%;
+  min-width:0;
+  height:38px;
+  padding:0 8px;
+  border:1px solid var(--hx-app-line,#d7e0db);
+  border-radius:9px;
+  background:var(--hx-app-canvas,#fff);
+  color:var(--hx-app-text,#17241e);
+  -webkit-text-fill-color:var(--hx-app-text,#17241e);
+  color-scheme:light;
+  font:inherit;
+}
 #pmModal .pmx-date-range input::-webkit-datetime-edit,
 #pmModal .pmx-date-range input::-webkit-datetime-edit-fields-wrapper,
 #pmModal .pmx-date-range input::-webkit-datetime-edit-text,
 #pmModal .pmx-date-range input::-webkit-datetime-edit-month-field,
 #pmModal .pmx-date-range input::-webkit-datetime-edit-day-field,
-#pmModal .pmx-date-range input::-webkit-datetime-edit-year-field{color:#17241e!important;-webkit-text-fill-color:#17241e!important;opacity:1!important}
-body:not(.light-mode) #pmModal .pmx-date-range input{color:#e8f0ec!important;-webkit-text-fill-color:#e8f0ec!important;color-scheme:dark}
-body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit,
-body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-fields-wrapper,
-body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-text,
-body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-month-field,
-body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-day-field,
-body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year-field{color:#e8f0ec!important;-webkit-text-fill-color:#e8f0ec!important}
-@media (min-width:981px){
-  #pmModal .pmx-modal-card{height:min(860px,94vh)!important;max-height:94vh!important}
-  #pmModal .pmx-toolbar{grid-template-columns:minmax(420px,1fr) 112px 160px!important;align-items:start!important}
-  #pmModal #pmSort{width:160px!important;min-width:160px!important}
+#pmModal .pmx-date-range input::-webkit-datetime-edit-year-field{
+  color:var(--hx-app-text,#17241e);
+  -webkit-text-fill-color:var(--hx-app-text,#17241e);
+  opacity:1;
 }
+body:not(.light-mode) #pmModal .pmx-date-range input{color-scheme:dark}
+
+@media (min-width:981px){
+  #pmModal .pmx-modal-card{height:min(860px,94vh);max-height:94vh}
+  #pmModal .pmx-toolbar{grid-template-columns:minmax(420px,1fr) 112px 160px;align-items:start}
+  #pmModal #pmSort{width:160px;min-width:160px}
+}
+
 @media (max-width:980px){
-  #pmModal .pmx-advanced-filters{grid-template-columns:1fr 1fr!important}
+  #pmModal .pmx-advanced-filters{grid-template-columns:1fr 1fr}
   #pmModal .pmx-date-range{grid-column:1/-1}
 }
-@media (max-width:640px){
-  #pmModal .pmx-advanced-filters{grid-template-columns:1fr!important}
-  #pmModal .pmx-date-range{grid-column:1!important}
-}
 
-/* v4.2.23 · Mis presupuestos móvil: botón Filtros y panel progresivo visibles */
-@media(max-width:900px){
-  #pmModal .pmx-filters-toggle{display:inline-flex!important;width:100%!important;min-height:42px!important}
-  #pmModal .pmx-advanced-filters:not([hidden]){display:grid!important;width:100%!important;grid-template-columns:1fr!important;gap:8px!important}
-  #pmModal .pmx-advanced-filters select{display:block!important;width:100%!important;min-width:0!important}
-  #pmModal .pmx-date-range{width:100%!important;grid-column:1!important}
-}
-
-/* v4.2.24 · Mis presupuestos móvil: búsqueda + filtro en una sola fila */
 @media (max-width:900px){
   #pmModal:not(.pm-mobile-list):not(.pm-mobile-preview) .pmx-toolbar{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) 34px 42px!important;
-    column-gap:7px!important;
-    row-gap:8px!important;
-    align-items:center!important;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 34px 38px;
+    column-gap:7px;
+    row-gap:8px;
+    align-items:center;
   }
-  #pmModal .pmx-search{grid-column:1!important;min-width:0!important;width:100%!important}
-  #pmModal .pmx-search-mobile-go{grid-column:2!important;grid-row:1!important;width:34px!important;height:38px!important}
+  #pmModal .pmx-search{grid-column:1;min-width:0;width:100%}
+  #pmModal .pmx-search-mobile-go{grid-column:2;grid-row:1;width:34px;height:38px}
   #pmModal .pmx-filters-toggle{
-    grid-column:3!important;grid-row:1!important;
-    width:42px!important;min-width:42px!important;height:38px!important;min-height:38px!important;
-    padding:0!important;gap:0!important;border-radius:9px!important;
+    grid-column:3;
+    grid-row:1;
+    position:relative;
+    width:38px;
+    min-width:38px;
+    height:38px;
+    min-height:38px;
+    padding:0;
+    gap:0;
   }
-  #pmModal .pmx-filters-toggle>span:not(.ui-icon){display:none!important}
-  #pmModal .pmx-filters-toggle .ui-icon{width:18px!important;height:18px!important;margin:0!important}
+  #pmModal .pmx-filters-toggle>span:not(.ui-icon){display:none}
   #pmModal .pmx-filters-toggle b{
-    position:absolute!important;top:-5px!important;right:-5px!important;
-    min-width:17px!important;height:17px!important;padding:0 4px!important;font-size:9px!important;
-    border:2px solid var(--surface,#fff)!important;
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    min-width:17px;
+    height:17px;
+    padding:0 4px;
+    border:2px solid var(--hx-app-shell,#fff);
+    font-size:9px;
   }
-  #pmModal .pmx-filters-toggle{position:relative!important}
-
   #pmModal .pmx-advanced-filters:not([hidden]){
-    grid-column:1/-1!important;grid-row:2!important;
-    display:grid!important;width:100%!important;
-    grid-template-columns:1fr!important;gap:8px!important;
-    padding:8px!important;margin-top:1px!important;
-    border:1px solid var(--border,#d7e0db)!important;border-radius:11px!important;
-    background:var(--surface,#fff)!important;
+    grid-column:1/-1;
+    grid-row:2;
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:7px;
+    margin-top:1px;
+    padding:7px;
+    border:1px solid var(--hx-app-line,#d7e0db);
+    border-radius:11px;
+    background:var(--hx-app-card,#fff);
   }
   #pmModal .pmx-advanced-filters select,
-  #pmModal .pmx-toolbar.pmx-filters-open #pmSort{
-    display:block!important;width:100%!important;min-width:0!important;height:40px!important;
+  #pmModal .pmx-toolbar.pmx-filters-open #pmSort,
+  #pmModal .pmx-date-range input{
+    display:block;
+    width:100%;
+    min-width:0;
+    height:40px;
+    background:var(--hx-app-canvas,#fff);
+    border-color:var(--hx-app-line,#d7e0db);
+    color:var(--hx-app-text,#17241e);
+    -webkit-text-fill-color:var(--hx-app-text,#17241e);
   }
   #pmModal .pmx-toolbar.pmx-filters-open #pmSort{
-    grid-column:1/-1!important;grid-row:3!important;
+    grid-column:1/-1;
+    grid-row:3;
+    margin-top:0;
   }
-  #pmModal .pmx-date-range{grid-column:1!important;width:100%!important}
-  #pmModal .pmx-date-range label{min-width:0!important}
-  #pmModal .pmx-date-range input{height:40px!important}
+  #pmModal .pmx-date-range{grid-column:1;width:100%}
 }
 
-/* v4.2.25 · Linealidad visual: Filtros usa exactamente el lenguaje de Explorer */
-#pmModal .pmx-filters-toggle{
-  height:38px;
-  min-width:102px;
-  padding:0 12px;
-  gap:7px;
-  border-radius:11px;
-  font-size:12px;
-  font-weight:800;
-  box-shadow:none;
-}
-#pmModal .pmx-filters-toggle .ui-icon{
-  width:17px!important;
-  height:17px!important;
-  display:grid;
-  place-items:center;
-  flex:0 0 17px;
-}
-#pmModal .pmx-filters-toggle .ui-icon svg{
-  display:block;
-  width:17px!important;
-  height:17px!important;
-  fill:none!important;
-  stroke:currentColor!important;
-  stroke-width:1.8!important;
-  stroke-linecap:round!important;
-  stroke-linejoin:round!important;
-}
-#pmModal .pmx-filters-toggle:hover,
-#pmModal .pmx-filters-toggle:focus-visible,
-#pmModal .pmx-filters-toggle.is-active{
-  border-color:var(--green,#1f8f5f)!important;
-  background:rgba(31,143,95,.08)!important;
-  outline:none!important;
-}
-@media (max-width:900px){
-  #pmModal .pmx-filters-toggle{
-    width:38px!important;
-    min-width:38px!important;
-    height:38px!important;
-    min-height:38px!important;
-    padding:0!important;
-    border-radius:11px!important;
-  }
-  #pmModal .pmx-filters-toggle .ui-icon{
-    width:17px!important;
-    height:17px!important;
-    flex-basis:17px!important;
-  }
+@media (max-width:640px){
+  #pmModal .pmx-advanced-filters{grid-template-columns:1fr}
+  #pmModal .pmx-date-range{grid-column:1}
 }
 
-/* v4.2.26 · Mis presupuestos: remate final de filtros */
-#pmModal .pmx-filter-notice[hidden]{display:none!important}
-#pmModal .pmx-filters-toggle b[hidden]{display:none!important}
-#pmModal .pmx-filters-toggle.is-active{border-color:var(--green,#1f8f5f)!important;background:rgba(31,143,95,.08)!important}
-\n\n/* v4.2.27 · cierre filtros: móvil integrado + rango efectivo */\n@media (max-width:900px){\n  #pmModal .pmx-advanced-filters:not([hidden]){\n    background:var(--hx-app-card)!important;\n    border-color:var(--hx-app-line)!important;\n    padding:7px!important;\n    gap:7px!important;\n  }\n  #pmModal .pmx-advanced-filters select,\n  #pmModal .pmx-toolbar.pmx-filters-open #pmSort,\n  #pmModal .pmx-date-range input{\n    background:var(--hx-app-canvas)!important;\n    border-color:var(--hx-app-line)!important;\n    color:var(--hx-app-text)!important;\n    -webkit-text-fill-color:var(--hx-app-text)!important;\n  }\n  #pmModal .pmx-toolbar.pmx-filters-open #pmSort{margin-top:0!important;}\n}\n
-/* v4.2.28 · Mis presupuestos móvil: filtros integrados en dark */
-@media (max-width:900px){
-  body:not(.light-mode) #pmModal .pmx-advanced-filters:not([hidden]){
-    background:#162129!important;
-    border-color:#34434b!important;
-    box-shadow:none!important;
-  }
-  body:not(.light-mode) #pmModal .pmx-advanced-filters select,
-  body:not(.light-mode) #pmModal .pmx-toolbar.pmx-filters-open #pmSort,
-  body:not(.light-mode) #pmModal .pmx-date-range input{
-    background:#26343d!important;
-    border-color:#42535d!important;
-    color:#f1f5f3!important;
-    -webkit-text-fill-color:#f1f5f3!important;
-  }
-  body:not(.light-mode) #pmModal .pmx-date-range label{color:#aebdb6!important}
-}
