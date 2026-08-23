@@ -8988,3 +8988,33 @@ body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year
   #pmModal .pmx-advanced-filters{grid-template-columns:1fr!important}
   #pmModal .pmx-date-range{grid-column:1!important}
 }
+
+/* 17.0 · Detalle de presupuesto — componente compacto PC/móvil */
+#pmModal .pmx-preview-pro{padding:14px!important;gap:10px!important;}
+#pmModal .pmx-preview-pro .pmx-identity{padding:0 0 8px!important;margin:0!important;border-bottom:1px solid var(--hx-app-line-soft)!important;}
+#pmModal .pmx-preview-pro .pmx-identity h4{display:none!important;}
+#pmModal .pmx-preview-pro .pmx-id-number{margin:0!important;color:var(--hx-ui-text)!important;font-size:12px!important;font-weight:750!important;opacity:.78!important;}
+#pmModal .pmx-preview-pro .pmx-meta{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin:0!important;}
+#pmModal .pmx-preview-pro .pmx-meta>div{padding:7px 9px!important;border:1px solid var(--hx-app-line-soft)!important;border-radius:9px!important;background:var(--hx-app-canvas)!important;min-height:0!important;}
+#pmModal .pmx-preview-pro .pmx-meta dt{font-size:9px!important;line-height:1.1!important;opacity:.66!important;}
+#pmModal .pmx-preview-pro .pmx-meta dd{font-size:11.5px!important;line-height:1.25!important;margin-top:2px!important;color:var(--hx-ui-text)!important;}
+#pmModal .pmx-preview-pro .pmx-total{margin:0!important;padding:9px 10px!important;border:1px solid color-mix(in srgb,var(--hx-ui-green) 28%,var(--hx-app-line-soft))!important;border-radius:10px!important;background:color-mix(in srgb,var(--hx-ui-green) 6%,var(--hx-app-card))!important;}
+#pmModal .pmx-preview-pro .pmx-total strong{font-size:22px!important;line-height:1!important;color:var(--hx-ui-green)!important;}
+#pmModal .pmx-preview-pro .pmx-products{padding-top:9px!important;border-top:1px solid var(--hx-app-line-soft)!important;}
+#pmModal .pmx-preview-pro .pmx-products-title{margin-bottom:6px!important;}
+#pmModal .pmx-preview-pro .pmx-products-title small{color:var(--hx-ui-green)!important;font-weight:750!important;}
+#pmModal .pmx-preview-pro .pmx-products ul{gap:4px!important;}
+#pmModal .pmx-preview-pro .pmx-products li{min-height:30px!important;padding:5px 8px!important;border:1px solid var(--hx-app-line-soft)!important;background:var(--hx-app-canvas)!important;}
+#pmModal .pmx-actions{grid-template-columns:repeat(5,minmax(0,1fr))!important;}
+#pmModal .pmx-actions button{height:38px!important;min-height:38px!important;font-size:12px!important;font-weight:750!important;line-height:1!important;}
+#pmModal .pmx-actions button .pmx-action-icon{width:17px!important;height:17px!important;flex:0 0 17px!important;}
+#pmModal #pmPdf{color:var(--hx-ui-green)!important;}
+@media(max-width:900px){
+  #pmModal .pmx-preview-pro{padding:11px!important;gap:8px!important;}
+  #pmModal .pmx-preview-pro .pmx-meta{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  #pmModal .pmx-preview-pro .pmx-total{padding:8px 9px!important;}
+  #pmModal .pmx-preview-pro .pmx-total strong{font-size:20px!important;}
+  #pmModal.pm-mobile-preview.pm-has-selection .pmx-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;}
+  #pmModal.pm-mobile-preview.pm-has-selection #pmDelete{grid-column:1/-1!important;}
+  #pmModal.pm-mobile-preview.pm-has-selection .pmx-actions button{height:38px!important;min-height:38px!important;font-size:11.5px!important;}
+}

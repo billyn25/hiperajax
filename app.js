@@ -4918,19 +4918,19 @@ pintarCatalogPanel = function(term=catalogTerm){
     pmSyncDateRange();
     if(byId('pmSort'))byId('pmSort').value='recent';
     document.querySelectorAll('#pmModal .pmx-row.is-selected').forEach(r=>r.classList.remove('is-selected'));
-    ['pmOpen','pmDuplicate','pmRename','pmDelete'].forEach(id=>{const b=byId(id);if(b)b.disabled=true});
+    ['pmOpen','pmDuplicate','pmPdf','pmRename','pmDelete'].forEach(id=>{const b=byId(id);if(b)b.disabled=true});
     const list=byId('pmList');if(list)list.scrollTop=0;
     const browser=m?.querySelector('.pmx-browser');if(browser)browser.scrollTop=0;
     preview();
   }
   function preview(){
     const p=selected(),root=byId('pmPreview'),head=byId('pmPreviewTitle'),active=!!p;
-    ['pmOpen','pmDuplicate','pmRename','pmDelete'].forEach(id=>{const e=byId(id);if(e)e.disabled=!active});
+    ['pmOpen','pmDuplicate','pmPdf','pmRename','pmDelete'].forEach(id=>{const e=byId(id);if(e)e.disabled=!active});
     modal()?.classList.toggle('pm-has-selection',active);
     if(!root||!head)return;
     if(!p){head.textContent='Selecciona un presupuesto';root.className='pmx-preview-body pmx-preview-empty';root.innerHTML=`<div class="pmx-empty-icon">${PM_ICON.document}</div><strong>Selecciona un presupuesto</strong><p>Aquí verás sus datos antes de recuperarlo.</p>`;return}
     const c=calc(p),r=rows(p),shown=r.slice(0,5);head.textContent=title(p);
-    root.className='pmx-preview-body';root.innerHTML=`<div class="pmx-identity"><span class="pmx-document-icon">${PM_ICON.document}</span><div><h4>${escapeHtml(title(p))}</h4><p>${escapeHtml(p.numero||'Sin número')}</p></div></div><dl class="pmx-meta"><div><dt>Cliente</dt><dd>${escapeHtml(p.cliente||'Sin cliente')}</dd></div><div><dt>Tienda</dt><dd>${escapeHtml(p.tienda||'')}</dd></div><div><dt>Comercial</dt><dd>${escapeHtml(p.comercial||'')}</dd></div><div><dt>Fecha</dt><dd>${escapeHtml(date(p.fecha||modified(p)))}</dd></div><div><dt>Productos</dt><dd>${c.count}</dd></div></dl><div class="pmx-total"><span>Total</span><strong>${fmt.format(c.total)}</strong></div><div class="pmx-products"><div class="pmx-products-title"><span>Primeros productos</span>${r.length>5?`<small>+${r.length-5} más</small>`:''}</div><ul>${shown.length?shown.map(l=>`<li><span>${escapeHtml(product(l))}</span><b>x${qty(l)||1}</b></li>`).join(''):'<li class="pmx-no-products">Sin productos</li>'}</ul></div>`;
+    root.className='pmx-preview-body pmx-preview-pro';root.innerHTML=`<div class="pmx-identity"><span class="pmx-document-icon">${PM_ICON.document}</span><div><p class="pmx-id-number">${escapeHtml(p.numero||'Sin número')} · ${escapeHtml(date(p.fecha||modified(p)))}</p></div></div><dl class="pmx-meta"><div><dt>Cliente</dt><dd>${escapeHtml(p.cliente||'Sin cliente')}</dd></div><div><dt>Tienda</dt><dd>${escapeHtml(p.tienda||'Sin tienda')}</dd></div><div><dt>Comercial</dt><dd>${escapeHtml(p.comercial||'Sin asignar')}</dd></div><div><dt>Productos</dt><dd>${c.count}</dd></div></dl><div class="pmx-total"><span>Total</span><strong>${fmt.format(c.total)}</strong></div><div class="pmx-products"><div class="pmx-products-title"><span>Productos</span>${r.length>5?`<small>Ver ${r.length} productos</small>`:''}</div><ul>${shown.length?shown.map(l=>`<li><span>${escapeHtml(product(l))}</span><b>x${qty(l)||1}</b></li>`).join(''):'<li class="pmx-no-products">Sin productos</li>'}</ul></div>`;
   }
   function render(){
     syncFilters();markFolder();updateFilterNotice();const all=listAll(),list=filtered(),root=byId('pmList');
@@ -4965,6 +4965,19 @@ pintarCatalogPanel = function(term=catalogTerm){
       }
     }));preview();
   }
+  async function pdfSelected(){
+    const p=selected();
+    if(!p) return;
+    const snapshot=datosPresupuesto();
+    const activeId=window.HX_ACTIVE_BUDGET_ID;
+    try{
+      aplicarPresupuesto(p);
+      await pdf();
+    }finally{
+      aplicarPresupuesto(snapshot);
+      window.HX_ACTIVE_BUDGET_ID=activeId;
+    }
+  }
   async function show(){
     const m=modal();if(!m)return;
     resetManagerView();
@@ -4980,7 +4993,7 @@ pintarCatalogPanel = function(term=catalogTerm){
     render();
   }
   document.addEventListener('DOMContentLoaded',()=>{
-    byId('btnBudgets')?.addEventListener('click',show);byId('pmClose')?.addEventListener('click',hide);byId('pmBackdrop')?.addEventListener('click',hide);byId('pmBackMobile')?.addEventListener('click',()=>{
+    byId('btnBudgets')?.addEventListener('click',show);byId('pmPdf')?.addEventListener('click',()=>{pdfSelected().catch(error=>{console.error('[Hiper Ajax] PDF guardado:',error);alert('No se pudo generar el PDF del presupuesto.');});});byId('pmClose')?.addEventListener('click',hide);byId('pmBackdrop')?.addEventListener('click',hide);byId('pmBackMobile')?.addEventListener('click',()=>{
       clearSelection();
       const m=modal();
       m?.classList.remove('pm-mobile-preview','pm-has-selection');
@@ -6286,7 +6299,7 @@ window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
     modal()?.classList.remove('pm-mobile-list','pm-has-selection');
     const sel=document.getElementById('presupuestosGuardados');if(sel)sel.value='';
     document.querySelectorAll('#pmModal .pmx-row.is-selected').forEach(r=>r.classList.remove('is-selected'));
-    ['pmOpen','pmDuplicate','pmRename','pmDelete'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true});
+    ['pmOpen','pmDuplicate','pmPdf','pmRename','pmDelete'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true});
   },true);
 
   document.addEventListener('dblclick',function(e){
