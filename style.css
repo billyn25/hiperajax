@@ -5804,11 +5804,6 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row:hover:not(.is-selected) *{
   line-height:1!important;
   font-weight:800!important;
 }
-#pmModal #pmOpen{
-  background:linear-gradient(135deg,#176f45,#23945e)!important;
-  border-color:#47ce84!important;
-  color:#fff!important;
-}
 
 /* PC: dos columnas de tarjetas, sin cortar datos antes de seleccionar */
 @media(min-width:981px){
@@ -8903,13 +8898,13 @@ body:not(.light-mode) .hx-compat-commerce>strong{color:#35a86f!important;}
 /* v4.2.21 · pistas de scroll del presupuesto */
 .budget-card .table-scroll{position:relative}
 .hx-budget-scroll-hint{position:sticky;left:50%;z-index:12;width:44px;height:30px;margin-left:-22px;padding:0;display:flex;align-items:center;justify-content:center;border:1px solid rgba(31,143,95,.22);border-radius:12px;background:rgba(255,255,255,.94);color:#176f4b;box-shadow:0 3px 10px rgba(18,55,38,.10);opacity:0;pointer-events:none;transform:translateY(2px) scale(.96);transition:opacity .16s ease,transform .16s ease,background .16s ease,border-color .16s ease;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
-body:not(.light-mode) .hx-budget-scroll-hint{background:rgba(23,34,29,.92);color:#77d6a1;border-color:rgba(119,214,161,.24)}
+body:not(.light-mode) .hx-budget-scroll-hint{background:rgba(255,255,255,.08);color:#77d6a1;border-color:rgba(119,214,161,.24)}
 .hx-budget-scroll-hint svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round}
 .hx-budget-scroll-hint.is-visible{opacity:.96;pointer-events:auto;transform:translateY(0) scale(1)}
 .hx-budget-scroll-up{top:40px;margin-top:5px;margin-bottom:-34px}
 .hx-budget-scroll-down{bottom:8px;margin-top:-34px;margin-bottom:5px}
-.hx-budget-scroll-hint:hover{background:#edf8f1;border-color:rgba(31,143,95,.38);box-shadow:0 4px 12px rgba(18,85,53,.14)}
-body:not(.light-mode) .hx-budget-scroll-hint:hover{background:#203d30}
+.hx-budget-scroll-hint:hover{background:rgba(255,255,255,.98);border-color:rgba(31,143,95,.38);box-shadow:0 4px 12px rgba(18,85,53,.14)}
+body:not(.light-mode) .hx-budget-scroll-hint:hover{background:rgba(255,255,255,.12)}
 @media(max-width:760px){.hx-budget-scroll-hint{width:42px;height:29px;margin-left:-21px}.hx-budget-scroll-up{top:38px}}
 @media(prefers-reduced-motion:reduce){.hx-budget-scroll-hint{transition:none}.budget-card .table-scroll{scroll-behavior:auto}}
 
@@ -9008,7 +9003,7 @@ body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year
   #pmModal .pmx-preview-pro .pmx-total{padding:16px 2px!important;}
   #pmModal .pmx-preview-pro .pmx-total strong{font-size:25px!important;}
   #pmModal.pm-mobile-preview.pm-has-selection .pmx-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;padding:16px 4px 4px!important;border-top:0!important;}
-  #pmModal.pm-mobile-preview.pm-has-selection .pmx-actions button{height:42px!important;min-height:42px!important;font-size:12px!important;border-radius:11px!important;}
+  #pmModal.pm-mobile-preview.pm-has-selection .pmx-actions button{height:42px!important;min-height:42px!important;padding:0 12px!important;font-size:12px!important;font-weight:750!important;line-height:1!important;border-radius:11px!important;}
   #pmModal.pm-mobile-preview.pm-has-selection #pmPdf{order:1!important;}
   #pmModal.pm-mobile-preview.pm-has-selection #pmDuplicate{order:2!important;}
   #pmModal.pm-mobile-preview.pm-has-selection #pmOpen{order:3!important;}
