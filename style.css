@@ -5047,7 +5047,7 @@ body:not(.light):not(.light-mode) #pmModal .pmx-active-mark{background:#b7f5cc!i
   #pmModal.pm-mobile-list .pmx-actions #pmOpen{
     grid-column:1/-1!important;
     min-height:50px!important;
-    font-size:16px!important;
+    font-size:12px!important;
   }
   #pmModal.pm-mobile-list .pmx-actions button{min-height:46px!important}
 
