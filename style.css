@@ -3214,8 +3214,8 @@ body.light #pmModal .pmx-actions button:hover:not(:disabled),body.light-mode #pm
   color:#fff!important;
 }
 #pmModal .pmx-actions #pmDelete:hover:not(:disabled){
-  background:#b91c1c!important;
-  border-color:#991b1b!important;
+  background:#85444b!important;
+  border-color:#430000!important;
 }
 #pmModal .modal-close{
   width:36px!important;
@@ -8072,7 +8072,7 @@ body:not(.light-mode){
   border-color:color-mix(in srgb,var(--hx-ui-danger) 38%,var(--hx-ui-border))!important;
   color:var(--hx-ui-danger)!important;
 }
-#pmModal #pmDelete:hover:not(:disabled){background:color-mix(in srgb,var(--hx-ui-danger) 11%,var(--hx-ui-surface))!important;border-color:var(--hx-ui-danger)!important;color:var(--hx-ui-danger)!important;}
+#pmModal #pmDelete:hover:not(:disabled){background:color-mix(in srgb,var(--hx-ui-danger) 11%,var(--hx-ui-surface))!important;border-color:var(--hx-ui-danger)!important;color:#ffffff;}
 
 /* Carpetas/filtros del gestor: menos botón antiguo, más selector de app. */
 #pmModal .pmx-folder{
