@@ -659,7 +659,7 @@ body.light-mode .budget-card #tbody .drag-btn{background:#edf8f1;border-color:#9
   .budget-card .totals.totals-v3 .total-box span{font-size:13px!important;color:#17643e!important}
   .budget-card .totals.totals-v3 .total-box strong{font-size:22px!important;color:#0d663d!important}
   body:not(.light-mode) .budget-card .totals.totals-v3 .total-box{
-    background:linear-gradient(135deg,#123c29,#0e3021)!important;color:#d8f7e5!important;
+    background:#2f765c!important;color:#d8f7e5!important;
   }
   body:not(.light-mode) .budget-card .totals.totals-v3 .total-box span,
   body:not(.light-mode) .budget-card .totals.totals-v3 .total-box strong{color:#d8f7e5!important}
