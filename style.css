@@ -3190,9 +3190,9 @@ body.light #pmModal .pmx-actions button:hover:not(:disabled),body.light-mode #pm
   text-shadow:none!important;
 }
 #pmModal button:hover:not(:disabled){
-  background:#162129!important;
-  border-color:#3e5a4d!important;
-  color:#ffffff!important;
+  background:#e4e8eb!important;
+  border-color:#c5ccd1!important;
+  color:#172229!important;
 }
 #pmModal .pmx-row{
   background:#313b42!important;
@@ -3214,8 +3214,8 @@ body.light #pmModal .pmx-actions button:hover:not(:disabled),body.light-mode #pm
   color:#fff!important;
 }
 #pmModal .pmx-actions #pmDelete:hover:not(:disabled){
-  background:#85444b!important;
-  border-color:#430000!important;
+  background:#b91c1c!important;
+  border-color:#991b1b!important;
 }
 #pmModal .modal-close{
   width:36px!important;
@@ -5047,7 +5047,7 @@ body:not(.light):not(.light-mode) #pmModal .pmx-active-mark{background:#b7f5cc!i
   #pmModal.pm-mobile-list .pmx-actions #pmOpen{
     grid-column:1/-1!important;
     min-height:50px!important;
-    font-size:12px!important;
+    font-size:16px!important;
   }
   #pmModal.pm-mobile-list .pmx-actions button{min-height:46px!important}
 
@@ -5432,7 +5432,7 @@ body.light #pmModal .pmx-row.is-selected *,body.light-mode #pmModal .pmx-row.is-
   #pmModal.pm-mobile-list .pmx-card-fields{display:grid!important;grid-template-columns:1fr!important;gap:3px!important}
   #pmModal.pm-mobile-list:not(.pm-has-selection) .pmx-actions{display:none!important}
   #pmModal.pm-mobile-list.pm-has-selection .pmx-actions{display:grid!important;grid-template-columns:1fr 1fr!important;padding:10px 14px 13px!important;gap:8px!important}
-  #pmModal.pm-mobile-list.pm-has-selection #pmOpen{grid-column:1/-1!important;min-height:42px!important}
+  #pmModal.pm-mobile-list.pm-has-selection #pmOpen{grid-column:1/-1!important;min-height:50px!important}
 }
 
 @media(max-width:420px){
@@ -6052,7 +6052,7 @@ body:not(.light):not(.light-mode) #pmModal .pmx-row.is-selected .pmx-card-fields
   #pmModal #pmOpen{
     font-size:13px!important;
     line-height:1!important;
-    min-height:44px!important;
+    min-height:46px!important;
     padding-block:10px!important;
   }
 }
@@ -7673,7 +7673,7 @@ body.claro .hx-product-thumb{background:#eef1f3!important;background-image:none!
 
 body.light-mode .hx-product-thumb:hover,body.light-mode button.hx-product-thumb:hover{background:#e4e9ec!important;border-color:#aeb9c1!important;}
 /* Botón modo — contenedor recuperado */
-#themeToggle{width:40px;height:40px;min-width:40px;min-height:40px;display:inline-grid;place-items:center;padding:0;border:1px solid #4d5c54;border-radius:12px;background:#18211d;color:#f4c542;box-shadow:0 3px 12px rgba(0,0,0,.28)}
+#themeToggle{width:42px;height:42px;min-width:42px;min-height:42px;display:inline-grid;place-items:center;padding:0;border:1px solid #4d5c54;border-radius:12px;background:#18211d;color:#f4c542;box-shadow:0 3px 12px rgba(0,0,0,.28)}
 #themeToggle:hover{border-color:#76692d;background:#242719;color:#ffd75a;box-shadow:0 4px 14px rgba(0,0,0,.34)}
 body.light-mode #themeToggle{border-color:#cfd9d4;background:#fff;color:#d99a00;box-shadow:0 3px 10px rgba(30,60,45,.10)}
 body.light-mode #themeToggle:hover{border-color:#d7b64a;background:#fff8dd;color:#b77d00;box-shadow:0 4px 12px rgba(30,60,45,.14)}
@@ -8072,7 +8072,7 @@ body:not(.light-mode){
   border-color:color-mix(in srgb,var(--hx-ui-danger) 38%,var(--hx-ui-border))!important;
   color:var(--hx-ui-danger)!important;
 }
-#pmModal #pmDelete:hover:not(:disabled){background:color-mix(in srgb,var(--hx-ui-danger) 11%,var(--hx-ui-surface))!important;border-color:var(--hx-ui-danger)!important;color:#ffffff;}
+#pmModal #pmDelete:hover:not(:disabled){background:color-mix(in srgb,var(--hx-ui-danger) 11%,var(--hx-ui-surface))!important;border-color:var(--hx-ui-danger)!important;color:var(--hx-ui-danger)!important;}
 
 /* Carpetas/filtros del gestor: menos botón antiguo, más selector de app. */
 #pmModal .pmx-folder{
