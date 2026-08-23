@@ -9008,6 +9008,6 @@ body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year
   #pmModal.pm-mobile-preview.pm-has-selection #pmDuplicate{order:2!important;}
   #pmModal.pm-mobile-preview.pm-has-selection #pmOpen{order:3!important;}
   #pmModal.pm-mobile-preview.pm-has-selection #pmRename{order:4!important;}
-  #pmModal.pm-mobile-preview.pm-has-selection #pmDelete{order:5!important;grid-column:1/-1!important;margin-top:3px!important;height:38px!important;min-height:38px!important;background:color-mix(in srgb,#9a4b52 14%,var(--hx-app-card))!important;color:#ffffff!important;border-color:color-mix(in srgb,#9a4b52 36%,var(--hx-app-line-soft))!important;}
+  #pmModal.pm-mobile-preview.pm-has-selection #pmDelete{order:5!important;grid-column:1/-1!important;margin-top:3px!important;height:38px!important;min-height:38px!important;color:#ffffff!important;border-color:color-mix(in srgb,#9a4b52 36%,var(--hx-app-line-soft))!important;}
   body:not(.light-mode) #pmModal.pm-mobile-preview.pm-has-selection #pmDelete{color:#f0c7cb!important;}
 }
