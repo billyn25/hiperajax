@@ -165,7 +165,7 @@ body.light-mode .line-qty-btn{
   width:100%;
   height:100%;
   fill:none;
-  stroke:162129;
+  stroke:currentColor;
   stroke-width:1.9;
   stroke-linecap:round;
   stroke-linejoin:round;
@@ -659,7 +659,7 @@ body.light-mode .budget-card #tbody .drag-btn{background:#edf8f1;border-color:#9
   .budget-card .totals.totals-v3 .total-box span{font-size:13px!important;color:#17643e!important}
   .budget-card .totals.totals-v3 .total-box strong{font-size:22px!important;color:#0d663d!important}
   body:not(.light-mode) .budget-card .totals.totals-v3 .total-box{
-    background:#2f765c!important;color:#d8f7e5!important;
+    background:linear-gradient(135deg,#123c29,#0e3021)!important;color:#d8f7e5!important;
   }
   body:not(.light-mode) .budget-card .totals.totals-v3 .total-box span,
   body:not(.light-mode) .budget-card .totals.totals-v3 .total-box strong{color:#d8f7e5!important}
@@ -926,7 +926,7 @@ body.light-mode .budget-card .budget-toolbar.header-toolbar > .header-action-dan
 }
 .budget-card .budget-toolbar #btnExcel,
 .budget-card .budget-toolbar #btnExcel .header-format-label{
-  color:#2f765c!important;
+  color:#1d6f42!important;
 }
 .budget-card .budget-toolbar #btnClear{
   color:#d43a3a!important;
