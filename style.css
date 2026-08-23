@@ -7673,7 +7673,7 @@ body.claro .hx-product-thumb{background:#eef1f3!important;background-image:none!
 
 body.light-mode .hx-product-thumb:hover,body.light-mode button.hx-product-thumb:hover{background:#e4e9ec!important;border-color:#aeb9c1!important;}
 /* Botón modo — contenedor recuperado */
-#themeToggle{width:42px;height:42px;min-width:42px;min-height:42px;display:inline-grid;place-items:center;padding:0;border:1px solid #4d5c54;border-radius:12px;background:#18211d;color:#f4c542;box-shadow:0 3px 12px rgba(0,0,0,.28)}
+#themeToggle{width:40px;height:40px;min-width:40px;min-height:40px;display:inline-grid;place-items:center;padding:0;border:1px solid #4d5c54;border-radius:12px;background:#18211d;color:#f4c542;box-shadow:0 3px 12px rgba(0,0,0,.28)}
 #themeToggle:hover{border-color:#76692d;background:#242719;color:#ffd75a;box-shadow:0 4px 14px rgba(0,0,0,.34)}
 body.light-mode #themeToggle{border-color:#cfd9d4;background:#fff;color:#d99a00;box-shadow:0 3px 10px rgba(30,60,45,.10)}
 body.light-mode #themeToggle:hover{border-color:#d7b64a;background:#fff8dd;color:#b77d00;box-shadow:0 4px 12px rgba(30,60,45,.14)}
