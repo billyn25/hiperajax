@@ -3190,9 +3190,9 @@ body.light #pmModal .pmx-actions button:hover:not(:disabled),body.light-mode #pm
   text-shadow:none!important;
 }
 #pmModal button:hover:not(:disabled){
-  background:#e4e8eb!important;
-  border-color:#c5ccd1!important;
-  color:#172229!important;
+  background:#162129!important;
+  border-color:#3e5a4d!important;
+  color:#ffffff!important;
 }
 #pmModal .pmx-row{
   background:#313b42!important;
