@@ -5432,7 +5432,7 @@ body.light #pmModal .pmx-row.is-selected *,body.light-mode #pmModal .pmx-row.is-
   #pmModal.pm-mobile-list .pmx-card-fields{display:grid!important;grid-template-columns:1fr!important;gap:3px!important}
   #pmModal.pm-mobile-list:not(.pm-has-selection) .pmx-actions{display:none!important}
   #pmModal.pm-mobile-list.pm-has-selection .pmx-actions{display:grid!important;grid-template-columns:1fr 1fr!important;padding:10px 14px 13px!important;gap:8px!important}
-  #pmModal.pm-mobile-list.pm-has-selection #pmOpen{grid-column:1/-1!important;min-height:50px!important}
+  #pmModal.pm-mobile-list.pm-has-selection #pmOpen{grid-column:1/-1!important;min-height:42px!important}
 }
 
 @media(max-width:420px){
