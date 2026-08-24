@@ -783,7 +783,6 @@ body:not(.light-mode) #familiasGrid button.hxp-thumb{background:#303833!importan
   border:1px solid var(--hxp-accent);
   border-radius:9px;
   background:var(--hxp-accent-soft);
-  color:var(--hxp-text)!important;
   box-shadow:none;
 }
 #familiasGrid .hxp-empty-products{min-height:220px}
