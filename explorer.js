@@ -2273,7 +2273,7 @@
       if(trigger.dataset.hxpFeedback==='1') return;
       trigger.dataset.hxpFeedback='1';
       trigger.disabled=true;
-      trigger.textContent = quantity>1 ? `✓ Añadidos ${quantity}` : '✓ Añadido';
+      trigger.textContent = quantity>1 ? `✓ ${quantity} uds` : '✓ Añadido';
       trigger.classList.add('is-added');
       setTimeout(() => {
         const current=typeof hxModalQtyGet==='function'?hxModalQtyGet('explorer',Number(index)):1;

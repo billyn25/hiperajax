@@ -429,7 +429,7 @@ const functionalOrder=['detectores','baterias','valvulas','teclados','mandos','s
       }catch(_error){}
       const originalText=btn.dataset.hxOriginalText || btn.textContent || 'Añadir';
       btn.dataset.hxOriginalText=originalText;
-      btn.textContent=qty>1?`✓ Añadidos ${qty}`:'✓ Añadido';
+      btn.textContent=qty>1?`✓ ${qty} uds`:'✓ Añadido';
       btn.classList.add('is-added');
       clearTimeout(btn.__hxCompatAddedTimer);
       btn.__hxCompatAddedTimer=setTimeout(()=>{

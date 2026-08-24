@@ -249,7 +249,7 @@ function activate(el){
   if(result?.ok){
    el.dataset.hxqFeedback='1';
    el.setAttribute('aria-disabled','true');
-   el.textContent=n>1?`✓ Añadidos ${n}`:'✓ Añadido';el.classList.add('is-added');
+   el.textContent=n>1?`✓ ${n} uds`:'✓ Añadido';el.classList.add('is-added');
    setTimeout(()=>{const current=Math.max(1,Number(q.textContent)||1);el.textContent=current>1?`Añadir ${current}`:'Añadir';el.classList.remove('is-added');el.removeAttribute('aria-disabled');delete el.dataset.hxqFeedback},1050);
   }
   return true;
