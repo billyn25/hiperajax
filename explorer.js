@@ -2320,8 +2320,24 @@
     const compactCount = document.querySelector('#familiasGrid .hxp-mobile-compact-title em');
     if(compactCount) compactCount.textContent = String(items.length);
 
-    // Los rápidos no se reconstruyen por cada letra. Se recalculan al aplicar filtros,
-    // cambiar de familia o pulsar un rápido.
+    // Mantener los atajos de familia sincronizados con la búsqueda sin reconstruir
+    // el buscador mientras se escribe. Los que no tienen resultados quedan desactivados.
+    const quickMap = new Map(quickGroups(quickCounterItems()).map(group => [group.label, group]));
+    document.querySelectorAll('#familiasGrid [data-hxp-quick]').forEach(button => {
+      const value = button.dataset.hxpQuick || '';
+      const active = value ? state.quickGroup === value : !state.quickGroup;
+      button.classList.toggle('is-active', active);
+      if(!value) return;
+      const group = quickMap.get(value);
+      const quickCount = group?.count || 0;
+      const disabled = quickCount === 0 && !active;
+      button.classList.toggle('is-disabled', disabled);
+      button.disabled = disabled;
+      button.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+      const counter = button.querySelector('em');
+      if(counter) counter.textContent = String(quickCount);
+    });
+
     bindDynamicResults(byId('familiasGrid'));
   }
 
@@ -2401,15 +2417,8 @@
   function bindDynamicResults(root){
     if(!root) return;
     bindQuickScroll(root);
-    root.querySelectorAll('[data-hxp-quick]').forEach(button => {
-      if(button.dataset.hxpBound) return;
-      button.dataset.hxpBound = '1';
-      button.addEventListener('click', () => {
-        const value = button.dataset.hxpQuick || '';
-        state.quickGroup = value && state.quickGroup === value ? '' : value;
-        refreshSearchResults();
-      });
-    });
+    // Los atajos rápidos ya se enlazan una sola vez en bind(). No volver a
+    // añadir listeners aquí: durante una búsqueda produciría doble toggle.
     root.querySelectorAll('[data-hxp-add]').forEach(button => {
       if(button.dataset.hxpBound) return;
       button.dataset.hxpBound='1';
