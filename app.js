@@ -4137,12 +4137,6 @@ duplicarPresupuesto = function(){
   guardar();
 };
 
-document.addEventListener('DOMContentLoaded',()=>{
-  try{
-    const num = $('#numero');
-    if(num && !String(num.value || '').trim()) num.value = siguienteNumero(true);
-  }catch(e){}
-});
 
 
 function camaraDesc198(p, base){
