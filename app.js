@@ -294,29 +294,79 @@ function hxCompatStock(product){
 
 function hxCompatFunctionalType(product){
   const ref=normaliza(String(product?.name||''));
-  const taxonomy=normaliza([product?.category,product?.category_parent,product?.family,product?.subcategory,product?.product_type].filter(Boolean).join(' '));
-  const short=normaliza(String(product?.short_description||''));
+  const compact=ref.replace(/[^a-z0-9]/g,'');
+  const taxonomy=normaliza([
+    product?.category,product?.category_parent,product?.family,
+    product?.subcategory,product?.subfamily,product?.subfamilia,
+    product?.product_type,product?.tipo
+  ].filter(Boolean).join(' '));
+  const short=normaliza(String(product?.short_description||product?.description||''));
   const own=`${ref} ${taxonomy} ${short}`;
 
-  if(/^(?:\d+x)?batt[-_]/.test(ref) || /\b(pila|pilas|bateria|baterias|batería|baterías|battery|batteries)\b/.test(taxonomy) || /^\s*(pila|bateria|batería|pack de .*pilas|pack de .*baterias)\b/.test(short))
-    return {key:'baterias',label:'Pilas / Baterías',icon:'▯',tone:'amber'};
-  if(/waterstop|valve|valvula|válvula|electrovalvula|electroválvula/.test(own))
-    return {key:'valvulas',label:'Válvulas',icon:'◉',tone:'blue'};
-  if(/keypad|teclado|touchscreen/.test(own))
-    return {key:'teclados',label:'Teclados',icon:'⌨',tone:'violet'};
+  // Domótica Ajax: referencias muy específicas primero para no caer en
+  // Mandos/Botones o Repuestos por palabras genéricas de la descripción.
+  if(/(?:center|side|solo)cover/.test(compact) || /coverplate/.test(compact) || /tapa(?: de| para)? enchufe|cubierta(?: de| para)? enchufe/.test(own))
+    return {key:'tapas_enchufe',label:'Tapas enchufe',icon:'▣',tone:'rose'};
+  if(/(?:center|side|solo)button/.test(compact) || /panel tactil para un interruptor|panel táctil para un interruptor|tecla.*lightswitch/.test(own))
+    return {key:'tapas_interruptor',label:'Tapas interruptor',icon:'▤',tone:'violet'};
+  if(/(?:^|[-_\s])frame(?:[-_\s]|$)/.test(ref) || /^ajframe\d*/.test(compact))
+    return {key:'frames',label:'Frames',icon:'▦',tone:'cyan'};
+  if(/surfacebox/.test(compact) || /surface\s*box|caja(?: de)? superficie|caja superficial/.test(own))
+    return {key:'cajas_superficie',label:'Cajas superficie',icon:'□',tone:'slate'};
+
+  // Familias principales del mismo lenguaje de Explorer.
+  if(/(?:^|[-_])hub(?:[-_]|$)|hub2|hubplus|minihub|central de alarma|panel de control/.test(own))
+    return {key:'centrales',label:'Centrales',icon:'◈',tone:'green'};
+  if(/(?:^|[-_])nvr|grabador nvr|grabador de red|network video recorder|\bnvr\b/.test(own))
+    return {key:'nvr',label:'NVR / Grabadores',icon:'▥',tone:'blue'};
+  if(/doorbell|timbre|videoportero/.test(own))
+    return {key:'doorbell',label:'Timbre / Doorbell',icon:'◉',tone:'orange'};
+  if(/camera|camara|cámara|bullet|turret|dome|ptz|videovigilancia/.test(own) && !/motioncam/.test(own))
+    return {key:'camaras',label:'Cámaras',icon:'◉',tone:'blue'};
 
   if(/motionprotect|doorprotect|leaksprotect|fireprotect|glassprotect|combiprotect|motioncam|curtain|outdoorprotect|detector|fotodetector|contacto magnetico|contacto magnético|inundacion|inundación/.test(own))
     return {key:'detectores',label:'Detectores',icon:'◎',tone:'red'};
-  if(/spacecontrol|doublebutton|button|boton|botón|mando/.test(own))
-    return {key:'mandos',label:'Mandos / Botones',icon:'●',tone:'orange'};
+  if(/keypad|teclado|touchscreen/.test(own))
+    return {key:'teclados',label:'Teclados',icon:'⌨',tone:'violet'};
+  if(/homesiren|streetsiren|sirena/.test(own))
+    return {key:'sirenas',label:'Sirenas',icon:'◖',tone:'red'};
+  if(/spacecontrol|doublebutton|(?:^|[-_\s])button(?:[-_\s]|$)|boton|botón|mando/.test(own))
+    return {key:'mandos',label:'Botones / Mandos',icon:'●',tone:'orange'};
+  if(/pass|tag|card|tarjeta rfid|rfid/.test(own) && !/sd|microsd/.test(own))
+    return {key:'tags_cards',label:'Tags / Cards',icon:'◇',tone:'violet'};
+  if(/rex2|(?:^|[-_\s])rex(?:[-_\s]|$)|repetidor|range extender/.test(own))
+    return {key:'repetidores',label:'Repetidores',icon:'↔',tone:'blue'};
+  if(/transmitter|multitransmitter|uartbridge|ocbridge/.test(own))
+    return {key:'transmitters',label:'Transmitters',icon:'⇄',tone:'slate'};
+
+  // Domótica funcional.
+  if(/waterstop|valve|valvula|válvula|electrovalvula|electroválvula/.test(own))
+    return {key:'valvulas',label:'Válvulas',icon:'◉',tone:'blue'};
+  if(/outletcore|outlet core|socket|enchufe inteligente|\boutlet\b/.test(own))
+    return {key:'enchufes',label:'Enchufes',icon:'◍',tone:'green'};
+  if(/lightswitch|light switch|lightcore|light core|wallswitch|\brelay\b|aj-relay|rel[eé]s?|interruptor inteligente/.test(own))
+    return {key:'interruptores',label:'Interruptores / Relés',icon:'ϟ',tone:'yellow'};
+  if(/lifequality|calidad.*aire|co2|monitor.*(?:temperatura|humedad)/.test(own))
+    return {key:'clima',label:'Clima / Aire / LifeQuality',icon:'○',tone:'cyan'};
+
+  // Accesorios e instalación.
+  if(/hood|visera|sunshield|rainshield/.test(own))
+    return {key:'viseras',label:'Hood / Viseras',icon:'⌒',tone:'slate'};
   if(/(?:^|[-_])(bracket|mount|holder|junctionbox|junction|dinholder)(?:[-_]|$)/.test(ref) || /\b(bracket|mount|holder|junction ?box|caja de conexiones|soporte para|soporte de montaje|soporte pared|soporte techo|soporte poste)\b/.test(own))
     return {key:'soportes',label:'Soportes',icon:'⌘',tone:'slate'};
-  if(/(?:^|[-_])(dummy|pcb|cover|lens|carcasa|repuesto)(?:[-_]|$)/.test(ref) || /\b(repuestos?|recambio|dummy|carcasa|cover|tapa|pcb|lente)\b/.test(taxonomy) || /^\s*(repuesto|recambio|carcasa|tapa|pcb|lente)\b/.test(short))
-    return {key:'repuestos',label:'Repuestos',icon:'↻',tone:'rose'};
-  if(/(?:^|[-_])(hdd|ssd|sd|microsd)(?:[-_]|$)/.test(ref) || /\b(discos? duros?|hdd|ssd|almacenamiento|tarjetas? sd|micro ?sd|storage)\b/.test(taxonomy) || /^\s*(disco|hdd|ssd|tarjeta sd|micro ?sd)\b/.test(short))
-    return {key:'almacenamiento',label:'Almacenamiento',icon:'◇',tone:'cyan'};
   if(/\b(fuente de alimentacion|fuente de alimentación|alimentador|adaptador de corriente|inyector poe|power supply)\b/.test(taxonomy) || /(?:^|[-_])(psu|power|adapter|adaptador|injector|inyector)(?:[-_]|$)/.test(ref))
     return {key:'alimentacion',label:'Alimentación',icon:'ϟ',tone:'yellow'};
+  if(/^(?:\d+x)?batt[-_]/.test(ref) || /\b(pila|pilas|bateria|baterias|batería|baterías|battery|batteries)\b/.test(taxonomy) || /^\s*(pila|bateria|batería|pack de .*pilas|pack de .*baterias)\b/.test(short))
+    return {key:'baterias',label:'Pilas / Baterías',icon:'▯',tone:'amber'};
+  if(/(?:^|[-_])(hdd|ssd|sd|microsd)(?:[-_]|$)/.test(ref) || /\b(discos? duros?|hdd|ssd|almacenamiento|tarjetas? sd|micro ?sd|storage)\b/.test(taxonomy) || /^\s*(disco|hdd|ssd|tarjeta sd|micro ?sd)\b/.test(short))
+    return {key:'almacenamiento',label:'Almacenamiento',icon:'◇',tone:'cyan'};
+  if(/\bsim\b|tarjeta sim/.test(own))
+    return {key:'sim',label:'SIM',icon:'▯',tone:'cyan'};
+
+  // Repuesto solo después de subtipos funcionales concretos.
+  if(/(?:^|[-_])(dummy|pcb|lens|carcasa|repuesto)(?:[-_]|$)/.test(ref) || /\b(repuestos?|recambio|dummy|carcasa|pcb|lente)\b/.test(taxonomy) || /^\s*(repuesto|recambio|carcasa|pcb|lente)\b/.test(short))
+    return {key:'repuestos',label:'Repuestos',icon:'↻',tone:'rose'};
+
   return {key:'otros',label:'Otros',icon:'•••',tone:'neutral'};
 }
 
@@ -350,7 +400,7 @@ function hxOpenCompatibles(product){
   title.textContent=`Compatibles con ${product?.name||''}`;official.textContent=`${all.length} compatible${all.length===1?'':'s'} oficial${all.length===1?'':'es'}`;
   const oi=hxCompatImage(product),od=(product?.short_description||product?.description||'').trim();
   origin.innerHTML=`${oi?`<img src="${escapeHtml(oi)}" alt="">`:''}<div class="hx-compat-origin-copy"><div class="hx-compat-origin-title"><strong>${escapeHtml(product?.name||'')}</strong><em>✓ Producto actual</em></div><span>${escapeHtml(od)}</span></div>`;
-const functionalOrder=['detectores','baterias','valvulas','teclados','mandos','soportes','alimentacion','almacenamiento','repuestos','otros'];
+const functionalOrder=['centrales','detectores','teclados','sirenas','mandos','tags_cards','repetidores','transmitters','camaras','nvr','doorbell','interruptores','enchufes','valvulas','clima','frames','cajas_superficie','tapas_interruptor','tapas_enchufe','viseras','soportes','alimentacion','baterias','almacenamiento','sim','repuestos','otros'];
   const discovered=new Map();
   all.forEach(p=>{ const t=hxCompatFunctionalType(p); if(!discovered.has(t.key)) discovered.set(t.key,t); });
   const groups=[
