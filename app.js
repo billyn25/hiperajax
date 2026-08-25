@@ -301,75 +301,105 @@ function hxCompatFunctionalType(product){
     product?.product_type,product?.tipo
   ].filter(Boolean).join(' '));
   const short=normaliza(String(product?.short_description||product?.description||''));
-  const own=`${ref} ${taxonomy} ${short}`;
 
-  // Domótica Ajax: referencias muy específicas primero para no caer en
-  // Mandos/Botones o Repuestos por palabras genéricas de la descripción.
-  if(/(?:center|side|solo)cover/.test(compact) || /coverplate/.test(compact) || /tapa(?: de| para)? enchufe|cubierta(?: de| para)? enchufe/.test(own))
+  // IMPORTANTE: Compatibles clasifica por la IDENTIDAD del producto.
+  // La descripción puede contener "compatible con Hub/Button/Cámara..." y no
+  // debe convertir una pila, fuente, disco o soporte en ese otro producto.
+  const identity=`${ref} ${taxonomy}`;
+  const starts=(re)=>re.test(short);
+
+  // 1) Subtipos/accesorios inequívocos. Deben ganar a cualquier palabra de
+  // compatibilidad que aparezca después en la descripción.
+  if(/(?:center|side|solo)cover/.test(compact) || /coverplate/.test(compact) || starts(/^tapa(?: de| para)? enchufe\b|^cubierta(?: de| para)? enchufe\b/))
     return {key:'tapas_enchufe',label:'Tapas enchufe',icon:'▣',tone:'rose'};
-  if(/(?:center|side|solo)button/.test(compact) || /panel tactil para un interruptor|panel táctil para un interruptor|tecla.*lightswitch/.test(own))
+  if(/(?:center|side|solo)button/.test(compact) || starts(/^panel tactil para un interruptor\b|^panel táctil para un interruptor\b|^tecla.*lightswitch\b/))
     return {key:'tapas_interruptor',label:'Tapas interruptor',icon:'▤',tone:'violet'};
   if(/(?:^|[-_\s])frame(?:[-_\s]|$)/.test(ref) || /^ajframe\d*/.test(compact))
     return {key:'frames',label:'Frames',icon:'▦',tone:'cyan'};
-  if(/surfacebox/.test(compact) || /surface\s*box|caja(?: de)? superficie|caja superficial/.test(own))
+  if(/surfacebox/.test(compact) || /surface\s*box|caja(?: de)? superficie|caja superficial/.test(identity) || starts(/^caja(?: de)? superficie\b|^caja superficial\b/))
     return {key:'cajas_superficie',label:'Cajas superficie',icon:'□',tone:'slate'};
 
-  // Familias principales del mismo lenguaje de Explorer.
-  if(/(?:^|[-_])hub(?:[-_]|$)|hub2|hubplus|minihub|central de alarma|panel de control/.test(own))
+  // 2) Instalación, energía y almacenamiento ANTES de cámaras/mandos/relés.
+  // Son los falsos positivos más habituales en textos "compatible con...".
+  if(/^(?:\d+x)?batt[-_]/.test(ref) || /(?:^|[-_])(cr\d{3,4}|lr\d+|er\d+)(?:[-_]|$)/.test(ref) || /\b(pila|pilas|bateria|baterias|batería|baterías|battery|batteries)\b/.test(taxonomy) || starts(/^pila\b|^bateria\b|^batería\b|^pack de .*pilas\b|^pack de .*baterias\b/))
+    return {key:'baterias',label:'Pilas / Baterías',icon:'▯',tone:'amber'};
+  if(/(?:^|[-_])(hdd|ssd|microsd)(?:[-_]|$)/.test(ref) || /^hd\d+(?:tb|gb)(?:[-_]|$)/.test(ref) || /\b(discos? duros?|hdd|ssd|almacenamiento|tarjetas? sd|micro ?sd|storage)\b/.test(taxonomy) || starts(/^disco duro\b|^disco\b|^hdd\b|^ssd\b|^tarjeta sd\b|^micro ?sd\b/))
+    return {key:'almacenamiento',label:'Almacenamiento',icon:'◇',tone:'cyan'};
+  if(/hddadapter|hddadaptador|diskadapter|diskadaptador/.test(compact) || starts(/^adaptador para discos? duros?\b|^adaptador hdd\b/))
+    return {key:'almacenamiento',label:'Almacenamiento',icon:'◇',tone:'cyan'};
+  if(/(?:^|[-_])(psu|power|dc\d+v|adapter|adaptador|injector|inyector)(?:[-_]|$)/.test(ref) || /\b(fuentes? y alimentadores|fuente de alimentacion|fuente de alimentación|alimentador|power supply|inyector poe)\b/.test(taxonomy) || starts(/^fuente de alimentacion\b|^fuente de alimentación\b|^alimentador\b|^adaptador de corriente\b|^inyector poe\b/))
+    return {key:'alimentacion',label:'Alimentación',icon:'ϟ',tone:'yellow'};
+
+  // Cajas de conexión y soportes de cámara son accesorios, no cámaras.
+  if(/junctionbox|junction|cajaconex/.test(compact) || starts(/^caja de conexiones\b|^caja conexiones\b/))
+    return {key:'cajas_cctv',label:'Cajas / Accesorios CCTV',icon:'□',tone:'slate'};
+  if(/(?:^|[-_])(bracket|mount|holder|dinholder)(?:[-_]|$)/.test(ref) || /\b(bracket|mount|holder|soportes?)\b/.test(taxonomy) || starts(/^soporte para\b|^soporte de montaje\b|^soporte pared\b|^soporte techo\b|^soporte poste\b/))
+    return {key:'soportes',label:'Soportes',icon:'⌘',tone:'slate'};
+  if(/hood|visera|sunshield|rainshield/.test(identity) || starts(/^visera\b|^hood\b/))
+    return {key:'viseras',label:'Hood / Viseras',icon:'⌒',tone:'slate'};
+
+  // 3) Cuando Explorer ya conoce el producto, aprovechar sus atajos más
+  // específicos. Así Compatibles y Explorer hablan el mismo idioma.
+  try{
+    const ex=typeof window.HXA_EXPLORER_CLASSIFY==='function' ? window.HXA_EXPLORER_CLASSIFY(product?.name) : null;
+    const quicks=Array.isArray(ex?.quicks) ? ex.quicks : [];
+    const q=quicks.map(normaliza);
+    const qHas=(v)=>q.includes(normaliza(v));
+    if(qHas('Frames')) return {key:'frames',label:'Frames',icon:'▦',tone:'cyan'};
+    if(qHas('Cajas superficie')) return {key:'cajas_superficie',label:'Cajas superficie',icon:'□',tone:'slate'};
+    if(qHas('Tapas interruptor')) return {key:'tapas_interruptor',label:'Tapas interruptor',icon:'▤',tone:'violet'};
+    if(qHas('Tapas enchufe')) return {key:'tapas_enchufe',label:'Tapas enchufe',icon:'▣',tone:'rose'};
+    if(qHas('Pilas')) return {key:'baterias',label:'Pilas / Baterías',icon:'▯',tone:'amber'};
+    if(qHas('Fuentes y Alimentadores') || qHas('Inyectores PoE')) return {key:'alimentacion',label:'Alimentación',icon:'ϟ',tone:'yellow'};
+    if(qHas('Hood / Viseras')) return {key:'viseras',label:'Hood / Viseras',icon:'⌒',tone:'slate'};
+    if(qHas('Holder') || qHas('Brackets')) return {key:'soportes',label:'Soportes',icon:'⌘',tone:'slate'};
+    if(qHas('SIM')) return {key:'sim',label:'SIM',icon:'▯',tone:'cyan'};
+  }catch(_e){}
+
+  // 4) Equipos funcionales. Aquí usamos identidad/taxonomía; la descripción
+  // solo se consulta de forma anclada cuando define qué ES el producto.
+  if(/(?:^|[-_])hub(?:[-_]|$)|hub2|hubplus|minihub/.test(ref) || /\bcentrales?\b|central de alarma|panel de control/.test(taxonomy) || starts(/^central de alarma\b|^panel de control\b/))
     return {key:'centrales',label:'Centrales',icon:'◈',tone:'green'};
-  if(/(?:^|[-_])nvr|grabador nvr|grabador de red|network video recorder|\bnvr\b/.test(own))
+  if(/(?:^|[-_])nvr/.test(ref) || /\bnvr\b|grabadores?/.test(taxonomy) || starts(/^grabador nvr\b|^grabador de red\b|^network video recorder\b/))
     return {key:'nvr',label:'NVR / Grabadores',icon:'▥',tone:'blue'};
-  if(/doorbell|timbre|videoportero/.test(own))
+  if(/doorbell/.test(ref) || /timbre|videoportero/.test(taxonomy) || starts(/^doorbell\b|^timbre\b|^videoportero\b/))
     return {key:'doorbell',label:'Timbre / Doorbell',icon:'◉',tone:'orange'};
-  if(/camera|camara|cámara|bullet|turret|dome|ptz|videovigilancia/.test(own) && !/motioncam/.test(own))
+  if((/camera|camara|bullet|turret|dome|ptz/.test(ref) || /\b(camaras?|cámaras?|videovigilancia)\b/.test(taxonomy) || starts(/^camara\b|^cámara\b/)) && !/motioncam/.test(ref))
     return {key:'camaras',label:'Cámaras',icon:'◉',tone:'blue'};
 
-  if(/motionprotect|doorprotect|leaksprotect|fireprotect|glassprotect|combiprotect|motioncam|curtain|outdoorprotect|detector|fotodetector|contacto magnetico|contacto magnético|inundacion|inundación/.test(own))
+  if(/motionprotect|doorprotect|leaksprotect|fireprotect|glassprotect|combiprotect|motioncam|curtain|outdoorprotect/.test(ref) || /\bdetectores?\b/.test(taxonomy) || starts(/^detector\b|^fotodetector\b|^contacto magnetico\b|^contacto magnético\b/))
     return {key:'detectores',label:'Detectores',icon:'◎',tone:'red'};
-  if(/keypad|teclado|touchscreen/.test(own))
+  if(/keypad|touchscreen/.test(ref) || /\bteclados?\b/.test(taxonomy) || starts(/^teclado\b|^keypad\b/))
     return {key:'teclados',label:'Teclados',icon:'⌨',tone:'violet'};
-  if(/homesiren|streetsiren|sirena/.test(own))
+  if(/homesiren|streetsiren|siren/.test(ref) || /\bsirenas?\b/.test(taxonomy) || starts(/^sirena\b/))
     return {key:'sirenas',label:'Sirenas',icon:'◖',tone:'red'};
-  if(/spacecontrol|doublebutton|(?:^|[-_\s])button(?:[-_\s]|$)|boton|botón|mando/.test(own))
+  if(/spacecontrol|doublebutton|(?:^|[-_\s])button(?:[-_\s]|$)/.test(ref) || /\b(mandos?|botones?)\b/.test(taxonomy) || starts(/^mando\b|^boton\b|^botón\b/))
     return {key:'mandos',label:'Botones / Mandos',icon:'●',tone:'orange'};
-  if(/pass|tag|card|tarjeta rfid|rfid/.test(own) && !/sd|microsd/.test(own))
+  if(/(?:^|[-_\s])(pass|tag|card)(?:[-_\s]|$)/.test(ref) || /tarjeta rfid|rfid|tags? \/ cards?/.test(taxonomy))
     return {key:'tags_cards',label:'Tags / Cards',icon:'◇',tone:'violet'};
-  if(/rex2|(?:^|[-_\s])rex(?:[-_\s]|$)|repetidor|range extender/.test(own))
+  if(/rex2|(?:^|[-_\s])rex(?:[-_\s]|$)/.test(ref) || /repetidor|range extender/.test(taxonomy))
     return {key:'repetidores',label:'Repetidores',icon:'↔',tone:'blue'};
-  if(/transmitter|multitransmitter|uartbridge|ocbridge/.test(own))
+  if(/transmitter|multitransmitter|uartbridge|ocbridge/.test(ref) || /transmitters?/.test(taxonomy))
     return {key:'transmitters',label:'Transmitters',icon:'⇄',tone:'slate'};
 
   // Domótica funcional.
-  if(/waterstop|valve|valvula|válvula|electrovalvula|electroválvula/.test(own))
+  if(/waterstop|valve|valvula/.test(ref) || /valvulas?|válvulas?/.test(taxonomy))
     return {key:'valvulas',label:'Válvulas',icon:'◉',tone:'blue'};
-  if(/outletcore|outlet core|socket|enchufe inteligente|\boutlet\b/.test(own))
+  if(/outletcore|socket|(?:^|[-_])outlet(?:[-_]|$)/.test(ref) || /\benchufes?\b/.test(taxonomy) || starts(/^enchufe inteligente\b/))
     return {key:'enchufes',label:'Enchufes',icon:'◍',tone:'green'};
-  if(/lightswitch|light switch|lightcore|light core|wallswitch|\brelay\b|aj-relay|rel[eé]s?|interruptor inteligente/.test(own))
+  if(/lightswitch|lightcore|wallswitch|(?:^|[-_])relay(?:[-_]|$)|aj-relay/.test(ref) || /interruptores?|rel[eé]s?/.test(taxonomy) || starts(/^interruptor inteligente\b|^rele\b|^relé\b/))
     return {key:'interruptores',label:'Interruptores / Relés',icon:'ϟ',tone:'yellow'};
-  if(/lifequality|calidad.*aire|co2|monitor.*(?:temperatura|humedad)/.test(own))
+  if(/lifequality/.test(ref) || /clima|calidad.*aire/.test(taxonomy) || starts(/^monitor.*(?:temperatura|humedad|co2)\b/))
     return {key:'clima',label:'Clima / Aire / LifeQuality',icon:'○',tone:'cyan'};
-
-  // Accesorios e instalación.
-  if(/hood|visera|sunshield|rainshield/.test(own))
-    return {key:'viseras',label:'Hood / Viseras',icon:'⌒',tone:'slate'};
-  if(/(?:^|[-_])(bracket|mount|holder|junctionbox|junction|dinholder)(?:[-_]|$)/.test(ref) || /\b(bracket|mount|holder|junction ?box|caja de conexiones|soporte para|soporte de montaje|soporte pared|soporte techo|soporte poste)\b/.test(own))
-    return {key:'soportes',label:'Soportes',icon:'⌘',tone:'slate'};
-  if(/\b(fuente de alimentacion|fuente de alimentación|alimentador|adaptador de corriente|inyector poe|power supply)\b/.test(taxonomy) || /(?:^|[-_])(psu|power|adapter|adaptador|injector|inyector)(?:[-_]|$)/.test(ref))
-    return {key:'alimentacion',label:'Alimentación',icon:'ϟ',tone:'yellow'};
-  if(/^(?:\d+x)?batt[-_]/.test(ref) || /\b(pila|pilas|bateria|baterias|batería|baterías|battery|batteries)\b/.test(taxonomy) || /^\s*(pila|bateria|batería|pack de .*pilas|pack de .*baterias)\b/.test(short))
-    return {key:'baterias',label:'Pilas / Baterías',icon:'▯',tone:'amber'};
-  if(/(?:^|[-_])(hdd|ssd|sd|microsd)(?:[-_]|$)/.test(ref) || /\b(discos? duros?|hdd|ssd|almacenamiento|tarjetas? sd|micro ?sd|storage)\b/.test(taxonomy) || /^\s*(disco|hdd|ssd|tarjeta sd|micro ?sd)\b/.test(short))
-    return {key:'almacenamiento',label:'Almacenamiento',icon:'◇',tone:'cyan'};
-  if(/\bsim\b|tarjeta sim/.test(own))
+  if(/(?:^|[-_\s])sim(?:[-_\s]|$)|m2m/.test(ref) || /\bsim\b/.test(taxonomy))
     return {key:'sim',label:'SIM',icon:'▯',tone:'cyan'};
 
-  // Repuesto solo después de subtipos funcionales concretos.
-  if(/(?:^|[-_])(dummy|pcb|lens|carcasa|repuesto)(?:[-_]|$)/.test(ref) || /\b(repuestos?|recambio|dummy|carcasa|pcb|lente)\b/.test(taxonomy) || /^\s*(repuesto|recambio|carcasa|pcb|lente)\b/.test(short))
+  // Repuesto solo al final y solo por identidad propia.
+  if(/(?:^|[-_])(dummy|pcb|lens|carcasa|repuesto)(?:[-_]|$)/.test(ref) || /\b(repuestos?|recambio|dummy|carcasa|pcb|lente)\b/.test(taxonomy) || starts(/^repuesto\b|^recambio\b|^carcasa\b|^pcb\b|^lente\b/))
     return {key:'repuestos',label:'Repuestos',icon:'↻',tone:'rose'};
 
   return {key:'otros',label:'Otros',icon:'•••',tone:'neutral'};
 }
-
 function hxCompatCategoryLabel(product){ return hxCompatFunctionalType(product).label; }
 function hxEnsureCompatModal(){
   let modal=document.getElementById('hxCompatModal');
