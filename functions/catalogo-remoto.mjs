@@ -341,7 +341,9 @@ function esSoporteCCTVSeleccionado(name = "") {
   const ref = String(name || "").trim().toUpperCase();
   return ref === "DS-1280ZJ-XS"
     || ref === "DS-1280ZJ-XS-B"
-    || ref === "DS-1280ZJ-XS-W";
+    || ref === "DS-1280ZJ-XS-W"
+    || ref === "JBOX-118-WHITE"
+    || ref === "JBOX-118-BLACK";
 }
 
 async function crearCatalogoAjax(response) {
