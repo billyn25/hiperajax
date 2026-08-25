@@ -333,8 +333,8 @@ function hxCompatFunctionalType(product){
   // Cajas de conexión y soportes de cámara son accesorios, no cámaras.
   if(/junctionbox|junction|cajaconex/.test(compact) || starts(/^caja de conexiones\b|^caja conexiones\b/))
     return {key:'cajas_cctv',label:'Cajas / Accesorios CCTV',icon:'□',tone:'slate'};
-  if(/(?:^|[-_])(bracket|mount|holder|dinholder)(?:[-_]|$)/.test(ref) || /\b(bracket|mount|holder|soportes?)\b/.test(taxonomy) || starts(/^soporte para\b|^soporte de montaje\b|^soporte pared\b|^soporte techo\b|^soporte poste\b/))
-    return {key:'soportes',label:'Soportes',icon:'⌘',tone:'slate'};
+  if(/mountcam/.test(compact) || /(?:^|[-_])(bracket|mount|holder|dinholder)(?:[-_]|$)/.test(ref) || /\b(bracket|mount|holder|soportes?)\b/.test(taxonomy) || starts(/^soporte para\b|^soporte de montaje\b|^soporte pared\b|^soporte techo\b|^soporte poste\b/))
+    return {key:'soportes',label:'Soportes cámaras',icon:'⌘',tone:'slate'};
   if(/hood|visera|sunshield|rainshield/.test(identity) || starts(/^visera\b|^hood\b/))
     return {key:'viseras',label:'Hood / Viseras',icon:'⌒',tone:'slate'};
 
@@ -352,7 +352,7 @@ function hxCompatFunctionalType(product){
     if(qHas('Pilas')) return {key:'baterias',label:'Pilas / Baterías',icon:'▯',tone:'amber'};
     if(qHas('Fuentes y Alimentadores') || qHas('Inyectores PoE')) return {key:'alimentacion',label:'Alimentación',icon:'ϟ',tone:'yellow'};
     if(qHas('Hood / Viseras')) return {key:'viseras',label:'Hood / Viseras',icon:'⌒',tone:'slate'};
-    if(qHas('Holder') || qHas('Brackets')) return {key:'soportes',label:'Soportes',icon:'⌘',tone:'slate'};
+    if(qHas('Holder') || qHas('Brackets')) return {key:'soportes',label:'Soportes cámaras',icon:'⌘',tone:'slate'};
     if(qHas('SIM')) return {key:'sim',label:'SIM',icon:'▯',tone:'cyan'};
   }catch(_e){}
 
@@ -430,7 +430,7 @@ function hxOpenCompatibles(product){
   title.textContent=`Compatibles con ${product?.name||''}`;official.textContent=`${all.length} compatible${all.length===1?'':'s'} oficial${all.length===1?'':'es'}`;
   const oi=hxCompatImage(product),od=(product?.short_description||product?.description||'').trim();
   origin.innerHTML=`${oi?`<img src="${escapeHtml(oi)}" alt="">`:''}<div class="hx-compat-origin-copy"><div class="hx-compat-origin-title"><strong>${escapeHtml(product?.name||'')}</strong><em>✓ Producto actual</em></div><span>${escapeHtml(od)}</span></div>`;
-const functionalOrder=['centrales','detectores','teclados','sirenas','mandos','tags_cards','repetidores','transmitters','camaras','nvr','doorbell','interruptores','enchufes','valvulas','clima','frames','cajas_superficie','tapas_interruptor','tapas_enchufe','viseras','soportes','alimentacion','baterias','almacenamiento','sim','repuestos','otros'];
+const functionalOrder=['centrales','detectores','teclados','sirenas','mandos','tags_cards','repetidores','transmitters','camaras','nvr','doorbell','interruptores','enchufes','valvulas','clima','frames','cajas_superficie','tapas_interruptor','tapas_enchufe','viseras','cajas_cctv','soportes','alimentacion','baterias','almacenamiento','sim','repuestos','otros'];
   const discovered=new Map();
   all.forEach(p=>{ const t=hxCompatFunctionalType(p); if(!discovered.has(t.key)) discovered.set(t.key,t); });
   const groups=[
