@@ -272,7 +272,7 @@
     if(!family) family = manual ? 'Productos añadidos' : 'General';
 
     const selectedRef = clean(product?.name).toUpperCase();
-    if(['DS-1280ZJ-XS','DS-1280ZJ-XS-B'].includes(selectedRef)){
+    if(['DS-1280ZJ-XS','DS-1280ZJ-XS-B','JBOX-118-WHITE','JBOX-118-BLACK'].includes(selectedRef)){
       return {
         category:'Ajax CCTV',
         family:'Accesorios',
@@ -1306,7 +1306,7 @@
       if(excludedFamily) return false;
 
       // Forzados conocidos de CCTV.
-      if(ref === 'DS-1280ZJ-XS' || ref === 'DS-1280ZJ-XS-B') return true;
+      if(['DS-1280ZJ-XS','DS-1280ZJ-XS-B','JBOX-118-WHITE','JBOX-118-BLACK'].includes(ref)) return true;
 
       // Junction boxes reales.
       if(/\bjunction\s*box\b|\bjunctionbox\b|\bcaja de conexiones\b/.test(identity)) return true;

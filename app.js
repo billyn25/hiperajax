@@ -2808,7 +2808,9 @@ function hxEsRouterMovil(p){
 function hxEsSoporteCCTVSeleccionado(p){
   const ref = String(p?.name || '').trim().toUpperCase();
   return ref === 'DS-1280ZJ-XS'
-    || ref === 'DS-1280ZJ-XS-B';
+    || ref === 'DS-1280ZJ-XS-B'
+    || ref === 'JBOX-118-WHITE'
+    || ref === 'JBOX-118-BLACK';
 }
 
 function hxEsProductoProveedorExtra(p){
