@@ -43,7 +43,7 @@ function slug(value){return String(value||'').normalize('NFD').replace(/[\u0300-
 function setActiveNav(id){
  const nav=$('hxqNav');if(!nav)return;
  nav.querySelectorAll('[data-hxq-jump]').forEach(item=>item.classList.toggle('is-active',item.dataset.hxqJump===id));
- const active=nav.querySelector('.hxq-nav-item.is-active');
+ const active=nav.querySelector('[data-hxq-jump].is-active');
  if(active && window.matchMedia('(max-width:640px)').matches){
   active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
  }
@@ -85,7 +85,11 @@ function updateActiveFamily(){
 }
 function renderNav(items){
  const nav=$('hxqNav');if(!nav)return;
- nav.innerHTML=items.map((item,index)=>`<span class="hxq-nav-item ${index===0?'is-active':''}" data-hxq-jump="${esc(item.id)}" role="button" tabindex="0">${esc(item.label)}</span>`).join('');
+ nav.innerHTML=items.map((item,index)=>{
+  const children=Array.isArray(item.groups)?item.groups:[];
+  const expandable=children.length>0;
+  return `<div class="hxq-nav-node" data-hxq-node="${esc(item.id)}"><div class="hxq-nav-row"><span class="hxq-nav-item ${index===0?'is-active':''}" data-hxq-jump="${esc(item.id)}" role="button" tabindex="0">${esc(item.label)}</span>${expandable?`<span class="hxq-nav-toggle" data-hxq-toggle="${esc(item.id)}" role="button" tabindex="0" aria-expanded="false" aria-label="Mostrar subfamilias de ${esc(item.label)}">+</span>`:''}</div>${expandable?`<div class="hxq-nav-children">${children.map(group=>`<span class="hxq-nav-subitem" data-hxq-jump="${esc(group.id)}" role="button" tabindex="0">${esc(group.label)}</span>`).join('')}</div>`:''}</div>`;
+ }).join('');
  requestAnimationFrame(updateNavMore);
 }
 
@@ -139,7 +143,7 @@ function render(){
   if(!sourceFamilies.length)continue;
 
   const familyId=`hxq-family-${slug(cfg.label||cfg.family)}`;
-  const groups=[];
+  const groups=[],navGroups=[];
 
   for(const sourceEntry of sourceFamilies){
    const family=sourceEntry.family,activeCfg=sourceEntry.sourceCfg;
@@ -196,13 +200,15 @@ function render(){
     const groupLabel=Array.isArray(cfg.sources)
       ? `${activeCfg.label}${activeCfg.family==='Tarjetas SD' ? ` · ${baseLabel}` : (baseLabel && baseLabel!==activeCfg.label ? ` · ${baseLabel}` : '')}`
       : baseLabel;
-    groups.push(`<section class="hxq-group"><div class="hxq-group-title"><strong>${esc(groupLabel)}</strong><span>${products.length}</span></div><div class="hxq-grid">${products.map(card).join('')}</div></section>`);
+    const groupId=`${familyId}-group-${slug(groupLabel)}`;
+    navGroups.push({id:groupId,label:groupLabel});
+    groups.push(`<section class="hxq-group" id="${esc(groupId)}"><div class="hxq-group-title"><strong>${esc(groupLabel)}</strong><span>${products.length}</span></div><div class="hxq-grid">${products.map(card).join('')}</div></section>`);
    }
   }
 
   if(groups.length){
    const label=cfg.label||cfg.family;
-   navItems.push({id:familyId,label});
+   navItems.push({id:familyId,label,groups:navGroups});
    html.push(`<section class="hxq-family" id="${esc(familyId)}"><h2>${esc(label)}</h2>${groups.join('')}</section>`);
   }
  }
@@ -227,6 +233,16 @@ function openImagePreview(url){
 }
 function activate(el){
  if(el?.closest?.('[data-hxq-close]')){close();return true}
+ const toggle=el?.closest?.('[data-hxq-toggle]');
+ if(toggle){
+  if(window.matchMedia('(max-width:640px)').matches)return true;
+  const node=toggle.closest('.hxq-nav-node');
+  const openNow=!node?.classList.contains('is-open');
+  node?.classList.toggle('is-open',openNow);
+  toggle.textContent=openNow?'−':'+';
+  toggle.setAttribute('aria-expanded',String(openNow));
+  return true;
+ }
  const photo=el?.closest?.('[data-hxq-image]');
  if(photo?.dataset.hxqImage){openImagePreview(photo.dataset.hxqImage);return true}
  const jump=el?.closest('[data-hxq-jump]');
