@@ -1130,3 +1130,14 @@ body:not(.light-mode) .add-card .hx-tools-actions .explorer-entry-btn .ui-btn-ic
  .hxq-nav-row{display:contents}
  .hxq-nav-toggle,.hxq-nav-children{display:none!important}
 }
+
+/* HX 2026-08-28: barra lateral mas ancha en Añadir rápido (solo PC) */
+@media (min-width: 641px){
+  .hxq-body{grid-template-columns:170px minmax(0,1fr);}
+  .hxq-nav{padding-left:10px;padding-right:10px;}
+  .hxq-nav-item{font-size:10.5px;padding-left:8px;padding-right:6px;}
+  .hxq-nav-row{grid-template-columns:minmax(0,1fr) 28px;gap:5px;}
+  .hxq-nav-toggle{width:28px;height:28px;}
+  .hxq-nav-children{padding-left:12px;}
+  .hxq-nav-subitem{font-size:9.5px;padding-right:6px;}
+}
