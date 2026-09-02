@@ -2899,32 +2899,44 @@ function hxCatalogoRefs(lista){
     .filter(Boolean))].sort();
 }
 
-function hxActualizarProductosNuevos(lista){
+async function hxActualizarProductosNuevos(lista){
+  const ahora=Date.now();
+  const refs=hxCatalogoRefs(lista);
+  let locales={};
+
+  // Lee las marcas antiguas solo como migración/fallback. Desde esta versión
+  // MongoDB es la fuente común para PC, móvil y cualquier otro navegador.
   try{
-    const ahora=Date.now();
-    const refs=hxCatalogoRefs(lista);
-    const baselineRaw=localStorage.getItem(HX_CATALOGO_BASELINE_KEY);
-    if(!baselineRaw){
-      localStorage.setItem(HX_CATALOGO_BASELINE_KEY,JSON.stringify(refs));
-      localStorage.setItem(HX_CATALOGO_NEW_KEY,JSON.stringify({}));
-      window.HX_PRODUCTOS_NUEVOS={};
-      return {};
-    }
-    const prev=new Set(JSON.parse(baselineRaw)||[]);
-    let nuevos={};
-    try{ nuevos=JSON.parse(localStorage.getItem(HX_CATALOGO_NEW_KEY)||'{}')||{}; }catch(_e){}
-    refs.forEach(ref=>{ if(!prev.has(ref) && !nuevos[ref]) nuevos[ref]=ahora; });
+    locales=JSON.parse(localStorage.getItem(HX_CATALOGO_NEW_KEY)||'{}')||{};
     const limite=HX_CATALOGO_NEW_DAYS*24*60*60*1000;
-    Object.keys(nuevos).forEach(ref=>{
-      if(!refs.includes(ref) || (ahora-Number(nuevos[ref]||0))>limite) delete nuevos[ref];
+    const refsSet=new Set(refs);
+    Object.keys(locales).forEach(ref=>{
+      const ts=Number(locales[ref]||0);
+      if(!refsSet.has(ref) || !ts || (ahora-ts)>limite) delete locales[ref];
     });
-    localStorage.setItem(HX_CATALOGO_BASELINE_KEY,JSON.stringify(refs));
-    localStorage.setItem(HX_CATALOGO_NEW_KEY,JSON.stringify(nuevos));
+  }catch(_error){ locales={}; }
+
+  try{
+    const response=await fetch('/.netlify/functions/catalogo-nuevos',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      cache:'no-store',
+      body:JSON.stringify({refs,localNuevos:locales})
+    });
+    if(!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data=await response.json();
+    const nuevos=(data && data.nuevos && typeof data.nuevos==='object') ? data.nuevos : {};
     window.HX_PRODUCTOS_NUEVOS=nuevos;
+    // Copia local únicamente para arranque/fallback; ya no decide qué es NUEVO.
+    try{
+      localStorage.setItem(HX_CATALOGO_BASELINE_KEY,JSON.stringify(refs));
+      localStorage.setItem(HX_CATALOGO_NEW_KEY,JSON.stringify(nuevos));
+    }catch(_error){}
     return nuevos;
-  }catch(_error){
-    window.HX_PRODUCTOS_NUEVOS={};
-    return {};
+  }catch(error){
+    console.warn('[Nuevos] No se pudo sincronizar con MongoDB; se usa la última copia local.',error);
+    window.HX_PRODUCTOS_NUEVOS=locales;
+    return locales;
   }
 }
 
@@ -3036,7 +3048,7 @@ async function cargarCatalogo(){
       };
       console.info('[Compatibles] related_products cargados:', window.HX_RELATED_DIAGNOSTIC);
     }catch(_error){}
-    hxActualizarProductosNuevos(productos);
+    await hxActualizarProductosNuevos(productos);
     if(!productos.length) throw new Error('Catálogo vacío o columnas no reconocidas');
     try{
       window.HX_EXPLORER_PRO?.resetCache?.();
