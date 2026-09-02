@@ -2012,9 +2012,23 @@ function descripcionPdfCorta(linea){
   }
 }
 
-async function pdf(){
+async function pdf(presupuestoFuente=null){
+  // Exportar un presupuesto guardado NO debe cargarlo en el editor.
+  // Cuando se recibe presupuestoFuente, todos los datos del PDF se leen de esa
+  // copia en memoria y el presupuesto abierto permanece completamente intacto.
+  const fuente = presupuestoFuente && typeof presupuestoFuente === 'object' ? presupuestoFuente : null;
+  const pdfLineas = fuente && Array.isArray(fuente.lineas) ? fuente.lineas : lineas;
+  const pdfCampo = (id, fallback='') => {
+    if(fuente) return fuente[id] ?? fallback;
+    const el = $('#'+id);
+    return el ? (el.value ?? fallback) : fallback;
+  };
+  const identificadorFuente = fuente
+    ? String(fuente.identificador || '').trim()
+    : String(window.HX_GET_IDENTIFICADOR_ACTUAL?.() || '').trim();
+
   // Si no hay productos reales, no abre ni genera ningún PDF.
-  const tieneProductos = Array.isArray(lineas) && lineas.some(l => l && !l.separador && l.tipo !== 'separador');
+  const tieneProductos = Array.isArray(pdfLineas) && pdfLineas.some(l => l && !l.separador && l.tipo !== 'separador');
   if(!tieneProductos){
     alert('Añade al menos un producto antes de generar el PDF.');
     return;
@@ -2039,7 +2053,17 @@ async function pdf(){
     return;
   }
   const doc = new jsPDF({unit:'mm',format:'a4'});
-  const c = calc();
+  const subtotalBrutoPdf = pdfLineas.reduce((sum,l)=> l?.separador ? sum : sum + (Number(l?.pvp)||0)*(Number(l?.qty)||0),0);
+  const basePdf = pdfLineas.reduce((sum,l)=> l?.separador ? sum : sum + ((Number(l?.pvp)||0)*(Number(l?.qty)||0)*(1-(Number(l?.dto)||0)/100)),0);
+  const ivaPctPdf = Math.max(0, Number(pdfCampo('iva',0))||0);
+  const c = {
+    subtotalBruto: subtotalBrutoPdf,
+    dtoLineas: subtotalBrutoPdf-basePdf,
+    base: basePdf,
+    ivaPct: ivaPctPdf,
+    iva: basePdf*ivaPctPdf/100,
+    total: basePdf+(basePdf*ivaPctPdf/100)
+  };
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
   const green = [13,77,49];
@@ -2062,15 +2086,15 @@ async function pdf(){
   doc.setLineWidth(0.22);
   doc.line(14,24,pageW-14,24);
 
-  const fechaPdf = formatFechaES($('#fecha').value || '') || '-';
-  const comercialPdf = $('#comercial') ? ($('#comercial').value || 'Sin asignar') : 'Sin asignar';
-  const validezPdf = `${($('#validez').value || '30')} días`;
-  const tiendaPdf = $('#tienda') ? ($('#tienda').value || '-') : '-';
-  const numeroPdf = $('#numero').value || '-';
-  const clientePdf = $('#cliente').value || '-';
-  const telefonoPdf = $('#telefono').value || '-';
-  const emailPdf = $('#email').value || '-';
-  const identificadorPdf = String(window.HX_GET_IDENTIFICADOR_ACTUAL?.() || '').trim();
+  const fechaPdf = formatFechaES(String(pdfCampo('fecha','') || '')) || '-';
+  const comercialPdf = String(pdfCampo('comercial','Sin asignar') || 'Sin asignar');
+  const validezPdf = `${String(pdfCampo('validez','30') || '30')} días`;
+  const tiendaPdf = String(pdfCampo('tienda','-') || '-');
+  const numeroPdf = String(pdfCampo('numero','-') || '-');
+  const clientePdf = String(pdfCampo('cliente','-') || '-');
+  const telefonoPdf = String(pdfCampo('telefono','-') || '-');
+  const emailPdf = String(pdfCampo('email','-') || '-');
+  const identificadorPdf = identificadorFuente;
 
   const fitPdf = (txt, max) => {
     txt = String(txt || '-');
@@ -2106,7 +2130,7 @@ async function pdf(){
 
   y += identificadorPdf ? 24.9 : 19.5;
 
-  const rows = lineas.map(l=>{
+  const rows = pdfLineas.map(l=>{
     if(l.separador){
       return [{content:String(l.name || 'SECCIÓN').toUpperCase(), colSpan:6, styles:{fillColor:[229,244,236], textColor:green, fontStyle:'bold', halign:'center', fontSize:8.6, cellPadding:2.1}}];
     }
@@ -2138,12 +2162,13 @@ async function pdf(){
   });
 
   y = doc.lastAutoTable.finalY + 6;
-  if(($('#observaciones').value||'').trim()){
+  const observacionesPdf = String(pdfCampo('observaciones','') || '').trim();
+  if(observacionesPdf){
     if(y > 220){ doc.addPage(); y = 24; }
     doc.setTextColor(45,55,60); doc.setFont('helvetica','bold'); doc.setFontSize(9);
     doc.text('Observaciones',14,y);
     doc.setFont('helvetica','normal');
-    const obsLines = doc.splitTextToSize($('#observaciones').value, 88);
+    const obsLines = doc.splitTextToSize(observacionesPdf, 88);
     doc.text(obsLines,14,y+5);
     y += 10 + obsLines.length * 4;
   }
@@ -2187,7 +2212,7 @@ async function pdf(){
     doc.text(`Página ${i} de ${pages}`,pageW-14,pageH-9,{align:'right'});
   }
 
-  const nombrePdf = `presupuesto_${($('#numero').value||'hiper_antena').replace(/[^a-z0-9_-]/gi,'_')}.pdf`;
+  const nombrePdf = `presupuesto_${String(numeroPdf||'hiper_antena').replace(/[^a-z0-9_-]/gi,'_')}.pdf`;
 
   if(pdfWindow && !pdfWindow.closed){
     try{
@@ -5057,15 +5082,8 @@ pintarCatalogPanel = function(term=catalogTerm){
   async function pdfSelected(){
     const p=selected();
     if(!p) return;
-    const snapshot=datosPresupuesto();
-    const activeId=window.HX_ACTIVE_BUDGET_ID;
-    try{
-      aplicarPresupuesto(p);
-      await pdf();
-    }finally{
-      aplicarPresupuesto(snapshot);
-      window.HX_ACTIVE_BUDGET_ID=activeId;
-    }
+    // Exportación aislada: nunca aplica el presupuesto seleccionado al editor.
+    await pdf(p);
   }
   async function show(){
     const m=modal();if(!m)return;
@@ -5561,9 +5579,9 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
   window.HX_ACTIVE_BUDGET_ID = String(window.HX_ACTIVE_BUDGET_ID || '');
 
   function hxPresupuestoSeleccionado(){
-    const sel = $('#presupuestosGuardados');
-    const idModal = sel ? String(sel.value || '').trim() : '';
-    const id = idModal || String(window.HX_ACTIVE_BUDGET_ID || '').trim();
+    // La selección temporal de “Mis presupuestos” nunca convierte ese documento
+    // en el presupuesto que se está editando. Solo Recuperar establece ACTIVE_BUDGET_ID.
+    const id = String(window.HX_ACTIVE_BUDGET_ID || '').trim();
     if(!id) return null;
     return leerListaPresupuestos().find(p => String(p.id || p.mongoId || p._id || '') === id) || null;
   }
@@ -5619,8 +5637,9 @@ document.addEventListener('DOMContentLoaded', hxEnsureCatalogDiagnosticUI);
 
     hxGuardandoMongo = true;
     const sel = $('#presupuestosGuardados');
-    const selectedIdModal = sel ? String(sel.value || '').trim() : '';
-    const selectedId = selectedIdModal || String(window.HX_ACTIVE_BUDGET_ID || '').trim();
+    // Guardar solo puede actualizar el presupuesto realmente recuperado en el editor.
+    // Una tarjeta seleccionada en el gestor es solo una selección de vista previa.
+    const selectedId = String(window.HX_ACTIVE_BUDGET_ID || '').trim();
     const recuperado = hxPresupuestoSeleccionado();
     const duplicadoDe = hxDuplicadoDePendiente || '';
 
@@ -5982,7 +6001,9 @@ window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
       const saveOut=await saveRes.json().catch(()=>null);
       if(!saveRes.ok||!saveOut?.ok) throw new Error(saveOut?.mensaje||saveOut?.error||`Error ${saveRes.status}`);
       window.HX_CLOUD_UPSERT_PRESUPUESTO?.({...presupuesto,updatedAt:saveOut.updatedAt||new Date().toISOString()});
-      hxIdentificadorActual=identificador;
+      // Renombrar desde el gestor modifica el documento guardado, no el editor
+      // actual salvo que sea exactamente el presupuesto recuperado.
+      if(String(window.HX_ACTIVE_BUDGET_ID||'')===id) hxIdentificadorActual=identificador;
       window.dispatchEvent(new CustomEvent('hiperajax:identificador-cambiado',{detail:{id,identificador}}));
       window.HX_PM_RENDER?.();
       hxToast414(`Identificador actualizado: “${identificador}”.`);
@@ -6181,8 +6202,7 @@ window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
     hxEnsureIdentifier416();
     const box=$416('hxBudgetIdentifier416');
     if(!box) return;
-    const p=hxSelected416();
-    const value=String(hxIdentificadorActual || hxIdentifier416(p) || '').trim();
+    const value=String(hxIdentificadorActual || '').trim();
     box.classList.toggle('is-empty',!value);
     const strong=box.querySelector('strong');
     if(strong) strong.textContent=value||'Sin identificador';
@@ -6251,7 +6271,15 @@ window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
       const out=await res.json().catch(()=>null);
       if(!res.ok || !out?.ok) throw new Error(out?.mensaje||out?.error||`Error ${res.status}`);
 
-      hxClearOpen416();
+      // Borrar un presupuesto visto en el gestor no debe vaciar ni alterar el
+      // presupuesto que el usuario tenga abierto. Solo se limpia si borró el activo.
+      const eraActivo=String(window.HX_ACTIVE_BUDGET_ID||'')===id;
+      if(eraActivo) hxClearOpen416();
+      else {
+        const sel=$416('presupuestosGuardados');
+        if(sel && String(sel.value||'')===id) sel.value='';
+        if(String(window.HX_PM_SELECTED_ID||'')===id) window.HX_PM_SELECTED_ID='';
+      }
       window.HX_CLOUD_REMOVE_PRESUPUESTO?.(id);
       // En móvil, al borrar el presupuesto que ocupa la vista previa no tiene
       // sentido dejar esa pantalla vacía. Volvemos a la portada del gestor.
@@ -6310,7 +6338,9 @@ window.HX_RECARGAR_PRESUPUESTOS=hxCargarListaCloud413;
     }
   });
 
-  window.HX_GET_IDENTIFICADOR_ACTUAL=()=>String(hxIdentificadorActual || hxIdentifier416(hxSelected416()) || '').trim();
+  // El identificador visible pertenece exclusivamente al presupuesto abierto.
+  // Seleccionar una tarjeta en Mis presupuestos nunca debe “bajarlo” al editor.
+  window.HX_GET_IDENTIFICADOR_ACTUAL=()=>String(hxIdentificadorActual || '').trim();
 })();
 
 
