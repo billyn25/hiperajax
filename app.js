@@ -1858,7 +1858,10 @@ function formatFechaES(valor){
 
 function exportarExcel(){
   const tieneProductos=Array.isArray(lineas)&&lineas.some(l=>l&&!l.separador&&l.tipo!=='separador');
-  if(!tieneProductos) return;
+  if(!tieneProductos){
+    alert('Añade al menos un producto antes de generar el PDF.');
+    return;
+  }
   if(!window.XLSX){ alert('No se pudo cargar el generador Excel. Comprueba la conexión a internet.'); return; }
   const wb=XLSX.utils.book_new();
   const aoa=[];
@@ -4843,6 +4846,7 @@ pintarCatalogPanel = function(term=catalogTerm){
    ===================================================== */
 (function(){
   let pmSelectedId='';
+  let pmExpandedPreviewId='';
   let pmView={type:'recent',value:''};
   const byId=id=>document.getElementById(id);
   const PM_ICON={
@@ -5043,8 +5047,12 @@ pintarCatalogPanel = function(term=catalogTerm){
     modal()?.classList.toggle('pm-has-selection',active);
     if(!root||!head)return;
     if(!p){head.textContent='Selecciona un presupuesto';root.className='pmx-preview-body pmx-preview-empty';root.innerHTML=`<div class="pmx-empty-icon">${PM_ICON.document}</div><strong>Selecciona un presupuesto</strong><p>Aquí verás sus datos antes de recuperarlo.</p>`;return}
-    const c=calc(p),r=rows(p),shown=r.slice(0,5);head.textContent=title(p);
-    root.className='pmx-preview-body pmx-preview-pro';root.innerHTML=`<div class="pmx-identity"><span class="pmx-document-icon">${PM_ICON.document}</span><div><p class="pmx-id-number">${escapeHtml(p.numero||'Sin número')} · ${escapeHtml(date(p.fecha||modified(p)))}</p></div></div><dl class="pmx-meta"><div>${PM_ICON.person}<span><dt>Cliente</dt><dd>${escapeHtml(p.cliente||'Sin cliente')}</dd></span></div><div>${PM_ICON.store}<span><dt>Tienda</dt><dd>${escapeHtml(p.tienda||'Sin tienda')}</dd></span></div><div>${PM_ICON.person}<span><dt>Comercial</dt><dd>${escapeHtml(p.comercial||'Sin asignar')}</dd></span></div><div>${PM_ICON.package}<span><dt>Productos</dt><dd>${c.count}</dd></span></div></dl><div class="pmx-total"><span>Total</span><strong>${fmt.format(c.total)}</strong></div><div class="pmx-products"><div class="pmx-products-title"><span>Productos <b>(${c.count})</b></span>${r.length>5?`<small>Ver ${r.length} productos</small>`:''}</div><ul>${shown.length?shown.map(l=>`<li><span>${escapeHtml(product(l))}</span><b>x${qty(l)||1}</b></li>`).join(''):'<li class="pmx-no-products">Sin productos</li>'}</ul></div>`;
+    const c=calc(p),r=rows(p),previewId=idOf(p),expanded=pmExpandedPreviewId===previewId,shown=expanded?r:r.slice(0,5);head.textContent=title(p);
+    root.className='pmx-preview-body pmx-preview-pro';root.innerHTML=`<div class="pmx-identity"><span class="pmx-document-icon">${PM_ICON.document}</span><div><p class="pmx-id-number">${escapeHtml(p.numero||'Sin número')} · ${escapeHtml(date(p.fecha||modified(p)))}</p></div></div><dl class="pmx-meta"><div>${PM_ICON.person}<span><dt>Cliente</dt><dd>${escapeHtml(p.cliente||'Sin cliente')}</dd></span></div><div>${PM_ICON.store}<span><dt>Tienda</dt><dd>${escapeHtml(p.tienda||'Sin tienda')}</dd></span></div><div>${PM_ICON.person}<span><dt>Comercial</dt><dd>${escapeHtml(p.comercial||'Sin asignar')}</dd></span></div><div>${PM_ICON.package}<span><dt>Productos</dt><dd>${c.count}</dd></span></div></dl><div class="pmx-total"><span>Total</span><strong>${fmt.format(c.total)}</strong></div><div class="pmx-products"><div class="pmx-products-title"><span>Productos <b>(${c.count})</b></span>${r.length>5?`<button type="button" class="pmx-products-toggle" aria-expanded="${expanded?'true':'false'}">${expanded?'Mostrar menos':`Mostrar todos (${r.length})`}</button>`:''}</div><ul>${shown.length?shown.map(l=>`<li><span>${escapeHtml(product(l))}</span><b>x${qty(l)||1}</b></li>`).join(''):'<li class="pmx-no-products">Sin productos</li>'}</ul></div>`;
+    root.querySelector('.pmx-products-toggle')?.addEventListener('click',()=>{
+      pmExpandedPreviewId=expanded?'':previewId;
+      preview();
+    });
   }
   function render(){
     syncFilters();markFolder();updateFilterNotice();const all=listAll(),list=filtered(),root=byId('pmList');

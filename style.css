@@ -8976,6 +8976,8 @@ body:not(.light-mode) #pmModal .pmx-date-range input::-webkit-datetime-edit-year
 #pmModal .pmx-preview-pro .pmx-products{padding:15px 0 0!important;border:0!important;}
 #pmModal .pmx-preview-pro .pmx-products-title{margin:0 0 7px!important;}
 #pmModal .pmx-preview-pro .pmx-products-title small{color:var(--hx-ui-green)!important;font-weight:750!important;}
+#pmModal .pmx-preview-pro .pmx-products-toggle{appearance:none!important;border:0!important;background:transparent!important;padding:2px 0!important;margin:0!important;color:var(--hx-ui-green)!important;font:inherit!important;font-size:10px!important;font-weight:750!important;line-height:1.2!important;cursor:pointer!important;box-shadow:none!important;}
+#pmModal .pmx-preview-pro .pmx-products-toggle:hover{text-decoration:underline!important;}
 #pmModal .pmx-preview-pro .pmx-products ul{gap:5px!important;}
 #pmModal .pmx-preview-pro .pmx-products li{min-height:38px!important;padding:8px 11px!important;border:1px solid var(--hx-app-line-soft)!important;border-radius:10px!important;background:transparent!important;}
 
