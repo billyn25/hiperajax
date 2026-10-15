@@ -1,0 +1,72 @@
+name: Prepare verified recent-budget source
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/prepare-recents-fix.yml']
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify this is the published source, without reading customer data
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+          const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
+          (async()=>{
+            const originalApp='6929d53271bc05a9b45b2487c6218d7f609a01dfa773457c08e850b427e9147f';
+            const originalHtml='bd17050af16ef81e2edb40de879cce89ab424dd52e3383efa5245e4c67e12a8f';
+            assert.equal(sha(fs.readFileSync('app.js')),originalApp);
+            assert.equal(sha(fs.readFileSync('index.html')),originalHtml);
+            const base='https://ajaxcalc.netlify.app/';
+            const page=await fetch(base,{signal:AbortSignal.timeout(15000)});
+            assert.ok(page.ok,'Published HTML unavailable');
+            const html=await page.text();
+            const scripts=[...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/g)].map(x=>x[1]);
+            const app=scripts.find(x=>/(?:^|\/)app\.js(?:\?|$)/.test(x));
+            assert.ok(app,'Published app not found');
+            const response=await fetch(new URL(app,base),{signal:AbortSignal.timeout(15000)});
+            assert.ok(response.ok,'Published app unavailable');
+            const bytes=Buffer.from(await response.arrayBuffer());
+            assert.equal(sha(bytes),originalApp,'Published app changed; stop rather than overwrite');
+            assert.equal(sha(Buffer.from(html)),originalHtml,'Published HTML changed; stop rather than overwrite');
+            console.log('CONFIRMED: hiperajax/main matches public AjaxCalc HTML and app byte for byte.');
+          })().catch(e=>{console.error(e.message);process.exitCode=1;});
+          NODE
+      - name: Apply the tested source-only patch
+        run: |
+          git apply --check .github/recientes.patch
+          git apply .github/recientes.patch
+          node --check app.js
+          git diff --check
+          for zone in UTC Europe/Madrid America/Los_Angeles; do
+            TZ="$zone" node --test tests/recents.test.cjs
+          done
+      - name: Store verified source blobs without changing any branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+          (async()=>{
+            assert.equal(process.env.GITHUB_REPOSITORY,'billyn25/hiperajax');
+            const expected={'app.js':'2db48235bd889f2e8bfe4f631286b326de46ebcf51b965d955005b206e425ed7','index.html':'1ffb1c31ec560692dab6a8a75f85450957b2ae4045432640e889f9f4c8fa0b1f'};
+            for(const [path,digest] of Object.entries(expected)){
+              const bytes=fs.readFileSync(path);
+              assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),digest,'Unexpected patch output');
+              const response=await fetch('https://api.github.com/repos/billyn25/hiperajax/git/blobs',{
+                method:'POST',headers:{Authorization:'Bearer '+process.env.GH_TOKEN,Accept:'application/vnd.github+json','Content-Type':'application/json'},
+                body:JSON.stringify({content:bytes.toString('base64'),encoding:'base64'}),signal:AbortSignal.timeout(20000)
+              });
+              if(!response.ok)throw new Error('Blob upload HTTP '+response.status);
+              const data=await response.json();
+              console.log('VERIFIED_BLOB '+path+' '+data.sha+' SHA256 '+digest);
+            }
+          })().catch(e=>{console.error(e.message);process.exitCode=1;});
+          NODE
