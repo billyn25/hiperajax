@@ -1,5 +1,5 @@
 /*
- * HXA Common Search Engine 4.0
+ * HXA Common Search Engine 5.3
  * Motor único, genérico y determinista.
  * Sin reglas Ajax, sin atajos, sin aliases.
  */
@@ -44,13 +44,6 @@ function equivalent(a,b){
   return false;
 }
 
-function readFirst(p,names){
-  for(const n of names){
-    const v=p?.[n];
-    if(v!=null&&raw(v)!=='')return raw(v);
-  }
-  return '';
-}
 function readAll(p,names){
   return names.map(n=>raw(p?.[n])).filter(Boolean).join(' ');
 }
@@ -60,15 +53,19 @@ function fieldInfo(v){
 }
 
 function buildRecord(product,index){
-  const ref=readFirst(product,FIELDS.reference);
+  // Conserva todas las referencias reales; un nombre descriptivo no debe
+  // ocultar el modelo guardado en reference, ref, sku o code.
+  const refs=[...new Set(FIELDS.reference.map(name=>raw(product?.[name])).filter(Boolean))];
+  const ref=refs[0]||'';
   return {
     product,index,
-    reference:fieldInfo(ref),
+    reference:fieldInfo(refs.join(' ')),
     identity:fieldInfo(readAll(product,FIELDS.identity)),
     short:fieldInfo(readAll(product,FIELDS.short)),
     long:fieldInfo(readAll(product,FIELDS.long)),
     extra:fieldInfo(readAll(product,FIELDS.extra)),
-    refCompact:compact(ref)
+    refCompact:compact(ref),
+    refCompacts:refs.map(compact)
   };
 }
 
@@ -166,43 +163,35 @@ function prefixWord(field,term){
   return field.words.some(w=>w.startsWith(term));
 }
 
-function exactExists(records,term){
-  return records.some(r =>
-    exactWord(r.reference,term) ||
-    exactWord(r.identity,term) ||
-    exactWord(r.short,term) ||
-    exactWord(r.long,term) ||
-    exactWord(r.extra,term)
-  );
-}
-
-function matchInfo(r,term,allowPrefix){
+function matchInfo(r,term){
   const tc=compact(term);
 
   // 1. REFERENCIA / NOMBRE: prioridad absoluta.
-  if(r.refCompact===tc) return {cls:0,pos:0};
+  if(r.refCompacts.includes(tc)) return {cls:0,pos:0};
   if(exactWord(r.reference,term)) return {cls:1,pos:wordPosition(r.reference,term)};
 
   // término contenido dentro de referencia compuesta:
   // button -> doublebutton, motion -> motioncam, etc.
-  if(term.length>=3 && r.refCompact.includes(tc))
-    return {cls:2,pos:r.refCompact.indexOf(tc)};
+  if(term.length>=3){
+    const positions=r.refCompacts.map(ref=>ref.indexOf(tc)).filter(pos=>pos>=0);
+    if(positions.length) return {cls:2,pos:Math.min(...positions)};
+  }
 
-  if(allowPrefix&&prefixWord(r.reference,term))
+  if(prefixWord(r.reference,term))
     return {cls:3,pos:0};
 
   // 2. IDENTIDAD ESTRUCTURADA.
   if(exactWord(r.identity,term))
     return {cls:10,pos:wordPosition(r.identity,term)};
 
-  if(allowPrefix&&prefixWord(r.identity,term))
+  if(prefixWord(r.identity,term))
     return {cls:11,pos:0};
 
   // 3. DESCRIPCIÓN CORTA.
   if(exactWord(r.short,term))
     return {cls:20,pos:wordPosition(r.short,term)};
 
-  if(allowPrefix&&prefixWord(r.short,term))
+  if(prefixWord(r.short,term))
     return {cls:21,pos:0};
 
   // 4. DESCRIPCIÓN LARGA / EXTRA.
@@ -211,6 +200,14 @@ function matchInfo(r,term,allowPrefix){
 
   if(exactWord(r.extra,term))
     return {cls:31,pos:wordPosition(r.extra,term)};
+
+  // Mientras se escribe también buscamos el inicio de las palabras del
+  // catálogo completo. Una coincidencia exacta en otro producto no lo anula.
+  if(prefixWord(r.long,term))
+    return {cls:32,pos:0};
+
+  if(prefixWord(r.extra,term))
+    return {cls:33,pos:0};
 
   return null;
 }
@@ -289,8 +286,8 @@ function explorerAffinity(product,query){
 }
 
 
-function thematicAffinity(product,query){
-  const getClassification=global.HXA_EXPLORER_CLASSIFICATION;
+function thematicAffinity(product,query,explorerContext){
+  const getClassification=explorerContext?.classification || global.HXA_EXPLORER_CLASSIFICATION;
   const q=normalize(query);
   const qWords=tokens(q);
   if(!qWords.length) return 0;
@@ -355,8 +352,8 @@ function thematicAffinity(product,query){
 }
 
 
-function explorerNaturalOrder(product){
-  const getOrder=global.HXA_EXPLORER_NATURAL_ORDER;
+function explorerNaturalOrder(product,explorerContext){
+  const getOrder=explorerContext?.naturalOrder || global.HXA_EXPLORER_NATURAL_ORDER;
   if(typeof getOrder!=='function') return Number.MAX_SAFE_INTEGER;
   try{
     const value=Number(getOrder(product));
@@ -370,17 +367,29 @@ function search(products,query,options={}){
   const list=Array.isArray(products)?products:[];
   const q=tokens(query);
   if(!q.length)return [];
+  const joinedQuery=q.length>1?q.join(''):'';
+
+  // Una clasificación y un orden por consulta, compartidos por todos los
+  // candidatos. Evita recalcular el catálogo y ordenar familias por producto.
+  let explorerContext=null;
+  if(typeof global.HXA_EXPLORER_PREPARE_SEARCH==='function'){
+    try{ explorerContext=global.HXA_EXPLORER_PREPARE_SEARCH(); }catch(_e){}
+  }
 
   const records=list.map(buildRecord);
-  const prefixPolicy=new Map();
-  for(const term of q) prefixPolicy.set(term,!exactExists(records,term));
-
   const result=[];
   for(const r of records){
+    // El usuario puede separar un modelo al escribirlo: «home si» o «cam x».
+    // Sólo cuenta si la consulta completa y unida aparece en una referencia.
+    const joinedPosition=joinedQuery.length>=3
+      ? r.refCompacts.map(ref=>ref.indexOf(joinedQuery)).filter(pos=>pos>=0)
+      : [];
+    const directModel=joinedPosition.length>0;
     const infos=[];
     let valid=true;
     for(const term of q){
-      const info=matchInfo(r,term,prefixPolicy.get(term));
+      const info=matchInfo(r,term)
+        || (directModel?{cls:2,pos:Math.min(...joinedPosition)}:null);
       if(!info){valid=false;break;}
       infos.push(info);
     }
@@ -392,12 +401,13 @@ function search(products,query,options={}){
 
     result.push({
       product:r.product,index:r.index,
+      directModel,
 
       // Dimensión temática independiente de la coincidencia textual.
-      thematic:thematicAffinity(r.product,query),
+      thematic:thematicAffinity(r.product,query,explorerContext),
 
       // Orden natural de Explorer dentro de la familia ya correcta.
-      explorerOrder:explorerNaturalOrder(r.product),
+      explorerOrder:explorerNaturalOrder(r.product,explorerContext),
 
       worst:Math.max(...infos.map(x=>x.cls)),
       referenceHits,
@@ -417,6 +427,10 @@ function search(products,query,options={}){
   }
 
   result.sort((a,b)=>
+    // Un modelo escrito en varias palabras precede a afinidades de familia.
+    // En consultas de una palabra y dentro de los empates, el orden no cambia.
+    Number(b.directModel)-Number(a.directModel) ||
+
     // 1) Afinidad temática REAL: familia/perfil/atajo de Explorer.
     b.thematic-a.thematic ||
 
@@ -465,7 +479,7 @@ function rows(products,q,limit=300){
 }
 
 const engine={
-  version:'5.2-thematic-explorer-order',
+  version:'5.3-partial-search',
   normalize,compact,search,rank,rows,
   defaultFields:FIELDS
 };

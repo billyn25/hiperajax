@@ -156,6 +156,7 @@
   let state = freshState();
   let modelCache = null;
   let modelSignature = '';
+  let modelProducts = null;
   let searchTimer = null;
   let drawerDraft = {};
   let drawerQuickDraft = '';
@@ -512,13 +513,13 @@
     return {category:category || 'Sin categoría', family:family || 'General'};
   }
 
-  function buildModel(){
-    const signature = productSignature();
-    if(modelCache && modelSignature === signature) return modelCache;
+  function buildModel(signature = productSignature()){
+    const list=currentProducts();
+    if(modelCache && modelSignature === signature && modelProducts === list) return modelCache;
 
     const categories = new Map();
     const allItems = [];
-    currentProducts().forEach((product, index) => {
+    list.forEach((product, index) => {
       const cls = classification(product);
       const categoryId = slug(cls.category);
       const familyId = slug(cls.family);
@@ -606,6 +607,7 @@
     const byFamily = new Map(families.map(family => [family.key, family]));
     modelCache = { allItems, families, byFamily };
     modelSignature = signature;
+    modelProducts = list;
     return modelCache;
   }
 
@@ -2794,13 +2796,12 @@
      Solo ordena candidatos ya encontrados.
      ===================================================== */
   let hxaSearchClassSignature = '';
+  let hxaSearchClassModel = null;
   let hxaSearchClassByProduct = new WeakMap();
 
-  function hxaRefreshSearchClassification(){
-    const signature = productSignature();
-    if(signature === hxaSearchClassSignature) return;
-
-    const model = buildModel();
+  function hxaRefreshSearchClassification(signature = productSignature()){
+    const model = buildModel(signature);
+    if(signature === hxaSearchClassSignature && model === hxaSearchClassModel) return;
     hxaSearchClassByProduct = new WeakMap();
 
     model.allItems.forEach(item => {
@@ -2821,6 +2822,7 @@
     });
 
     hxaSearchClassSignature = signature;
+    hxaSearchClassModel = model;
   }
 
   window.HXA_EXPLORER_CLASSIFICATION = function(product){
@@ -2861,6 +2863,36 @@
     return {base,special,colorRank,reference};
   }
 
+  function compareNaturalSearchItems(a,b){
+    // Orden natural del buscador dentro de la familia:
+    // prioridad comercial CSV -> precio -> modelo base -> color -> variante -> referencia.
+    // Prioridad comercial mantenible desde catalogo_manual.csv (campo order).
+    // Solo actúa dentro del grupo temático ya correcto.
+    const commercialOrder = product => {
+      const value=Number(product?.order);
+      return Number.isFinite(value) && value>0 ? value : Number.MAX_SAFE_INTEGER;
+    };
+
+    const ao=commercialOrder(a.p);
+    const bo=commercialOrder(b.p);
+    if(ao!==bo) return ao-bo;
+
+    const ap=Number(a.p?.pvp)||0;
+    const bp=Number(b.p?.pvp)||0;
+    if(!ap && bp) return 1;
+    if(ap && !bp) return -1;
+    if(ap!==bp) return ap-bp;
+
+    const av=hxaSearchVariantInfo(a);
+    const bv=hxaSearchVariantInfo(b);
+
+    return collator.compare(av.base,bv.base)
+      || av.special.length-bv.special.length
+      || av.colorRank-bv.colorRank
+      || collator.compare(av.special,bv.special)
+      || collator.compare(av.reference,bv.reference);
+  }
+
   window.HXA_EXPLORER_NATURAL_ORDER = function(product){
     if(!product || typeof product !== 'object') return Number.MAX_SAFE_INTEGER;
 
@@ -2870,40 +2902,43 @@
 
     if(!item) return Number.MAX_SAFE_INTEGER;
 
-    const familyItems=model.allItems.filter(candidate=>candidate.familyKey===item.familyKey);
-
-    // Orden natural del buscador dentro de la familia:
-    // prioridad comercial CSV -> precio -> modelo base -> color -> variante -> referencia.
-    const ordered=familyItems.slice().sort((a,b)=>{
-      // Prioridad comercial mantenible desde catalogo_manual.csv (campo order).
-      // Solo actúa dentro del grupo temático ya correcto.
-      const commercialOrder = product => {
-        const value=Number(product?.order);
-        return Number.isFinite(value) && value>0 ? value : Number.MAX_SAFE_INTEGER;
-      };
-
-      const ao=commercialOrder(a.p);
-      const bo=commercialOrder(b.p);
-      if(ao!==bo) return ao-bo;
-
-      const ap=Number(a.p?.pvp)||0;
-      const bp=Number(b.p?.pvp)||0;
-      if(!ap && bp) return 1;
-      if(ap && !bp) return -1;
-      if(ap!==bp) return ap-bp;
-
-      const av=hxaSearchVariantInfo(a);
-      const bv=hxaSearchVariantInfo(b);
-
-      return collator.compare(av.base,bv.base)
-        || av.special.length-bv.special.length
-        || av.colorRank-bv.colorRank
-        || collator.compare(av.special,bv.special)
-        || collator.compare(av.reference,bv.reference);
-    });
+    const ordered=model.allItems
+      .filter(candidate=>candidate.familyKey===item.familyKey)
+      .sort(compareNaturalSearchItems);
 
     const index=ordered.findIndex(candidate=>candidate.index===item.index);
     return index>=0 ? index : Number.MAX_SAFE_INTEGER;
+  };
+
+  window.HXA_EXPLORER_PREPARE_SEARCH = function(){
+    const signature=productSignature();
+    const model=buildModel(signature);
+    hxaRefreshSearchClassification(signature);
+    const classifications=hxaSearchClassByProduct;
+    const orderByProduct=new WeakMap();
+    const firstProductByRef=new Map();
+
+    for(const item of model.allItems){
+      const ref=norm(item.p?.name||'');
+      if(!firstProductByRef.has(ref)) firstProductByRef.set(ref,item.p);
+    }
+    // Mismo comparador y orden de siempre, calculados una sola vez por familia.
+    // Se renueva en cada consulta para respetar cambios de precio o prioridad.
+    for(const family of model.families){
+      family.items.slice().sort(compareNaturalSearchItems).forEach((item,index)=>{
+        if(!orderByProduct.has(item.p)) orderByProduct.set(item.p,index);
+      });
+    }
+    return {
+      classification:product=>classifications.get(product)||null,
+      naturalOrder(product){
+        if(!product || typeof product !== 'object') return Number.MAX_SAFE_INTEGER;
+        const original=orderByProduct.has(product)
+          ? product
+          : firstProductByRef.get(norm(product?.name||''));
+        return orderByProduct.get(original)??Number.MAX_SAFE_INTEGER;
+      }
+    };
   };
 
 

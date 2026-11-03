@@ -1154,13 +1154,21 @@ function delLinea(i){
   render();
 }
 try{ window.cambiarQtyLinea = cambiarQtyLinea; }catch(e){}
-function calc(){
-  const subtotalBruto = lineas.reduce((s,l)=> l.separador ? s : s + (Number(l.pvp)||0)*(Number(l.qty)||0),0);
-  const base = lineas.reduce((s,l)=> l.separador ? s : s + ((Number(l.pvp)||0)*(Number(l.qty)||0)*(1-(Number(l.dto)||0)/100)),0);
+function calcularTotalesPresupuesto(lineasPresupuesto, porcentajeIva){
+  const productosPresupuesto = (Array.isArray(lineasPresupuesto) ? lineasPresupuesto : [])
+    .filter(l=>l&&!l.separador&&l.tipo!=='separador');
+  const brutoLinea = l=>(Number(l.pvp)||0)*(Number(l.qty??l.cantidad??l.cant)||0);
+  const subtotalBruto = productosPresupuesto.reduce((s,l)=>s+brutoLinea(l),0);
+  // El descuento general ya se copia a dto en cada línea al aplicarlo.
+  // Volver a descontarlo aquí reduciría el importe por segunda vez.
+  const base = productosPresupuesto.reduce((s,l)=>s+brutoLinea(l)*(1-(Number(l.dto??l.descuento)||0)/100),0);
   const dtoLineas = subtotalBruto - base;
-  const ivaPct = Math.max(0, Number($('#iva').value)||0);
+  const ivaPct = Math.max(0, Number(porcentajeIva)||0);
   const iva = base*ivaPct/100;
   return {subtotalBruto,dtoLineas,base,ivaPct,iva,total:base+iva};
+}
+function calc(){
+  return calcularTotalesPresupuesto(lineas, $('#iva').value);
 }
 function moverLinea(i, dir){
   const j = i + dir;
@@ -1584,8 +1592,10 @@ function aplicarPresupuesto(d){
       x.name=String(x.name || x.texto || 'SECCIÓN').toUpperCase();
       x.texto=String(x.texto || x.name || '');
       x.pvp=0; x.qty=1; x.dto=0;
-    }else if(tipo==='linea-vacia' || tipo==='linea_vacia'){
-      x.tipo='linea-vacia';
+    }else{
+      x.qty=x.qty??x.cantidad??x.cant??0;
+      x.dto=x.dto??x.descuento??0;
+      if(tipo==='linea-vacia' || tipo==='linea_vacia') x.tipo='linea-vacia';
     }
     return x;
   }) : [];
@@ -2056,17 +2066,7 @@ async function pdf(presupuestoFuente=null){
     return;
   }
   const doc = new jsPDF({unit:'mm',format:'a4'});
-  const subtotalBrutoPdf = pdfLineas.reduce((sum,l)=> l?.separador ? sum : sum + (Number(l?.pvp)||0)*(Number(l?.qty)||0),0);
-  const basePdf = pdfLineas.reduce((sum,l)=> l?.separador ? sum : sum + ((Number(l?.pvp)||0)*(Number(l?.qty)||0)*(1-(Number(l?.dto)||0)/100)),0);
-  const ivaPctPdf = Math.max(0, Number(pdfCampo('iva',0))||0);
-  const c = {
-    subtotalBruto: subtotalBrutoPdf,
-    dtoLineas: subtotalBrutoPdf-basePdf,
-    base: basePdf,
-    ivaPct: ivaPctPdf,
-    iva: basePdf*ivaPctPdf/100,
-    total: basePdf+(basePdf*ivaPctPdf/100)
-  };
+  const c = calcularTotalesPresupuesto(pdfLineas, pdfCampo('iva',0));
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
   const green = [13,77,49];
@@ -2134,14 +2134,15 @@ async function pdf(presupuestoFuente=null){
   y += identificadorPdf ? 24.9 : 19.5;
 
   const rows = pdfLineas.map(l=>{
-    if(l.separador){
+    if(l.separador || l.tipo==='separador'){
       return [{content:String(l.name || 'SECCIÓN').toUpperCase(), colSpan:6, styles:{fillColor:[229,244,236], textColor:green, fontStyle:'bold', halign:'center', fontSize:8.6, cellPadding:2.1}}];
     }
-    const bruto = (Number(l.pvp)||0)*(Number(l.qty)||0);
-    const dto = Number(l.dto)||0;
+    const cantidad = Number(l.qty??l.cantidad??l.cant)||0;
+    const bruto = (Number(l.pvp)||0)*cantidad;
+    const dto = Number(l.dto??l.descuento)||0;
     const total = bruto*(1-dto/100);
     const desc = descripcionPdfCorta(l);
-    return [l.name, desc, fmt.format(Number(l.pvp)||0), String(l.qty||1), `${dto}%`, fmt.format(total)];
+    return [l.name, desc, fmt.format(Number(l.pvp)||0), String(cantidad||1), `${dto}%`, fmt.format(total)];
   });
 
   doc.autoTable({
@@ -4868,7 +4869,10 @@ pintarCatalogPanel = function(term=catalogTerm){
   const idOf=p=>String(p?.id||p?.mongoId||p?._id||'');
   const listAll=()=>{try{return typeof leerListaPresupuestos==='function'?(leerListaPresupuestos()||[]):[]}catch(e){return[]}};
   const modified=p=>String(p?.updatedAt||p?.guardado||p?.createdAt||p?.fecha||'');
-  function calc(p){let base=0;rows(p).forEach(l=>{const price=Number(l.pvp)||0,d= Math.min(100,Math.max(0,Number(l.dto??l.descuento)||0));base+=price*qty(l)*(1-d/100)});base*=1-Math.min(100,Math.max(0,Number(p?.dtoGeneral)||0))/100;return {count:rows(p).length,total:base*(1+Math.max(0,Number(p?.iva)||0)/100)}}
+  function calc(p){
+    const lineasPresupuesto=rows(p);
+    return {count:lineasPresupuesto.length,...calcularTotalesPresupuesto(lineasPresupuesto,p?.iva)};
+  }
   function date(v){if(!v)return 'Sin fecha';const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v);return new Intl.DateTimeFormat('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d)}
   function searchText(p){
     const rawDate=String(p?.fecha||modified(p)||'');

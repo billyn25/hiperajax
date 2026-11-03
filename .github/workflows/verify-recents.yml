@@ -1,8 +1,8 @@
-name: Verify recent budgets
+name: Verify budgets and search
 on:
   push:
     branches: [main]
-    paths: ['app.js', 'index.html', 'tests/recents.test.cjs', '.github/workflows/verify-recents.yml']
+    paths: ['app.js', 'search_engine.js', 'explorer.js', 'index.html', 'tests/**', '.github/workflows/verify-recents.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -14,9 +14,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Test source with simulated budgets in three time zones
+      - name: Test totals, partial search and recent dates
         run: |
           node --check app.js
+          node --check search_engine.js
+          node --check explorer.js
+          node --test tests/saved-totals.test.cjs tests/search.test.cjs tests/search-integration.test.cjs
           for zone in UTC Europe/Madrid America/Los_Angeles; do
             TZ="$zone" node --test tests/recents.test.cjs
           done
@@ -29,6 +32,8 @@ jobs:
           (async()=>{
             const expectedApp=sha(fs.readFileSync('app.js'));
             const expectedHtml=sha(fs.readFileSync('index.html'));
+            const expectedSearch=sha(fs.readFileSync('search_engine.js'));
+            const expectedExplorer=sha(fs.readFileSync('explorer.js'));
             const base='https://ajaxcalc.netlify.app/';
             const started=Date.now();
             for(let attempt=1;attempt<=12;attempt++){
@@ -42,9 +47,19 @@ jobs:
                 const response=await fetch(new URL(app,base),{cache:'no-store',signal:AbortSignal.timeout(10000)});
                 if(!response.ok)throw new Error('App HTTP '+response.status);
                 const code=await response.text();
-                const matches=sha(Buffer.from(code))===expectedApp && sha(Buffer.from(html))===expectedHtml;
-                console.log(JSON.stringify({attempt,commit:process.env.GITHUB_SHA,publishedApp:app,matchesCommit:matches,hasDateFilter:code.includes('function pmIsRecent('),oldTop20:code.includes("if(pmView.type==='recent')list=list.slice(0,20);")}));
-                if(matches){console.log('PRODUCTION_VERIFIED: published HTML and app exactly match this tested commit.');return;}
+                const search=scripts.find(x=>/(?:^|\/)search_engine\.js(?:\?|$)/.test(x));
+                if(!search)throw new Error('Search script not found');
+                const searchResponse=await fetch(new URL(search,base),{cache:'no-store',signal:AbortSignal.timeout(10000)});
+                if(!searchResponse.ok)throw new Error('Search HTTP '+searchResponse.status);
+                const searchCode=await searchResponse.text();
+                const explorer=scripts.find(x=>/(?:^|\/)explorer\.js(?:\?|$)/.test(x));
+                if(!explorer)throw new Error('Explorer script not found');
+                const explorerResponse=await fetch(new URL(explorer,base),{cache:'no-store',signal:AbortSignal.timeout(10000)});
+                if(!explorerResponse.ok)throw new Error('Explorer HTTP '+explorerResponse.status);
+                const explorerCode=await explorerResponse.text();
+                const matches=sha(Buffer.from(code))===expectedApp && sha(Buffer.from(html))===expectedHtml && sha(Buffer.from(searchCode))===expectedSearch && sha(Buffer.from(explorerCode))===expectedExplorer;
+                console.log(JSON.stringify({attempt,commit:process.env.GITHUB_SHA,publishedApp:app,publishedSearch:search,publishedExplorer:explorer,matchesCommit:matches,hasDateFilter:code.includes('function pmIsRecent('),hasSharedTotals:code.includes('function calcularTotalesPresupuesto(')}));
+                if(matches){console.log('PRODUCTION_VERIFIED: published HTML, app, search and Explorer exactly match this tested commit.');return;}
               }catch(e){console.log('Published check: '+e.message);}
               if(Date.now()-started>90000)break;
               if(attempt<12)await wait(5000);
