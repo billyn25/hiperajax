@@ -265,6 +265,8 @@ function esTarjetaSD(classification = {}) {
 function esPilaAlimentacion(classification = {}, row = {}, name = "") {
   const branch = textoClasificacionProveedor(classification);
   if (!/bateriasypilas/.test(branch)) return false;
+  // Batería externa Safire para centrales Ajax; conservar la tarifa y el stock del CSV.
+  if (name.trim().toUpperCase() === "SF-BATT-75V-3200WH") return true;
 
   const productText = normalizarClave([
     name,

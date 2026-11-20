@@ -11,7 +11,7 @@ const CFG=[
    {family:'Discos duros',label:'Discos duros',refPrefixes:['HD1TB','HD2TB','HD3TB','HD4TB','HD6TB','HD8TB']},
    {family:'Tarjetas SD',label:'Tarjetas SD',onlyGroups:['32 GB','64 GB','128 GB']}
  ]},
- {family:'Alimentación',label:'Alimentación',onlyRefs:['DC12V2A-IP66','DC12V2A','DC12V2A-L','DC1215-W','DC1220-W','DC12V5A','INJ-POE-30W-V2','RG-POE-AT30']},
+ {family:'Alimentación',label:'Alimentación',onlyRefs:['SF-BATT-75V-3200WH','DC12V2A-IP66','DC12V2A','DC12V2A-L','DC1215-W','DC1220-W','DC12V5A','INJ-POE-30W-V2','RG-POE-AT30']},
  {family:'Switches no gestionables',label:'Switches PoE',onlyRefs:['GAG1105PD', 'VDMS105GP', 'VDMS108GP', 'SW1008POE-100-E', 'SW0604POE-65-E', 'SF-SW0604HIPOE-60', 'SW8FE2FE-100W']},
  {family:'Racks de pared',label:'Racks'}
 ];

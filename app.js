@@ -2914,8 +2914,9 @@ function hxUnirCatalogos(base, manual){
   return [...mapa.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
 }
 
-const HX_CATALOGO_LOCAL_KEY='hx_catalogo_remoto_csv_v5_related';
-const HX_CATALOGO_LOCAL_OLD_KEYS=['hx_catalogo_remoto_csv_v1','hx_catalogo_remoto_csv_v2','hx_catalogo_remoto_csv_v3','hx_catalogo_remoto_csv_v4'];
+const HX_CATALOGO_VERSION='v6';
+const HX_CATALOGO_LOCAL_KEY='hx_catalogo_remoto_csv_'+HX_CATALOGO_VERSION;
+const HX_CATALOGO_LOCAL_OLD_KEYS=['hx_catalogo_remoto_csv_v1','hx_catalogo_remoto_csv_v2','hx_catalogo_remoto_csv_v3','hx_catalogo_remoto_csv_v4','hx_catalogo_remoto_csv_v5_related'];
 const HX_CATALOGO_LOCAL_TTL=48*60*60*1000;
 
 const HX_CATALOGO_BASELINE_KEY='hx_catalogo_refs_baseline_v1';
@@ -3054,7 +3055,7 @@ async function cargarCatalogo(){
   try{
     let baseTxt = '';
     try{
-      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v=213-related');
+      baseTxt = await hxLeerCSV('/.netlify/functions/catalogo-remoto?v='+HX_CATALOGO_VERSION);
     }catch(errorRemoto){
       console.warn('Catálogo remoto no disponible; se usa la copia local.', errorRemoto);
       baseTxt = await hxLeerCSV(CSV_URL);

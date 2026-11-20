@@ -1685,7 +1685,7 @@
       const excludedPack = /batterybox|batterykit|batterypack|batteryholder|batterycase|powerbank|acumulador|accumulator|modulobateria|batterymodule/.test(compact);
       const pile = /baterias? y pilas|batteries and cells/.test(hierarchy)
         && !excludedPack
-        && (/pila|pilas|battery cell|coin cell|button cell/.test(source)
+        && (compact==='sfbatt75v3200wh' || /pila|pilas|battery cell|coin cell|button cell/.test(source)
           || /battcr|cr\d{3,4}[a-z]?|lr\d+[a-z]?|er\d+[a-z]?|batt(?:aa|aaa|aaaa|9v)/.test(compact));
       // Los atajos de Alimentación son excluyentes por rama/función.
       // Una pila puede mencionar "alimentación" en su descripción, pero nunca debe
